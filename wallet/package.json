@@ -4,12 +4,18 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --port 4444",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "ethers": "6.13.3",
+    "@0xsequence/design-system": "1.7.8",
+    "@0xsequence/network": "2.0.11",
+    "@0xsequence/waas": "2.0.11",
+    "@react-oauth/google": "^0.12.1",
+    "framer-motion": "^11.5.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
