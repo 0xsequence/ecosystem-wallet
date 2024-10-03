@@ -75,128 +75,152 @@ export const Auth = () => {
     setIsEmailConflictModalOpen(true);
   });
 
+  const isPopup = parent.window.opener !== null;
+
   return (
     <>
-      <Box
-        flexDirection="column"
-        gap="2"
-        marginY="4"
-        alignItems="center"
-        justifyContent="center"
-      >
-        <Box marginBottom="2">
-          <Text variant="large" color="text100" fontWeight="bold">
-            Google Login
-          </Text>
-        </Box>
-        <GoogleOAuthProvider clientId={googleClientId}>
-          <GoogleLogin
-            key="google"
-            onSuccess={handleGoogleLogin}
-            shape="circle"
-            width={230}
-          />
-        </GoogleOAuthProvider>
+      <Box alignItems="center" justifyContent="center" marginTop="20">
+        <Box
+          flexDirection="column"
+          gap="2"
+          marginY="4"
+          alignItems="center"
+          justifyContent="center"
+          style={{ maxWidth: "600px" }}
+        >
+          <Box alignItems="center" flexDirection="column" marginBottom="10">
+            <Text variant="large" color="text100" fontWeight="bold">
+              Demo Wallet
+            </Text>
+            {isPopup && (
+              <Text variant="normal" color="text80">
+                {" "}
+                Sign in to your Demo Wallet account to give access to{" "}
+                {parent.window.opener.location.host}
+              </Text>
+            )}
+            {!isPopup && (
+              <Text variant="normal" color="text80">
+                {" "}
+                Sign in to your Demo Wallet account
+              </Text>
+            )}
+          </Box>
 
-        <Divider background="buttonGlass" width="full" />
+          <Box marginBottom="2">
+            <Text variant="medium" color="text100" fontWeight="bold">
+              Google Login
+            </Text>
+          </Box>
+          <GoogleOAuthProvider clientId={googleClientId}>
+            <GoogleLogin
+              key="google"
+              onSuccess={handleGoogleLogin}
+              shape="circle"
+              width={230}
+            />
+          </GoogleOAuthProvider>
 
-        <Box>
-          <Text variant="large" color="text100" fontWeight="bold">
-            Email Login
-          </Text>
-        </Box>
+          <Divider background="buttonGlass" width="full" />
 
-        {sendChallengeAnswer ? (
-          <Box flexDirection="column">
-            <Box>
-              <Text
-                marginTop="2"
-                variant="normal"
-                color="text80"
+          <Box>
+            <Text variant="medium" color="text100" fontWeight="bold">
+              Email Login
+            </Text>
+          </Box>
+
+          {sendChallengeAnswer ? (
+            <Box flexDirection="column">
+              <Box>
+                <Text
+                  marginTop="2"
+                  variant="normal"
+                  color="text80"
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  Enter code received in email.
+                </Text>
+              </Box>
+              <Box marginTop="4">
+                <PINCodeInput value={code} digits={6} onChange={setCode} />
+              </Box>
+
+              <Box
+                gap="2"
+                marginY="4"
                 alignItems="center"
                 justifyContent="center"
               >
-                Enter code received in email.
+                {emailAuthLoading ? (
+                  <Spinner />
+                ) : (
+                  <Button
+                    variant="primary"
+                    disabled={code.includes("")}
+                    label="Verify"
+                    onClick={() => sendChallengeAnswer(code.join(""))}
+                    data-id="verifyButton"
+                  />
+                )}
+              </Box>
+            </Box>
+          ) : (
+            <Box marginTop="2" marginBottom="4">
+              <Text variant="normal" color="text80">
+                Enter your email to recieve a code to login and create your
+                wallet. <br />
+                Please check your spam folder if you don't see it in your inbox.
               </Text>
-            </Box>
-            <Box marginTop="4">
-              <PINCodeInput value={code} digits={6} onChange={setCode} />
-            </Box>
 
-            <Box
-              gap="2"
-              marginY="4"
-              alignItems="center"
-              justifyContent="center"
-            >
-              {emailAuthLoading ? (
-                <Spinner />
-              ) : (
-                <Button
-                  variant="primary"
-                  disabled={code.includes("")}
-                  label="Verify"
-                  onClick={() => sendChallengeAnswer(code.join(""))}
-                  data-id="verifyButton"
+              <Box marginTop="6">
+                <TextInput
+                  name="email"
+                  type="email"
+                  onChange={(ev: {
+                    target: { value: SetStateAction<string> };
+                  }) => {
+                    setEmail(ev.target.value);
+                  }}
+                  ref={inputRef}
+                  onKeyDown={(ev: { key: string }) => {
+                    if (email && ev.key === "Enter") {
+                      initiateEmailAuth(email);
+                    }
+                  }}
+                  onBlur={() => setEmailWarning(!!email && !isEmailValid)}
+                  value={email}
+                  placeholder="hello@example.com"
+                  required
+                  data-id="loginEmail"
                 />
-              )}
+                {showEmailWarning && (
+                  <Text as="p" variant="small" color="negative" marginY="2">
+                    Invalid email address
+                  </Text>
+                )}
+              </Box>
+              <Box
+                gap="2"
+                marginY="4"
+                alignItems="center"
+                justifyContent="center"
+              >
+                {emailAuthLoading ? (
+                  <Spinner />
+                ) : (
+                  <Button
+                    variant="primary"
+                    disabled={!isEmailValid}
+                    label="Continue"
+                    onClick={() => initiateEmailAuth(email)}
+                    data-id="continueButton"
+                  />
+                )}
+              </Box>
             </Box>
-          </Box>
-        ) : (
-          <Box marginTop="2" marginBottom="4">
-            <Text variant="normal" color="text80">
-              Enter your email to recieve a code to login and create your
-              wallet. <br />
-              Please check your spam folder if you don't see it in your inbox.
-            </Text>
-
-            <Box marginTop="6">
-              <TextInput
-                name="email"
-                type="email"
-                onChange={(ev: {
-                  target: { value: SetStateAction<string> };
-                }) => {
-                  setEmail(ev.target.value);
-                }}
-                ref={inputRef}
-                onKeyDown={(ev: { key: string }) => {
-                  if (email && ev.key === "Enter") {
-                    initiateEmailAuth(email);
-                  }
-                }}
-                onBlur={() => setEmailWarning(!!email && !isEmailValid)}
-                value={email}
-                placeholder="hello@example.com"
-                required
-                data-id="loginEmail"
-              />
-              {showEmailWarning && (
-                <Text as="p" variant="small" color="negative" marginY="2">
-                  Invalid email address
-                </Text>
-              )}
-            </Box>
-            <Box
-              gap="2"
-              marginY="4"
-              alignItems="center"
-              justifyContent="center"
-            >
-              {emailAuthLoading ? (
-                <Spinner />
-              ) : (
-                <Button
-                  variant="primary"
-                  disabled={!isEmailValid}
-                  label="Continue"
-                  onClick={() => initiateEmailAuth(email)}
-                  data-id="continueButton"
-                />
-              )}
-            </Box>
-          </Box>
-        )}
+          )}
+        </Box>
       </Box>
 
       {isEmailConflictModalOpen && emailConflictInfo && (
