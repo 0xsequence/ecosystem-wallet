@@ -1,4 +1,4 @@
-import { SetStateAction, useRef, useState } from "react";
+import { SetStateAction, useEffect, useRef, useState } from "react";
 import {
   CredentialResponse,
   GoogleLogin,
@@ -22,6 +22,10 @@ import { randomName } from "../utils/string";
 import { EmailConflictWarning } from "../components/EmailConflictWarning";
 
 import { sequenceWaas, googleClientId } from "../waasSetup";
+import { WalletTransport } from "../walletTransport";
+import { Deferred } from "../utils/promise";
+
+const walletTransport = new WalletTransport();
 
 export const Auth = () => {
   const [walletAddress, setWalletAddress] = useState<string | undefined>();
@@ -37,6 +41,7 @@ export const Auth = () => {
         randomName()
       );
       setWalletAddress(res.wallet);
+      walletTransport.setWalletAddress(res.wallet);
     } catch (error) {
       console.error(error);
     }
@@ -52,6 +57,7 @@ export const Auth = () => {
     sessionName: randomName(),
     onSuccess: async ({ wallet }) => {
       setWalletAddress(wallet);
+      walletTransport.setWalletAddress(wallet);
     },
   });
 
@@ -75,10 +81,74 @@ export const Auth = () => {
     setIsEmailConflictModalOpen(true);
   });
 
-  const isPopup = parent.window.opener !== null;
+  useEffect(() => {
+    sequenceWaas.isSignedIn().then(async (isSignedIn) => {
+      if (isSignedIn) {
+        const address = await sequenceWaas.getAddress();
+        walletTransport.setWalletAddress(address);
+        setWalletAddress(address);
+      }
+    });
+  }, []);
+
+  const isPopup = window.opener !== null;
+
+  const [connectionRequestWithOrigin, setConnectionRequestWithOrigin] =
+    useState<string | undefined>();
+  const connectionPromiseRef = useRef<Deferred<boolean> | null>(null);
+
+  walletTransport.setConnectionPromptCallback(async (origin: string) => {
+    // Implement your custom UI logic here
+    // Return a Promise that resolves to true if the user accepts, false otherwise
+    setConnectionRequestWithOrigin(origin);
+    const deferred = new Deferred<boolean>();
+    connectionPromiseRef.current = deferred;
+    return deferred.promise;
+  });
+
+  const handleApproveConnection = () => {
+    if (connectionPromiseRef.current) {
+      connectionPromiseRef.current.resolve(true);
+      setConnectionRequestWithOrigin(undefined);
+    }
+  };
+
+  const handleRejectConnection = () => {
+    if (connectionPromiseRef.current) {
+      connectionPromiseRef.current.resolve(false);
+      setConnectionRequestWithOrigin(undefined);
+    }
+  };
 
   return (
     <>
+      {walletAddress && (
+        <Box>
+          <Text variant="large" color="text100" fontWeight="bold">
+            wallet: {walletAddress}
+          </Text>
+        </Box>
+      )}
+
+      {connectionRequestWithOrigin && (
+        <Box>
+          <Text variant="large" color="text100" fontWeight="bold">
+            Connection request from {connectionRequestWithOrigin}
+          </Text>
+          <Box marginTop="4">
+            <Button
+              variant="primary"
+              label="Approve"
+              onClick={handleApproveConnection}
+            />
+            <Button
+              variant="primary"
+              label="Reject"
+              onClick={handleRejectConnection}
+            />
+          </Box>
+        </Box>
+      )}
       <Box alignItems="center" justifyContent="center" marginTop="20">
         <Box
           flexDirection="column"
@@ -96,7 +166,6 @@ export const Auth = () => {
               <Text variant="normal" color="text80">
                 {" "}
                 Sign in to your Demo Wallet account to give access to{" "}
-                {parent.window.opener.location.host}
               </Text>
             )}
             {!isPopup && (
