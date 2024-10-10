@@ -158,9 +158,11 @@ export class ProviderTransport {
           "width=375,height=667"
         );
         if (!this.walletWindow) {
-          reject(new Error(
-            "Failed to open wallet window. Please check your pop-up blocker settings."
-          ));
+          reject(
+            new Error(
+              "Failed to open wallet window. Please check your pop-up blocker settings."
+            )
+          );
           return;
         }
 

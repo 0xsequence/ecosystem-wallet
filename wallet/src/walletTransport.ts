@@ -1,13 +1,11 @@
-type ConnectionState = "disconnected" | "connecting" | "connected";
+import { proxy, subscribe } from "valtio";
 
-interface ApprovedOrigin {
+type SignedInState = { address: string } | null;
+
+interface ConnectedOrigin {
   origin: string;
   walletAddress: string;
 }
-
-type ConnectionPromptCallback = (origin: string) => Promise<boolean>;
-
-type SignedInStatus = { address: string } | false | undefined;
 
 export enum HandlerType {
   SEND_TRANSACTION = "SEND_TRANSACTION",
@@ -24,105 +22,96 @@ const HandlerMethods = {
   ],
 };
 
+interface WalletTransportState {
+  connectedOrigins: ConnectedOrigin[];
+  signedInState: SignedInState;
+  areHandlersReady: boolean;
+}
+
 export class WalletTransport {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private state: WalletTransportState;
+  private connectionPromptCallback:
+    | ((origin: string) => Promise<boolean>)
+    | undefined;
   private handlers: Map<HandlerType, (params: any[]) => Promise<any>> =
     new Map();
-  private connectionState: ConnectionState = "disconnected";
-  private approvedOrigins: ApprovedOrigin[] = [];
-  private currentOrigin: string | undefined;
-  private signedInStatus: SignedInStatus = undefined;
-  private connectionPromptCallback: ConnectionPromptCallback | undefined;
+  private pendingEvent: MessageEvent | undefined;
 
   constructor() {
+    this.state = proxy<WalletTransportState>({
+      connectedOrigins: localStorage.getItem("connectedOrigins")
+        ? JSON.parse(localStorage.getItem("connectedOrigins")!)
+        : [],
+      signedInState: null,
+      areHandlersReady: false,
+    });
+
     window.addEventListener("message", this.handleMessage);
-    this.loadApprovedOrigins();
-  }
 
-  setSignedInStatus(status: SignedInStatus) {
-    this.signedInStatus = status;
-    console.log(`Signed in status set:`, status);
+    this.sendReadyMessage();
 
-    if (status && "address" in status) {
-      const currentOrigin = window.location.origin;
-      const approvedOrigin = this.approvedOrigins.find(
-        (ao) => ao.origin === currentOrigin
-      );
-      if (approvedOrigin && status.address === approvedOrigin.walletAddress) {
-        this.connectionState = "connected";
-        this.currentOrigin = currentOrigin;
-      }
-    }
-    if (status === false) {
-      localStorage.clear();
-      this.approvedOrigins = [];
-    }
-  }
+    const unsubscribe = subscribe(this.state, () => {
+      console.log("state changed");
 
-  async waitForSignedInStatus(): Promise<void> {
-    if (this.signedInStatus && "address" in this.signedInStatus) {
-      return; // Already signed in
-    }
-    return new Promise((resolve) => {
-      const checkStatus = () => {
-        if (this.signedInStatus && "address" in this.signedInStatus) {
-          resolve();
-        } else {
-          setTimeout(checkStatus, 100); // Check every 100ms
+      if (
+        this.state.signedInState &&
+        this.state.areHandlersReady &&
+        this.pendingEvent
+      ) {
+        unsubscribe();
+
+        console.log("processing pending event", this.pendingEvent);
+        // If the pending event is not a connection request, we can continue because user has already signed in to come to this point
+        // and saw connection prompt on sign in screen
+        if (this.pendingEvent.data.type !== "connection") {
+          this.state.connectedOrigins = [
+            {
+              origin: this.pendingEvent.origin,
+              walletAddress: this.state.signedInState.address,
+            },
+          ];
         }
-      };
-      checkStatus();
+        this.handleMessage(this.pendingEvent as MessageEvent);
+        this.pendingEvent = undefined;
+      }
     });
   }
 
-  setConnectionPromptCallback(callback: ConnectionPromptCallback) {
+  setSignedInState(state: SignedInState) {
+    this.state.signedInState = state;
+  }
+
+  setConnectionPromptCallback(callback: (origin: string) => Promise<boolean>) {
     this.connectionPromptCallback = callback;
   }
 
-  private loadApprovedOrigins() {
-    const savedOrigins = localStorage.getItem("approvedOrigins");
-    if (savedOrigins) {
-      this.approvedOrigins = JSON.parse(savedOrigins);
-    }
-  }
-
-  private saveApprovedOrigins() {
-    localStorage.setItem(
-      "approvedOrigins",
-      JSON.stringify(this.approvedOrigins)
-    );
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   registerHandler(type: HandlerType, handler: (params: any[]) => Promise<any>) {
+    console.log("registering handler", type);
     this.handlers.set(type, handler);
-
-    if (this.isAllHandlersRegistered()) {
-      this.sendReadyMessage();
+    if (this.areAllHandlersRegistered(this.handlers)) {
+      this.state.areHandlersReady = true;
     }
   }
 
-  private isAllHandlersRegistered(): boolean {
-    return Object.values(HandlerType).every((type) => this.handlers.has(type));
-  }
+  private handleMessage = (event: MessageEvent) => {
+    const data = event.data;
 
-  private sendReadyMessage() {
-    if (window.opener) {
-      window.opener.postMessage("ready", "*");
-    }
-  }
-
-  private handleMessage = async (event: MessageEvent) => {
-    const message = event.data;
-
-    if (message.type === "connection" || message.type === "request") {
-      console.log("Received message in wallet:", event.data);
+    if (data.type !== "connection" && data.type !== "request") {
+      return;
     }
 
-    if (message.type === "connection") {
-      await this.handleConnectionRequest(event);
-    } else if (message.type === "request") {
-      await this.handleRequest(event);
+    console.log("Received message data:", data);
+
+    if (!this.state.signedInState || !this.state.areHandlersReady) {
+      console.log("Not ready to process event, saving as pending event");
+      this.pendingEvent = event;
+    } else {
+      console.log("Ready, processing event");
+      if (data.type === "connection") {
+        this.handleConnectionRequest(event);
+      } else {
+        this.handleRequest(event);
+      }
     }
   };
 
@@ -130,104 +119,68 @@ export class WalletTransport {
     const { id } = event.data;
     const origin = event.origin;
 
-    if (this.connectionState !== "disconnected") {
-      this.rejectConnection(
+    if (this.isConnectedToOrigin(origin)) {
+      this.sendConnectionResponse(event, id, "accepted");
+      return;
+    }
+
+    if (!this.connectionPromptCallback) {
+      this.sendConnectionResponse(
         event,
         id,
-        origin,
-        "Already connected or connecting"
+        "rejected",
+        "Connection prompt callback not set"
       );
       return;
     }
 
-    this.connectionState = "connecting";
-
     try {
-      const userAccepted = await this.promptForConnection(origin);
+      const userAccepted = await this.connectionPromptCallback(origin);
       if (userAccepted) {
-        this.approveConnection(event, id, origin);
+        this.addConnectedOrigin(origin);
+        this.sendConnectionResponse(event, id, "accepted");
       } else {
-        this.rejectConnection(event, id, origin, "User rejected connection");
+        this.sendConnectionResponse(
+          event,
+          id,
+          "rejected",
+          "User rejected connection"
+        );
       }
     } catch (error) {
-      this.rejectConnection(event, id, origin, (error as Error).message);
-    }
-  }
-
-  private async promptForConnection(origin: string): Promise<boolean> {
-    if (!this.connectionPromptCallback) {
-      throw new Error("Connection prompt callback not set");
-    }
-    return await this.connectionPromptCallback(origin);
-  }
-
-  private approveConnection(event: MessageEvent, id: string, origin: string) {
-    if (!this.signedInStatus || !("address" in this.signedInStatus)) {
-      throw new Error("Not signed in");
-    }
-
-    this.connectionState = "connected";
-    this.currentOrigin = origin;
-    event.source?.postMessage(
-      {
-        type: "connection",
+      this.sendConnectionResponse(
+        event,
         id,
-        status: "accepted",
-        walletAddress: this.signedInStatus.address,
-      },
-      { targetOrigin: origin }
-    );
-
-    this.approvedOrigins = this.approvedOrigins.filter(
-      (ao) => ao.origin !== origin
-    );
-    this.approvedOrigins.push({
-      origin,
-      walletAddress: this.signedInStatus.address,
-    });
-    this.saveApprovedOrigins();
-  }
-
-  private rejectConnection(
-    event: MessageEvent,
-    id: string,
-    origin: string,
-    reason: string
-  ) {
-    this.connectionState = "disconnected";
-    this.currentOrigin = undefined;
-    event.source?.postMessage(
-      { type: "connection", id, status: "rejected", reason },
-      { targetOrigin: origin }
-    );
+        "rejected",
+        (error as Error).message
+      );
+    }
   }
 
   private async handleRequest(event: MessageEvent) {
     const request = event.data;
 
-    if (request.type !== "request") {
+    if (request.type !== "request" || !this.isConnectedToOrigin(event.origin)) {
+      console.log("first if");
+      this.sendErrorResponse(event, request.id, "Not connected to this origin");
       return;
     }
 
     const handlerType = this.getHandlerTypeForMethod(request.method);
     if (!handlerType || !this.handlers.has(handlerType)) {
-      console.log(`No handler registered for method: ${request.method}`);
+      console.log("second if");
+      this.sendErrorResponse(
+        event,
+        request.id,
+        `Unsupported method: ${request.method}`
+      );
       return;
     }
 
     try {
-      // Wait for signed-in status with a timeout
-      await Promise.race([
-        this.waitForSignedInStatus(),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error("Timed out waiting for sign-in")), 300000) // 5 minutes timeout
-        )
-      ]);
-
-      await this.waitForConnection(event.origin);
-
       const handler = this.handlers.get(handlerType);
       if (handler) {
+        console.log("third if");
         const result = await handler(request.params);
         this.sendResponse(event, request.id, result);
       }
@@ -245,44 +198,21 @@ export class WalletTransport {
     return undefined;
   }
 
-  private async waitForConnection(
-    origin: string,
-    timeoutMs: number = 300000
-  ): Promise<void> {
-    await Promise.race([
-      this.waitForSignedInStatus(),
-      new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Connection timeout")), timeoutMs)
-      ),
-    ]);
-
-    if (this.connectionState === "connected" && this.currentOrigin === origin) {
-      return;
+  private sendConnectionResponse(
+    event: MessageEvent,
+    id: string,
+    status: "accepted" | "rejected",
+    reason?: string
+  ) {
+    const response: any = { type: "connection", id, status };
+    if (status === "accepted" && this.state.signedInState) {
+      response.walletAddress = this.state.signedInState.address;
+    } else if (status === "rejected" && reason) {
+      response.reason = reason;
     }
-
-    if (this.connectionState === "disconnected") {
-      const approvedOrigin = this.approvedOrigins.find(
-        (ao) => ao.origin === origin
-      );
-      if (
-        approvedOrigin &&
-        this.signedInStatus &&
-        "address" in this.signedInStatus &&
-        this.signedInStatus.address === approvedOrigin.walletAddress
-      ) {
-        console.log("Auto-connecting to approved origin");
-        this.connectionState = "connected";
-        this.currentOrigin = origin;
-        return;
-      }
-    }
-
-    throw new Error(
-      "Connection failed: Not an approved origin or wallet address mismatch"
-    );
+    event.source?.postMessage(response, { targetOrigin: event.origin });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private sendResponse(event: MessageEvent, id: string, result: any) {
     event.source?.postMessage(
       { type: "request", id, result },
@@ -301,33 +231,53 @@ export class WalletTransport {
     );
   }
 
-  disconnect() {
-    if (this.currentOrigin) {
-      this.approvedOrigins = this.approvedOrigins.filter(
-        (ao) => ao.origin !== this.currentOrigin
-      );
-      this.saveApprovedOrigins();
-    }
-    this.connectionState = "disconnected";
-    this.currentOrigin = undefined;
+  private isConnectedToOrigin(origin: string): boolean {
+    console.log("state.connectedOrigins", this.state.connectedOrigins);
+    console.log("origin", origin);
+    return this.state.connectedOrigins.some((co) => co.origin === origin);
   }
 
-  isConnected(): boolean {
-    return (
-      this.connectionState === "connected" &&
-      !!this.currentOrigin &&
-      !!this.signedInStatus &&
-      "address" in this.signedInStatus
+  private addConnectedOrigin(origin: string) {
+    if (this.state.signedInState) {
+      this.state.connectedOrigins.push({
+        origin,
+        walletAddress: this.state.signedInState.address,
+      });
+      this.saveConnectedOrigins();
+    }
+  }
+
+  private saveConnectedOrigins() {
+    localStorage.setItem(
+      "connectedOrigins",
+      JSON.stringify(this.state.connectedOrigins)
     );
   }
 
-  getCurrentOrigin(): string | undefined {
-    return this.currentOrigin;
+  private areAllHandlersRegistered(
+    handlers: Map<HandlerType, (params: any[]) => Promise<any>>
+  ): boolean {
+    return Object.values(HandlerType).every((type) => handlers.has(type));
+  }
+
+  private sendReadyMessage() {
+    if (window.opener) {
+      window.opener.postMessage("ready", "*");
+    }
+  }
+
+  disconnect(origin: string) {
+    this.state.connectedOrigins = this.state.connectedOrigins.filter(
+      (co) => co.origin !== origin
+    );
+    this.saveConnectedOrigins();
+  }
+
+  isConnected(origin: string): boolean {
+    return this.isConnectedToOrigin(origin) && !!this.state.signedInState;
   }
 
   getWalletAddress(): string | undefined {
-    return this.signedInStatus && "address" in this.signedInStatus
-      ? this.signedInStatus.address
-      : undefined;
+    return this.state.signedInState?.address;
   }
 }

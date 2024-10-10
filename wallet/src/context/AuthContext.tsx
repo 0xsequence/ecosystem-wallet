@@ -27,23 +27,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       if (signedIn) {
         const address = await sequenceWaas.getAddress();
         setAuthState({ status: "signedIn", address });
-        walletTransport.setSignedInStatus({ address });
+        walletTransport.setSignedInState({ address });
       } else {
         setAuthState({ status: "signedOut" });
-        walletTransport.setSignedInStatus(false);
+        walletTransport.setSignedInState(null);
       }
     });
   }, []);
 
   const setWalletAddress = (address: string) => {
     setAuthState({ status: "signedIn", address });
-    walletTransport.setSignedInStatus({ address });
+    walletTransport.setSignedInState({ address });
   };
 
   const signOut = async () => {
     await sequenceWaas.dropSession();
     setAuthState({ status: "signedOut" });
-    walletTransport.setSignedInStatus(false);
+    walletTransport.setSignedInState(null);
+    localStorage.clear();
   };
 
   return (
