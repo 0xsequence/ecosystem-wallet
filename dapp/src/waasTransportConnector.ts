@@ -61,6 +61,7 @@ export function sequenceWaasTransportWallet(
       }
     },
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async connect(_connectInfo) {
       const provider = await this.getProvider();
       let walletAddress = provider.transport.getWalletAddress();
@@ -85,15 +86,7 @@ export function sequenceWaasTransportWallet(
     async disconnect() {
       const provider = await this.getProvider();
 
-      // TODO handle disconnect
-
-      // try {
-      //   await provider.sequenceWaas.dropSession({
-      //     sessionId: await provider.sequenceWaas.getSessionId(),
-      //   });
-      // } catch (e) {
-      //   console.log(e);
-      // }
+      provider.transport.disconnect();
 
       await config.storage?.removeItem(LocalStorageKey.WaasActiveLoginType);
     },
@@ -117,21 +110,7 @@ export function sequenceWaasTransportWallet(
     async isAuthorized() {
       const provider = await this.getProvider();
 
-      return true;
-
-      /// TODO Handle properly
-
-      // const activeWaasOption = await config.storage?.getItem(
-      //   LocalStorageKey.WaasActiveLoginType
-      // );
-      // if (params.loginType !== activeWaasOption) {
-      //   return false;
-      // }
-      // try {
-      //   return await provider.sequenceWaas.isSignedIn();
-      // } catch (e) {
-      //   return false;
-      // }
+      return provider.transport.getWalletAddress() !== undefined;
     },
 
     async switchChain({ chainId }) {
@@ -166,6 +145,7 @@ export function sequenceWaasTransportWallet(
       // provider.setDefaultChainId(normalizeChainId(chain))
     },
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async onConnect(_connectInfo) {},
 
     async onDisconnect() {
@@ -238,7 +218,7 @@ export class SequenceWaasTransportProvider
         throw new Error("No params");
       }
 
-      const response = await this.transport.sendRequest("request", params);
+      const response = await this.transport.sendRequest(method, params);
 
       console.log("response", response);
 
@@ -266,7 +246,7 @@ export class SequenceWaasTransportProvider
         // TODO check again, but it should always have params here
         throw new Error("No params");
       }
-      const response = await this.transport.sendRequest("request", params);
+      const response = await this.transport.sendRequest(method, params);
 
       return response.data.signature;
     }

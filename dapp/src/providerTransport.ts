@@ -99,9 +99,11 @@ export class ProviderTransport {
           this.connectionState = "connected";
           this.saveSession(response.walletAddress);
           resolve({ walletAddress: response.walletAddress });
+          this.walletWindow?.close();
         } else {
           this.connectionState = "disconnected";
           reject(new Error("Connection rejected"));
+          this.walletWindow?.close();
         }
       });
 
@@ -119,6 +121,20 @@ export class ProviderTransport {
     const request = { type: "request", id, method, params };
 
     return new Promise((resolve, reject) => {
+      const sendMessage = async () => {
+        if (!this.isWalletOpen()) {
+          try {
+            await this.openWalletAndPostMessage(request);
+          } catch (error) {
+            this.callbacks.delete(id);
+            reject(error);
+            return;
+          }
+        } else {
+          this.postMessageToWallet(request);
+        }
+      };
+
       this.callbacks.set(id, (response) => {
         if (response.error) {
           reject(new Error(response.error.message));
@@ -127,44 +143,41 @@ export class ProviderTransport {
         }
       });
 
-      if (!this.isWalletOpen()) {
-        this.handleWalletClosed();
-        reject(new WalletClosedError());
-      } else {
-        this.walletWindow!.postMessage(request, {
-          targetOrigin: this.walletOrigin,
-        });
-      }
+      sendMessage().catch(reject);
     });
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private openWalletAndPostMessage(message: any) {
-    console.log("Opening wallet and posting message:", message);
-    if (!this.isWalletOpen()) {
-      this.walletWindow = window.open(
-        this.walletOrigin,
-        "Wallet",
-        "width=375,height=667"
-      );
-      if (!this.walletWindow) {
-        throw new Error(
-          "Failed to open wallet window. Please check your pop-up blocker settings."
+  private openWalletAndPostMessage(message: any): Promise<void> {
+    return new Promise((resolve, reject) => {
+      console.log("Opening wallet and posting message:", message);
+      if (!this.isWalletOpen()) {
+        this.walletWindow = window.open(
+          this.walletOrigin,
+          "Wallet",
+          "width=375,height=667"
         );
-      }
-
-      // Wait for the wallet to send a ready message
-      const waitForReady = (event: MessageEvent) => {
-        if (event.origin === this.walletOrigin && event.data === "ready") {
-          console.log("Received ready message from wallet");
-          window.removeEventListener("message", waitForReady);
-          this.postMessageToWallet(message);
+        if (!this.walletWindow) {
+          reject(new Error(
+            "Failed to open wallet window. Please check your pop-up blocker settings."
+          ));
+          return;
         }
-      };
-      window.addEventListener("message", waitForReady);
-    } else {
-      this.postMessageToWallet(message);
-    }
+
+        const waitForReady = (event: MessageEvent) => {
+          if (event.origin === this.walletOrigin && event.data === "ready") {
+            console.log("Received ready message from wallet");
+            window.removeEventListener("message", waitForReady);
+            this.postMessageToWallet(message);
+            resolve();
+          }
+        };
+        window.addEventListener("message", waitForReady);
+      } else {
+        this.postMessageToWallet(message);
+        resolve();
+      }
+    });
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
