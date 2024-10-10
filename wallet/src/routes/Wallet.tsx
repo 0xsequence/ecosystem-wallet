@@ -1,14 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Box, Button, Text, truncateAddress } from "@0xsequence/design-system";
-import { useAuth } from "../context/AuthContext";
-import { WalletTransport, HandlerType } from "../walletTransport";
+import { HandlerType } from "../walletTransport";
 import { Deferred } from "../utils/promise";
 import { ethers } from "ethers";
 import { TransactionRejectedRpcError } from "viem";
 import { sequenceWaas } from "../waasSetup";
 import { Transaction, FeeOption } from "@0xsequence/waas";
 
-const walletTransport = new WalletTransport();
+import { useAuth, walletTransport } from "../context/AuthContext";
 
 const checkTransactionFeeOptions = async ({
   transactions,
@@ -41,8 +40,9 @@ const checkTransactionFeeOptions = async ({
 };
 
 export const Wallet: React.FC = () => {
-  const { walletAddress, signOut } = useAuth();
-  const [connectionRequestWithOrigin, setConnectionRequestWithOrigin] = useState<string | undefined>();
+  const { authState, signOut } = useAuth();
+  const [connectionRequestWithOrigin, setConnectionRequestWithOrigin] =
+    useState<string | undefined>();
   const connectionPromiseRef = useRef<Deferred<boolean> | null>(null);
 
   useEffect(() => {
@@ -58,45 +58,52 @@ export const Wallet: React.FC = () => {
       // Implement signing logic
     });
 
-    walletTransport.registerHandler(HandlerType.SEND_TRANSACTION, async (params) => {
-      const txns: ethers.Transaction[] = await ethers.resolveProperties(params?.[0]);
+    walletTransport.registerHandler(
+      HandlerType.SEND_TRANSACTION,
+      async (params) => {
+        console.log("send transaction handler", params);
 
-      // TODO: add confirmation UI
-
-      const chainId = 42170; // CHANGE, should not be hardcoded!!!
-
-      const feeOptionsResponse = await checkTransactionFeeOptions({
-        transactions: [txns] as Transaction[],
-        chainId,
-      });
-      const feeOptions = feeOptionsResponse?.feeOptions;
-
-      // TODO: Add a fee option selector UI
-      let selectedFeeOption: FeeOption | undefined;
-      if (feeOptions) {
-        selectedFeeOption = feeOptions[0];
-      }
-
-      const response = await sequenceWaas.sendTransaction({
-        transactions: [await ethers.resolveProperties(params?.[0])],
-        network: chainId,
-        transactionsFeeOption: selectedFeeOption,
-        transactionsFeeQuote: feeOptionsResponse?.feeQuote,
-      });
-
-      console.log("response", response);
-
-      if (response.code === "transactionFailed") {
-        throw new TransactionRejectedRpcError(
-          new Error(`Unable to send transaction: ${response.data.error}`)
+        const txns: ethers.Transaction[] = await ethers.resolveProperties(
+          params?.[0]
         );
-      }
 
-      if (response.code === "transactionReceipt") {
-        const { txHash } = response.data;
-        return txHash;
+        // TODO: add confirmation UI
+
+        const chainId = 42170; // CHANGE, should not be hardcoded!!!
+
+        const feeOptionsResponse = await checkTransactionFeeOptions({
+          transactions: [txns] as Transaction[],
+          chainId,
+        });
+        const feeOptions = feeOptionsResponse?.feeOptions;
+
+        // TODO: Add a fee option selector UI
+        let selectedFeeOption: FeeOption | undefined;
+        if (feeOptions) {
+          selectedFeeOption = feeOptions[0];
+        }
+
+        const response = await sequenceWaas.sendTransaction({
+          transactions: [await ethers.resolveProperties(params?.[0])],
+          network: chainId,
+          transactionsFeeOption: selectedFeeOption,
+          transactionsFeeQuote: feeOptionsResponse?.feeQuote,
+        });
+
+        console.log("response", response);
+
+        if (response.code === "transactionFailed") {
+          throw new TransactionRejectedRpcError(
+            new Error(`Unable to send transaction: ${response.data.error}`)
+          );
+        }
+
+        if (response.code === "transactionReceipt") {
+          const { txHash } = response.data;
+          return txHash;
+        }
       }
-    });
+    );
 
     return () => {
       // Clean up handlers if necessary
@@ -121,13 +128,13 @@ export const Wallet: React.FC = () => {
     <Box padding="4">
       <Box flexDirection="column" gap="4">
         <Text variant="medium" color="text100" fontWeight="bold">
-          Wallet: {truncateAddress(walletAddress || '')}
+          Wallet:{" "}
+          {authState.status === "signedIn" && authState.address
+            ? truncateAddress(authState.address)
+            : "Not connected"}
         </Text>
 
-        <Button
-          label="Disconnect"
-          onClick={signOut}
-        />
+        <Button label="Disconnect" onClick={signOut} />
       </Box>
 
       {connectionRequestWithOrigin && (

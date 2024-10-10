@@ -1,11 +1,17 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { sequenceWaas } from "../waasSetup";
+import { WalletTransport } from "../walletTransport";
+
+export const walletTransport = new WalletTransport();
+
+type AuthState =
+  | { status: "loading" }
+  | { status: "signedOut" }
+  | { status: "signedIn"; address: string };
 
 interface AuthContextType {
-  isSignedIn: boolean;
-  isCheckingSignInStatus: boolean;
-  walletAddress: string | undefined;
-  signIn: (address: string) => void;
+  authState: AuthState;
+  setWalletAddress: (address: string) => void;
   signOut: () => void;
 }
 
@@ -14,36 +20,34 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [isSignedIn, setIsSignedIn] = useState(false);
-  const [isCheckingSignInStatus, setIsCheckingSignInStatus] = useState(true);
-  const [walletAddress, setWalletAddress] = useState<string | undefined>();
+  const [authState, setAuthState] = useState<AuthState>({ status: "loading" });
 
   useEffect(() => {
     sequenceWaas.isSignedIn().then(async (signedIn) => {
       if (signedIn) {
         const address = await sequenceWaas.getAddress();
-        setIsSignedIn(true);
-        setWalletAddress(address);
+        setAuthState({ status: "signedIn", address });
+        walletTransport.setSignedInStatus({ address });
+      } else {
+        setAuthState({ status: "signedOut" });
+        walletTransport.setSignedInStatus(false);
       }
-      setIsCheckingSignInStatus(false);
     });
   }, []);
 
-  const signIn = (address: string) => {
-    setIsSignedIn(true);
-    setWalletAddress(address);
+  const setWalletAddress = (address: string) => {
+    setAuthState({ status: "signedIn", address });
+    walletTransport.setSignedInStatus({ address });
   };
 
   const signOut = async () => {
     await sequenceWaas.dropSession();
-    setIsSignedIn(false);
-    setWalletAddress(undefined);
+    setAuthState({ status: "signedOut" });
+    walletTransport.setSignedInStatus(false);
   };
 
   return (
-    <AuthContext.Provider
-      value={{ isSignedIn, isCheckingSignInStatus, walletAddress, signIn, signOut }}
-    >
+    <AuthContext.Provider value={{ authState, setWalletAddress, signOut }}>
       {children}
     </AuthContext.Provider>
   );

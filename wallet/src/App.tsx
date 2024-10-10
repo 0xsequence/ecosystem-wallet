@@ -5,17 +5,20 @@ import { Wallet } from "./routes/Wallet";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
 const AppContent: React.FC = () => {
-  const { isSignedIn, isCheckingSignInStatus } = useAuth();
+  const { authState } = useAuth();
 
-  if (isCheckingSignInStatus) {
-    return (
-      <Box alignItems="center" justifyContent="center" height="vh">
-        <Spinner size="lg" />
-      </Box>
-    );
+  switch (authState.status) {
+    case 'loading':
+      return (
+        <Box alignItems="center" justifyContent="center" height="vh">
+          <Spinner size="lg" />
+        </Box>
+      );
+    case 'signedIn':
+      return <Wallet />;
+    case 'signedOut':
+      return <Auth />;
   }
-
-  return isSignedIn ? <Wallet /> : <Auth />;
 };
 
 export const App: React.FC = () => {

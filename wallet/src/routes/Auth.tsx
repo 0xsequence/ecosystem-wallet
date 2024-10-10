@@ -25,7 +25,7 @@ import { sequenceWaas, googleClientId } from "../waasSetup";
 import { useAuth } from "../context/AuthContext";
 
 export const Auth: React.FC = () => {
-  const { signIn } = useAuth();
+  const { setWalletAddress } = useAuth();
 
   const handleGoogleLogin = async (tokenResponse: CredentialResponse) => {
     try {
@@ -35,7 +35,7 @@ export const Auth: React.FC = () => {
         },
         randomName()
       );
-      signIn(res.wallet);
+      setWalletAddress(res.wallet);
     } catch (error) {
       console.error(error);
     }
@@ -50,7 +50,7 @@ export const Auth: React.FC = () => {
   } = useEmailAuth({
     sessionName: randomName(),
     onSuccess: async ({ wallet }) => {
-      signIn(wallet);
+      setWalletAddress(wallet);
     },
   });
 

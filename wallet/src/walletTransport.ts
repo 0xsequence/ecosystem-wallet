@@ -53,13 +53,26 @@ export class WalletTransport {
         this.currentOrigin = currentOrigin;
       }
     }
+    if (status === false) {
+      localStorage.clear();
+      this.approvedOrigins = [];
+    }
   }
 
   async waitForSignedInStatus(): Promise<void> {
-    while (this.signedInStatus === undefined || this.signedInStatus === false) {
-      await new Promise(resolve => setTimeout(resolve, 100)); // Wait for 100ms before checking again
+    if (this.signedInStatus && "address" in this.signedInStatus) {
+      return; // Already signed in
     }
-    return;
+    return new Promise((resolve) => {
+      const checkStatus = () => {
+        if (this.signedInStatus && "address" in this.signedInStatus) {
+          resolve();
+        } else {
+          setTimeout(checkStatus, 100); // Check every 100ms
+        }
+      };
+      checkStatus();
+    });
   }
 
   setConnectionPromptCallback(callback: ConnectionPromptCallback) {
@@ -203,12 +216,19 @@ export class WalletTransport {
     }
 
     try {
+      // Wait for signed-in status with a timeout
+      await Promise.race([
+        this.waitForSignedInStatus(),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error("Timed out waiting for sign-in")), 300000) // 5 minutes timeout
+        )
+      ]);
+
       await this.waitForConnection(event.origin);
 
       const handler = this.handlers.get(handlerType);
       if (handler) {
         const result = await handler(request.params);
-
         this.sendResponse(event, request.id, result);
       }
     } catch (error) {
