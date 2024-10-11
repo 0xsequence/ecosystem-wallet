@@ -163,14 +163,12 @@ export class WalletTransport {
     const request = event.data;
 
     if (request.type !== "request" || !this.isConnectedToOrigin(event.origin)) {
-      console.log("first if");
       this.sendErrorResponse(event, request.id, "Not connected to this origin");
       return;
     }
 
     const handlerType = this.getHandlerTypeForMethod(request.method);
     if (!handlerType || !this.handlers.has(handlerType)) {
-      console.log("second if");
       this.sendErrorResponse(
         event,
         request.id,
@@ -182,7 +180,6 @@ export class WalletTransport {
     try {
       const handler = this.handlers.get(handlerType);
       if (handler) {
-        console.log("third if");
         const result = await handler(request.params);
         this.sendResponse(event, request.id, result);
       }

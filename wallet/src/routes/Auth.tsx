@@ -86,29 +86,44 @@ export const Auth: React.FC = () => {
           justifyContent="center"
           style={{ maxWidth: "600px" }}
         >
-          <Box alignItems="center" flexDirection="column" marginBottom="10">
-            <Text variant="large" color="text100" fontWeight="bold">
-              Demo Wallet
+          <Box alignItems="center" flexDirection="column" marginBottom="2">
+            <Text
+              variant="large"
+              color="text100"
+              fontWeight="bold"
+              marginBottom="1"
+            >
+              Some Amazing Project's Wallet 🤩
+            </Text>
+            <Text variant="small" color="text80" textAlign="center">
+              (This is actually just a dapp using Sequence embedded wallet, but
+              acting as a wallet thanks to walletTransport + providerTransport +
+              a special wagmi connector!)
             </Text>
             {isPopup && (
-              <Text variant="normal" color="text80">
+              <Text
+                variant="normal"
+                color="text100"
+                textAlign="center"
+                marginTop="10"
+              >
                 {pendingEventOrigin
-                  ? `Sign in to your Demo Wallet account to give access to ${pendingEventOrigin}`
-                  : "Sign in to your Demo Wallet account to give access"}
+                  ? `Sign in to your wallet to give access to dapp with origin ${pendingEventOrigin}`
+                  : "Sign in to your wallet to give access"}
               </Text>
             )}
             {!isPopup && (
               <Text variant="normal" color="text80">
-                Sign in to your Demo Wallet account
+                Sign in to your wallet
               </Text>
             )}
           </Box>
 
-          <Box marginBottom="2">
+          {/* <Box marginBottom="2">
             <Text variant="medium" color="text100" fontWeight="bold">
               Google Login
             </Text>
-          </Box>
+          </Box> */}
           <GoogleOAuthProvider clientId={googleClientId}>
             <GoogleLogin
               key="google"
@@ -118,7 +133,7 @@ export const Auth: React.FC = () => {
             />
           </GoogleOAuthProvider>
 
-          <Divider background="buttonGlass" width="full" />
+          {/* <Divider background="buttonGlass" width="full" />
 
           <Box>
             <Text variant="medium" color="text100" fontWeight="bold">
@@ -217,7 +232,7 @@ export const Auth: React.FC = () => {
                 )}
               </Box>
             </Box>
-          )}
+          )} */}
         </Box>
       </Box>
 

@@ -1,13 +1,23 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Box, Button, Text, truncateAddress } from "@0xsequence/design-system";
+import {
+  Box,
+  Button,
+  Text,
+  truncateAddress,
+  Collapsible,
+  Spinner,
+  SignoutIcon,
+} from "@0xsequence/design-system";
 import { HandlerType } from "../walletTransport";
 import { Deferred } from "../utils/promise";
 import { ethers } from "ethers";
-import { TransactionRejectedRpcError } from "viem";
+import { UserRejectedRequestError } from "viem";
 import { sequenceWaas } from "../waasSetup";
 import { Transaction, FeeOption } from "@0xsequence/waas";
 
 import { useAuth, walletTransport } from "../context/AuthContext";
+
+const chainId = 42170; // CHANGE, should not be hardcoded!!!
 
 const checkTransactionFeeOptions = async ({
   transactions,
@@ -45,6 +55,47 @@ export const Wallet: React.FC = () => {
     useState<string | undefined>();
   const connectionPromiseRef = useRef<Deferred<boolean> | null>(null);
 
+  const [txnConfirmationRequest, setTxnConfirmationRequest] = useState<
+    ethers.Transaction[] | undefined
+  >(undefined);
+  const txnConfirmationPromiseRef = useRef<Deferred<boolean> | null>(null);
+
+  const [signConfirmationRequest, setSignConfirmationRequest] = useState<
+    { message: string } | undefined
+  >(undefined);
+  const signConfirmationPromiseRef = useRef<Deferred<boolean> | null>(null);
+
+  const [isSendingTxn, setIsSendingTxn] = useState(false);
+  const [isSigningMessage, setIsSigningMessage] = useState(false);
+
+  const handleApproveTxn = () => {
+    if (txnConfirmationPromiseRef.current) {
+      txnConfirmationPromiseRef.current.resolve(true);
+      setTxnConfirmationRequest(undefined);
+    }
+  };
+
+  const handleRejectTxn = () => {
+    if (txnConfirmationPromiseRef.current) {
+      txnConfirmationPromiseRef.current.resolve(false);
+      setTxnConfirmationRequest(undefined);
+    }
+  };
+
+  const handleApproveSign = () => {
+    if (signConfirmationPromiseRef.current) {
+      signConfirmationPromiseRef.current.resolve(true);
+      setSignConfirmationRequest(undefined);
+    }
+  };
+
+  const handleRejectSign = () => {
+    if (signConfirmationPromiseRef.current) {
+      signConfirmationPromiseRef.current.resolve(false);
+      setSignConfirmationRequest(undefined);
+    }
+  };
+
   useEffect(() => {
     walletTransport.setConnectionPromptCallback(async (origin: string) => {
       setConnectionRequestWithOrigin(origin);
@@ -55,7 +106,31 @@ export const Wallet: React.FC = () => {
 
     walletTransport.registerHandler(HandlerType.SIGN, async (params) => {
       console.log("sign handler", params);
-      // Implement signing logic
+
+      const message = params?.[0];
+      setSignConfirmationRequest({ message: ethers.toUtf8String(message) });
+
+      const deferred = new Deferred<boolean>();
+      signConfirmationPromiseRef.current = deferred;
+
+      const confirmation = await signConfirmationPromiseRef.current.promise;
+
+      if (!confirmation) {
+        return new UserRejectedRequestError(
+          new Error("User rejected signature request")
+        );
+      }
+
+      setIsSigningMessage(true);
+
+      const result = await sequenceWaas.signMessage({
+        message: message,
+        network: chainId,
+      });
+
+      setIsSigningMessage(false);
+
+      return result;
     });
 
     walletTransport.registerHandler(
@@ -63,13 +138,27 @@ export const Wallet: React.FC = () => {
       async (params) => {
         console.log("send transaction handler", params);
 
-        const txns: ethers.Transaction[] = await ethers.resolveProperties(
-          params?.[0]
-        );
+        const txns: ethers.Transaction | ethers.Transaction[] =
+          await ethers.resolveProperties(params?.[0]);
 
-        // TODO: add confirmation UI
+        // Check if txns is an array, if not, convert it to an array
+        const txnsArray = Array.isArray(txns) ? txns : [txns];
 
-        const chainId = 42170; // CHANGE, should not be hardcoded!!!
+        setTxnConfirmationRequest(txnsArray);
+
+        const deferred = new Deferred<boolean>();
+
+        txnConfirmationPromiseRef.current = deferred;
+
+        const confirmation = await txnConfirmationPromiseRef.current.promise;
+
+        if (!confirmation) {
+          return new UserRejectedRequestError(
+            new Error("User rejected transaction request")
+          );
+        }
+
+        setIsSendingTxn(true);
 
         const feeOptionsResponse = await checkTransactionFeeOptions({
           transactions: [txns] as Transaction[],
@@ -84,24 +173,15 @@ export const Wallet: React.FC = () => {
         }
 
         const response = await sequenceWaas.sendTransaction({
-          transactions: [await ethers.resolveProperties(params?.[0])],
+          transactions: [txns] as Transaction[],
           network: chainId,
           transactionsFeeOption: selectedFeeOption,
           transactionsFeeQuote: feeOptionsResponse?.feeQuote,
         });
 
-        console.log("response", response);
+        setIsSendingTxn(false);
 
-        if (response.code === "transactionFailed") {
-          throw new TransactionRejectedRpcError(
-            new Error(`Unable to send transaction: ${response.data.error}`)
-          );
-        }
-
-        if (response.code === "transactionReceipt") {
-          const { txHash } = response.data;
-          return txHash;
-        }
+        return response;
       }
     );
 
@@ -125,16 +205,27 @@ export const Wallet: React.FC = () => {
   };
 
   return (
-    <Box padding="4">
-      <Box flexDirection="column" gap="4">
-        <Text variant="medium" color="text100" fontWeight="bold">
-          Wallet:{" "}
+    <Box>
+      <Box
+        flexDirection="row"
+        gap="4"
+        background="backgroundRaised"
+        backdropFilter="blur"
+        padding="4"
+        alignItems="center"
+      >
+        <Text variant="normal" color="text100" fontWeight="bold">
           {authState.status === "signedIn" && authState.address
             ? truncateAddress(authState.address)
             : "Not connected"}
         </Text>
 
-        <Button label="Disconnect" onClick={signOut} />
+        <Button
+          size="sm"
+          leftIcon={SignoutIcon}
+          onClick={signOut}
+          marginLeft="auto"
+        />
       </Box>
 
       {connectionRequestWithOrigin && (
@@ -154,9 +245,115 @@ export const Wallet: React.FC = () => {
               onClick={handleApproveConnection}
             />
             <Button
-              variant="primary"
+              variant="secondary"
               label="Reject"
               onClick={handleRejectConnection}
+            />
+          </Box>
+        </Box>
+      )}
+      {isSendingTxn && (
+        <Box alignItems="center" justifyContent="center" marginTop="4">
+          <Spinner size="lg" color="text100" />
+        </Box>
+      )}
+      {txnConfirmationRequest &&
+        txnConfirmationRequest.length > 0 &&
+        !isSendingTxn && (
+          <Box
+            marginTop="4"
+            flexDirection="column"
+            alignItems="center"
+            justifyContent="center"
+            padding="4"
+            borderRadius="md"
+            gap="2"
+          >
+            <Text
+              variant="medium"
+              color="text100"
+              fontWeight="bold"
+              marginTop="6"
+            >
+              Transaction Confirmation
+            </Text>
+            <Box marginTop="2" flexDirection="column" gap="2" width="full">
+              {txnConfirmationRequest.map((txn, index) => (
+                <Box key={index} flexDirection="column" gap="3" width="full">
+                  <Text variant="small" color="text80">
+                    To: {truncateAddress(txn.to || "")}
+                  </Text>
+
+                  <Collapsible label="Transaction data">
+                    <Text
+                      variant="small"
+                      color="text80"
+                      style={{ wordBreak: "break-all" }}
+                    >
+                      {JSON.stringify(txn.data, null, 2)}
+                    </Text>
+                  </Collapsible>
+                </Box>
+              ))}
+            </Box>
+            <Box marginTop="4" gap="2">
+              <Button
+                variant="primary"
+                label="Approve"
+                onClick={handleApproveTxn}
+              />
+              <Button
+                variant="secondary"
+                label="Reject"
+                onClick={handleRejectTxn}
+              />
+            </Box>
+          </Box>
+        )}
+      {isSigningMessage && (
+        <Box alignItems="center" justifyContent="center" marginTop="4">
+          <Spinner size="lg" color="text100" />
+        </Box>
+      )}
+      {signConfirmationRequest && !isSigningMessage && (
+        <Box
+          marginTop="4"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          padding="4"
+          borderRadius="md"
+          gap="2"
+        >
+          <Text
+            variant="medium"
+            color="text100"
+            fontWeight="bold"
+            marginTop="6"
+          >
+            Signature Confirmation
+          </Text>
+          <Box marginTop="2" flexDirection="column" gap="2" width="full">
+            <Collapsible label="Message to sign:" open={true}>
+              <Text
+                variant="small"
+                color="text80"
+                style={{ wordBreak: "break-all" }}
+              >
+                {signConfirmationRequest.message}
+              </Text>
+            </Collapsible>
+          </Box>
+          <Box marginTop="4" gap="2">
+            <Button
+              variant="primary"
+              label="Approve"
+              onClick={handleApproveSign}
+            />
+            <Button
+              variant="secondary"
+              label="Reject"
+              onClick={handleRejectSign}
             />
           </Box>
         </Box>

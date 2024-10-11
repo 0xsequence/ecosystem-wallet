@@ -141,6 +141,12 @@ export class ProviderTransport {
         } else {
           resolve(response.result);
         }
+
+        // Close the wallet window after receiving the response
+        if (this.isWalletOpen()) {
+          this.walletWindow!.close();
+          this.walletWindow = null;
+        }
       });
 
       sendMessage().catch(reject);

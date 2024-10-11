@@ -49,7 +49,7 @@ export function sequenceWaasTransportWallet(
 
   return createConnector<Provider, Properties, StorageItem>((config) => ({
     id: `sequence-waas-transport`,
-    name: "Sequence WaaS Transport",
+    name: "Sequence Cross-App Embedded Wallet",
     type: sequenceWaasTransportWallet.type,
     sequenceWaasTransportProvider,
     params,
@@ -220,7 +220,7 @@ export class SequenceWaasTransportProvider
 
       const response = await this.transport.sendRequest(method, params);
 
-      console.log("response", response);
+      console.log("response - in transport connector", response);
 
       if (response.code === "transactionFailed") {
         // Failed
