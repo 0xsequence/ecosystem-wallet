@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { sequenceWaas } from "../waasSetup";
 import { WalletTransport } from "../walletTransport";
+import { useSnapshot } from 'valtio';
 
 export const walletTransport = new WalletTransport();
 
@@ -11,6 +12,7 @@ type AuthState =
 
 interface AuthContextType {
   authState: AuthState;
+  pendingEventOrigin: string | undefined;
   setWalletAddress: (address: string) => void;
   signOut: () => void;
 }
@@ -21,6 +23,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [authState, setAuthState] = useState<AuthState>({ status: "loading" });
+  const walletTransportSnapshot = useSnapshot(walletTransport.state);
 
   useEffect(() => {
     sequenceWaas.isSignedIn().then(async (signedIn) => {
@@ -48,7 +51,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   return (
-    <AuthContext.Provider value={{ authState, setWalletAddress, signOut }}>
+    <AuthContext.Provider value={{ 
+      authState, 
+      pendingEventOrigin: walletTransportSnapshot.pendingEventOrigin,
+      setWalletAddress, 
+      signOut 
+    }}>
       {children}
     </AuthContext.Provider>
   );

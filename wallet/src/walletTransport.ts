@@ -26,6 +26,7 @@ interface WalletTransportState {
   connectedOrigins: ConnectedOrigin[];
   signedInState: SignedInState;
   areHandlersReady: boolean;
+  pendingEventOrigin: string | undefined;
 }
 
 export class WalletTransport {
@@ -44,6 +45,7 @@ export class WalletTransport {
         : [],
       signedInState: null,
       areHandlersReady: false,
+      pendingEventOrigin: undefined,
     });
 
     window.addEventListener("message", this.handleMessage);
@@ -51,8 +53,6 @@ export class WalletTransport {
     this.sendReadyMessage();
 
     const unsubscribe = subscribe(this.state, () => {
-      console.log("state changed");
-
       if (
         this.state.signedInState &&
         this.state.areHandlersReady &&
@@ -73,9 +73,33 @@ export class WalletTransport {
         }
         this.handleMessage(this.pendingEvent as MessageEvent);
         this.pendingEvent = undefined;
+        this.state.pendingEventOrigin = undefined;
       }
     });
   }
+
+  private handleMessage = (event: MessageEvent) => {
+    const data = event.data;
+
+    if (data.type !== "connection" && data.type !== "request") {
+      return;
+    }
+
+    console.log("Received message data:", data);
+
+    if (!this.state.signedInState || !this.state.areHandlersReady) {
+      console.log("Not ready to process event, saving as pending event");
+      this.pendingEvent = event;
+      this.state.pendingEventOrigin = event.origin;
+    } else {
+      console.log("Ready, processing event");
+      if (data.type === "connection") {
+        this.handleConnectionRequest(event);
+      } else {
+        this.handleRequest(event);
+      }
+    }
+  };
 
   setSignedInState(state: SignedInState) {
     this.state.signedInState = state;
@@ -92,28 +116,6 @@ export class WalletTransport {
       this.state.areHandlersReady = true;
     }
   }
-
-  private handleMessage = (event: MessageEvent) => {
-    const data = event.data;
-
-    if (data.type !== "connection" && data.type !== "request") {
-      return;
-    }
-
-    console.log("Received message data:", data);
-
-    if (!this.state.signedInState || !this.state.areHandlersReady) {
-      console.log("Not ready to process event, saving as pending event");
-      this.pendingEvent = event;
-    } else {
-      console.log("Ready, processing event");
-      if (data.type === "connection") {
-        this.handleConnectionRequest(event);
-      } else {
-        this.handleRequest(event);
-      }
-    }
-  };
 
   private async handleConnectionRequest(event: MessageEvent) {
     const { id } = event.data;

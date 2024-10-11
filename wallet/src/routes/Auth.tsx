@@ -25,7 +25,7 @@ import { sequenceWaas, googleClientId } from "../waasSetup";
 import { useAuth } from "../context/AuthContext";
 
 export const Auth: React.FC = () => {
-  const { setWalletAddress } = useAuth();
+  const { setWalletAddress, pendingEventOrigin } = useAuth();
 
   const handleGoogleLogin = async (tokenResponse: CredentialResponse) => {
     try {
@@ -92,13 +92,13 @@ export const Auth: React.FC = () => {
             </Text>
             {isPopup && (
               <Text variant="normal" color="text80">
-                {" "}
-                Sign in to your Demo Wallet account to give access to{" "}
+                {pendingEventOrigin
+                  ? `Sign in to your Demo Wallet account to give access to ${pendingEventOrigin}`
+                  : "Sign in to your Demo Wallet account to give access"}
               </Text>
             )}
             {!isPopup && (
               <Text variant="normal" color="text80">
-                {" "}
                 Sign in to your Demo Wallet account
               </Text>
             )}
