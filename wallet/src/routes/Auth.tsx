@@ -93,7 +93,7 @@ export const Auth: React.FC = () => {
               fontWeight="bold"
               marginBottom="1"
             >
-              Some Amazing Project's Wallet 🤩
+              Some Amazing Project's Wallet
             </Text>
             <Text variant="small" color="text80" textAlign="center">
               (This is actually just a dapp using Sequence embedded wallet, but

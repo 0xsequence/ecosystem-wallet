@@ -234,6 +234,7 @@ export const Wallet: React.FC = () => {
           flexDirection="column"
           alignItems="center"
           justifyContent="center"
+          padding="4"
         >
           <Text variant="large" color="text100" fontWeight="bold">
             Connection request from {connectionRequestWithOrigin}
