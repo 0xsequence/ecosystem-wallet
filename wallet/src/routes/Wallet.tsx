@@ -17,8 +17,6 @@ import { Transaction, FeeOption } from "@0xsequence/waas";
 
 import { useAuth, walletTransport } from "../context/AuthContext";
 
-const chainId = 42170; // CHANGE, should not be hardcoded!!!
-
 const checkTransactionFeeOptions = async ({
   transactions,
   chainId,
@@ -104,8 +102,10 @@ export const Wallet: React.FC = () => {
       return deferred.promise;
     });
 
-    walletTransport.registerHandler(HandlerType.SIGN, async (params) => {
-      console.log("sign handler", params);
+    walletTransport.registerHandler(HandlerType.SIGN, async (request) => {
+      console.log("sign handler", JSON.stringify(request));
+
+      const { params, chainId } = request;
 
       const message = params?.[0];
       setSignConfirmationRequest({ message: ethers.toUtf8String(message) });
@@ -135,8 +135,10 @@ export const Wallet: React.FC = () => {
 
     walletTransport.registerHandler(
       HandlerType.SEND_TRANSACTION,
-      async (params) => {
-        console.log("send transaction handler", params);
+      async (request) => {
+        console.log("send transaction handler", JSON.stringify(request));
+
+        const { params, chainId } = request;
 
         const txns: ethers.Transaction | ethers.Transaction[] =
           await ethers.resolveProperties(params?.[0]);

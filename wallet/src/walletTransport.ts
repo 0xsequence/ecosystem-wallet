@@ -34,7 +34,7 @@ export class WalletTransport {
   private connectionPromptCallback:
     | ((origin: string) => Promise<boolean>)
     | undefined;
-  private handlers: Map<HandlerType, (params: any[]) => Promise<any>> =
+  private handlers: Map<HandlerType, (request: any) => Promise<any>> =
     new Map();
   private pendingEvent: MessageEvent | undefined;
 
@@ -92,7 +92,7 @@ export class WalletTransport {
       this.pendingEvent = event;
       this.state.pendingEventOrigin = event.origin;
     } else {
-      console.log("Ready, processing event");
+      console.log("Ready, processing event", JSON.stringify(event.data));
       if (data.type === "connection") {
         this.handleConnectionRequest(event);
       } else {
@@ -109,7 +109,7 @@ export class WalletTransport {
     this.connectionPromptCallback = callback;
   }
 
-  registerHandler(type: HandlerType, handler: (params: any[]) => Promise<any>) {
+  registerHandler(type: HandlerType, handler: (request: any) => Promise<any>) {
     console.log("registering handler", type);
     this.handlers.set(type, handler);
     if (this.areAllHandlersRegistered(this.handlers)) {
@@ -180,7 +180,7 @@ export class WalletTransport {
     try {
       const handler = this.handlers.get(handlerType);
       if (handler) {
-        const result = await handler(request.params);
+        const result = await handler(request);
         this.sendResponse(event, request.id, result);
       }
     } catch (error) {
@@ -254,7 +254,7 @@ export class WalletTransport {
   }
 
   private areAllHandlersRegistered(
-    handlers: Map<HandlerType, (params: any[]) => Promise<any>>
+    handlers: Map<HandlerType, (request: any) => Promise<any>>
   ): boolean {
     return Object.values(HandlerType).every((type) => handlers.has(type));
   }

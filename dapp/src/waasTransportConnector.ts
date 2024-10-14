@@ -138,11 +138,7 @@ export function sequenceWaasTransportWallet(
     },
 
     async onChainChanged(chain) {
-      // const provider = await this.getProvider()
-
       config.emitter.emit("change", { chainId: normalizeChainId(chain) });
-
-      // provider.setDefaultChainId(normalizeChainId(chain))
     },
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -218,7 +214,11 @@ export class SequenceWaasTransportProvider
         throw new Error("No params");
       }
 
-      const response = await this.transport.sendRequest(method, params);
+      const response = await this.transport.sendRequest(
+        method,
+        params,
+        this.getChainId()
+      );
 
       console.log("response - in transport connector", response);
 
@@ -246,7 +246,11 @@ export class SequenceWaasTransportProvider
         // TODO check again, but it should always have params here
         throw new Error("No params");
       }
-      const response = await this.transport.sendRequest(method, params);
+      const response = await this.transport.sendRequest(
+        method,
+        params,
+        this.getChainId()
+      );
 
       return response.data.signature;
     }

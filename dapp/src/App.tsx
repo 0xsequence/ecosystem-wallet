@@ -10,11 +10,13 @@ import {
   useDisconnect,
   usePublicClient,
   useSendTransaction,
+  useSwitchChain,
   useWalletClient,
 } from "wagmi";
 
 import "./App.css";
 import { CardButton } from "./components/CardButton";
+import { arbitrumNova, arbitrumSepolia } from "viem/chains";
 
 const messageToSign = "Test message 1 2 3...";
 
@@ -23,6 +25,7 @@ function App() {
   const { disconnect } = useDisconnect();
 
   const chainId = useChainId();
+  const { switchChain } = useSwitchChain();
 
   const networkForCurrentChainId = allNetworks.find(
     (n) => n.chainId === chainId
@@ -52,19 +55,15 @@ function App() {
     // const [account] = await walletClient.getAddresses()
     // sendTransaction({ to: account, value: '0', gas: null })
 
-    // NOTE: below is a a simple contract call. See `runMintNFT`
-    // on another example where you can use the wagmi `writeContract`
-    // method to do the same thing.
+    // NOTE: below is a a simple contract call.
     if (!walletClient) {
       return;
     }
 
     setLastTxnHash(undefined);
 
-    // const [account] = await walletClient.getAddresses()
     const contractAbiInterface = new ethers.Interface(["function demo()"]);
 
-    // sendTransaction({ to: account, value: BigInt(0), gas: null })
     const data = contractAbiInterface.encodeFunctionData(
       "demo",
       []
@@ -164,6 +163,23 @@ function App() {
             </Text>
 
             <Divider width="full" />
+
+            <CardButton
+              title="Switch chain"
+              description={`Switch chain to ${
+                chainId === arbitrumNova.id
+                  ? "Arbitrum Sepolia"
+                  : "Arbitrum Nova"
+              }`}
+              onClick={() => {
+                setLastTxnHash(undefined);
+                if (chainId === arbitrumNova.id) {
+                  switchChain({ chainId: arbitrumSepolia.id });
+                } else {
+                  switchChain({ chainId: arbitrumNova.id });
+                }
+              }}
+            />
 
             <CardButton
               title="Send transaction"

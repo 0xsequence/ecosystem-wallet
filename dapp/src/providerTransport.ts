@@ -112,13 +112,17 @@ export class ProviderTransport {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async sendRequest(method: string, params: any[]): Promise<any> {
+  async sendRequest(
+    method: string,
+    params: any[],
+    chainId: number
+  ): Promise<any> {
     if (this.connectionState !== "connected") {
       throw new Error("Not connected to wallet. Call connect() first.");
     }
 
     const id = crypto.randomUUID();
-    const request = { type: "request", id, method, params };
+    const request = { type: "request", id, method, params, chainId };
 
     return new Promise((resolve, reject) => {
       const sendMessage = async () => {
