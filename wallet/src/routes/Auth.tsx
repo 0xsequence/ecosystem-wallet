@@ -1,4 +1,4 @@
-import React, { SetStateAction, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   CredentialResponse,
   GoogleLogin,
@@ -6,17 +6,17 @@ import {
 } from "@react-oauth/google";
 import {
   Box,
-  Button,
-  Divider,
+  // Button,
+  // Divider,
   Modal,
-  PINCodeInput,
-  Spinner,
+  // PINCodeInput,
+  // Spinner,
   Text,
-  TextInput,
+  // TextInput,
 } from "@0xsequence/design-system";
 import { EmailConflictInfo } from "@0xsequence/waas";
 
-import { useEmailAuth } from "../hooks/useEmailAuth";
+// import { useEmailAuth } from "../hooks/useEmailAuth";
 import { randomName } from "../utils/string";
 
 import { EmailConflictWarning } from "../components/EmailConflictWarning";
@@ -41,24 +41,24 @@ export const Auth: React.FC = () => {
     }
   };
 
-  const {
-    inProgress: emailAuthInProgress,
-    loading: emailAuthLoading,
-    initiateAuth: initiateEmailAuth,
-    sendChallengeAnswer,
-    cancel: cancelEmailAuth,
-  } = useEmailAuth({
-    sessionName: randomName(),
-    onSuccess: async ({ wallet }) => {
-      setWalletAddress(wallet);
-    },
-  });
+  // const {
+  //   inProgress: emailAuthInProgress,
+  //   loading: emailAuthLoading,
+  //   initiateAuth: initiateEmailAuth,
+  //   sendChallengeAnswer,
+  //   cancel: cancelEmailAuth,
+  // } = useEmailAuth({
+  //   sessionName: randomName(),
+  //   onSuccess: async ({ wallet }) => {
+  //     setWalletAddress(wallet);
+  //   },
+  // });
 
-  const [email, setEmail] = useState("");
-  const inputRef = useRef<HTMLInputElement | null>(null);
-  const isEmailValid = inputRef.current?.validity.valid;
-  const [showEmailWarning, setEmailWarning] = useState(false);
-  const [code, setCode] = useState<string[]>([]);
+  // const [email, setEmail] = useState("");
+  // const inputRef = useRef<HTMLInputElement | null>(null);
+  // const isEmailValid = inputRef.current?.validity.valid;
+  // const [showEmailWarning, setEmailWarning] = useState(false);
+  // const [code, setCode] = useState<string[]>([]);
 
   const [emailConflictInfo, setEmailConflictInfo] = useState<
     EmailConflictInfo | undefined
@@ -243,11 +243,11 @@ export const Auth: React.FC = () => {
             onCancel={() => {
               setIsEmailConflictModalOpen(false);
               setEmailConflictInfo(undefined);
-              if (emailAuthInProgress) {
-                setCode([]);
-                cancelEmailAuth();
-                setEmail("");
-              }
+              // if (emailAuthInProgress) {
+              //   setCode([]);
+              //   cancelEmailAuth();
+              //   setEmail("");
+              // }
             }}
             onConfirm={async () => {
               setIsEmailConflictModalOpen(false);

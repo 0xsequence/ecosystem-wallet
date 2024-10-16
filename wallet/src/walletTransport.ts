@@ -30,7 +30,7 @@ interface WalletTransportState {
 }
 
 export class WalletTransport {
-  private state: WalletTransportState;
+  state: WalletTransportState;
   private connectionPromptCallback:
     | ((origin: string) => Promise<boolean>)
     | undefined;
