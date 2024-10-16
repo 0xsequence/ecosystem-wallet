@@ -36,7 +36,7 @@ function App() {
     data: txnHash,
     sendTransaction,
     isPending: isPendingSendTxn,
-    error,
+    // error,
   } = useSendTransaction();
 
   const [lastTxnHash, setLastTxnHash] = useState<string | undefined>();
