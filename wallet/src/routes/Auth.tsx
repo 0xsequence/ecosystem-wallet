@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { SetStateAction, useRef, useState } from "react";
 import {
   CredentialResponse,
   GoogleLogin,
@@ -6,23 +6,22 @@ import {
 } from "@react-oauth/google";
 import {
   Box,
-  // Button,
-  // Divider,
+  Button,
+  Divider,
   Modal,
-  // PINCodeInput,
-  // Spinner,
+  PINCodeInput,
+  Spinner,
   Text,
-  // TextInput,
+  TextInput,
 } from "@0xsequence/design-system";
 import { EmailConflictInfo } from "@0xsequence/waas";
 
-// import { useEmailAuth } from "../hooks/useEmailAuth";
+import { EmailConflictWarning } from "../components/EmailConflictWarning";
+import { useAuth } from "../context/AuthContext";
+import { useEmailAuth } from "../hooks/useEmailAuth";
 import { randomName } from "../utils/string";
 
-import { EmailConflictWarning } from "../components/EmailConflictWarning";
-
 import { sequenceWaas, googleClientId } from "../waasSetup";
-import { useAuth } from "../context/AuthContext";
 
 export const Auth: React.FC = () => {
   const { setWalletAddress, pendingEventOrigin } = useAuth();
@@ -41,24 +40,24 @@ export const Auth: React.FC = () => {
     }
   };
 
-  // const {
-  //   inProgress: emailAuthInProgress,
-  //   loading: emailAuthLoading,
-  //   initiateAuth: initiateEmailAuth,
-  //   sendChallengeAnswer,
-  //   cancel: cancelEmailAuth,
-  // } = useEmailAuth({
-  //   sessionName: randomName(),
-  //   onSuccess: async ({ wallet }) => {
-  //     setWalletAddress(wallet);
-  //   },
-  // });
+  const {
+    inProgress: emailAuthInProgress,
+    loading: emailAuthLoading,
+    initiateAuth: initiateEmailAuth,
+    sendChallengeAnswer,
+    cancel: cancelEmailAuth,
+  } = useEmailAuth({
+    sessionName: randomName(),
+    onSuccess: async ({ wallet }) => {
+      setWalletAddress(wallet);
+    },
+  });
 
-  // const [email, setEmail] = useState("");
-  // const inputRef = useRef<HTMLInputElement | null>(null);
-  // const isEmailValid = inputRef.current?.validity.valid;
-  // const [showEmailWarning, setEmailWarning] = useState(false);
-  // const [code, setCode] = useState<string[]>([]);
+  const [email, setEmail] = useState("");
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const isEmailValid = inputRef.current?.validity.valid;
+  const [showEmailWarning, setEmailWarning] = useState(false);
+  const [code, setCode] = useState<string[]>([]);
 
   const [emailConflictInfo, setEmailConflictInfo] = useState<
     EmailConflictInfo | undefined
@@ -77,7 +76,7 @@ export const Auth: React.FC = () => {
 
   return (
     <Box padding="4">
-      <Box alignItems="center" justifyContent="center" marginTop="20">
+      <Box alignItems="center" justifyContent="center" marginTop="10">
         <Box
           flexDirection="column"
           gap="2"
@@ -95,17 +94,13 @@ export const Auth: React.FC = () => {
             >
               Some Amazing Project's Wallet
             </Text>
-            <Text variant="small" color="text80" textAlign="center">
-              (This is actually just a dapp using Sequence embedded wallet, but
-              acting as a wallet thanks to walletTransport + providerTransport +
-              a special wagmi connector!)
-            </Text>
+
             {isPopup && (
               <Text
                 variant="normal"
                 color="text100"
                 textAlign="center"
-                marginTop="10"
+                marginTop="4"
               >
                 {pendingEventOrigin
                   ? `Sign in to your wallet to give access to dapp with origin ${pendingEventOrigin}`
@@ -119,21 +114,24 @@ export const Auth: React.FC = () => {
             )}
           </Box>
 
-          {/* <Box marginBottom="2">
-            <Text variant="medium" color="text100" fontWeight="bold">
-              Google Login
-            </Text>
-          </Box> */}
-          <GoogleOAuthProvider clientId={googleClientId}>
-            <GoogleLogin
-              key="google"
-              onSuccess={handleGoogleLogin}
-              shape="circle"
-              width={230}
-            />
-          </GoogleOAuthProvider>
-
-          {/* <Divider background="buttonGlass" width="full" />
+          {!emailAuthInProgress && (
+            <>
+              <Box marginBottom="2">
+                <Text variant="medium" color="text100" fontWeight="bold">
+                  Google Login
+                </Text>
+              </Box>
+              <GoogleOAuthProvider clientId={googleClientId}>
+                <GoogleLogin
+                  key="google"
+                  onSuccess={handleGoogleLogin}
+                  shape="circle"
+                  width={230}
+                />
+              </GoogleOAuthProvider>
+            </>
+          )}
+          <Divider background="buttonGlass" width="full" />
 
           <Box>
             <Text variant="medium" color="text100" fontWeight="bold">
@@ -182,8 +180,7 @@ export const Auth: React.FC = () => {
               <Text variant="normal" color="text80">
                 Enter your email to receive a code to login and create your
                 wallet. <br />
-                Please check your spam folder if you don't see it in your
-                inbox.
+                Please check your spam folder if you don't see it in your inbox.
               </Text>
 
               <Box marginTop="6">
@@ -232,7 +229,7 @@ export const Auth: React.FC = () => {
                 )}
               </Box>
             </Box>
-          )} */}
+          )}
         </Box>
       </Box>
 
@@ -243,11 +240,11 @@ export const Auth: React.FC = () => {
             onCancel={() => {
               setIsEmailConflictModalOpen(false);
               setEmailConflictInfo(undefined);
-              // if (emailAuthInProgress) {
-              //   setCode([]);
-              //   cancelEmailAuth();
-              //   setEmail("");
-              // }
+              if (emailAuthInProgress) {
+                setCode([]);
+                cancelEmailAuth();
+                setEmail("");
+              }
             }}
             onConfirm={async () => {
               setIsEmailConflictModalOpen(false);
