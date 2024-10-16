@@ -68,7 +68,6 @@ export function useEmailAuth({
 
   const sendChallengeAnswer = async (answer: string) => {
     if (linkAccount && challenge) {
-      //completeAuth(challenge.withAnswer(answer), { sessionName })
       try {
         await sequenceWaas.linkAccount(challenge.withAnswer(answer));
       } catch (e) {
