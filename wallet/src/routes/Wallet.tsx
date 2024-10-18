@@ -9,16 +9,18 @@ import {
   SignoutIcon,
   Image,
 } from "@0xsequence/design-system";
-import { HandlerType } from "../walletTransport";
-import { Deferred } from "../utils/promise";
+import { AnimatePresence, motion } from "framer-motion";
 import { ethers } from "ethers";
 import { UserRejectedRequestError } from "viem";
-import { sequenceWaas } from "../waasSetup";
 import { Transaction, FeeOption } from "@0xsequence/waas";
+import { allNetworks } from "@0xsequence/network";
 
 import { useAuth, walletTransport } from "../context/AuthContext";
 import { useConfirmDialog } from "../components/ConfirmDialogProvider";
-import { AnimatePresence, motion } from "framer-motion";
+import { NetworkImage } from "../components/NetworkImage";
+import { Deferred } from "../utils/promise";
+import { sequenceWaas } from "../waasSetup";
+import { HandlerType } from "../walletTransport";
 
 // const PROJECT_NAME = import.meta.env.VITE_PROJECT_NAME;
 const PROJECT_SMALL_LOGO = import.meta.env.VITE_PROJECT_SMALL_LOGO;
@@ -53,6 +55,18 @@ const checkTransactionFeeOptions = async ({
   };
 };
 
+const NetworkInfo: React.FC<{ chainId: number }> = ({ chainId }) => (
+  <Box alignItems="center" justifyContent="center" flexDirection="row" gap="2">
+    <Text variant="small" color="text80">
+      on
+    </Text>
+    <NetworkImage chainId={chainId} size="sm" />
+    <Text variant="small" color="text100">
+      {allNetworks.find((n) => n.chainId === chainId)?.title}
+    </Text>
+  </Box>
+);
+
 export const Wallet: React.FC = () => {
   const { authState, signOut } = useAuth();
   const [connectionRequestWithOrigin, setConnectionRequestWithOrigin] =
@@ -60,6 +74,7 @@ export const Wallet: React.FC = () => {
   const connectionPromiseRef = useRef<Deferred<boolean> | null>(null);
 
   const [requestOrigin, setRequestOrigin] = useState<string | undefined>();
+  const [requestChainId, setRequestChainId] = useState<number | undefined>();
 
   const [txnConfirmationRequest, setTxnConfirmationRequest] = useState<
     ethers.Transaction[] | undefined
@@ -125,6 +140,9 @@ export const Wallet: React.FC = () => {
       if (origin) {
         setRequestOrigin(origin);
       }
+      if (chainId) {
+        setRequestChainId(chainId);
+      }
 
       const message = params?.[0];
       setSignConfirmationRequest({ message: ethers.toUtf8String(message) });
@@ -161,6 +179,9 @@ export const Wallet: React.FC = () => {
 
         if (origin) {
           setRequestOrigin(origin);
+        }
+        if (chainId) {
+          setRequestChainId(chainId);
         }
 
         const txns: ethers.Transaction | ethers.Transaction[] =
@@ -376,6 +397,9 @@ export const Wallet: React.FC = () => {
                       gap="3"
                       width="full"
                     >
+                      {requestChainId && (
+                        <NetworkInfo chainId={requestChainId} />
+                      )}
                       <Collapsible label="Transaction data">
                         <Box overflowX="scroll">
                           <Text variant="code" color="text80">
@@ -428,6 +452,7 @@ export const Wallet: React.FC = () => {
                 </Text>
               </Text>
               <Box marginTop="2" flexDirection="column" gap="2" width="full">
+                {requestChainId && <NetworkInfo chainId={requestChainId} />}
                 <Collapsible label="Message to sign:" open={true}>
                   <Text
                     variant="small"
