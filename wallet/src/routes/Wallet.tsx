@@ -59,6 +59,8 @@ export const Wallet: React.FC = () => {
     useState<string | undefined>();
   const connectionPromiseRef = useRef<Deferred<boolean> | null>(null);
 
+  const [requestOrigin, setRequestOrigin] = useState<string | undefined>();
+
   const [txnConfirmationRequest, setTxnConfirmationRequest] = useState<
     ethers.Transaction[] | undefined
   >(undefined);
@@ -118,7 +120,11 @@ export const Wallet: React.FC = () => {
     });
 
     walletTransport.registerHandler(HandlerType.SIGN, async (request) => {
-      const { params, chainId } = request;
+      const { params, chainId, origin } = request;
+
+      if (origin) {
+        setRequestOrigin(origin);
+      }
 
       const message = params?.[0];
       setSignConfirmationRequest({ message: ethers.toUtf8String(message) });
@@ -151,7 +157,11 @@ export const Wallet: React.FC = () => {
     walletTransport.registerHandler(
       HandlerType.SEND_TRANSACTION,
       async (request) => {
-        const { params, chainId } = request;
+        const { params, chainId, origin } = request;
+
+        if (origin) {
+          setRequestOrigin(origin);
+        }
 
         const txns: ethers.Transaction | ethers.Transaction[] =
           await ethers.resolveProperties(params?.[0]);
@@ -339,8 +349,12 @@ export const Wallet: React.FC = () => {
                   color="text100"
                   fontWeight="bold"
                   marginTop="6"
+                  textAlign="center"
                 >
-                  Transaction Confirmation
+                  Transaction Request <br />
+                  <Text variant="small" color="text80">
+                    from origin <Text fontWeight="bold">{requestOrigin} </Text>
+                  </Text>
                 </Text>
                 <Box marginTop="2" flexDirection="column" gap="2" width="full">
                   {txnConfirmationRequest.map((txn, index) => (
@@ -350,32 +364,26 @@ export const Wallet: React.FC = () => {
                       gap="3"
                       width="full"
                     >
-                      <Text variant="small" color="text80">
-                        To: {truncateAddress(txn.to || "")}
-                      </Text>
-
                       <Collapsible label="Transaction data">
-                        <Text
-                          variant="small"
-                          color="text80"
-                          style={{ wordBreak: "break-all" }}
-                        >
-                          {JSON.stringify(txn.data, null, 2)}
-                        </Text>
+                        <Box overflowX="scroll">
+                          <Text variant="code" color="text80">
+                            {JSON.stringify(txn, null, 2)}
+                          </Text>
+                        </Box>
                       </Collapsible>
                     </Box>
                   ))}
                 </Box>
                 <Box marginTop="4" gap="2">
                   <Button
-                    variant="primary"
-                    label="Approve"
-                    onClick={handleApproveTxn}
-                  />
-                  <Button
                     variant="secondary"
                     label="Reject"
                     onClick={handleRejectTxn}
+                  />
+                  <Button
+                    variant="primary"
+                    label="Approve"
+                    onClick={handleApproveTxn}
                   />
                 </Box>
               </Box>
@@ -400,8 +408,12 @@ export const Wallet: React.FC = () => {
                 color="text100"
                 fontWeight="bold"
                 marginTop="6"
+                textAlign="center"
               >
-                Signature Confirmation
+                Signature Request <br />
+                <Text variant="small" color="text80">
+                  from origin <Text fontWeight="bold">{requestOrigin} </Text>
+                </Text>
               </Text>
               <Box marginTop="2" flexDirection="column" gap="2" width="full">
                 <Collapsible label="Message to sign:" open={true}>
@@ -416,14 +428,14 @@ export const Wallet: React.FC = () => {
               </Box>
               <Box marginTop="4" gap="2">
                 <Button
-                  variant="primary"
-                  label="Approve"
-                  onClick={handleApproveSign}
-                />
-                <Button
                   variant="secondary"
                   label="Reject"
                   onClick={handleRejectSign}
+                />
+                <Button
+                  variant="primary"
+                  label="Approve"
+                  onClick={handleApproveSign}
                 />
               </Box>
             </Box>

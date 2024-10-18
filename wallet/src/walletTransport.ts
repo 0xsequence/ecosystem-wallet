@@ -174,6 +174,7 @@ export class WalletTransport {
     try {
       const handler = this.handlers.get(handlerType);
       if (handler) {
+        request.origin = event.origin;
         const result = await handler(request);
         this.sendResponse(event, request.id, result);
       }
