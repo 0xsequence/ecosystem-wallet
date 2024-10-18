@@ -11,6 +11,9 @@ importers:
       '@0xsequence/design-system':
         specifier: 1.7.8
         version: 1.7.8(@types/react-dom@18.3.0)(@types/react@18.3.10)(framer-motion@11.9.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@0xsequence/indexer':
+        specifier: ^2.0.17
+        version: 2.0.17
       '@0xsequence/network':
         specifier: 2.0.11
         version: 2.0.11(ethers@6.13.3)
@@ -92,6 +95,9 @@ packages:
 
   '@0xsequence/indexer@2.0.11':
     resolution: {integrity: sha512-d+MbxKPY80/pZhrc2MXWTCJp771+pr1P6H8tGuToiHmrlk+58GTcn97dHJ7T7gKk+1ySl+RHpihUiEHfwyEr3Q==}
+
+  '@0xsequence/indexer@2.0.17':
+    resolution: {integrity: sha512-VGjTVNCrNboIOHV/lYv9XqXqEELotOACHIRkDlF6fJh87E2vlPoKkNkAa/+IWK5vcHXWdXFdtdRKw0R9d8D0hQ==}
 
   '@0xsequence/network@2.0.11':
     resolution: {integrity: sha512-qdLxHwfsx9A//rPwQ0MDQ2Yyr7/8jnpu97+hqviOXvWSnQhvnKOMOy3NwHDAqGqUJwmvAgtzVGt7j2sZAJ+a2w==}
@@ -2137,6 +2143,8 @@ snapshots:
       - '@types/react-dom'
 
   '@0xsequence/indexer@2.0.11': {}
+
+  '@0xsequence/indexer@2.0.17': {}
 
   '@0xsequence/network@2.0.11(ethers@6.13.3)':
     dependencies:

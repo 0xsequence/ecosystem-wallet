@@ -10,7 +10,7 @@ import {
   Image,
 } from "@0xsequence/design-system";
 import { AnimatePresence, motion } from "framer-motion";
-import { ethers } from "ethers";
+import { ethers, ZeroAddress } from "ethers";
 import { UserRejectedRequestError } from "viem";
 import { Transaction, FeeOption } from "@0xsequence/waas";
 import { allNetworks } from "@0xsequence/network";
@@ -21,6 +21,9 @@ import { NetworkImage } from "../components/NetworkImage";
 import { Deferred } from "../utils/promise";
 import { sequenceWaas } from "../waasSetup";
 import { HandlerType } from "../walletTransport";
+import { getIndexerClient } from "../utils/indexer";
+import { FeeOptionSelector } from "../components/FeeOptionSelector";
+import { CopyButton } from "../components/CopyButton";
 
 // const PROJECT_NAME = import.meta.env.VITE_PROJECT_NAME;
 const PROJECT_SMALL_LOGO = import.meta.env.VITE_PROJECT_SMALL_LOGO;
@@ -81,6 +84,21 @@ export const Wallet: React.FC = () => {
   >(undefined);
   const txnConfirmationPromiseRef = useRef<Deferred<boolean> | null>(null);
 
+  const [hasCheckedFeeOptions, setHasCheckedFeeOptions] = useState(false);
+  const [txnFeeOptions, setTxnFeeOptions] = useState<FeeOption[] | undefined>(
+    undefined
+  );
+  const [feeOptionBalances, setFeeOptionBalances] = useState<
+    { tokenName: string; decimals: number; balance: string }[]
+  >([]);
+  const [selectedFeeOptionAddress, setSelectedFeeOptionAddress] = useState<
+    string | undefined
+  >();
+
+  const feeOptionSelectionPromiseRef = useRef<Deferred<
+    FeeOption | undefined
+  > | null>(null);
+
   const [signConfirmationRequest, setSignConfirmationRequest] = useState<
     { message: string } | undefined
   >(undefined);
@@ -93,6 +111,13 @@ export const Wallet: React.FC = () => {
 
   const handleApproveTxn = () => {
     if (txnConfirmationPromiseRef.current) {
+      const option = txnFeeOptions?.find(
+        (option) =>
+          (option.token.contractAddress ?? ZeroAddress) ===
+          selectedFeeOptionAddress
+      );
+      feeOptionSelectionPromiseRef.current?.resolve(option);
+
       txnConfirmationPromiseRef.current.resolve(true);
       setTxnConfirmationRequest(undefined);
     }
@@ -194,9 +219,34 @@ export const Wallet: React.FC = () => {
 
         setRegisteredSendTxnHandler(true);
 
-        const deferred = new Deferred<boolean>();
+        txnConfirmationPromiseRef.current = new Deferred<boolean>();
 
-        txnConfirmationPromiseRef.current = deferred;
+        const feeOptionsResponse = await checkTransactionFeeOptions({
+          transactions: txnsArray,
+          chainId,
+        });
+        const feeOptions = feeOptionsResponse?.feeOptions;
+
+        setHasCheckedFeeOptions(true);
+
+        feeOptionSelectionPromiseRef.current = new Deferred<
+          FeeOption | undefined
+        >();
+        setTxnFeeOptions(feeOptions);
+
+        let selectedFeeOption: FeeOption | undefined;
+
+        if (feeOptions && feeOptions.length > 0) {
+          const feeOptionSelection = await feeOptionSelectionPromiseRef.current
+            .promise;
+          selectedFeeOption = feeOptionSelection;
+
+          if (!feeOptionSelection) {
+            return new UserRejectedRequestError(
+              new Error("User rejected transaction fee option selection")
+            );
+          }
+        }
 
         const confirmation = await txnConfirmationPromiseRef.current.promise;
 
@@ -207,18 +257,6 @@ export const Wallet: React.FC = () => {
         }
 
         setIsSendingTxn(true);
-
-        const feeOptionsResponse = await checkTransactionFeeOptions({
-          transactions: [txns] as Transaction[],
-          chainId,
-        });
-        const feeOptions = feeOptionsResponse?.feeOptions;
-
-        // TODO: Add a fee option selector UI
-        let selectedFeeOption: FeeOption | undefined;
-        if (feeOptions) {
-          selectedFeeOption = feeOptions[0];
-        }
 
         const response = await sequenceWaas.sendTransaction({
           transactions: [txns] as Transaction[],
@@ -237,6 +275,58 @@ export const Wallet: React.FC = () => {
       // Clean up handlers if necessary
     };
   }, []);
+
+  useEffect(() => {
+    if (txnFeeOptions && txnFeeOptions.length > 0) {
+      checkTokenBalancesForFeeOptions();
+    }
+  }, [txnFeeOptions]);
+
+  const [isRefreshingBalance, setIsRefreshingBalance] = useState(false);
+
+  const checkTokenBalancesForFeeOptions = async () => {
+    setIsRefreshingBalance(true);
+    if (!requestChainId) {
+      throw new Error("No chainId set for request");
+    }
+    if (txnFeeOptions && authState.status === "signedIn" && authState.address) {
+      const account = authState.address;
+
+      const indexerClient = getIndexerClient(requestChainId);
+
+      const nativeTokenBalance = await indexerClient.getEtherBalance({
+        accountAddress: account,
+      });
+
+      const tokenBalances = await indexerClient.getTokenBalances({
+        accountAddress: account,
+      });
+
+      const balances = txnFeeOptions.map((option) => {
+        if (option.token.contractAddress === null) {
+          return {
+            tokenName: option.token.name,
+            decimals: option.token.decimals || 0,
+            balance: nativeTokenBalance.balance.balanceWei,
+          };
+        } else {
+          return {
+            tokenName: option.token.name,
+            decimals: option.token.decimals || 0,
+            balance:
+              tokenBalances.balances.find(
+                (b) =>
+                  b.contractAddress.toLowerCase() ===
+                  option.token.contractAddress?.toLowerCase()
+              )?.balance || "0",
+          };
+        }
+      });
+
+      setFeeOptionBalances(balances);
+    }
+    setIsRefreshingBalance(false);
+  };
 
   const handleApproveConnection = () => {
     if (connectionPromiseRef.current) {
@@ -270,12 +360,19 @@ export const Wallet: React.FC = () => {
             />
           </Box>
         )}
-        <Text variant="normal" color="text100" fontWeight="bold">
-          {authState.status === "signedIn" && authState.address
-            ? truncateAddress(authState.address, 12, 8)
-            : "Not connected"}
-        </Text>
-
+        {authState.status === "signedIn" && authState.address && (
+          <Box
+            flexDirection="row"
+            alignItems="center"
+            justifyContent="center"
+            gap="2"
+          >
+            <Text variant="normal" color="text100" fontWeight="bold">
+              {truncateAddress(authState.address, 8, 6)}
+            </Text>
+            <CopyButton text={authState.address} />
+          </Box>
+        )}
         <Button
           size="sm"
           leftIcon={SignoutIcon}
@@ -410,16 +507,40 @@ export const Wallet: React.FC = () => {
                     </Box>
                   ))}
                 </Box>
-                <Box marginTop="4" gap="2">
+                {txnFeeOptions && feeOptionBalances.length > 0 && (
+                  <FeeOptionSelector
+                    txnFeeOptions={txnFeeOptions}
+                    feeOptionBalances={feeOptionBalances}
+                    selectedFeeOptionAddress={selectedFeeOptionAddress}
+                    setSelectedFeeOptionAddress={setSelectedFeeOptionAddress}
+                    checkTokenBalancesForFeeOptions={
+                      checkTokenBalancesForFeeOptions
+                    }
+                    isRefreshingBalance={isRefreshingBalance}
+                  />
+                )}
+
+                <Box marginTop="2" paddingBottom="10" gap="2">
                   <Button
-                    variant="secondary"
                     label="Reject"
                     onClick={handleRejectTxn}
+                    disabled={
+                      !hasCheckedFeeOptions ||
+                      (txnFeeOptions &&
+                        txnFeeOptions.length > 0 &&
+                        !selectedFeeOptionAddress)
+                    }
                   />
                   <Button
                     variant="primary"
                     label="Approve"
                     onClick={handleApproveTxn}
+                    disabled={
+                      !hasCheckedFeeOptions ||
+                      (txnFeeOptions &&
+                        txnFeeOptions.length > 0 &&
+                        !selectedFeeOptionAddress)
+                    }
                   />
                 </Box>
               </Box>
