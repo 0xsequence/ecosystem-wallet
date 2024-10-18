@@ -102,6 +102,13 @@ export const Wallet: React.FC = () => {
     }
   };
 
+  const [registeredSignHandler, setRegisteredSignHandler] = useState(false);
+  const [registeredSendTxnHandler, setRegisteredSendTxnHandler] =
+    useState(false);
+
+  const allHandlersRegistered =
+    registeredSignHandler && registeredSendTxnHandler;
+
   useEffect(() => {
     walletTransport.setConnectionPromptCallback(async (origin: string) => {
       setConnectionRequestWithOrigin(origin);
@@ -115,6 +122,8 @@ export const Wallet: React.FC = () => {
 
       const message = params?.[0];
       setSignConfirmationRequest({ message: ethers.toUtf8String(message) });
+
+      setRegisteredSignHandler(true);
 
       const deferred = new Deferred<boolean>();
       signConfirmationPromiseRef.current = deferred;
@@ -151,6 +160,8 @@ export const Wallet: React.FC = () => {
         const txnsArray = Array.isArray(txns) ? txns : [txns];
 
         setTxnConfirmationRequest(txnsArray);
+
+        setRegisteredSendTxnHandler(true);
 
         const deferred = new Deferred<boolean>();
 
@@ -254,7 +265,8 @@ export const Wallet: React.FC = () => {
       </Box>
 
       <AnimatePresence>
-        {!connectionRequestWithOrigin &&
+        {allHandlersRegistered &&
+          !connectionRequestWithOrigin &&
           !txnConfirmationRequest &&
           !signConfirmationRequest && (
             <Box
@@ -273,137 +285,151 @@ export const Wallet: React.FC = () => {
           )}
       </AnimatePresence>
 
-      {connectionRequestWithOrigin && (
+      <AnimatePresence>
         <Box
-          marginTop="4"
-          flexDirection="column"
-          alignItems="center"
-          justifyContent="center"
-          padding="4"
+          as={motion.div}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
         >
-          <Text variant="large" color="text100" fontWeight="bold">
-            Connection request from {connectionRequestWithOrigin}
-          </Text>
-          <Box marginTop="4" gap="2">
-            <Button
-              variant="primary"
-              label="Approve"
-              onClick={handleApproveConnection}
-            />
-            <Button
-              variant="secondary"
-              label="Reject"
-              onClick={handleRejectConnection}
-            />
-          </Box>
-        </Box>
-      )}
-      {isSendingTxn && (
-        <Box alignItems="center" justifyContent="center" marginTop="4">
-          <Spinner size="lg" color="text100" />
-        </Box>
-      )}
-      {txnConfirmationRequest &&
-        txnConfirmationRequest.length > 0 &&
-        !isSendingTxn && (
-          <Box
-            marginTop="4"
-            flexDirection="column"
-            alignItems="center"
-            justifyContent="center"
-            padding="4"
-            borderRadius="md"
-            gap="2"
-          >
-            <Text
-              variant="medium"
-              color="text100"
-              fontWeight="bold"
-              marginTop="6"
+          {connectionRequestWithOrigin && (
+            <Box
+              marginTop="4"
+              flexDirection="column"
+              alignItems="center"
+              justifyContent="center"
+              padding="4"
             >
-              Transaction Confirmation
-            </Text>
-            <Box marginTop="2" flexDirection="column" gap="2" width="full">
-              {txnConfirmationRequest.map((txn, index) => (
-                <Box key={index} flexDirection="column" gap="3" width="full">
-                  <Text variant="small" color="text80">
-                    To: {truncateAddress(txn.to || "")}
-                  </Text>
-
-                  <Collapsible label="Transaction data">
-                    <Text
-                      variant="small"
-                      color="text80"
-                      style={{ wordBreak: "break-all" }}
-                    >
-                      {JSON.stringify(txn.data, null, 2)}
-                    </Text>
-                  </Collapsible>
-                </Box>
-              ))}
-            </Box>
-            <Box marginTop="4" gap="2">
-              <Button
-                variant="primary"
-                label="Approve"
-                onClick={handleApproveTxn}
-              />
-              <Button
-                variant="secondary"
-                label="Reject"
-                onClick={handleRejectTxn}
-              />
-            </Box>
-          </Box>
-        )}
-      {isSigningMessage && (
-        <Box alignItems="center" justifyContent="center" marginTop="4">
-          <Spinner size="lg" color="text100" />
-        </Box>
-      )}
-      {signConfirmationRequest && !isSigningMessage && (
-        <Box
-          marginTop="4"
-          flexDirection="column"
-          alignItems="center"
-          justifyContent="center"
-          padding="4"
-          borderRadius="md"
-          gap="2"
-        >
-          <Text
-            variant="medium"
-            color="text100"
-            fontWeight="bold"
-            marginTop="6"
-          >
-            Signature Confirmation
-          </Text>
-          <Box marginTop="2" flexDirection="column" gap="2" width="full">
-            <Collapsible label="Message to sign:" open={true}>
-              <Text
-                variant="small"
-                color="text80"
-                style={{ wordBreak: "break-all" }}
-              >
-                {signConfirmationRequest.message}
+              <Text variant="large" color="text100" fontWeight="bold">
+                Connection request from {connectionRequestWithOrigin}
               </Text>
-            </Collapsible>
-          </Box>
-          <Box marginTop="4" gap="2">
-            <Button
-              variant="primary"
-              label="Approve"
-              onClick={handleApproveSign}
-            />
-            <Button
-              variant="secondary"
-              label="Reject"
-              onClick={handleRejectSign}
-            />
-          </Box>
+              <Box marginTop="4" gap="2">
+                <Button
+                  variant="primary"
+                  label="Approve"
+                  onClick={handleApproveConnection}
+                />
+                <Button
+                  variant="secondary"
+                  label="Reject"
+                  onClick={handleRejectConnection}
+                />
+              </Box>
+            </Box>
+          )}
+          {isSendingTxn && (
+            <Box alignItems="center" justifyContent="center" marginTop="4">
+              <Spinner size="lg" color="text100" />
+            </Box>
+          )}
+          {txnConfirmationRequest &&
+            txnConfirmationRequest.length > 0 &&
+            !isSendingTxn && (
+              <Box
+                marginTop="4"
+                flexDirection="column"
+                alignItems="center"
+                justifyContent="center"
+                padding="4"
+                borderRadius="md"
+                gap="2"
+              >
+                <Text
+                  variant="medium"
+                  color="text100"
+                  fontWeight="bold"
+                  marginTop="6"
+                >
+                  Transaction Confirmation
+                </Text>
+                <Box marginTop="2" flexDirection="column" gap="2" width="full">
+                  {txnConfirmationRequest.map((txn, index) => (
+                    <Box
+                      key={index}
+                      flexDirection="column"
+                      gap="3"
+                      width="full"
+                    >
+                      <Text variant="small" color="text80">
+                        To: {truncateAddress(txn.to || "")}
+                      </Text>
+
+                      <Collapsible label="Transaction data">
+                        <Text
+                          variant="small"
+                          color="text80"
+                          style={{ wordBreak: "break-all" }}
+                        >
+                          {JSON.stringify(txn.data, null, 2)}
+                        </Text>
+                      </Collapsible>
+                    </Box>
+                  ))}
+                </Box>
+                <Box marginTop="4" gap="2">
+                  <Button
+                    variant="primary"
+                    label="Approve"
+                    onClick={handleApproveTxn}
+                  />
+                  <Button
+                    variant="secondary"
+                    label="Reject"
+                    onClick={handleRejectTxn}
+                  />
+                </Box>
+              </Box>
+            )}
+          {isSigningMessage && (
+            <Box alignItems="center" justifyContent="center" marginTop="4">
+              <Spinner size="lg" color="text100" />
+            </Box>
+          )}
+          {signConfirmationRequest && !isSigningMessage && (
+            <Box
+              marginTop="4"
+              flexDirection="column"
+              alignItems="center"
+              justifyContent="center"
+              padding="4"
+              borderRadius="md"
+              gap="2"
+            >
+              <Text
+                variant="medium"
+                color="text100"
+                fontWeight="bold"
+                marginTop="6"
+              >
+                Signature Confirmation
+              </Text>
+              <Box marginTop="2" flexDirection="column" gap="2" width="full">
+                <Collapsible label="Message to sign:" open={true}>
+                  <Text
+                    variant="small"
+                    color="text80"
+                    style={{ wordBreak: "break-all" }}
+                  >
+                    {signConfirmationRequest.message}
+                  </Text>
+                </Collapsible>
+              </Box>
+              <Box marginTop="4" gap="2">
+                <Button
+                  variant="primary"
+                  label="Approve"
+                  onClick={handleApproveSign}
+                />
+                <Button
+                  variant="secondary"
+                  label="Reject"
+                  onClick={handleRejectSign}
+                />
+              </Box>
+            </Box>
+          )}
         </Box>
-      )}
+      </AnimatePresence>
     </Box>
   );
 };
