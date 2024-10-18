@@ -310,19 +310,31 @@ export const Wallet: React.FC = () => {
               justifyContent="center"
               padding="4"
             >
-              <Text variant="large" color="text100" fontWeight="bold">
-                Connection request from {connectionRequestWithOrigin}
+              <Text variant="medium" color="text80">
+                Connection request from dapp with origin{" "}
+                <Text color="text100">{connectionRequestWithOrigin}</Text>
               </Text>
-              <Box marginTop="4" gap="2">
-                <Button
-                  variant="primary"
-                  label="Approve"
-                  onClick={handleApproveConnection}
-                />
+              <Box flexDirection="column" gap="2" marginTop="6">
+                <Text variant="normal" color="text80">
+                  - This will share your wallet address with the dapp
+                </Text>
+
+                <Text variant="normal" color="text80">
+                  - This will NOT allow the dapp to do any operations without
+                  your confirmation
+                </Text>
+              </Box>
+
+              <Box marginTop="6" gap="2">
                 <Button
                   variant="secondary"
                   label="Reject"
                   onClick={handleRejectConnection}
+                />
+                <Button
+                  variant="primary"
+                  label="Approve"
+                  onClick={handleApproveConnection}
                 />
               </Box>
             </Box>
