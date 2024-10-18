@@ -89,7 +89,7 @@ export const Auth: React.FC = () => {
           marginY="4"
           alignItems="center"
           justifyContent="center"
-          style={{ maxWidth: "600px" }}
+          style={{ maxWidth: "400px" }}
         >
           <Box alignItems="center" flexDirection="column" marginBottom="2">
             {PROJECT_LOGO && (
@@ -108,9 +108,9 @@ export const Auth: React.FC = () => {
                 textAlign="center"
                 marginTop="4"
               >
-                {pendingEventOrigin
-                  ? `Sign in to your ${PROJECT_NAME} wallet to give access to dapp with origin ${pendingEventOrigin}`
-                  : `Sign in to your ${PROJECT_NAME} wallet to give access`}
+                Sign in to your <Text fontWeight="bold">{PROJECT_NAME}</Text>{" "}
+                wallet to give access to dapp with origin{" "}
+                <Text fontWeight="bold">{pendingEventOrigin}</Text>
               </Text>
             )}
             {!isPopup && (

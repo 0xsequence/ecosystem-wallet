@@ -122,6 +122,10 @@ function App() {
     }
   };
 
+  const urlParams = new URLSearchParams(window.location.search);
+  const walletAppUrl =
+    urlParams.get("walletAppUrl") ?? import.meta.env.VITE_WALLET_URL;
+
   return (
     <Box
       flexDirection="column"
@@ -131,8 +135,12 @@ function App() {
       <Text variant="xlarge" marginBottom="2">
         Demo Dapp
       </Text>
-      <Text variant="normal" color="text80" marginBottom="10">
+      <Text variant="normal" color="text80" marginBottom="2">
         Using wagmi + cross app embedded wallet connector
+      </Text>
+      <Text variant="normal" color="text80" marginBottom="10">
+        Cross app embedded wallet url: {walletAppUrl} <br />
+        use walletAppUrl url param to test with another wallet
       </Text>
       <Box flexDirection="column" alignItems="center">
         {!address && (
