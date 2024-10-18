@@ -8,7 +8,7 @@ interface CopyButtonProps extends ButtonProps {
 }
 
 export const CopyButton = (props: CopyButtonProps) => {
-  const { text, size = "xs", ...rest } = props;
+  const { text, ...rest } = props;
   const [isCopied, setCopy] = useState(false);
 
   useEffect(() => {
