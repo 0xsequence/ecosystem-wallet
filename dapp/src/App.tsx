@@ -99,9 +99,6 @@ function App() {
         account: address || ("" as `0x${string}`),
         message,
       });
-      console.log("address", address);
-      console.log("signature:", sig);
-      console.log("chainId in homepage", chainId);
 
       const [account] = await walletClient.getAddresses();
 
@@ -114,8 +111,6 @@ function App() {
       setIsSigningMessage(false);
       setIsMessageValid(isValid);
       setMessageSig(sig);
-
-      console.log("isValid?", isValid);
     } catch (e) {
       setIsSigningMessage(false);
       console.error(e);

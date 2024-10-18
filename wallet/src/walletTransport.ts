@@ -60,7 +60,6 @@ export class WalletTransport {
       ) {
         unsubscribe();
 
-        console.log("processing pending event", this.pendingEvent);
         // If the pending event is not a connection request, we can continue because user has already signed in to come to this point
         // and saw connection prompt on sign in screen
         if (this.pendingEvent.data.type !== "connection") {
@@ -85,14 +84,10 @@ export class WalletTransport {
       return;
     }
 
-    console.log("Received message data:", data);
-
     if (!this.state.signedInState || !this.state.areHandlersReady) {
-      console.log("Not ready to process event, saving as pending event");
       this.pendingEvent = event;
       this.state.pendingEventOrigin = event.origin;
     } else {
-      console.log("Ready, processing event", JSON.stringify(event.data));
       if (data.type === "connection") {
         this.handleConnectionRequest(event);
       } else {
@@ -110,7 +105,6 @@ export class WalletTransport {
   }
 
   registerHandler(type: HandlerType, handler: (request: any) => Promise<any>) {
-    console.log("registering handler", type);
     this.handlers.set(type, handler);
     if (this.areAllHandlersRegistered(this.handlers)) {
       this.state.areHandlersReady = true;
@@ -231,8 +225,6 @@ export class WalletTransport {
   }
 
   private isConnectedToOrigin(origin: string): boolean {
-    console.log("state.connectedOrigins", this.state.connectedOrigins);
-    console.log("origin", origin);
     return this.state.connectedOrigins.some((co) => co.origin === origin);
   }
 

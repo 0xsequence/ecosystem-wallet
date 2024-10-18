@@ -7,6 +7,7 @@ import {
   Collapsible,
   Spinner,
   SignoutIcon,
+  Image,
 } from "@0xsequence/design-system";
 import { HandlerType } from "../walletTransport";
 import { Deferred } from "../utils/promise";
@@ -16,6 +17,11 @@ import { sequenceWaas } from "../waasSetup";
 import { Transaction, FeeOption } from "@0xsequence/waas";
 
 import { useAuth, walletTransport } from "../context/AuthContext";
+import { useConfirmDialog } from "../components/ConfirmDialogProvider";
+import { AnimatePresence, motion } from "framer-motion";
+
+// const PROJECT_NAME = import.meta.env.VITE_PROJECT_NAME;
+const PROJECT_SMALL_LOGO = import.meta.env.VITE_PROJECT_SMALL_LOGO;
 
 const checkTransactionFeeOptions = async ({
   transactions,
@@ -66,6 +72,8 @@ export const Wallet: React.FC = () => {
   const [isSendingTxn, setIsSendingTxn] = useState(false);
   const [isSigningMessage, setIsSigningMessage] = useState(false);
 
+  const { confirmAction } = useConfirmDialog();
+
   const handleApproveTxn = () => {
     if (txnConfirmationPromiseRef.current) {
       txnConfirmationPromiseRef.current.resolve(true);
@@ -103,8 +111,6 @@ export const Wallet: React.FC = () => {
     });
 
     walletTransport.registerHandler(HandlerType.SIGN, async (request) => {
-      console.log("sign handler", JSON.stringify(request));
-
       const { params, chainId } = request;
 
       const message = params?.[0];
@@ -136,8 +142,6 @@ export const Wallet: React.FC = () => {
     walletTransport.registerHandler(
       HandlerType.SEND_TRANSACTION,
       async (request) => {
-        console.log("send transaction handler", JSON.stringify(request));
-
         const { params, chainId } = request;
 
         const txns: ethers.Transaction | ethers.Transaction[] =
@@ -216,19 +220,58 @@ export const Wallet: React.FC = () => {
         padding="4"
         alignItems="center"
       >
+        {PROJECT_SMALL_LOGO && (
+          <Box>
+            <Image
+              src={PROJECT_SMALL_LOGO}
+              style={{ width: "30px", height: "30px" }}
+            />
+          </Box>
+        )}
         <Text variant="normal" color="text100" fontWeight="bold">
           {authState.status === "signedIn" && authState.address
-            ? truncateAddress(authState.address)
+            ? truncateAddress(authState.address, 12, 8)
             : "Not connected"}
         </Text>
 
         <Button
           size="sm"
           leftIcon={SignoutIcon}
-          onClick={signOut}
+          onClick={() => {
+            confirmAction({
+              title: "Signing out",
+              warningMessage: "Are you sure you want to sign out?",
+              confirmLabel: "Sign out",
+              onConfirm: async () => {
+                signOut();
+              },
+              cancelLabel: "Cancel",
+              onCancel: () => {},
+            });
+          }}
           marginLeft="auto"
         />
       </Box>
+
+      <AnimatePresence>
+        {!connectionRequestWithOrigin &&
+          !txnConfirmationRequest &&
+          !signConfirmationRequest && (
+            <Box
+              as={motion.div}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              padding="4"
+              alignItems="center"
+              justifyContent="center"
+            >
+              <Text variant="normal" color="text80">
+                No pending confirmation
+              </Text>
+            </Box>
+          )}
+      </AnimatePresence>
 
       {connectionRequestWithOrigin && (
         <Box
