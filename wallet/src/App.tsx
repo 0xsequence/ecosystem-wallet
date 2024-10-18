@@ -27,8 +27,10 @@ export const App: React.FC = () => {
     <div id="app">
       <ThemeProvider root="#app" scope="app" theme="dark">
         <AuthProvider>
-          <AppContent />
-          <PoweredBySequence />
+          <Box minHeight="vh" position="relative" paddingBottom="6">
+            <AppContent />
+            <PoweredBySequence />
+          </Box>
         </AuthProvider>
       </ThemeProvider>
     </div>

@@ -11,7 +11,6 @@ export const PoweredBySequence = () => {
         }
       }}
       gap="1"
-      marginTop="4"
       flexDirection="row"
       alignItems="center"
       justifyContent="center"
