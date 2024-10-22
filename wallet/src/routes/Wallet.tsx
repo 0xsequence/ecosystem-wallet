@@ -22,7 +22,6 @@ import { NetworkImage } from '../components/NetworkImage'
 import { useAuth, walletTransport } from '../context/AuthContext'
 import { getIndexerClient } from '../utils/indexer'
 import { Deferred } from '../utils/promise'
-import { simulateTransaction } from '../utils/transactionPreview'
 import { sequenceWaas } from '../waasSetup'
 import { HandlerType } from '../walletTransport'
 
@@ -193,13 +192,6 @@ export const Wallet: React.FC = () => {
       }
       if (chainId) {
         setRequestChainId(chainId)
-      }
-
-      try {
-        const simRes = await simulateTransaction({ ...params?.[0], chainId })
-        console.log('simRes', simRes)
-      } catch (e) {
-        console.error(e)
       }
 
       const txns: ethers.Transaction | ethers.Transaction[] = await ethers.resolveProperties(params?.[0])
