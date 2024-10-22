@@ -15,13 +15,16 @@ import { AnimatePresence, motion } from 'framer-motion'
 import React, { useEffect, useRef, useState } from 'react'
 import { UserRejectedRequestError } from 'viem'
 
+import { getIndexerClient } from '../utils/indexer'
+import { Deferred } from '../utils/promise'
+
+import { useAuth, walletTransport } from '../context/AuthContext'
+
 import { useConfirmDialog } from '../components/ConfirmDialogProvider'
 import { CopyButton } from '../components/CopyButton'
 import { FeeOptionSelector } from '../components/FeeOptionSelector'
 import { NetworkImage } from '../components/NetworkImage'
-import { useAuth, walletTransport } from '../context/AuthContext'
-import { getIndexerClient } from '../utils/indexer'
-import { Deferred } from '../utils/promise'
+
 import { sequenceWaas } from '../waasSetup'
 import { HandlerType } from '../walletTransport'
 

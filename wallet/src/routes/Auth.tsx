@@ -15,10 +15,14 @@ import { EmailConflictInfo } from '@0xsequence/waas'
 import { CredentialResponse, GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google'
 import React, { SetStateAction, useRef, useState } from 'react'
 
-import { EmailConflictWarning } from '../components/EmailConflictWarning'
-import { useAuth } from '../context/AuthContext'
-import { useEmailAuth } from '../hooks/useEmailAuth'
 import { randomName } from '../utils/string'
+
+import { useAuth } from '../context/AuthContext'
+
+import { useEmailAuth } from '../hooks/useEmailAuth'
+
+import { EmailConflictWarning } from '../components/EmailConflictWarning'
+
 import { googleClientId, sequenceWaas } from '../waasSetup'
 
 const PROJECT_NAME = import.meta.env.VITE_PROJECT_NAME
