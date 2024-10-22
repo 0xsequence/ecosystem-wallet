@@ -26,9 +26,9 @@ export const ContentModal = ({
     contentProps={{
       style: {
         overflowY: 'scroll',
-        ...contentProps?.style,
+        ...contentProps?.style
       },
-      ...contentProps,
+      ...contentProps
     }}
     {...modalProps}
   >

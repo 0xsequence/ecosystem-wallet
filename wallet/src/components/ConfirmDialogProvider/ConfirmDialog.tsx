@@ -1,27 +1,27 @@
-import { Box, Button, Spinner, Text } from "@0xsequence/design-system";
+import { Box, Button, Spinner, Text } from '@0xsequence/design-system'
 
-import { ContentModal } from "../ContentModal";
+import { ContentModal } from '../ContentModal'
 
 export type ConfirmDialogProps = {
-  cancelLabel?: string;
-  confirmLabel?: string;
-  isProcessing?: boolean;
-  onCancel?: () => void;
-  onConfirm: () => void;
-  processingLabel?: string;
-  title: string;
-  warningMessage?: string;
-};
+  cancelLabel?: string
+  confirmLabel?: string
+  isProcessing?: boolean
+  onCancel?: () => void
+  onConfirm: () => void
+  processingLabel?: string
+  title: string
+  warningMessage?: string
+}
 
 export const ConfirmDialog = ({
-  cancelLabel = "Cancel",
-  confirmLabel = "Yes",
+  cancelLabel = 'Cancel',
+  confirmLabel = 'Yes',
   isProcessing = false,
   onCancel,
   onConfirm,
-  processingLabel = "Processing",
+  processingLabel = 'Processing',
   title,
-  warningMessage,
+  warningMessage
 }: ConfirmDialogProps) => (
   <ContentModal isDismissible={false} onClose={onCancel}>
     <Box flexDirection="column" gap="4" padding="6">
@@ -53,13 +53,8 @@ export const ConfirmDialog = ({
           onClick={onConfirm}
         />
 
-        <Button
-          label={cancelLabel}
-          shape="square"
-          variant="emphasis"
-          onClick={onCancel}
-        />
+        <Button label={cancelLabel} shape="square" variant="emphasis" onClick={onCancel} />
       </Box>
     </Box>
   </ContentModal>
-);
+)

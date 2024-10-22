@@ -1,31 +1,28 @@
-import "@0xsequence/design-system/styles.css";
-import { ThemeProvider, Spinner, Box } from "@0xsequence/design-system";
-import { Auth } from "./routes/Auth";
-import { Wallet } from "./routes/Wallet";
-import { AuthProvider, useAuth } from "./context/AuthContext";
-import { PoweredBySequence } from "./components/PoweredBySequence";
-import { ConfirmDialogProvider } from "./components/ConfirmDialogProvider";
+import { Box, Spinner, ThemeProvider } from '@0xsequence/design-system'
+import '@0xsequence/design-system/styles.css'
+
+import { ConfirmDialogProvider } from './components/ConfirmDialogProvider'
+import { PoweredBySequence } from './components/PoweredBySequence'
+import { AuthProvider, useAuth } from './context/AuthContext'
+import { Auth } from './routes/Auth'
+import { Wallet } from './routes/Wallet'
 
 const AppContent: React.FC = () => {
-  const { authState } = useAuth();
+  const { authState } = useAuth()
 
   switch (authState.status) {
-    case "loading":
+    case 'loading':
       return (
-        <Box
-          alignItems="center"
-          justifyContent="center"
-          style={{ height: "calc(100vh - 24px)" }}
-        >
+        <Box alignItems="center" justifyContent="center" style={{ height: 'calc(100vh - 24px)' }}>
           <Spinner size="lg" />
         </Box>
-      );
-    case "signedIn":
-      return <Wallet />;
-    case "signedOut":
-      return <Auth />;
+      )
+    case 'signedIn':
+      return <Wallet />
+    case 'signedOut':
+      return <Auth />
   }
-};
+}
 
 export const App: React.FC = () => {
   return (
@@ -41,5 +38,5 @@ export const App: React.FC = () => {
         </AuthProvider>
       </ThemeProvider>
     </div>
-  );
-};
+  )
+}

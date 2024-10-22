@@ -1,11 +1,11 @@
-import React from "react";
+import React from 'react'
 
 export const SequenceLogo: React.FunctionComponent = ({ ...props }) => {
   return (
     <React.Fragment>
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        style={{ fill: "none" }}
+        style={{ fill: 'none' }}
         id="svg1316"
         version="1.1"
         viewBox="0 0 396 396"
@@ -14,57 +14,57 @@ export const SequenceLogo: React.FunctionComponent = ({ ...props }) => {
         <g transform="translate(0,38)" id="g1256" clipPath="url(#clip0_5_131)">
           <g id="g1254" clipPath="url(#clip1_5_131)">
             <path
-              style={{ fill: "#111111" }}
+              style={{ fill: '#111111' }}
               id="path1232"
               d="M 0,67.5049 V 250.165 c 0,37.282 30.1402,67.505 67.32,67.505 h 261.36 c 37.18,0 67.32,-30.223 67.32,-67.505 V 67.5049 C 396,30.223 365.86,0 328.68,0 H 67.32 C 30.1402,0 0,30.223 0,67.5049 Z"
             />
             <path
-              style={{ fill: "url(#paint0_linear_5_13" }}
+              style={{ fill: 'url(#paint0_linear_5_13' }}
               id="path1234"
               d="M 0,67.5049 V 250.165 c 0,37.282 30.1402,67.505 67.32,67.505 h 261.36 c 37.18,0 67.32,-30.223 67.32,-67.505 V 67.5049 C 396,30.223 365.86,0 328.68,0 H 67.32 C 30.1402,0 0,30.223 0,67.5049 Z"
             />
             <path
-              style={{ fill: "url(#paint1_linear_5_131" }}
+              style={{ fill: 'url(#paint1_linear_5_131' }}
               id="path1236"
               d="m 98.9999,79.4176 c 0,-10.9653 -8.8648,-19.8544 -19.8,-19.8544 -10.9352,0 -19.8,8.8891 -19.8,19.8544 0,10.9652 8.8648,19.8544 19.8,19.8544 10.9352,0 19.8,-8.8892 19.8,-19.8544 z"
             />
             <path
-              style={{ fill: "url(#paint2_linear_5_131)" }}
+              style={{ fill: 'url(#paint2_linear_5_131)' }}
               id="path1238"
               d="m 98.9999,79.4176 c 0,-10.9653 -8.8648,-19.8544 -19.8,-19.8544 -10.9352,0 -19.8,8.8891 -19.8,19.8544 0,10.9652 8.8648,19.8544 19.8,19.8544 10.9352,0 19.8,-8.8892 19.8,-19.8544 z"
             />
             <path
-              style={{ fill: "url(#paint3_linear_5_131)" }}
+              style={{ fill: 'url(#paint3_linear_5_131)' }}
               id="path1240"
               d="m 98.9999,79.4176 c 0,-10.9653 -8.8648,-19.8544 -19.8,-19.8544 -10.9352,0 -19.8,8.8891 -19.8,19.8544 0,10.9652 8.8648,19.8544 19.8,19.8544 10.9352,0 19.8,-8.8892 19.8,-19.8544 z"
             />
             <path
-              style={{ fill: "url(#paint4_linear_5_131)" }}
+              style={{ fill: 'url(#paint4_linear_5_131)' }}
               id="path1242"
               d="m 98.9999,238.126 c 0,-10.965 -8.8648,-19.854 -19.8,-19.854 -10.9352,0 -19.8,8.889 -19.8,19.854 0,10.966 8.8648,19.855 19.8,19.855 10.9352,0 19.8,-8.889 19.8,-19.855 z"
             />
             <path
-              style={{ fill: "url(#paint5_linear_5_131)" }}
+              style={{ fill: 'url(#paint5_linear_5_131)' }}
               id="path1244"
               d="m 336.6,158.835 c 0,-10.965 -8.865,-19.854 -19.8,-19.854 -10.935,0 -19.8,8.889 -19.8,19.854 0,10.965 8.865,19.855 19.8,19.855 10.935,0 19.8,-8.89 19.8,-19.855 z"
             />
             <path
-              style={{ fill: "url(#paint6_linear_5_131)" }}
+              style={{ fill: 'url(#paint6_linear_5_131)' }}
               id="path1246"
               d="m 336.6,158.835 c 0,-10.965 -8.865,-19.854 -19.8,-19.854 -10.935,0 -19.8,8.889 -19.8,19.854 0,10.965 8.865,19.855 19.8,19.855 10.935,0 19.8,-8.89 19.8,-19.855 z"
             />
             <path
-              style={{ fill: "url(#paint7_linear_5_131)" }}
+              style={{ fill: 'url(#paint7_linear_5_131)' }}
               id="path1248"
               d="M 316.8,59.5632 H 158.4 c -10.935,0 -19.8,8.8891 -19.8,19.8544 0,10.9652 8.865,19.8544 19.8,19.8544 h 158.4 c 10.935,0 19.8,-8.8892 19.8,-19.8544 0,-10.9653 -8.865,-19.8544 -19.8,-19.8544 z"
             />
             <path
-              style={{ fill: "url(#paint8_linear_5_131)" }}
+              style={{ fill: 'url(#paint8_linear_5_131)' }}
               id="path1250"
               d="M 316.8,218.272 H 158.4 c -10.935,0 -19.8,8.889 -19.8,19.854 0,10.966 8.865,19.855 19.8,19.855 h 158.4 c 10.935,0 19.8,-8.889 19.8,-19.855 0,-10.965 -8.865,-19.854 -19.8,-19.854 z"
             />
             <path
-              style={{ fill: "url(#paint9_linear_5_131)" }}
+              style={{ fill: 'url(#paint9_linear_5_131)' }}
               id="path1252"
               d="M 237.6,138.981 H 79.2 c -10.9352,0 -19.8,8.889 -19.8,19.854 0,10.965 8.8648,19.855 19.8,19.855 h 158.4 c 10.935,0 19.8,-8.89 19.8,-19.855 0,-10.965 -8.865,-19.854 -19.8,-19.854 z"
             />
@@ -182,27 +182,13 @@ export const SequenceLogo: React.FunctionComponent = ({ ...props }) => {
             <stop id="stop1305" stopColor="#9C6DFF" offset="1" />
           </linearGradient>
           <clipPath id="clip0_5_131">
-            <rect
-              style={{ fill: "#ffffff" }}
-              y="0"
-              x="0"
-              id="rect1308"
-              height="317.67001"
-              width="396"
-            />
+            <rect style={{ fill: '#ffffff' }} y="0" x="0" id="rect1308" height="317.67001" width="396" />
           </clipPath>
           <clipPath id="clip1_5_131">
-            <rect
-              style={{ fill: "#ffffff" }}
-              y="0"
-              x="0"
-              id="rect1311"
-              height="317.67001"
-              width="396"
-            />
+            <rect style={{ fill: '#ffffff' }} y="0" x="0" id="rect1311" height="317.67001" width="396" />
           </clipPath>
         </defs>
       </svg>
     </React.Fragment>
-  );
-};
+  )
+}

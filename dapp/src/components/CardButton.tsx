@@ -1,14 +1,14 @@
-import { Card, Box, Text, Spinner } from "@0xsequence/design-system";
+import { Box, Card, Spinner, Text } from '@0xsequence/design-system'
 
 interface CardButtonProps {
-  title: string;
-  description: string;
-  onClick: () => void;
-  isPending?: boolean;
+  title: string
+  description: string
+  onClick: () => void
+  isPending?: boolean
 }
 
 export const CardButton = (props: CardButtonProps) => {
-  const { title, description, onClick, isPending } = props;
+  const { title, description, onClick, isPending } = props
 
   return (
     <Card clickable onClick={onClick}>
@@ -28,5 +28,5 @@ export const CardButton = (props: CardButtonProps) => {
         </Box>
       )}
     </Card>
-  );
-};
+  )
+}

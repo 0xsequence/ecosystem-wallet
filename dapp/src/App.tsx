@@ -1,7 +1,8 @@
-import { allNetworks } from "@0xsequence/network";
-import { Box, Card, Divider, Text } from "@0xsequence/design-system";
-import { ethers } from "ethers";
-import { useEffect, useState } from "react";
+import { Box, Card, Divider, Text } from '@0xsequence/design-system'
+import { allNetworks } from '@0xsequence/network'
+import { ethers } from 'ethers'
+import { useEffect, useState } from 'react'
+import { arbitrumNova, arbitrumSepolia } from 'viem/chains'
 import {
   Connector,
   useAccount,
@@ -11,41 +12,38 @@ import {
   usePublicClient,
   useSendTransaction,
   useSwitchChain,
-  useWalletClient,
-} from "wagmi";
+  useWalletClient
+} from 'wagmi'
 
-import "./App.css";
-import { CardButton } from "./components/CardButton";
-import { arbitrumNova, arbitrumSepolia } from "viem/chains";
+import './App.css'
+import { CardButton } from './components/CardButton'
 
-const messageToSign = "Test message 1 2 3...";
+const messageToSign = 'Test message 1 2 3...'
 
 function App() {
-  const { address } = useAccount();
-  const { disconnect } = useDisconnect();
+  const { address } = useAccount()
+  const { disconnect } = useDisconnect()
 
-  const chainId = useChainId();
-  const { switchChain } = useSwitchChain();
+  const chainId = useChainId()
+  const { switchChain } = useSwitchChain()
 
-  const networkForCurrentChainId = allNetworks.find(
-    (n) => n.chainId === chainId
-  )!;
+  const networkForCurrentChainId = allNetworks.find(n => n.chainId === chainId)!
 
-  const { data: walletClient } = useWalletClient();
+  const { data: walletClient } = useWalletClient()
   const {
     data: txnHash,
     sendTransaction,
-    isPending: isPendingSendTxn,
+    isPending: isPendingSendTxn
     // error,
-  } = useSendTransaction();
+  } = useSendTransaction()
 
-  const [lastTxnHash, setLastTxnHash] = useState<string | undefined>();
+  const [lastTxnHash, setLastTxnHash] = useState<string | undefined>()
 
   useEffect(() => {
     if (txnHash) {
-      setLastTxnHash(txnHash);
+      setLastTxnHash(txnHash)
     }
-  }, [txnHash]);
+  }, [txnHash])
 
   const runSendTransaction = async () => {
     // NOTE: commented code is how to send ETH value to the account
@@ -57,76 +55,68 @@ function App() {
 
     // NOTE: below is a a simple contract call.
     if (!walletClient) {
-      return;
+      return
     }
 
-    setLastTxnHash(undefined);
+    setLastTxnHash(undefined)
 
-    const contractAbiInterface = new ethers.Interface(["function demo()"]);
+    const contractAbiInterface = new ethers.Interface(['function demo()'])
 
-    const data = contractAbiInterface.encodeFunctionData(
-      "demo",
-      []
-    ) as `0x${string}`;
+    const data = contractAbiInterface.encodeFunctionData('demo', []) as `0x${string}`
 
     sendTransaction({
-      to: "0x37470dac8a0255141745906c972e414b1409b470",
+      to: '0x37470dac8a0255141745906c972e414b1409b470',
       data,
-      gas: null,
-    });
-  };
+      gas: null
+    })
+  }
 
-  const publicClient = usePublicClient({ chainId });
+  const publicClient = usePublicClient({ chainId })
 
-  const [isSigningMessage, setIsSigningMessage] = useState(false);
-  const [isMessageValid, setIsMessageValid] = useState<boolean | undefined>();
-  const [messageSig, setMessageSig] = useState<string | undefined>();
+  const [isSigningMessage, setIsSigningMessage] = useState(false)
+  const [isMessageValid, setIsMessageValid] = useState<boolean | undefined>()
+  const [messageSig, setMessageSig] = useState<string | undefined>()
 
   const runSignMessage = async () => {
     if (!walletClient || !publicClient) {
-      return;
+      return
     }
 
-    setIsMessageValid(undefined);
-    setMessageSig(undefined);
-    setIsSigningMessage(true);
+    setIsMessageValid(undefined)
+    setMessageSig(undefined)
+    setIsSigningMessage(true)
 
     try {
-      const message = messageToSign;
+      const message = messageToSign
 
       // sign
       const sig = await walletClient.signMessage({
-        account: address || ("" as `0x${string}`),
-        message,
-      });
+        account: address || ('' as `0x${string}`),
+        message
+      })
 
-      const [account] = await walletClient.getAddresses();
+      const [account] = await walletClient.getAddresses()
 
       const isValid = await publicClient.verifyMessage({
         address: account,
         message,
-        signature: sig,
-      });
+        signature: sig
+      })
 
-      setIsSigningMessage(false);
-      setIsMessageValid(isValid);
-      setMessageSig(sig);
+      setIsSigningMessage(false)
+      setIsMessageValid(isValid)
+      setMessageSig(sig)
     } catch (e) {
-      setIsSigningMessage(false);
-      console.error(e);
+      setIsSigningMessage(false)
+      console.error(e)
     }
-  };
+  }
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const walletAppUrl =
-    urlParams.get("walletAppUrl") ?? import.meta.env.VITE_WALLET_URL;
+  const urlParams = new URLSearchParams(window.location.search)
+  const walletAppUrl = urlParams.get('walletAppUrl') ?? import.meta.env.VITE_WALLET_URL
 
   return (
-    <Box
-      flexDirection="column"
-      alignItems="center"
-      style={{ maxWidth: "540px" }}
-    >
+    <Box flexDirection="column" alignItems="center" style={{ maxWidth: '540px' }}>
       <Text variant="xlarge" marginBottom="2">
         Demo Dapp
       </Text>
@@ -152,7 +142,7 @@ function App() {
             alignItems="center"
             justifyContent="center"
             gap="2"
-            style={{ maxWidth: "540px" }}
+            style={{ maxWidth: '540px' }}
           >
             <Text variant="medium" color="text50" fontWeight="bold">
               Connected wallet:
@@ -170,16 +160,14 @@ function App() {
             <CardButton
               title="Switch chain"
               description={`Switch chain to ${
-                chainId === arbitrumNova.id
-                  ? "Arbitrum Sepolia"
-                  : "Arbitrum Nova"
+                chainId === arbitrumNova.id ? 'Arbitrum Sepolia' : 'Arbitrum Nova'
               }`}
               onClick={() => {
-                setLastTxnHash(undefined);
+                setLastTxnHash(undefined)
                 if (chainId === arbitrumNova.id) {
-                  switchChain({ chainId: arbitrumSepolia.id });
+                  switchChain({ chainId: arbitrumSepolia.id })
                 } else {
-                  switchChain({ chainId: arbitrumNova.id });
+                  switchChain({ chainId: arbitrumNova.id })
                 }
               }}
             />
@@ -213,12 +201,7 @@ function App() {
             />
 
             {isMessageValid && (
-              <Card
-                width="full"
-                color={"text100"}
-                flexDirection={"column"}
-                gap={"2"}
-              >
+              <Card width="full" color={'text100'} flexDirection={'column'} gap={'2'}>
                 <Text variant="medium">Signed message:</Text>
                 <Text>{messageToSign}</Text>
                 <Text variant="medium">Signature:</Text>
@@ -226,7 +209,7 @@ function App() {
                   {messageSig}
                 </Text>
                 <Text variant="medium">
-                  isValid:{" "}
+                  isValid:{' '}
                   <Text variant="code" ellipsis>
                     {isMessageValid.toString()}
                   </Text>
@@ -241,8 +224,8 @@ function App() {
         <Box marginTop="6">
           <button
             onClick={() => {
-              disconnect();
-              setLastTxnHash(undefined);
+              disconnect()
+              setLastTxnHash(undefined)
             }}
           >
             Disconnect
@@ -250,42 +233,32 @@ function App() {
         </Box>
       )}
     </Box>
-  );
+  )
 }
 
 function WalletOptions() {
-  const { connectors, connect } = useConnect();
+  const { connectors, connect } = useConnect()
 
-  return connectors.map((connector) => (
-    <WalletOption
-      key={connector.uid}
-      connector={connector}
-      onClick={() => connect({ connector })}
-    />
-  ));
+  return connectors.map(connector => (
+    <WalletOption key={connector.uid} connector={connector} onClick={() => connect({ connector })} />
+  ))
 }
 
-function WalletOption({
-  connector,
-  onClick,
-}: {
-  connector: Connector;
-  onClick: () => void;
-}) {
-  const [ready, setReady] = useState(false);
+function WalletOption({ connector, onClick }: { connector: Connector; onClick: () => void }) {
+  const [ready, setReady] = useState(false)
 
   useEffect(() => {
-    (async () => {
-      const provider = await connector.getProvider();
-      setReady(!!provider);
-    })();
-  }, [connector]);
+    ;(async () => {
+      const provider = await connector.getProvider()
+      setReady(!!provider)
+    })()
+  }, [connector])
 
   return (
-    <button disabled={!ready} onClick={onClick} style={{ marginRight: "5px" }}>
+    <button disabled={!ready} onClick={onClick} style={{ marginRight: '5px' }}>
       {connector.name}
     </button>
-  );
+  )
 }
 
-export default App;
+export default App

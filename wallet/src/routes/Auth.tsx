@@ -1,84 +1,76 @@
-import React, { SetStateAction, useRef, useState } from "react";
 import {
-  CredentialResponse,
-  GoogleLogin,
-  GoogleOAuthProvider,
-} from "@react-oauth/google";
-import {
+  ArrowRightIcon,
   Box,
   Button,
+  Card,
   Divider,
+  Image,
   Modal,
   PINCodeInput,
   Spinner,
   Text,
-  TextInput,
-  Image,
-  Card,
-  ArrowRightIcon,
-} from "@0xsequence/design-system";
-import { EmailConflictInfo } from "@0xsequence/waas";
+  TextInput
+} from '@0xsequence/design-system'
+import { EmailConflictInfo } from '@0xsequence/waas'
+import { CredentialResponse, GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google'
+import React, { SetStateAction, useRef, useState } from 'react'
 
-import { EmailConflictWarning } from "../components/EmailConflictWarning";
-import { useAuth } from "../context/AuthContext";
-import { useEmailAuth } from "../hooks/useEmailAuth";
-import { randomName } from "../utils/string";
+import { EmailConflictWarning } from '../components/EmailConflictWarning'
+import { useAuth } from '../context/AuthContext'
+import { useEmailAuth } from '../hooks/useEmailAuth'
+import { randomName } from '../utils/string'
+import { googleClientId, sequenceWaas } from '../waasSetup'
 
-import { sequenceWaas, googleClientId } from "../waasSetup";
-
-const PROJECT_NAME = import.meta.env.VITE_PROJECT_NAME;
-const PROJECT_LOGO = import.meta.env.VITE_PROJECT_LOGO;
+const PROJECT_NAME = import.meta.env.VITE_PROJECT_NAME
+const PROJECT_LOGO = import.meta.env.VITE_PROJECT_LOGO
 
 export const Auth: React.FC = () => {
-  const { setWalletAddress, pendingEventOrigin } = useAuth();
+  const { setWalletAddress, pendingEventOrigin } = useAuth()
 
   const handleGoogleLogin = async (tokenResponse: CredentialResponse) => {
     try {
       const res = await sequenceWaas.signIn(
         {
-          idToken: tokenResponse.credential!,
+          idToken: tokenResponse.credential!
         },
         randomName()
-      );
-      setWalletAddress(res.wallet);
+      )
+      setWalletAddress(res.wallet)
     } catch (error) {
-      console.error(error);
+      console.error(error)
     }
-  };
+  }
 
   const {
     inProgress: emailAuthInProgress,
     loading: emailAuthLoading,
     initiateAuth: initiateEmailAuth,
     sendChallengeAnswer,
-    cancel: cancelEmailAuth,
+    cancel: cancelEmailAuth
   } = useEmailAuth({
     sessionName: randomName(),
     onSuccess: async ({ wallet }) => {
-      setWalletAddress(wallet);
-    },
-  });
+      setWalletAddress(wallet)
+    }
+  })
 
-  const [email, setEmail] = useState("");
-  const inputRef = useRef<HTMLInputElement | null>(null);
-  const isEmailValid = inputRef.current?.validity.valid;
-  const [showEmailWarning, setEmailWarning] = useState(false);
-  const [code, setCode] = useState<string[]>([]);
+  const [email, setEmail] = useState('')
+  const inputRef = useRef<HTMLInputElement | null>(null)
+  const isEmailValid = inputRef.current?.validity.valid
+  const [showEmailWarning, setEmailWarning] = useState(false)
+  const [code, setCode] = useState<string[]>([])
 
-  const [emailConflictInfo, setEmailConflictInfo] = useState<
-    EmailConflictInfo | undefined
-  >();
-  const [isEmailConflictModalOpen, setIsEmailConflictModalOpen] =
-    useState(false);
-  const forceCreateFuncRef = useRef<(() => Promise<void>) | null>(null);
+  const [emailConflictInfo, setEmailConflictInfo] = useState<EmailConflictInfo | undefined>()
+  const [isEmailConflictModalOpen, setIsEmailConflictModalOpen] = useState(false)
+  const forceCreateFuncRef = useRef<(() => Promise<void>) | null>(null)
 
   sequenceWaas.onEmailConflict(async (info, forceCreate) => {
-    forceCreateFuncRef.current = forceCreate;
-    setEmailConflictInfo(info);
-    setIsEmailConflictModalOpen(true);
-  });
+    forceCreateFuncRef.current = forceCreate
+    setEmailConflictInfo(info)
+    setIsEmailConflictModalOpen(true)
+  })
 
-  const isPopup = window.opener !== null;
+  const isPopup = window.opener !== null
 
   return (
     <Box padding="4">
@@ -89,34 +81,20 @@ export const Auth: React.FC = () => {
           marginY="4"
           alignItems="center"
           justifyContent="center"
-          style={{ maxWidth: "400px" }}
+          style={{ maxWidth: '400px' }}
         >
           <Box alignItems="center" flexDirection="column" marginBottom="2">
-            {PROJECT_LOGO && (
-              <Image
-                src={PROJECT_LOGO}
-                maxWidth="1/2"
-                maxHeight="1/4"
-                aspectRatio="1/1"
-              />
-            )}
+            {PROJECT_LOGO && <Image src={PROJECT_LOGO} maxWidth="1/2" maxHeight="1/4" aspectRatio="1/1" />}
 
             {isPopup && (
-              <Text
-                variant="normal"
-                color="text100"
-                textAlign="center"
-                marginTop="4"
-              >
-                Sign in to your <Text fontWeight="bold">{PROJECT_NAME}</Text>{" "}
-                wallet to give access to dapp with origin{" "}
-                <Text fontWeight="bold">{pendingEventOrigin}</Text>
+              <Text variant="normal" color="text100" textAlign="center" marginTop="4">
+                Sign in to your <Text fontWeight="bold">{PROJECT_NAME}</Text> wallet to give access to dapp
+                with origin <Text fontWeight="bold">{pendingEventOrigin}</Text>
               </Text>
             )}
             {!isPopup && (
               <Text variant="medium" color="text80" marginTop="4">
-                Sign in to your <Text color="text100">{PROJECT_NAME}</Text>{" "}
-                wallet
+                Sign in to your <Text color="text100">{PROJECT_NAME}</Text> wallet
               </Text>
             )}
           </Box>
@@ -131,12 +109,7 @@ export const Auth: React.FC = () => {
                 </Box>
                 <Box marginTop="4">
                   <GoogleOAuthProvider clientId={googleClientId}>
-                    <GoogleLogin
-                      key="google"
-                      onSuccess={handleGoogleLogin}
-                      shape="circle"
-                      width={230}
-                    />
+                    <GoogleLogin key="google" onSuccess={handleGoogleLogin} shape="circle" width={230} />
                   </GoogleOAuthProvider>
                 </Box>
                 <Divider background="buttonGlass" width="full" />
@@ -152,12 +125,7 @@ export const Auth: React.FC = () => {
             {sendChallengeAnswer ? (
               <Box flexDirection="column" marginTop="6" padding="4">
                 <Box>
-                  <Text
-                    variant="normal"
-                    color="text80"
-                    alignItems="center"
-                    justifyContent="center"
-                  >
+                  <Text variant="normal" color="text80" alignItems="center" justifyContent="center">
                     Enter code received in email.
                   </Text>
                 </Box>
@@ -165,20 +133,15 @@ export const Auth: React.FC = () => {
                   <PINCodeInput value={code} digits={6} onChange={setCode} />
                 </Box>
 
-                <Box
-                  gap="2"
-                  marginTop="4"
-                  alignItems="center"
-                  justifyContent="center"
-                >
+                <Box gap="2" marginTop="4" alignItems="center" justifyContent="center">
                   {emailAuthLoading ? (
                     <Spinner />
                   ) : (
                     <Button
                       variant="primary"
-                      disabled={code.includes("")}
+                      disabled={code.includes('')}
                       label="Verify"
-                      onClick={() => sendChallengeAnswer(code.join(""))}
+                      onClick={() => sendChallengeAnswer(code.join(''))}
                       data-id="verifyButton"
                     />
                   )}
@@ -187,8 +150,7 @@ export const Auth: React.FC = () => {
             ) : (
               <Box marginTop="2">
                 <Text variant="normal" color="text80">
-                  Enter your email to receive a code to login and create your
-                  wallet.
+                  Enter your email to receive a code to login and create your wallet.
                 </Text>
 
                 <Box flexDirection="row" gap="2">
@@ -196,15 +158,13 @@ export const Auth: React.FC = () => {
                     <TextInput
                       name="email"
                       type="email"
-                      onChange={(ev: {
-                        target: { value: SetStateAction<string> };
-                      }) => {
-                        setEmail(ev.target.value);
+                      onChange={(ev: { target: { value: SetStateAction<string> } }) => {
+                        setEmail(ev.target.value)
                       }}
                       ref={inputRef}
                       onKeyDown={(ev: { key: string }) => {
-                        if (email && ev.key === "Enter") {
-                          initiateEmailAuth(email);
+                        if (email && ev.key === 'Enter') {
+                          initiateEmailAuth(email)
                         }
                       }}
                       onBlur={() => setEmailWarning(!!email && !isEmailValid)}
@@ -219,12 +179,7 @@ export const Auth: React.FC = () => {
                       </Text>
                     )}
                   </Box>
-                  <Box
-                    gap="2"
-                    marginTop="4"
-                    alignItems="center"
-                    justifyContent="center"
-                  >
+                  <Box gap="2" marginTop="4" alignItems="center" justifyContent="center">
                     {emailAuthLoading ? (
                       <Spinner />
                     ) : (
@@ -250,22 +205,22 @@ export const Auth: React.FC = () => {
           <EmailConflictWarning
             info={emailConflictInfo}
             onCancel={() => {
-              setIsEmailConflictModalOpen(false);
-              setEmailConflictInfo(undefined);
+              setIsEmailConflictModalOpen(false)
+              setEmailConflictInfo(undefined)
               if (emailAuthInProgress) {
-                setCode([]);
-                cancelEmailAuth();
-                setEmail("");
+                setCode([])
+                cancelEmailAuth()
+                setEmail('')
               }
             }}
             onConfirm={async () => {
-              setIsEmailConflictModalOpen(false);
-              setEmailConflictInfo(undefined);
-              await forceCreateFuncRef.current?.();
+              setIsEmailConflictModalOpen(false)
+              setEmailConflictInfo(undefined)
+              await forceCreateFuncRef.current?.()
             }}
           />
         </Modal>
       )}
     </Box>
-  );
-};
+  )
+}

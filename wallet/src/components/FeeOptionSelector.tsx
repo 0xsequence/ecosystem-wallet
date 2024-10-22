@@ -1,26 +1,22 @@
-import React, { ComponentProps } from "react";
-import { Box, Text, Button } from "@0xsequence/design-system";
-import { FeeOption } from "@0xsequence/waas";
-import { formatUnits, parseUnits, ZeroAddress } from "ethers";
+import { Box, Button, Text } from '@0xsequence/design-system'
+import { FeeOption } from '@0xsequence/waas'
+import { ZeroAddress, formatUnits, parseUnits } from 'ethers'
+import React, { ComponentProps } from 'react'
 
 interface FeeOptionSelectorProps {
-  txnFeeOptions: FeeOption[];
-  feeOptionBalances: { tokenName: string; decimals: number; balance: string }[];
-  selectedFeeOptionAddress: string | undefined;
-  setSelectedFeeOptionAddress: (address: string) => void;
-  checkTokenBalancesForFeeOptions: () => void;
-  isRefreshingBalance: boolean;
+  txnFeeOptions: FeeOption[]
+  feeOptionBalances: { tokenName: string; decimals: number; balance: string }[]
+  selectedFeeOptionAddress: string | undefined
+  setSelectedFeeOptionAddress: (address: string) => void
+  checkTokenBalancesForFeeOptions: () => void
+  isRefreshingBalance: boolean
 }
 
-const isBalanceSufficient = (
-  balance: string,
-  fee: string,
-  decimals: number
-) => {
-  const balanceBN = parseUnits(balance, decimals);
-  const feeBN = parseUnits(fee, decimals);
-  return balanceBN >= feeBN;
-};
+const isBalanceSufficient = (balance: string, fee: string, decimals: number) => {
+  const balanceBN = parseUnits(balance, decimals)
+  const feeBN = parseUnits(fee, decimals)
+  return balanceBN >= feeBN
+}
 
 export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
   txnFeeOptions,
@@ -28,11 +24,9 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
   selectedFeeOptionAddress,
   setSelectedFeeOptionAddress,
   checkTokenBalancesForFeeOptions,
-  isRefreshingBalance,
+  isRefreshingBalance
 }) => {
-  const [feeOptionAlert, setFeeOptionAlert] = React.useState<
-    AlertProps | undefined
-  >();
+  const [feeOptionAlert, setFeeOptionAlert] = React.useState<AlertProps | undefined>()
 
   return (
     <Box marginY="3" width="full">
@@ -41,61 +35,47 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
       </Text>
       <Box flexDirection="column" marginTop="2" gap="2">
         {txnFeeOptions.map((option, index) => {
-          console.log(option);
-          const balance = feeOptionBalances.find(
-            (b) => b.tokenName === option.token.name
-          );
+          console.log(option)
+          const balance = feeOptionBalances.find(b => b.tokenName === option.token.name)
           const isSufficient = isBalanceSufficient(
-            balance?.balance || "0",
+            balance?.balance || '0',
             option.value,
             option.token.decimals || 0
-          );
+          )
           return (
             <Box
               key={index}
               padding="3"
               borderRadius="md"
               background={
-                selectedFeeOptionAddress ===
-                (option.token.contractAddress ?? ZeroAddress)
-                  ? "gradientBackdrop"
-                  : "backgroundRaised"
+                selectedFeeOptionAddress === (option.token.contractAddress ?? ZeroAddress)
+                  ? 'gradientBackdrop'
+                  : 'backgroundRaised'
               }
               onClick={() => {
                 if (isSufficient) {
-                  console.log("set selected fee option");
-                  setSelectedFeeOptionAddress(
-                    option.token.contractAddress ?? ZeroAddress
-                  );
-                  setFeeOptionAlert(undefined);
+                  console.log('set selected fee option')
+                  setSelectedFeeOptionAddress(option.token.contractAddress ?? ZeroAddress)
+                  setFeeOptionAlert(undefined)
                 } else {
                   setFeeOptionAlert({
-                    title: "Insufficient balance",
+                    title: 'Insufficient balance',
                     description: `You do not have enough balance to pay the fee with ${option.token.name}.`,
-                    secondaryDescription:
-                      "Please select another fee option or add funds to your wallet.",
-                    variant: "warning",
-                  });
+                    secondaryDescription: 'Please select another fee option or add funds to your wallet.',
+                    variant: 'warning'
+                  })
                 }
               }}
-              cursor={isSufficient ? "pointer" : "default"}
-              opacity={isSufficient ? "100" : "50"}
+              cursor={isSufficient ? 'pointer' : 'default'}
+              opacity={isSufficient ? '100' : '50'}
             >
-              <Box
-                flexDirection="row"
-                justifyContent="space-between"
-                alignItems="center"
-              >
+              <Box flexDirection="row" justifyContent="space-between" alignItems="center">
                 <Box flexDirection="column">
                   <Text variant="small" color="text100" fontWeight="bold">
                     {option.token.name}
                   </Text>
                   <Text variant="xsmall" color="text80">
-                    Fee:{" "}
-                    {formatUnits(
-                      BigInt(option.value),
-                      option.token.decimals || 0
-                    )}
+                    Fee: {formatUnits(BigInt(option.value), option.token.decimals || 0)}
                   </Text>
                 </Box>
                 <Box flexDirection="column" alignItems="flex-end">
@@ -103,27 +83,19 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
                     Balance:
                   </Text>
                   <Text variant="xsmall" color="text100">
-                    {formatUnits(
-                      BigInt(balance?.balance || "0"),
-                      option.token.decimals || 0
-                    )}
+                    {formatUnits(BigInt(balance?.balance || '0'), option.token.decimals || 0)}
                   </Text>
                 </Box>
               </Box>
             </Box>
-          );
+          )
         })}
       </Box>
-      <Box
-        marginY="2"
-        alignItems="flex-end"
-        justifyContent="center"
-        flexDirection="column"
-      >
+      <Box marginY="2" alignItems="flex-end" justifyContent="center" flexDirection="column">
         <Button
           size="sm"
           onClick={checkTokenBalancesForFeeOptions}
-          label={isRefreshingBalance ? "Refreshing..." : "Refresh Balance"}
+          label={isRefreshingBalance ? 'Refreshing...' : 'Refresh Balance'}
           disabled={isRefreshingBalance}
         />
         {feeOptionAlert && (
@@ -138,17 +110,17 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
         )}
       </Box>
     </Box>
-  );
-};
+  )
+}
 
 export type AlertProps = {
-  title: string;
-  description: string;
-  secondaryDescription?: string;
-  variant: "negative" | "warning" | "positive";
-  buttonProps?: ComponentProps<typeof Button>;
-  children?: React.ReactNode;
-};
+  title: string
+  description: string
+  secondaryDescription?: string
+  variant: 'negative' | 'warning' | 'positive'
+  buttonProps?: ComponentProps<typeof Button>
+  children?: React.ReactNode
+}
 
 export const Alert = ({
   title,
@@ -156,25 +128,20 @@ export const Alert = ({
   secondaryDescription,
   variant,
   buttonProps,
-  children,
+  children
 }: AlertProps) => {
   return (
     <Box borderRadius="md" background={variant}>
       <Box
         background="backgroundOverlay"
         borderRadius="md"
-        paddingX={{ sm: "4", md: "5" }}
+        paddingX={{ sm: '4', md: '5' }}
         paddingY="4"
         width="full"
         flexDirection="column"
         gap="3"
       >
-        <Box
-          width="full"
-          flexDirection={{ sm: "column", md: "row" }}
-          gap="2"
-          justifyContent="space-between"
-        >
+        <Box width="full" flexDirection={{ sm: 'column', md: 'row' }} gap="2" justifyContent="space-between">
           <Box flexDirection="column" gap="1">
             <Text variant="normal" color="text100" fontWeight="medium">
               {title}
@@ -192,18 +159,8 @@ export const Alert = ({
           </Box>
 
           {buttonProps ? (
-            <Box
-              background={variant}
-              borderRadius="sm"
-              width={"min"}
-              height={"min"}
-            >
-              <Button
-                variant="emphasis"
-                shape="square"
-                flexShrink="0"
-                {...buttonProps}
-              />
+            <Box background={variant} borderRadius="sm" width={'min'} height={'min'}>
+              <Button variant="emphasis" shape="square" flexShrink="0" {...buttonProps} />
             </Box>
           ) : null}
         </Box>
@@ -211,5 +168,5 @@ export const Alert = ({
         {children}
       </Box>
     </Box>
-  );
-};
+  )
+}

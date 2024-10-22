@@ -1,7 +1,7 @@
 flowchart TD
-    A[Start] --> B[Initialize WalletTransport]
-    B --> C[Load Connected Origins]
-    C --> D[Wait for Incoming Message]
+A[Start] --> B[Initialize WalletTransport]
+B --> C[Load Connected Origins]
+C --> D[Wait for Incoming Message]
 
     D --> E{Message Type}
     E -->|Connection| F[Handle Connection Request]
