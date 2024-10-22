@@ -75,7 +75,11 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
                     {option.token.name}
                   </Text>
                   <Text variant="xsmall" color="text80">
-                    Fee: {formatUnits(BigInt(option.value), option.token.decimals || 0)}
+                    Fee:{' '}
+                    {parseFloat(formatUnits(BigInt(option.value), option.token.decimals || 0)).toLocaleString(
+                      undefined,
+                      { maximumFractionDigits: 6 }
+                    )}
                   </Text>
                 </Box>
                 <Box flexDirection="column" alignItems="flex-end">
@@ -83,7 +87,9 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
                     Balance:
                   </Text>
                   <Text variant="xsmall" color="text100">
-                    {formatUnits(BigInt(balance?.balance || '0'), option.token.decimals || 0)}
+                    {parseFloat(
+                      formatUnits(BigInt(balance?.balance || '0'), option.token.decimals || 0)
+                    ).toLocaleString(undefined, { maximumFractionDigits: 6 })}
                   </Text>
                 </Box>
               </Box>
