@@ -81,8 +81,17 @@ const TransactionDetails: React.FC<{
         <Box key={index} flexDirection="column" gap="3" width="full">
           {chainId && <NetworkInfo chainId={chainId} />}
           <Collapsible label="Transaction data">
-            <Box overflowX="scroll">
-              <Text variant="code" color="text80">
+            <Box
+              overflowX="scroll"
+              background="backgroundSecondary"
+              padding="4"
+              borderRadius="md"
+              style={{
+                whiteSpace: 'pre',
+                maxHeight: '300px'
+              }}
+            >
+              <Text variant="code" color="text100">
                 {JSON.stringify(txn, null, 2)}
               </Text>
             </Box>
