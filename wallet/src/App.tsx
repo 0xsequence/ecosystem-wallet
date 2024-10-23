@@ -1,4 +1,4 @@
-import { Box, Spinner, ThemeProvider } from '@0xsequence/design-system'
+import { Box, Spinner, ThemeProvider, ToastProvider } from '@0xsequence/design-system'
 import '@0xsequence/design-system/styles.css'
 
 import { ConfirmDialogProvider } from './components/ConfirmDialogProvider'
@@ -29,12 +29,14 @@ export const App: React.FC = () => {
     <div id="app">
       <ThemeProvider root="#app" scope="app" theme="dark">
         <AuthProvider>
-          <ConfirmDialogProvider>
-            <Box minHeight="vh" position="relative" paddingBottom="6">
-              <AppContent />
-              <PoweredBySequence />
-            </Box>
-          </ConfirmDialogProvider>
+          <ToastProvider>
+            <ConfirmDialogProvider>
+              <Box minHeight="vh" position="relative" paddingBottom="6">
+                <AppContent />
+                <PoweredBySequence />
+              </Box>
+            </ConfirmDialogProvider>
+          </ToastProvider>
         </AuthProvider>
       </ThemeProvider>
     </div>

@@ -247,14 +247,7 @@ export const Wallet: React.FC = () => {
               )}
 
               <Box marginTop="2" paddingBottom="10" gap="2">
-                <Button
-                  label="Reject"
-                  onClick={handleRejectTxn}
-                  disabled={
-                    !hasCheckedFeeOptions ||
-                    (txnFeeOptions && txnFeeOptions.length > 0 && !selectedFeeOptionAddress)
-                  }
-                />
+                <Button label="Reject" onClick={handleRejectTxn} disabled={!hasCheckedFeeOptions} />
                 <Button
                   variant="primary"
                   label="Approve"

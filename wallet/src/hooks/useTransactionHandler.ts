@@ -186,6 +186,7 @@ export const useTransactionHandler = () => {
 
   const handleRejectTxn = () => {
     if (txnConfirmationPromiseRef.current) {
+      feeOptionSelectionPromiseRef.current?.resolve(undefined)
       txnConfirmationPromiseRef.current.resolve(false)
       setTransactionRequest(undefined)
     }
