@@ -211,7 +211,7 @@ export const Wallet: React.FC = () => {
                 </Text>
               </Box>
               <Box marginTop="6" gap="2">
-                <Button variant="secondary" label="Reject" onClick={handleRejectConnection} />
+                <Button label="Reject" onClick={handleRejectConnection} />
                 <Button variant="primary" label="Approve" onClick={handleApproveConnection} />
               </Box>
             </Box>
@@ -273,7 +273,7 @@ export const Wallet: React.FC = () => {
             >
               <SignatureDetails message={signRequest.message} chainId={signChainId} origin={signOrigin} />
               <Box marginTop="4" gap="2">
-                <Button variant="secondary" label="Reject" onClick={handleRejectSign} />
+                <Button label="Reject" onClick={handleRejectSign} />
                 <Button variant="primary" label="Approve" onClick={handleApproveSign} />
               </Box>
             </Box>

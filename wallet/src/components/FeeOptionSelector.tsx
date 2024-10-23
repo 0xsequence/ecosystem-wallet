@@ -28,13 +28,25 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
 }) => {
   const [feeOptionAlert, setFeeOptionAlert] = React.useState<AlertProps | undefined>()
 
+  const sortedOptions = [...txnFeeOptions].sort((a, b) => {
+    const balanceA = feeOptionBalances.find(balance => balance.tokenName === a.token.name)
+    const balanceB = feeOptionBalances.find(balance => balance.tokenName === b.token.name)
+    const isSufficientA = balanceA
+      ? isBalanceSufficient(balanceA.balance, a.value, a.token.decimals || 0)
+      : false
+    const isSufficientB = balanceB
+      ? isBalanceSufficient(balanceB.balance, b.value, b.token.decimals || 0)
+      : false
+    return isSufficientA === isSufficientB ? 0 : isSufficientA ? -1 : 1
+  })
+
   return (
     <Box marginY="3" width="full">
       <Text variant="medium" color="text100" fontWeight="bold">
         Select a fee option
       </Text>
       <Box flexDirection="column" marginTop="2" gap="2">
-        {txnFeeOptions.map((option, index) => {
+        {sortedOptions.map((option, index) => {
           console.log(option)
           const balance = feeOptionBalances.find(b => b.tokenName === option.token.name)
           const isSufficient = isBalanceSufficient(
