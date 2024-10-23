@@ -8,7 +8,7 @@ const walletAppUrl = urlParams.get('walletAppUrl') ?? import.meta.env.VITE_WALLE
 const connector = sequenceCrossAppEmbeddedWallet({
   projectAccessKey: import.meta.env.VITE_PROJECT_ACCESS_KEY,
   walletUrl: walletAppUrl,
-  chainId: 42170
+  chainId: arbitrumNova.id
 })
 
 export const config = createConfig({
