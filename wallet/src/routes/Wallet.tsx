@@ -281,7 +281,7 @@ export const Wallet: React.FC = () => {
               gap="2"
             >
               <SignatureDetails message={signRequest.message} chainId={signChainId} origin={signOrigin} />
-              <Box marginTop="4" gap="2">
+              <Box marginTop="4" marginBottom="2" gap="2">
                 <Button label="Reject" onClick={handleRejectSign} />
                 <Button variant="primary" label="Approve" onClick={handleApproveSign} />
               </Box>
