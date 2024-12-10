@@ -14,6 +14,7 @@ import {
 import { EmailConflictInfo } from '@0xsequence/waas'
 import { CredentialResponse, GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google'
 import React, { SetStateAction, useRef, useState } from 'react'
+import { appleAuthHelpers, useScript } from 'react-apple-signin-auth'
 
 import { randomName } from '../utils/string'
 
@@ -21,18 +22,38 @@ import { useAuth } from '../context/AuthContext'
 
 import { useEmailAuth } from '../hooks/useEmailAuth'
 
+import { AppleLogo } from '../components/AppleLogo'
 import { EmailConflictWarning } from '../components/EmailConflictWarning'
+import { GoogleLogo } from '../components/GoogleLogo'
 
 import { googleClientId, sequenceWaas } from '../waasSetup'
 
 const PROJECT_NAME = import.meta.env.VITE_PROJECT_NAME
 const PROJECT_LOGO = import.meta.env.VITE_PROJECT_LOGO
 
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
+
+const APPLE_CLIENT_ID = import.meta.env.VITE_APPLE_CLIENT_ID
+const APPLE_REDIRECT_URI = import.meta.env.VITE_APPLE_REDIRECT_URI
+
+const BUTTON_SIZE = '14'
+const ICON_SIZE = '10'
+
+interface AppleAuthResponse {
+  authorization: {
+    id_token: string
+  }
+}
+
 export const Auth: React.FC = () => {
+  useScript(appleAuthHelpers.APPLE_SCRIPT_SRC)
+
   const { setWalletAddress, pendingEventOrigin } = useAuth()
+  const [isSocialLoginInProgress, setIsSocialLoginInProgress] = useState(false)
 
   const handleGoogleLogin = async (tokenResponse: CredentialResponse) => {
     try {
+      setIsSocialLoginInProgress(true)
       const res = await sequenceWaas.signIn(
         {
           idToken: tokenResponse.credential!
@@ -42,6 +63,40 @@ export const Auth: React.FC = () => {
       setWalletAddress(res.wallet)
     } catch (error) {
       console.error(error)
+    } finally {
+      setIsSocialLoginInProgress(false)
+    }
+  }
+
+  const handleAppleLogin = async () => {
+    try {
+      setIsSocialLoginInProgress(true)
+      await appleAuthHelpers.signIn({
+        authOptions: {
+          clientId: APPLE_CLIENT_ID,
+          redirectURI: APPLE_REDIRECT_URI,
+          scope: 'openid email',
+          usePopup: true
+        },
+        onSuccess: async (response: AppleAuthResponse) => {
+          try {
+            const res = await sequenceWaas.signIn(
+              {
+                idToken: response.authorization.id_token
+              },
+              randomName()
+            )
+            setWalletAddress(res.wallet)
+          } catch (error) {
+            console.error(error)
+          } finally {
+            setIsSocialLoginInProgress(false)
+          }
+        }
+      })
+    } catch (error) {
+      console.error(error)
+      setIsSocialLoginInProgress(false)
     }
   }
 
@@ -103,24 +158,110 @@ export const Auth: React.FC = () => {
             )}
           </Box>
 
-          <Card marginTop="4">
+          <Card marginTop="4" paddingBottom="4">
             {!emailAuthInProgress && (
               <>
-                <Box>
+                <Box justifyContent="center">
                   <Text variant="medium" color="text100">
-                    Sign in with Google
+                    Sign in with social login
                   </Text>
                 </Box>
-                <Box marginTop="4">
-                  <GoogleOAuthProvider clientId={googleClientId}>
-                    <GoogleLogin key="google" onSuccess={handleGoogleLogin} shape="circle" width={230} />
-                  </GoogleOAuthProvider>
+                <Box
+                  flexDirection="row"
+                  gap="2"
+                  marginY="5"
+                  justifyContent="center"
+                  alignItems="center"
+                  height={BUTTON_SIZE}
+                >
+                  {isSocialLoginInProgress ? (
+                    <Spinner size="md" />
+                  ) : (
+                    <>
+                      {GOOGLE_CLIENT_ID && (
+                        <GoogleOAuthProvider clientId={googleClientId}>
+                          <Card
+                            clickable
+                            background="transparent"
+                            borderRadius="xs"
+                            padding="0"
+                            width={BUTTON_SIZE}
+                            height={BUTTON_SIZE}
+                            position="relative"
+                          >
+                            <Box
+                              width="full"
+                              height="full"
+                              overflow="hidden"
+                              borderRadius="sm"
+                              alignItems="center"
+                              justifyContent="center"
+                              style={{ opacity: 0.0000001, transform: 'scale(1.4)' }}
+                            >
+                              <GoogleLogin
+                                type="icon"
+                                size="large"
+                                width="56"
+                                onSuccess={handleGoogleLogin}
+                                onError={() => {
+                                  console.log('Login Failed')
+                                  setIsSocialLoginInProgress(false)
+                                }}
+                              />
+                            </Box>
+                            <Box
+                              background="backgroundSecondary"
+                              borderRadius="xs"
+                              display="flex"
+                              justifyContent="center"
+                              alignItems="center"
+                              position="absolute"
+                              pointerEvents="none"
+                              width="full"
+                              height="full"
+                              top="0"
+                              right="0"
+                            >
+                              <Box as={GoogleLogo} width={ICON_SIZE} height={ICON_SIZE} />
+                            </Box>
+                          </Card>
+                        </GoogleOAuthProvider>
+                      )}
+
+                      {APPLE_CLIENT_ID && (
+                        <Card
+                          clickable
+                          background="transparent"
+                          borderRadius="xs"
+                          padding="0"
+                          width={BUTTON_SIZE}
+                          height={BUTTON_SIZE}
+                          position="relative"
+                          onClick={handleAppleLogin}
+                        >
+                          <Box
+                            background="backgroundSecondary"
+                            borderRadius="xs"
+                            display="flex"
+                            justifyContent="center"
+                            alignItems="center"
+                            width="full"
+                            height="full"
+                          >
+                            <Box as={AppleLogo} width={ICON_SIZE} height={ICON_SIZE} />
+                          </Box>
+                        </Card>
+                      )}
+                    </>
+                  )}
                 </Box>
-                <Divider background="buttonGlass" width="full" />
+                <Box position="relative" width="full">
+                  <Divider background="buttonGlass" width="full" />
+                </Box>
               </>
             )}
 
-            <Box>
+            <Box justifyContent="center">
               <Text variant="medium" color="text100">
                 Sign in with email
               </Text>
