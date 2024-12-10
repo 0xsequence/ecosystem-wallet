@@ -23,11 +23,13 @@ The wallet can be opened and send messages back to the dApp through the transpor
 
 The wallet application requires the following environment variables to be set:
 
-### Authentication & Configuration
+### Configuration
 
-- `VITE_PROJECT_ACCESS_KEY`: Sequence project access key for authentication
+- `VITE_PROJECT_ACCESS_KEY`: Sequence project access key
 - `VITE_WAAS_CONFIG_KEY`: WaaS (Wallet-as-a-Service) configuration key from sequence.build
 - `VITE_GOOGLE_CLIENT_ID`: Google OAuth client ID for social authentication
+- `VITE_APPLE_CLIENT_ID`: Apple client ID
+- `VITE_APPLE_REDIRECT_URI`: Apple redirect URI
 
 ### Customization
 
