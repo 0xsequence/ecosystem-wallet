@@ -358,6 +358,7 @@ export const Auth: React.FC = () => {
             onCancel={() => {
               setIsEmailConflictModalOpen(false)
               setEmailConflictInfo(undefined)
+              setIsSocialLoginInProgress(false)
               if (emailAuthInProgress) {
                 setCode([])
                 cancelEmailAuth()
