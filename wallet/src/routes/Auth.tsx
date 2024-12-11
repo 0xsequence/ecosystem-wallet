@@ -168,7 +168,7 @@ export const Auth: React.FC = () => {
                 </Box>
                 <Box
                   flexDirection="row"
-                  gap="2"
+                  gap="4"
                   marginY="5"
                   justifyContent="center"
                   alignItems="center"
@@ -268,7 +268,13 @@ export const Auth: React.FC = () => {
             </Box>
 
             {sendChallengeAnswer ? (
-              <Box flexDirection="column" marginTop="6" padding="4">
+              <Box
+                flexDirection="column"
+                marginTop="6"
+                padding="4"
+                alignItems="center"
+                justifyContent="center"
+              >
                 <Box>
                   <Text variant="normal" color="text80" alignItems="center" justifyContent="center">
                     Enter code received in email.

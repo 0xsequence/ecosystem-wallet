@@ -9,11 +9,11 @@ interface EmailConflictWarningProps {
 
 const accountTypeText = (info: EmailConflictInfo) => {
   if (info.type === IdentityType.PlayFab) {
-    return 'PlayFab login'
+    return 'PlayFab'
   }
 
   if (info.type === IdentityType.Email) {
-    return 'Email login'
+    return 'Email'
   }
 
   if (info.type === IdentityType.OIDC) {
@@ -23,9 +23,9 @@ const accountTypeText = (info: EmailConflictInfo) => {
 
     switch (info.issuer) {
       case 'https://accounts.google.com':
-        return 'Google login'
+        return 'Google'
       case 'https://appleid.apple.com':
-        return 'Apple login'
+        return 'Apple'
       default:
         return 'Unknown account type'
     }
@@ -35,7 +35,7 @@ const accountTypeText = (info: EmailConflictInfo) => {
 }
 
 export const EmailConflictWarning = (props: EmailConflictWarningProps) => {
-  const { onCancel, onConfirm } = props
+  const { onCancel } = props
 
   return (
     <Box
@@ -53,15 +53,14 @@ export const EmailConflictWarning = (props: EmailConflictWarningProps) => {
       </Box>
       <Box height="full">
         <Text as="div" variant="normal" color="text50" textAlign="center">
-          Another account with this email address <Text color="text80">({props.info.email})</Text> already
-          exists with account type <Text color="text80">({accountTypeText(props.info)})</Text>. You can cancel
-          this or force create a new account.
+          It looks like you've previously signed into this email{' '}
+          <Text color="text80">({props.info.email})</Text> with another login method. Please sign in again and
+          select the <Text color="text80">{accountTypeText(props.info)}</Text> option to access your account.
         </Text>
       </Box>
 
-      <Box flexDirection="row" gap="3" marginTop="6" marginBottom="2">
-        <Button label="Cancel" onClick={onCancel} />
-        <Button variant="primary" label="Create new account" onClick={onConfirm} />
+      <Box flexDirection="row" gap="3" marginTop="2" marginBottom="2">
+        <Button label="OK" onClick={onCancel} />
       </Box>
     </Box>
   )
