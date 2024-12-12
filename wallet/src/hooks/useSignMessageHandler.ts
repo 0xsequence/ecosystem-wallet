@@ -1,6 +1,6 @@
 import { ethers } from 'ethers'
 import { useEffect, useRef, useState } from 'react'
-import { UserRejectedRequestError } from 'viem'
+import { BaseError, UserRejectedRequestError } from 'viem'
 
 import { Deferred } from '../utils/promise'
 
@@ -20,7 +20,7 @@ export const useSignMessageHandler = () => {
 
   useEffect(() => {
     walletTransport.registerHandler(HandlerType.SIGN, async request => {
-      const { params, chainId, origin } = request
+      const { params, chainId, origin, method } = request
 
       if (origin) {
         setRequestOrigin(origin)
@@ -29,8 +29,27 @@ export const useSignMessageHandler = () => {
         setRequestChainId(chainId)
       }
 
-      const message = params?.[0]
-      setSignRequest({ message: ethers.toUtf8String(message) })
+      let messageToDisplay: string
+      let messageToSign: string
+
+      if (method === 'eth_signTypedData' || method === 'eth_signTypedData_v4') {
+        const typedData = JSON.parse(params[1]) // For typed data, the data is the second parameter
+        const { domain, types, message: value } = typedData
+
+        // Remove EIP712Domain from types as it's handled by ethers
+        delete types.EIP712Domain
+
+        // Generate the digest
+        messageToSign = ethers.TypedDataEncoder.hash(domain, types, value)
+
+        messageToDisplay = JSON.stringify(typedData, null, 2)
+      } else {
+        // Regular message signing (eth_sign or personal_sign)
+        messageToSign = params[0]
+        messageToDisplay = ethers.toUtf8String(messageToSign)
+      }
+
+      setSignRequest({ message: messageToDisplay })
       setIsSignHandlerRegistered(true)
 
       const deferred = new Deferred<boolean>()
@@ -44,15 +63,18 @@ export const useSignMessageHandler = () => {
 
       setIsSigningMessage(true)
 
-      const result = await sequenceWaas.signMessage({
-        message: message,
-        network: chainId
-      })
-
-      setIsSigningMessage(false)
-      setSignRequest(undefined)
-
-      return result
+      try {
+        const result = await sequenceWaas.signMessage({
+          message: messageToSign,
+          network: chainId
+        })
+        return result
+      } catch (error) {
+        throw new BaseError(error instanceof Error ? error.message : 'Failed to sign message')
+      } finally {
+        setIsSigningMessage(false)
+        setSignRequest(undefined)
+      }
     })
   }, [])
 
