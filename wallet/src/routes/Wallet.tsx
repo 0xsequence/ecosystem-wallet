@@ -107,8 +107,15 @@ const SignatureDetails: React.FC<{
   chainId?: number
   origin?: string
 }> = ({ message, chainId, origin }) => {
-  // Check if the message is JSON
-  const isJson = message.startsWith('{') || message.startsWith('[')
+  // Check if the message is valid JSON
+  const isJson = React.useMemo(() => {
+    try {
+      JSON.parse(message)
+      return true
+    } catch {
+      return false
+    }
+  }, [message])
 
   return (
     <Box flexDirection="column" gap="2" width="full">
