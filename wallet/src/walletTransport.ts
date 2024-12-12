@@ -27,6 +27,7 @@ interface WalletTransportState {
 export class WalletTransport {
   state: WalletTransportState
   private connectionPromptCallback: ((origin: string) => Promise<boolean>) | undefined
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private handlers: Map<HandlerType, (request: any) => Promise<any>> = new Map()
   private pendingEvent: MessageEvent | undefined
 
@@ -92,6 +93,7 @@ export class WalletTransport {
     this.connectionPromptCallback = callback
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   registerHandler(type: HandlerType, handler: (request: any) => Promise<any>) {
     this.handlers.set(type, handler)
     if (this.areAllHandlersRegistered(this.handlers)) {
@@ -167,6 +169,7 @@ export class WalletTransport {
     status: 'accepted' | 'rejected',
     reason?: string
   ) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const response: any = { type: 'connection', id, status }
     if (status === 'accepted' && this.state.signedInState) {
       response.walletAddress = this.state.signedInState.address
@@ -176,6 +179,7 @@ export class WalletTransport {
     event.source?.postMessage(response, { targetOrigin: event.origin })
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private sendResponse(event: MessageEvent, id: string, result: any) {
     event.source?.postMessage({ type: 'request', id, result }, { targetOrigin: event.origin })
   }
@@ -205,6 +209,7 @@ export class WalletTransport {
     localStorage.setItem('connectedOrigins', JSON.stringify(this.state.connectedOrigins))
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private areAllHandlersRegistered(handlers: Map<HandlerType, (request: any) => Promise<any>>): boolean {
     return Object.values(HandlerType).every(type => handlers.has(type))
   }
