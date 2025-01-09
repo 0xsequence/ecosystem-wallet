@@ -164,11 +164,7 @@ function App() {
       setIsSigningTypedData(false)
     } catch (e) {
       setIsSigningTypedData(false)
-      if (e instanceof Error) {
-        console.error(e.cause)
-      } else {
-        console.error(e)
-      }
+      console.error(e)
     }
   }
 
