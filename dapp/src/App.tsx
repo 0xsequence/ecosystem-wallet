@@ -50,13 +50,6 @@ function App() {
     // if (!walletClient) {
     //   return
     // }
-    // const [account] = await walletClient.getAddresses()
-    // sendTransaction({ to: account, value: '0', gas: null })
-
-    // NOTE: below is a a simple contract call.
-    if (!walletClient) {
-      return
-    }
 
     setLastTxnHash(undefined)
 
@@ -109,6 +102,73 @@ function App() {
     } catch (e) {
       setIsSigningMessage(false)
       console.error(e)
+    }
+  }
+
+  const [isSigningTypedData, setIsSigningTypedData] = useState(false)
+  const [typedDataSig, setTypedDataSig] = useState<string | undefined>()
+  const [isTypedDataValid, setIsTypedDataValid] = useState<boolean | undefined>()
+
+  const domain = {
+    name: 'Sequence Example',
+    version: '1',
+    chainId: chainId,
+    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC'
+  } as const
+
+  const types = {
+    Person: [
+      { name: 'name', type: 'string' },
+      { name: 'wallet', type: 'address' }
+    ]
+  } as const
+
+  const value = {
+    name: 'John Doe',
+    wallet: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC'
+  } as const
+
+  const runSignTypedData = async () => {
+    if (!walletClient || !address || !publicClient) {
+      return
+    }
+
+    setIsSigningTypedData(true)
+
+    try {
+      const sig = await walletClient.signTypedData({
+        account: address,
+        domain,
+        types,
+        primaryType: 'Person',
+        message: value
+      })
+
+      console.log('signature:', sig)
+
+      const [account] = await walletClient.getAddresses()
+
+      const isValid = await publicClient.verifyTypedData({
+        address: account,
+        domain,
+        types,
+        primaryType: 'Person',
+        message: value,
+        signature: sig
+      })
+
+      console.log('isValid?', isValid)
+
+      setTypedDataSig(sig)
+      setIsTypedDataValid(isValid)
+      setIsSigningTypedData(false)
+    } catch (e) {
+      setIsSigningTypedData(false)
+      if (e instanceof Error) {
+        console.error(e.cause)
+      } else {
+        console.error(e)
+      }
     }
   }
 
@@ -213,6 +273,37 @@ function App() {
                   <Text variant="code" ellipsis>
                     {isMessageValid.toString()}
                   </Text>
+                </Text>
+              </Card>
+            )}
+
+            <CardButton
+              title="Sign typed data"
+              description="Sign typed data with your wallet"
+              onClick={runSignTypedData}
+              isPending={isSigningTypedData}
+            />
+            {typedDataSig && (
+              <Card style={{ width: '332px' }} color={'text100'} flexDirection={'column'} gap={'2'}>
+                <Text variant="medium">Signed typed data:</Text>
+                <Text variant="code" as="p">
+                  {JSON.stringify(
+                    {
+                      domain,
+                      types,
+                      primaryType: 'Person',
+                      message: value
+                    },
+                    null,
+                    2
+                  )}
+                </Text>
+                <Text variant="medium">Signature:</Text>
+                <Text variant="code" as="p" ellipsis>
+                  {typedDataSig}
+                </Text>
+                <Text variant="medium">
+                  isValid: <Text variant="code">{isTypedDataValid?.toString()}</Text>
                 </Text>
               </Card>
             )}
