@@ -11,9 +11,9 @@
   },
   "dependencies": {
     "@0xsequence/design-system": "1.7.8",
-    "@0xsequence/indexer": "^2.0.17",
-    "@0xsequence/network": "2.0.17",
-    "@0xsequence/waas": "2.0.17",
+    "@0xsequence/indexer": "^2.2.4",
+    "@0xsequence/network": "^2.2.4",
+    "@0xsequence/waas": "^2.2.4",
     "@react-oauth/google": "^0.12.1",
     "ethers": "6.13.3",
     "framer-motion": "^11.5.2",
