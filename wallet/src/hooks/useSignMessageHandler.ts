@@ -34,13 +34,9 @@ export const useSignMessageHandler = () => {
 
       if (method === 'eth_signTypedData' || method === 'eth_signTypedData_v4') {
         const typedData = JSON.parse(params[1]) // For typed data, the data is the second parameter
-        const { domain, types, message: value } = typedData
-
-        // Remove EIP712Domain from types as it's handled by ethers
-        delete types.EIP712Domain
 
         // Generate the digest
-        messageToSign = ethers.TypedDataEncoder.hash(domain, types, value)
+        messageToSign = typedData
 
         messageToDisplay = JSON.stringify(typedData, null, 2)
       } else {
@@ -64,10 +60,20 @@ export const useSignMessageHandler = () => {
       setIsSigningMessage(true)
 
       try {
-        const result = await sequenceWaas.signMessage({
-          message: messageToSign,
-          network: chainId
-        })
+        let result
+
+        if (method === 'eth_signTypedData' || method === 'eth_signTypedData_v4') {
+          result = await sequenceWaas.signTypedData({
+            typedData: messageToSign,
+            network: chainId
+          })
+        } else {
+          result = await sequenceWaas.signMessage({
+            message: messageToSign,
+            network: chainId
+          })
+        }
+
         return result
       } catch (error) {
         throw new BaseError(error instanceof Error ? error.message : 'Failed to sign message')
