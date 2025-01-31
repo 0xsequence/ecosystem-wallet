@@ -23,6 +23,7 @@ import { useConfirmDialog } from '../components/ConfirmDialogProvider'
 import { CopyButton } from '../components/CopyButton'
 import { FeeOptionSelector } from '../components/FeeOptionSelector'
 import { NetworkImage } from '../components/NetworkImage'
+import { WalletConnect } from '../components/WalletConnect'
 
 const PROJECT_SMALL_LOGO = import.meta.env.VITE_PROJECT_SMALL_LOGO
 
@@ -214,6 +215,10 @@ export const Wallet: React.FC = () => {
         address={authState.status === 'signedIn' ? authState.address : undefined}
         onSignOut={handleSignOut}
       />
+
+      <Box marginTop="10" alignItems="center" justifyContent="center">
+        <WalletConnect />
+      </Box>
 
       <AnimatePresence>
         {allHandlersRegistered && !connectionRequest && !transactionRequest && !signRequest && (
