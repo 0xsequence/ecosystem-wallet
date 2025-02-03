@@ -231,7 +231,7 @@ export const Wallet: React.FC = () => {
                   <Text color="text100">WalletConnect</Text>
                   {activeWcSessions.length > 0 && (
                     <Text color="text80" variant="small">
-                      {activeWcSessions.length} Active Connection
+                      {activeWcSessions.length} Active Connection{activeWcSessions.length > 1 ? 's' : ''}
                     </Text>
                   )}
                 </Box>

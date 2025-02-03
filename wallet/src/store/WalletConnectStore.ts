@@ -241,26 +241,57 @@ class WalletConnectStore {
         params: requestParams
       })
 
+      // For eth_sign, first parameter is address and second is message
+      // For personal_sign, first parameter is message and second is address
+      const formattedParams =
+        params.request.method === 'eth_sign' && Array.isArray(requestParams) && requestParams.length === 2
+          ? [requestParams[1], requestParams[0]] // Swap parameters for eth_sign
+          : requestParams
+
       const result = await walletTransport.handleWalletConnectRequest(
         {
           data: {
             type: 'request',
             id,
             method: params.request.method,
-            params: requestParams,
+            params: formattedParams,
             chainId
           },
           origin: session.peer.metadata.url
         } as any // eslint-disable-line @typescript-eslint/no-explicit-any
       )
 
-      // Send response back through WalletConnect
+      console.log('Request result:', result)
+
+      // Format and send response back through WalletConnect
+      let formattedResult = result
+
+      // Handle signing method responses
+      if (
+        params.request.method === 'personal_sign' ||
+        params.request.method === 'eth_sign' ||
+        params.request.method === 'eth_signTypedData' ||
+        params.request.method === 'eth_signTypedData_v4'
+      ) {
+        // Extract signature from result object
+        if (result?.code === 'signedMessage' && result?.data?.signature) {
+          formattedResult = result.data.signature
+        }
+      }
+      // Handle transaction responses
+      else if (params.request.method === 'eth_sendTransaction') {
+        // Extract transaction hash from result object
+        if (result?.code === 'transactionReceipt' && result?.data?.txHash) {
+          formattedResult = result.data.txHash
+        }
+      }
+
       this.signClient?.respond({
         topic,
         response: {
           id,
           jsonrpc: '2.0',
-          result
+          result: formattedResult
         }
       })
     } catch (err) {

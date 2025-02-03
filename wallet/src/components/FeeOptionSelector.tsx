@@ -65,7 +65,6 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
               }
               onClick={() => {
                 if (isSufficient) {
-                  console.log('set selected fee option')
                   setSelectedFeeOptionAddress(option.token.contractAddress ?? ZeroAddress)
                   setFeeOptionAlert(undefined)
                 } else {
