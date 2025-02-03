@@ -1,4 +1,4 @@
-import { Box, Button, Image, Text, TextInput } from '@0xsequence/design-system'
+import { Box, Button, Divider, Image, Text, TextInput } from '@0xsequence/design-system'
 import { SessionTypes } from '@walletconnect/types'
 import { useState } from 'react'
 import { useSnapshot } from 'valtio'
@@ -136,21 +136,11 @@ export const WalletConnect = () => {
     .map(s => mapSessionToView(s as SessionTypes.Struct))
 
   return (
-    <Box padding="4" gap="6" flexDirection="column">
+    <Box gap="2" flexDirection="column" style={{ maxWidth: '400px' }}>
       <Box flexDirection="column" gap="2">
-        <Box flexDirection="row" justifyContent="space-between" alignItems="center">
-          <Text variant="medium" color="text100" fontWeight="bold">
-            WalletConnect
-          </Text>
-          {validSessions.length > 0 && (
-            <Text variant="small" color="text80">
-              {validSessions.length} Active
-            </Text>
-          )}
-        </Box>
         <Box flexDirection="column" gap="3">
           <Text variant="small" color="text80">
-            Paste a WalletConnect URI to connect with a dApp
+            Paste a WalletConnect URI to connect to a dApp
           </Text>
           <Box flexDirection="column" gap="2" width="full">
             <TextInput
@@ -174,34 +164,40 @@ export const WalletConnect = () => {
       </Box>
 
       {validSessions.length > 0 && (
-        <Box flexDirection="column" gap="2">
-          {validSessions.map(session => (
-            <ActiveSessionCard
-              key={session.topic}
-              session={session}
-              onDisconnect={walletConnectStore.disconnectSession}
-            />
-          ))}
-        </Box>
+        <>
+          <Divider width="full" />
+          <Box flexDirection="column" gap="2">
+            {validSessions.map(session => (
+              <ActiveSessionCard
+                key={session.topic}
+                session={session}
+                onDisconnect={walletConnectStore.disconnectSession}
+              />
+            ))}
+          </Box>
+        </>
       )}
 
       {!validSessions.length && (
-        <Box
-          flexDirection="column"
-          alignItems="center"
-          justifyContent="center"
-          gap="2"
-          padding="6"
-          background="backgroundSecondary"
-          borderRadius="md"
-        >
-          <Text variant="normal" color="text80" textAlign="center">
-            No active connections
-          </Text>
-          <Text variant="small" color="text50" textAlign="center">
-            Connect to a dApp using WalletConnect to get started
-          </Text>
-        </Box>
+        <>
+          <Divider width="full" />
+          <Box
+            flexDirection="column"
+            alignItems="center"
+            justifyContent="center"
+            gap="2"
+            padding="6"
+            background="backgroundSecondary"
+            borderRadius="md"
+          >
+            <Text variant="normal" color="text80" textAlign="center">
+              No active connections
+            </Text>
+            <Text variant="small" color="text50" textAlign="center">
+              Connect to a dApp using WalletConnect to get started
+            </Text>
+          </Box>
+        </>
       )}
     </Box>
   )

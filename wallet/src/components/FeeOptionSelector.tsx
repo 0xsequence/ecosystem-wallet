@@ -47,7 +47,6 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
       </Text>
       <Box flexDirection="column" marginTop="2" gap="2">
         {sortedOptions.map((option, index) => {
-          console.log(option)
           const balance = feeOptionBalances.find(b => b.tokenName === option.token.name)
           const isSufficient = isBalanceSufficient(
             balance?.balance || '0',
