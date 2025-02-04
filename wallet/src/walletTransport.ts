@@ -128,10 +128,15 @@ export class WalletTransport {
     }
   }
 
-  private async handleRequest(event: MessageEvent) {
+  private async handleRequest(event: MessageEvent, isWalletConnectRequest: boolean = false) {
     const request = event.data
 
-    if (request.type !== 'request' || !this.isConnectedToOrigin(event.origin)) {
+    if (request.type !== 'request') {
+      this.sendErrorResponse(event, request.id, 'Wrong type, expected "request"')
+      return
+    }
+
+    if (!this.isConnectedToOrigin(event.origin) && !isWalletConnectRequest) {
       this.sendErrorResponse(event, request.id, 'Not connected to this origin')
       return
     }
@@ -147,11 +152,23 @@ export class WalletTransport {
       if (handler) {
         request.origin = event.origin
         const result = await handler(request)
-        this.sendResponse(event, request.id, result)
+        if (isWalletConnectRequest) {
+          return result
+        } else {
+          this.sendResponse(event, request.id, result)
+        }
       }
     } catch (error) {
-      this.sendErrorResponse(event, request.id, (error as Error).message)
+      if (isWalletConnectRequest) {
+        throw error
+      } else {
+        this.sendErrorResponse(event, request.id, (error as Error).message)
+      }
     }
+  }
+
+  handleWalletConnectRequest(event: MessageEvent) {
+    return this.handleRequest(event, true)
   }
 
   private getHandlerTypeForMethod(method: string): HandlerType | undefined {

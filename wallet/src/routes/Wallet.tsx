@@ -12,6 +12,7 @@ import { allNetworks } from '@0xsequence/network'
 import { ethers } from 'ethers'
 import { AnimatePresence, motion } from 'framer-motion'
 import React from 'react'
+import { useSnapshot } from 'valtio'
 
 import { useAuth } from '../context/AuthContext'
 
@@ -23,6 +24,9 @@ import { useConfirmDialog } from '../components/ConfirmDialogProvider'
 import { CopyButton } from '../components/CopyButton'
 import { FeeOptionSelector } from '../components/FeeOptionSelector'
 import { NetworkImage } from '../components/NetworkImage'
+import { WalletConnect } from '../components/WalletConnect'
+
+import { walletConnectStore } from '../store/WalletConnectStore'
 
 const PROJECT_SMALL_LOGO = import.meta.env.VITE_PROJECT_SMALL_LOGO
 
@@ -208,12 +212,36 @@ export const Wallet: React.FC = () => {
     })
   }
 
+  const { sessions } = useSnapshot(walletConnectStore.state)
+  const activeWcSessions = sessions.filter(s => s.expiry * 1000 > Date.now())
+
   return (
     <Box>
       <WalletHeader
         address={authState.status === 'signedIn' ? authState.address : undefined}
         onSignOut={handleSignOut}
       />
+
+      {!transactionRequest && !connectionRequest && !signRequest && (
+        <Box marginTop="10" alignItems="center" justifyContent="center" width="full">
+          <Box width="full" style={{ maxWidth: '400px' }}>
+            <Collapsible
+              label={
+                <Box flexDirection="column" alignItems="flex-start" justifyContent="center" gap="2">
+                  <Text color="text100">WalletConnect</Text>
+                  {activeWcSessions.length > 0 && (
+                    <Text color="text80" variant="small">
+                      {activeWcSessions.length} Active Connection{activeWcSessions.length > 1 ? 's' : ''}
+                    </Text>
+                  )}
+                </Box>
+              }
+            >
+              <WalletConnect />
+            </Collapsible>
+          </Box>
+        </Box>
+      )}
 
       <AnimatePresence>
         {allHandlersRegistered && !connectionRequest && !transactionRequest && !signRequest && (
@@ -233,91 +261,110 @@ export const Wallet: React.FC = () => {
         )}
       </AnimatePresence>
 
-      <AnimatePresence>
-        <Box as={motion.div} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-          {connectionRequest && (
-            <Box marginTop="4" flexDirection="column" alignItems="center" justifyContent="center" padding="4">
-              <Text variant="medium" color="text80">
-                Connection request from dapp with origin <Text color="text100">{connectionRequest}</Text>
-              </Text>
-              <Box flexDirection="column" gap="2" marginTop="6">
-                <Text variant="normal" color="text80">
-                  - This will share your wallet address with the dapp
+      <Box alignItems="center" justifyContent="center" width="full">
+        <AnimatePresence>
+          <Box
+            as={motion.div}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            width="full"
+            style={{ maxWidth: '400px' }}
+          >
+            {connectionRequest && (
+              <Box
+                marginTop="4"
+                flexDirection="column"
+                alignItems="center"
+                justifyContent="center"
+                padding="4"
+              >
+                <Text variant="medium" color="text80">
+                  Connection request from dapp with origin <Text color="text100">{connectionRequest}</Text>
                 </Text>
-                <Text variant="normal" color="text80">
-                  - This will NOT allow the dapp to do any operations without your confirmation
-                </Text>
+                <Box flexDirection="column" gap="2" marginTop="6">
+                  <Text variant="normal" color="text80">
+                    - This will share your wallet address with the dapp
+                  </Text>
+                  <Text variant="normal" color="text80">
+                    - This will NOT allow the dapp to do any operations without your confirmation
+                  </Text>
+                </Box>
+                <Box marginTop="6" gap="2">
+                  <Button label="Reject" onClick={handleRejectConnection} />
+                  <Button variant="primary" label="Approve" onClick={handleApproveConnection} />
+                </Box>
               </Box>
-              <Box marginTop="6" gap="2">
-                <Button label="Reject" onClick={handleRejectConnection} />
-                <Button variant="primary" label="Approve" onClick={handleApproveConnection} />
+            )}
+
+            {(isSendingTxn || isSigningMessage) && (
+              <Box alignItems="center" justifyContent="center" marginTop="4">
+                <Spinner size="lg" color="text100" />
               </Box>
-            </Box>
-          )}
+            )}
 
-          {(isSendingTxn || isSigningMessage) && (
-            <Box alignItems="center" justifyContent="center" marginTop="4">
-              <Spinner size="lg" color="text100" />
-            </Box>
-          )}
-
-          {transactionRequest && transactionRequest.length > 0 && !isSendingTxn && (
-            <Box
-              marginTop="4"
-              flexDirection="column"
-              alignItems="center"
-              justifyContent="center"
-              padding="4"
-              borderRadius="md"
-              gap="2"
-            >
-              <TransactionDetails transactions={transactionRequest} chainId={txnChainId} origin={txnOrigin} />
-
-              {txnFeeOptions && feeOptionBalances.length > 0 && (
-                <FeeOptionSelector
-                  txnFeeOptions={txnFeeOptions}
-                  feeOptionBalances={feeOptionBalances}
-                  selectedFeeOptionAddress={selectedFeeOptionAddress}
-                  setSelectedFeeOptionAddress={setSelectedFeeOptionAddress}
-                  checkTokenBalancesForFeeOptions={checkTokenBalancesForFeeOptions}
-                  isRefreshingBalance={isRefreshingBalance}
+            {transactionRequest && transactionRequest.length > 0 && !isSendingTxn && (
+              <Box
+                marginTop="4"
+                flexDirection="column"
+                alignItems="center"
+                justifyContent="center"
+                padding="4"
+                borderRadius="md"
+                gap="2"
+              >
+                <TransactionDetails
+                  transactions={transactionRequest}
+                  chainId={txnChainId}
+                  origin={txnOrigin}
                 />
-              )}
 
-              <Box marginTop="2" paddingBottom="10" gap="2">
-                <Button label="Reject" onClick={handleRejectTxn} disabled={!hasCheckedFeeOptions} />
-                <Button
-                  variant="primary"
-                  label="Approve"
-                  onClick={handleApproveTxn}
-                  disabled={
-                    !hasCheckedFeeOptions ||
-                    (txnFeeOptions && txnFeeOptions.length > 0 && !selectedFeeOptionAddress)
-                  }
-                />
-              </Box>
-            </Box>
-          )}
+                {txnFeeOptions && feeOptionBalances.length > 0 && (
+                  <FeeOptionSelector
+                    txnFeeOptions={txnFeeOptions}
+                    feeOptionBalances={feeOptionBalances}
+                    selectedFeeOptionAddress={selectedFeeOptionAddress}
+                    setSelectedFeeOptionAddress={setSelectedFeeOptionAddress}
+                    checkTokenBalancesForFeeOptions={checkTokenBalancesForFeeOptions}
+                    isRefreshingBalance={isRefreshingBalance}
+                  />
+                )}
 
-          {signRequest && !isSigningMessage && (
-            <Box
-              marginTop="4"
-              flexDirection="column"
-              alignItems="center"
-              justifyContent="center"
-              padding="4"
-              borderRadius="md"
-              gap="2"
-            >
-              <SignatureDetails message={signRequest.message} chainId={signChainId} origin={signOrigin} />
-              <Box marginTop="4" marginBottom="2" gap="2">
-                <Button label="Reject" onClick={handleRejectSign} />
-                <Button variant="primary" label="Approve" onClick={handleApproveSign} />
+                <Box marginTop="2" paddingBottom="10" gap="2">
+                  <Button label="Reject" onClick={handleRejectTxn} disabled={!hasCheckedFeeOptions} />
+                  <Button
+                    variant="primary"
+                    label="Approve"
+                    onClick={handleApproveTxn}
+                    disabled={
+                      !hasCheckedFeeOptions ||
+                      (txnFeeOptions && txnFeeOptions.length > 0 && !selectedFeeOptionAddress)
+                    }
+                  />
+                </Box>
               </Box>
-            </Box>
-          )}
-        </Box>
-      </AnimatePresence>
+            )}
+
+            {signRequest && !isSigningMessage && (
+              <Box
+                marginTop="4"
+                flexDirection="column"
+                alignItems="center"
+                justifyContent="center"
+                padding="4"
+                borderRadius="md"
+                gap="2"
+              >
+                <SignatureDetails message={signRequest.message} chainId={signChainId} origin={signOrigin} />
+                <Box marginTop="4" marginBottom="2" gap="2">
+                  <Button label="Reject" onClick={handleRejectSign} />
+                  <Button variant="primary" label="Approve" onClick={handleApproveSign} />
+                </Box>
+              </Box>
+            )}
+          </Box>
+        </AnimatePresence>
+      </Box>
     </Box>
   )
 }
