@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Text, TextInput } from '@0xsequence/design-system'
+import { Box, Button, Divider, Spinner, Text, TextInput } from '@0xsequence/design-system'
 import { SessionTypes } from '@walletconnect/types'
 import { useState } from 'react'
 import { useSnapshot } from 'valtio'
@@ -99,7 +99,8 @@ export const WalletConnect = () => {
     } catch (error) {
       console.error('Failed to pair:', error)
     } finally {
-      setIsConnecting(false)
+      // Reset the connecting state after a small delay
+      setTimeout(() => setIsConnecting(false), 500)
     }
   }
 
@@ -125,12 +126,18 @@ export const WalletConnect = () => {
                 }
               }}
             />
-            <Button
-              variant="primary"
-              onClick={handlePair}
-              disabled={!wcUri || isConnecting || !isReady}
-              label={isConnecting ? 'Connecting...' : 'Connect'}
-            />
+            <Box alignItems="center" justifyContent="center" marginTop="2" height="10">
+              {isConnecting ? (
+                <Spinner />
+              ) : (
+                <Button
+                  variant="primary"
+                  onClick={handlePair}
+                  disabled={!wcUri || isConnecting || !isReady}
+                  label="Connect"
+                />
+              )}
+            </Box>
           </Box>
         </Box>
       </Box>
