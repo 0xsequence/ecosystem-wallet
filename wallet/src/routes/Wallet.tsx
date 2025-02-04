@@ -223,7 +223,7 @@ export const Wallet: React.FC = () => {
       />
 
       {!transactionRequest && !connectionRequest && !signRequest && (
-        <Box marginTop="10" alignItems="center" justifyContent="center" width="full">
+        <Box marginTop="10" paddingX="4" alignItems="center" justifyContent="center" width="full">
           <Box width="full" style={{ maxWidth: '400px' }}>
             <Collapsible
               label={
