@@ -277,7 +277,10 @@ class WalletConnectStore {
         params.request.method === 'eth_signTypedData_v4'
       ) {
         // Extract signature from result object
-        if (result?.code === 'signedMessage' && result?.data?.signature) {
+        if (
+          (result?.code === 'signedMessage' || result?.code === 'signedTypedData') &&
+          result?.data?.signature
+        ) {
           formattedResult = result.data.signature
         }
       }
