@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Image, Text, TextInput } from '@0xsequence/design-system'
+import { Box, Button, Divider, Text, TextInput } from '@0xsequence/design-system'
 import { SessionTypes } from '@walletconnect/types'
 import { useState } from 'react'
 import { useSnapshot } from 'valtio'
@@ -48,18 +48,6 @@ const formatTime = (timestamp: number) => {
   return date.toLocaleString()
 }
 
-const StatusDot: React.FC<{ isActive: boolean }> = ({ isActive }) => (
-  <Box
-    style={{
-      width: '8px',
-      height: '8px',
-      borderRadius: '50%',
-      backgroundColor: isActive ? '#4CAF50' : '#f44336',
-      transition: 'background-color 0.2s'
-    }}
-  />
-)
-
 const ActiveSessionCard: React.FC<ActiveSessionCardProps> = ({ session, onDisconnect }) => {
   const isExpired = session.expiry * 1000 < Date.now()
 
@@ -75,22 +63,11 @@ const ActiveSessionCard: React.FC<ActiveSessionCardProps> = ({ session, onDiscon
       opacity={isExpired ? '50' : '100'}
     >
       <Box flexDirection="row" gap="3" alignItems="center" style={{ flex: 1 }}>
-        {session.peerMetadata.icon && (
-          <Image
-            src={session.peerMetadata.icon}
-            style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '8px'
-            }}
-          />
-        )}
         <Box flexDirection="column" gap="1">
           <Box flexDirection="row" alignItems="center" gap="2">
             <Text variant="normal" color="text100" fontWeight="bold">
               {session.peerMetadata.name}
             </Text>
-            <StatusDot isActive={!isExpired} />
           </Box>
           <Text variant="small" color="text80">
             {new URL(session.peerMetadata.url).hostname}
@@ -98,11 +75,6 @@ const ActiveSessionCard: React.FC<ActiveSessionCardProps> = ({ session, onDiscon
           <Text variant="xsmall" color="text50">
             Connected: {formatTime(session.expiry - 7 * 24 * 60 * 60)} {/* Assuming 7 day expiry */}
           </Text>
-          {session.peerMetadata.description && (
-            <Text variant="xsmall" color="text50" style={{ maxWidth: '300px' }}>
-              {session.peerMetadata.description}
-            </Text>
-          )}
         </Box>
       </Box>
       <Box flexDirection="column" gap="2" alignItems="flex-end">
