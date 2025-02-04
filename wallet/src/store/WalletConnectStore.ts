@@ -261,7 +261,10 @@ class WalletConnectStore {
         } as any // eslint-disable-line @typescript-eslint/no-explicit-any
       )
 
-      console.log('Request result:', result)
+      // Check if result is an error
+      if (result instanceof Error) {
+        throw result
+      }
 
       // Format and send response back through WalletConnect
       let formattedResult = result
