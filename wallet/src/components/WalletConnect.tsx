@@ -1,5 +1,15 @@
-import { Box, Button, Divider, Spinner, Text, TextInput } from '@0xsequence/design-system'
+import {
+  Box,
+  Button,
+  Divider,
+  Spinner,
+  TabsHeader,
+  TabsRoot,
+  Text,
+  TextInput
+} from '@0xsequence/design-system'
 import { SessionTypes } from '@walletconnect/types'
+import { type IDetectedBarcode, Scanner } from '@yudiel/react-qr-scanner'
 import { useState } from 'react'
 import { useSnapshot } from 'valtio'
 
@@ -48,6 +58,10 @@ const formatTime = (timestamp: number) => {
   return date.toLocaleString()
 }
 
+const isMobileDevice = () => {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+}
+
 const ActiveSessionCard: React.FC<ActiveSessionCardProps> = ({ session, onDisconnect }) => {
   const isExpired = session.expiry * 1000 < Date.now()
 
@@ -84,17 +98,26 @@ const ActiveSessionCard: React.FC<ActiveSessionCardProps> = ({ session, onDiscon
   )
 }
 
+type ConnectMethod = 'uri' | 'qr'
+
+const getConnectMethods = (isMobile: boolean) => [
+  { value: isMobile ? 'qr' : 'uri', label: isMobile ? 'Scan QR' : 'Paste URI' },
+  { value: isMobile ? 'uri' : 'qr', label: isMobile ? 'Paste URI' : 'Scan QR' }
+]
+
 export const WalletConnect = () => {
+  const isMobile = isMobileDevice()
   const [wcUri, setWcUri] = useState('')
   const [isConnecting, setIsConnecting] = useState(false)
+  const [connectMethod, setConnectMethod] = useState<ConnectMethod>(isMobile ? 'qr' : 'uri')
   const { sessions, isReady } = useSnapshot(walletConnectStore.state)
 
-  const handlePair = async () => {
-    if (!wcUri || !isReady) return
+  const handlePair = async (uri: string) => {
+    if (!uri || !isReady) return
 
     try {
       setIsConnecting(true)
-      await walletConnectStore.pair(wcUri)
+      await walletConnectStore.pair(uri)
       setWcUri('') // Clear the input after successful pairing
     } catch (error) {
       console.error('Failed to pair:', error)
@@ -104,40 +127,86 @@ export const WalletConnect = () => {
     }
   }
 
+  const handleScan = (detectedCodes: IDetectedBarcode[]) => {
+    const wcCode = detectedCodes.find(code => code.rawValue.startsWith('wc:'))
+    if (wcCode) {
+      handlePair(wcCode.rawValue)
+    }
+  }
+
   const validSessions = sessions
     .filter(s => s.expiry * 1000 > Date.now())
     .map(s => mapSessionToView(s as SessionTypes.Struct))
+
+  const connectMethods = getConnectMethods(isMobile)
 
   return (
     <Box gap="2" flexDirection="column" style={{ maxWidth: '400px' }}>
       <Box flexDirection="column" gap="2">
         <Box flexDirection="column" gap="3">
-          <Text variant="small" color="text80">
-            Paste a WalletConnect URI to connect to a dApp
-          </Text>
+          <Box flexDirection="row" gap="2" justifyContent="space-between" alignItems="center">
+            <Text variant="small" color="text80">
+              Connect to a dApp using WalletConnect
+            </Text>
+          </Box>
+          <TabsRoot
+            value={connectMethod}
+            onValueChange={(value: string) => setConnectMethod(value as ConnectMethod)}
+          >
+            <TabsHeader tabs={connectMethods} value={connectMethod} />
+          </TabsRoot>
           <Box flexDirection="column" gap="2" width="full">
-            <TextInput
-              value={wcUri}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWcUri(e.target.value)}
-              placeholder="wc:..."
-              onKeyDown={(e: React.KeyboardEvent) => {
-                if (e.key === 'Enter') {
-                  handlePair()
-                }
-              }}
-            />
-            <Box alignItems="center" justifyContent="center" marginTop="2" height="10">
-              {isConnecting ? (
-                <Spinner />
-              ) : (
-                <Button
-                  variant="primary"
-                  onClick={handlePair}
-                  disabled={!wcUri || isConnecting || !isReady}
-                  label="Connect"
+            {connectMethod === 'uri' ? (
+              <>
+                <TextInput
+                  value={wcUri}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWcUri(e.target.value)}
+                  placeholder="wc:..."
+                  onKeyDown={(e: React.KeyboardEvent) => {
+                    if (e.key === 'Enter') {
+                      handlePair(wcUri)
+                    }
+                  }}
                 />
-              )}
-            </Box>
+                <Box alignItems="center" justifyContent="center" marginTop="2" height="10">
+                  {isConnecting ? (
+                    <Spinner />
+                  ) : (
+                    <Button
+                      variant="primary"
+                      onClick={() => handlePair(wcUri)}
+                      disabled={!wcUri || isConnecting || !isReady}
+                      label="Connect"
+                    />
+                  )}
+                </Box>
+              </>
+            ) : (
+              <Box
+                background="backgroundSecondary"
+                borderRadius="md"
+                padding="4"
+                style={{ aspectRatio: '1', width: '100%' }}
+              >
+                {isConnecting ? (
+                  <Box alignItems="center" justifyContent="center" height="full">
+                    <Spinner />
+                  </Box>
+                ) : (
+                  <Scanner
+                    onScan={handleScan}
+                    onError={(error: unknown) => console.error(error)}
+                    styles={{
+                      container: {
+                        borderRadius: '8px',
+                        width: '100%',
+                        height: '100%'
+                      }
+                    }}
+                  />
+                )}
+              </Box>
+            )}
           </Box>
         </Box>
       </Box>
