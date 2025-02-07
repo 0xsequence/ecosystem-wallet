@@ -31,7 +31,7 @@ export const App: React.FC = () => {
         <AuthProvider>
           <ToastProvider>
             <ConfirmDialogProvider>
-              <Box minHeight="vh" position="relative" paddingBottom="6">
+              <Box minHeight="vh" position="relative" paddingBottom="14">
                 <AppContent />
                 <PoweredBySequence />
               </Box>
