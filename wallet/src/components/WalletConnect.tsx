@@ -195,6 +195,7 @@ export const WalletConnect = () => {
                 ) : (
                   <Scanner
                     onScan={handleScan}
+                    formats={['qr_code']}
                     onError={(error: unknown) => console.error(error)}
                     styles={{
                       container: {
