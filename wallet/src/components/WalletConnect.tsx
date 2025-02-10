@@ -9,11 +9,12 @@ import {
   TextInput
 } from '@0xsequence/design-system'
 import { SessionTypes } from '@walletconnect/types'
-import { type IDetectedBarcode, Scanner } from '@yudiel/react-qr-scanner'
-import { useState } from 'react'
-import { useSnapshot } from 'valtio'
+import { useEffect, useState } from 'react'
+import { subscribe, useSnapshot } from 'valtio'
 
 import { walletConnectStore } from '../store/WalletConnectStore'
+
+import { QRScanner } from './QRScanner'
 
 interface SessionViewProps {
   topic: string
@@ -110,28 +111,45 @@ export const WalletConnect = () => {
   const [wcUri, setWcUri] = useState('')
   const [isConnecting, setIsConnecting] = useState(false)
   const [connectMethod, setConnectMethod] = useState<ConnectMethod>(isMobile ? 'qr' : 'uri')
+  const [isQrScannerActive, setIsQrScannerActive] = useState(true)
   const { sessions, isReady } = useSnapshot(walletConnectStore.state)
+
+  // Keep track of initial sessions count to detect new connections
+  const [initialSessionsCount, setInitialSessionsCount] = useState(sessions.length)
+
+  useEffect(() => {
+    if (!isConnecting) return
+
+    // Listen for session changes to detect when connection is complete
+    const unsubscribe = subscribe(walletConnectStore.state, () => {
+      if (walletConnectStore.state.sessions.length > initialSessionsCount) {
+        // A new session was added, connection is complete
+        setIsConnecting(false)
+        setWcUri('') // Clear the input
+        if (connectMethod === 'qr') {
+          setIsQrScannerActive(false) // Hide scanner only if QR tab is active
+        }
+      }
+    })
+
+    return () => unsubscribe()
+  }, [isConnecting, initialSessionsCount])
 
   const handlePair = async (uri: string) => {
     if (!uri || !isReady) return
 
     try {
       setIsConnecting(true)
+      setInitialSessionsCount(sessions.length)
       await walletConnectStore.pair(uri)
-      setWcUri('') // Clear the input after successful pairing
     } catch (error) {
       console.error('Failed to pair:', error)
-    } finally {
-      // Reset the connecting state after a small delay
-      setTimeout(() => setIsConnecting(false), 500)
+      setIsConnecting(false)
     }
   }
 
-  const handleScan = (detectedCodes: IDetectedBarcode[]) => {
-    const wcCode = detectedCodes.find(code => code.rawValue.startsWith('wc:'))
-    if (wcCode) {
-      handlePair(wcCode.rawValue)
-    }
+  const handleScan = (qrContent: string) => {
+    handlePair(qrContent)
   }
 
   const validSessions = sessions
@@ -182,31 +200,34 @@ export const WalletConnect = () => {
                 </Box>
               </>
             ) : (
-              <Box
-                background="backgroundSecondary"
-                borderRadius="md"
-                padding="4"
-                style={{ aspectRatio: '1', width: '100%' }}
-              >
-                {isConnecting ? (
-                  <Box alignItems="center" justifyContent="center" height="full">
-                    <Spinner />
+              <>
+                {isQrScannerActive ? (
+                  <Box
+                    background="backgroundSecondary"
+                    borderRadius="md"
+                    padding="4"
+                    style={{ aspectRatio: '1', width: '100%' }}
+                  >
+                    {isConnecting ? (
+                      <Box alignItems="center" justifyContent="center" height="full">
+                        <Spinner />
+                      </Box>
+                    ) : (
+                      <QRScanner
+                        onScan={handleScan}
+                        onError={error => console.error(error)}
+                        containerStyle={{
+                          borderRadius: '8px'
+                        }}
+                      />
+                    )}
                   </Box>
                 ) : (
-                  <Scanner
-                    onScan={handleScan}
-                    formats={['qr_code']}
-                    onError={(error: unknown) => console.error(error)}
-                    styles={{
-                      container: {
-                        borderRadius: '8px',
-                        width: '100%',
-                        height: '100%'
-                      }
-                    }}
-                  />
+                  <Box alignItems="center" justifyContent="center" marginTop="2" height="10">
+                    <Button variant="primary" onClick={() => setIsQrScannerActive(true)} label="Scan again" />
+                  </Box>
                 )}
-              </Box>
+              </>
             )}
           </Box>
         </Box>
