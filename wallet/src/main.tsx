@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 
 import { App } from './App.tsx'
 import './index.css'
+import { BrowserRouter } from 'react-router'
 
 const favicon = document.getElementById('favicon')
 const appTitle = document.getElementById('app-title')
@@ -17,6 +18,8 @@ if (appTitle && projectName) {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
   </StrictMode>
 )

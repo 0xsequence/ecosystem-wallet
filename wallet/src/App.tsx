@@ -1,27 +1,30 @@
-import { Box, Spinner, ThemeProvider, ToastProvider } from '@0xsequence/design-system'
+import { Box, ThemeProvider, ToastProvider } from '@0xsequence/design-system'
 import '@0xsequence/design-system/styles.css'
+import { Navigate, Outlet, Route, Routes } from 'react-router'
 
 import { ConfirmDialogProvider } from './components/ConfirmDialogProvider'
 import { PoweredBySequence } from './components/PoweredBySequence'
-import { AuthProvider, useAuth } from './context/AuthContext'
-import { Auth } from './routes/Auth'
-import { Wallet } from './routes/Wallet'
+import { PrivateRoute } from './components/PrivateRoute'
+import { AuthProvider } from './context/AuthContext'
+import { Auth } from './pages/Auth'
+import { Wallet } from './pages/Home'
+import { ROUTES } from './routes'
 
-const AppContent: React.FC = () => {
-  const { authState } = useAuth()
+const AppLayout = () => {
+  return (
+    <Box minHeight="vh" position="relative" paddingBottom="14">
+      <Outlet />
+      <PoweredBySequence />
+    </Box>
+  )
+}
 
-  switch (authState.status) {
-    case 'loading':
-      return (
-        <Box alignItems="center" justifyContent="center" style={{ height: 'calc(100vh - 24px)' }}>
-          <Spinner size="lg" />
-        </Box>
-      )
-    case 'signedIn':
-      return <Wallet />
-    case 'signedOut':
-      return <Auth />
-  }
+const ProtectedLayout = () => {
+  return (
+    <PrivateRoute>
+      <AppLayout />
+    </PrivateRoute>
+  )
 }
 
 export const App: React.FC = () => {
@@ -31,10 +34,24 @@ export const App: React.FC = () => {
         <AuthProvider>
           <ToastProvider>
             <ConfirmDialogProvider>
-              <Box minHeight="vh" position="relative" paddingBottom="14">
-                <AppContent />
-                <PoweredBySequence />
-              </Box>
+              <Routes>
+                {/* Public routes */}
+                <Route element={<AppLayout />}>
+                  <Route path={ROUTES.AUTH} element={<Auth />} />
+                </Route>
+
+                {/* Protected routes */}
+                <Route element={<ProtectedLayout />}>
+                  <Route index element={<Wallet />} />
+                  <Route path={ROUTES.ASSETS.INDEX}>
+                    <Route index element={<div style={{ color: 'white' }}>token</div>} />
+                    <Route path="collectibles" element={<div style={{ color: 'white' }}>collectibles</div>} />
+                  </Route>
+                </Route>
+
+                {/* Redirect unknown routes to index */}
+                <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
+              </Routes>
             </ConfirmDialogProvider>
           </ToastProvider>
         </AuthProvider>
