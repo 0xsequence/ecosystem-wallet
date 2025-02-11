@@ -1,61 +1,34 @@
-import { Box, ThemeProvider, ToastProvider } from '@0xsequence/design-system'
 import '@0xsequence/design-system/styles.css'
-import { Navigate, Outlet, Route, Routes } from 'react-router'
+import { Navigate, Route, Routes } from 'react-router'
 
-import { ConfirmDialogProvider } from './components/ConfirmDialogProvider'
-import { PoweredBySequence } from './components/PoweredBySequence'
-import { PrivateRoute } from './components/PrivateRoute'
-import { AuthProvider } from './context/AuthContext'
+import { AppLayout, ProtectedLayout } from './Layout'
 import { Auth } from './pages/Auth'
-import { Wallet } from './pages/Home'
+import { CollectiblesPage } from './pages/CollectiblesPage'
+import { Home } from './pages/Home'
+import { SendPage } from './pages/SendPage'
+import { TokensPage } from './pages/TokensPage'
+import { TransactionsPage } from './pages/TransactionsPage'
 import { ROUTES } from './routes'
-
-const AppLayout = () => {
-  return (
-    <Box minHeight="vh" position="relative" paddingBottom="14">
-      <Outlet />
-      <PoweredBySequence />
-    </Box>
-  )
-}
-
-const ProtectedLayout = () => {
-  return (
-    <PrivateRoute>
-      <AppLayout />
-    </PrivateRoute>
-  )
-}
 
 export const App: React.FC = () => {
   return (
-    <div id="app">
-      <ThemeProvider root="#app" scope="app" theme="dark">
-        <AuthProvider>
-          <ToastProvider>
-            <ConfirmDialogProvider>
-              <Routes>
-                {/* Public routes */}
-                <Route element={<AppLayout />}>
-                  <Route path={ROUTES.AUTH} element={<Auth />} />
-                </Route>
+    <Routes>
+      {/* Public routes */}
+      <Route element={<AppLayout />}>
+        <Route path={ROUTES.AUTH} element={<Auth />} />
+      </Route>
 
-                {/* Protected routes */}
-                <Route element={<ProtectedLayout />}>
-                  <Route index element={<Wallet />} />
-                  <Route path={ROUTES.ASSETS.INDEX}>
-                    <Route index element={<div style={{ color: 'white' }}>token</div>} />
-                    <Route path="collectibles" element={<div style={{ color: 'white' }}>collectibles</div>} />
-                  </Route>
-                </Route>
+      {/* Protected routes */}
+      <Route element={<ProtectedLayout />}>
+        <Route index element={<Home />} />
+        <Route path={ROUTES.TOKENS} element={<TokensPage />} />
+        <Route path={ROUTES.COLLECTIBLES} element={<CollectiblesPage />} />
+        <Route path={ROUTES.SEND} element={<SendPage />} />
+        <Route path={ROUTES.TRANSACTIONS} element={<TransactionsPage />} />
+      </Route>
 
-                {/* Redirect unknown routes to index */}
-                <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
-              </Routes>
-            </ConfirmDialogProvider>
-          </ToastProvider>
-        </AuthProvider>
-      </ThemeProvider>
-    </div>
+      {/* Redirect unknown routes to index */}
+      <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
+    </Routes>
   )
 }
