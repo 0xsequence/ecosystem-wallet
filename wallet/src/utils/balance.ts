@@ -1,12 +1,19 @@
-import { SequenceIndexer, GetTokenBalancesSummaryArgs, TokenBalance, ContractType } from "@0xsequence/indexer"
-import { zeroAddress } from "viem"
+import { ContractType, GetTokenBalancesSummaryArgs, SequenceIndexer, TokenBalance } from '@0xsequence/indexer'
+import { zeroAddress } from 'viem'
 
-export const getTokenBalancesSummary = async (indexerClient: SequenceIndexer, args: GetTokenBalancesSummaryArgs) => {
+export const getTokenBalancesSummary = async (
+  indexerClient: SequenceIndexer,
+  args: GetTokenBalancesSummaryArgs
+) => {
   const res = await indexerClient.getTokenBalancesSummary(args)
   return res?.balances || []
 }
 
-export const getNativeTokenBalance = async (indexerClient: SequenceIndexer, chainId: number, accountAddress: string) => {
+export const getNativeTokenBalance = async (
+  indexerClient: SequenceIndexer,
+  chainId: number,
+  accountAddress: string
+) => {
   const res = await indexerClient.getNativeTokenBalance({ accountAddress })
 
   const tokenBalance: TokenBalance = {

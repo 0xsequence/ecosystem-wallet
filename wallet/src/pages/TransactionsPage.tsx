@@ -1,5 +1,4 @@
-
-import { Box } from "@0xsequence/design-system";
+import { Box } from '@0xsequence/design-system'
 
 export const TransactionsPage: React.FC = () => {
   return (
@@ -7,6 +6,5 @@ export const TransactionsPage: React.FC = () => {
       <h1>Txns Page</h1>
       <p>Welcome to the Txns page!</p>
     </Box>
-  );
-};
-
+  )
+}

@@ -1,6 +1,5 @@
-import { Box } from '@0xsequence/design-system'
-import React from 'react'
-import { NavLink } from 'react-router'
+import { Box, Card, Text } from '@0xsequence/design-system'
+import { Link } from 'react-router'
 
 import { useAssetBalance } from '../hooks/useBalancesSummary'
 
@@ -61,13 +60,38 @@ export const Home: React.FC = () => {
   }
 
   return (
-    <Box marginTop="10" gap="2" paddingX="4" alignItems="center" justifyContent="center" width="full">
-      <NavLink to={ROUTES.TOKENS}>Token {`${coinBalances.length > 0 ? coinBalances.length : ''}`}</NavLink>
-      <NavLink to={ROUTES.COLLECTIBLES}>
-        Collectibles {`${collectionBalances.length > 0 ? collectionBalances.length : ''}`}
-      </NavLink>
-      <NavLink to={ROUTES.SEND}> Send </NavLink>
-      <NavLink to={ROUTES.TRANSACTIONS}> Transactions </NavLink>
+    <Box
+      maxWidth="1/2"
+      marginTop="10"
+      marginX="auto"
+      gap="2"
+      paddingX="4"
+      alignItems="center"
+      justifyContent="center"
+      width="full"
+    >
+      <Card>
+        <Link to={ROUTES.TOKENS}>
+          <Text color="text80">Token {`${coinBalances.length > 0 ? `(${coinBalances.length})` : ''}`}</Text>
+        </Link>
+      </Card>
+      <Card>
+        <Link to={ROUTES.COLLECTIBLES}>
+          <Text color="text80">
+            Collectibles {`${collectionBalances.length > 0 ? `(${collectionBalances.length})` : ''}`}
+          </Text>
+        </Link>
+      </Card>
+      <Card>
+        <Link to={ROUTES.SEND}>
+          <Text color="text80">Send</Text>
+        </Link>
+      </Card>
+      <Card>
+        <Link to={ROUTES.TRANSACTIONS}>
+          <Text color="text80">Transactions</Text>
+        </Link>
+      </Card>
     </Box>
   )
 }

@@ -15,6 +15,7 @@ import { EmailConflictInfo } from '@0xsequence/waas'
 import { CredentialResponse, GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google'
 import React, { SetStateAction, useEffect, useRef, useState } from 'react'
 import { appleAuthHelpers, useScript } from 'react-apple-signin-auth'
+import { useNavigate } from 'react-router'
 
 import { randomName } from '../utils/string'
 
@@ -27,7 +28,6 @@ import { EmailConflictWarning } from '../components/EmailConflictWarning'
 import { GoogleLogo } from '../components/GoogleLogo'
 
 import { googleClientId, sequenceWaas } from '../waasSetup'
-import { useNavigate } from 'react-router'
 
 const PROJECT_NAME = import.meta.env.VITE_PROJECT_NAME
 const PROJECT_LOGO = import.meta.env.VITE_PROJECT_LOGO
@@ -50,7 +50,7 @@ export const Auth: React.FC = () => {
   useScript(appleAuthHelpers.APPLE_SCRIPT_SRC)
   const navigate = useNavigate()
 
-  const { setWalletAddress, pendingEventOrigin,authState } = useAuth()
+  const { setWalletAddress, pendingEventOrigin, authState } = useAuth()
   const [isSocialLoginInProgress, setIsSocialLoginInProgress] = useState(false)
 
   // add useEffect here to check if user is already signed in
@@ -59,8 +59,7 @@ export const Auth: React.FC = () => {
     if (authState.status === 'signedIn') {
       navigate('/wallet')
     }
-  }, [authState.status,navigate])
-
+  }, [authState.status, navigate])
 
   const handleGoogleLogin = async (tokenResponse: CredentialResponse) => {
     try {

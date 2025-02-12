@@ -1,10 +1,10 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { BrowserRouter } from 'react-router'
 
 import { App as Router } from './App.tsx'
-import './index.css'
-import { BrowserRouter } from 'react-router'
 import { AppContextProvider } from './context/AppContext.tsx'
+import './index.css'
 
 const favicon = document.getElementById('favicon')
 const appTitle = document.getElementById('app-title')

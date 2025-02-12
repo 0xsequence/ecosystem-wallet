@@ -1,11 +1,11 @@
-import { Box, truncateAddress, Button, Image, SignoutIcon, Text } from "@0xsequence/design-system"
-import { Outlet } from "react-router"
-import { useConfirmDialog } from "./components/ConfirmDialogProvider"
-import { CopyButton } from "./components/CopyButton"
-import { PoweredBySequence } from "./components/PoweredBySequence"
-import { useAuth } from "./context/AuthContext"
-import { PrivateRoute } from "./components/PrivateRoute"
+import { Box, Button, Image, SignoutIcon, Text, truncateAddress } from '@0xsequence/design-system'
+import { Outlet } from 'react-router'
 
+import { useConfirmDialog } from './components/ConfirmDialogProvider'
+import { CopyButton } from './components/CopyButton'
+import { PoweredBySequence } from './components/PoweredBySequence'
+import { PrivateRoute } from './components/PrivateRoute'
+import { useAuth } from './context/AuthContext'
 
 const PROJECT_SMALL_LOGO = import.meta.env.VITE_PROJECT_SMALL_LOGO
 
@@ -23,7 +23,7 @@ const AppHeader = () => {
         signOut()
       },
       cancelLabel: 'Cancel',
-      onCancel: () => { }
+      onCancel: () => {}
     })
   }
 
@@ -65,7 +65,6 @@ export const AppLayout = () => {
     </Box>
   )
 }
-
 
 export const ProtectedLayout = () => {
   return (

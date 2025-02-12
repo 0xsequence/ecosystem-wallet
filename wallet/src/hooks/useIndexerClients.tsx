@@ -1,7 +1,7 @@
-import { SequenceIndexer } from "@0xsequence/indexer"
-import { ChainId, networks } from "@0xsequence/network"
-import { projectAccessKey } from "../waasSetup"
+import { SequenceIndexer } from '@0xsequence/indexer'
+import { ChainId, networks } from '@0xsequence/network'
 
+import { projectAccessKey } from '../waasSetup'
 
 export const useIndexerClients = (chainIds: ChainId[]) => {
   const indexerClients = new Map<ChainId, SequenceIndexer>()

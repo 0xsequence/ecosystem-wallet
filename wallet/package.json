@@ -7,7 +7,8 @@
     "dev": "vite --port 4444",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prettier": "pnpx prettier --write ."
   },
   "dependencies": {
     "@0xsequence/design-system": "1.7.8",
