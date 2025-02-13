@@ -54,8 +54,6 @@ export const Auth: React.FC = () => {
   const { setWalletAddress, pendingEventOrigin, authState } = useAuth()
   const [isSocialLoginInProgress, setIsSocialLoginInProgress] = useState(false)
 
-  // add useEffect here to check if user is already signed in
-  // if signed in, redirect to home page
   useEffect(() => {
     if (authState.status === 'signedIn') {
       navigate(ROUTES.HOME)
