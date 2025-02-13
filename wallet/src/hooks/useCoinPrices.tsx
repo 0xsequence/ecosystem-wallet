@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 
 import { TIME } from '../utils/time.const'
 
-import { apiClient } from '../hooks/useIndexerClients'
+import { apiClient } from '../sequenceApiClient'
 
 export const useExchangeRate = (toCurrency: string) => {
   return useQuery({

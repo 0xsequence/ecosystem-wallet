@@ -16,6 +16,7 @@ interface Config {
 }
 
 const config: Config = {
+  // TODO no need for this remove
   chainIds: [ChainId.ARBITRUM_NOVA, ChainId.SONEIUM, ChainId.POLYGON],
   hideUnlistedTokens: false,
   fiatCurrency: { symbol: 'USD', sign: '$', name: { message: 'US Dollar' }, decimals: 2 }

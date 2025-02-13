@@ -27,8 +27,8 @@ import { AppleLogo } from '../components/AppleLogo'
 import { EmailConflictWarning } from '../components/EmailConflictWarning'
 import { GoogleLogo } from '../components/GoogleLogo'
 
-import { googleClientId, sequenceWaas } from '../waasSetup'
 import { ROUTES } from '../routes'
+import { googleClientId, sequenceWaas } from '../waasSetup'
 
 const PROJECT_NAME = import.meta.env.VITE_PROJECT_NAME
 const PROJECT_LOGO = import.meta.env.VITE_PROJECT_LOGO

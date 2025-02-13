@@ -1,6 +1,7 @@
 import { Box, ChevronRightIcon, Text, TokenImage, compareAddress } from '@0xsequence/design-system'
 import { TokenBalance } from '@0xsequence/indexer'
 import { ethers } from 'ethers'
+
 import { formatDisplay } from '../utils/helpers'
 
 interface BalanceItemProps {

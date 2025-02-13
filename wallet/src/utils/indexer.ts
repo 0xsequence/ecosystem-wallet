@@ -1,15 +1,9 @@
 import { SequenceIndexerGateway } from '@0xsequence/indexer'
-import { ChainId, networks } from '@0xsequence/network'
 
 const PROJECT_ACCESS_KEY = import.meta.env.VITE_PROJECT_ACCESS_KEY
 
-export const getIndexerClient = (chainId: ChainId) => {
-  const network = networks[chainId]
-  if (!network) {
-    throw new Error(`Unknown chainId: ${chainId}`)
-  }
-
-  const hostname = `https://${network.name}-indexer.sequence.app`
+export const getIndexerClient = () => {
+  const hostname = `https://indexer.sequence.app`
 
   return new SequenceIndexerGateway(hostname, PROJECT_ACCESS_KEY)
 }

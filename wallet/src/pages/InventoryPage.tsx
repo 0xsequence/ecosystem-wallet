@@ -1,7 +1,17 @@
-import { Box, Button, Image, SendIcon, Text } from '@0xsequence/design-system'
+import {
+  Box,
+  Button,
+  IconButton,
+  Image,
+  SendIcon,
+  Text,
+  TokenImage,
+  nativeTokenImageUrl
+} from '@0xsequence/design-system'
 import { ContractVerificationStatus } from '@0xsequence/indexer'
 import { formatUnits } from 'ethers'
 import { useNavigate } from 'react-router'
+
 
 import { useAuth } from '../context/AuthContext'
 
@@ -15,10 +25,9 @@ import { ROUTES } from '../routes'
 
 export const InventoryPage = () => {
   const navigate = useNavigate()
-  const { chainIds, hideUnlistedTokens } = useConfig()
+  const { hideUnlistedTokens, chainIds } = useConfig()
   const { address: accountAddress } = useAuth()
-  const { data: collectionBalances = [] } = useTokenBalancesDetails({
-    chainIds,
+  const { data } = useTokenBalancesDetails({
     omitMetadata: false,
     filter: {
       omitNativeBalances: false,
@@ -31,26 +40,41 @@ export const InventoryPage = () => {
     }
   })
 
-  const collectibles = collectionBalances.map(collection => {
-    const collectionLogo = collection?.contractInfo?.logoURI
-    const collectionName = collection?.contractInfo?.name || 'Unknown Collection'
+  const balances =
+    data?.balances.filter(balance => balance?.results?.length > 0).map(balance => balance.results) || []
+  const nativeBalances = data?.nativeBalances
 
-    const decimals = collection?.tokenMetadata?.decimals || 0
-    const rawBalance = collection?.balance || '0'
-    const balance = formatUnits(rawBalance, decimals)
-    const collectibleName = collection.tokenMetadata?.name || 'Unknown Collectible'
+  const collectibles = balances
+    .map(chainBalances => {
+      return chainBalances.map(chainBalance => {
+        const collectionLogo = chainBalance?.contractInfo?.logoURI
+        const collectionName = chainBalance?.contractInfo?.name || 'Unknown Collection'
 
-    return {
-      id: collection.tokenID || Math.random().toString(36).substring(2, 15),
-      chainId: collection.chainId,
-      logo: collectionLogo,
-      name: collectionName,
-      collectibleName,
-      balance: balance,
-      imageUrl: collection.tokenMetadata?.image,
-      tokenId: collection.tokenID || 'Unknown Token ID'
-    }
-  })
+        const decimals = chainBalance?.tokenMetadata?.decimals || 0
+        const rawBalance = chainBalance?.balance || '0'
+        const formattedBalance = formatUnits(rawBalance, decimals)
+        const collectibleName = chainBalance.tokenMetadata?.name || 'Unknown Collectible'
+
+        return {
+          id: chainBalance.tokenID || Math.random().toString(36).substring(2, 15),
+          chainId: chainBalance.chainId,
+          logo: collectionLogo,
+          name: collectionName,
+          collectibleName,
+          balance: formattedBalance,
+          imageUrl: chainBalance.tokenMetadata?.image,
+          tokenId: chainBalance.tokenID || 'Unknown Token ID'
+        }
+      })
+    })
+    .flat()
+
+  // @ts-expect-error types doesn't match with the api response
+  const nativeTokens = nativeBalances?.filter(balance => chainIds.includes(balance.chainID))
+    .flatMap(chainBalance =>
+      // @ts-expect-error types doesn't match with the api response
+      chainBalance.balances.filter(balance => balance.balance !== '0').map(balance => ({ ...balance, chainId: chainBalance.chainID }))
+    )
 
   return (
     <Box
@@ -61,6 +85,34 @@ export const InventoryPage = () => {
       padding="20"
       style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gridAutoRows: 'auto' }}
     >
+      <Box height="full" width="full" flexDirection="column" gap="2">
+        {nativeTokens?.map(({ chainId, balance }) => (
+          <Box key={chainId} gap="3" flexDirection="row" alignItems="center" minWidth="0">
+            <TokenImage src={nativeTokenImageUrl(chainId)} size="xl" withNetwork={chainId} />
+            <Text
+              variant="normal"
+              color="text50"
+              fontWeight="bold"
+              textAlign="right"
+              whiteSpace="nowrap"
+              ellipsis
+            >
+              {formatUnits(balance, 18)}
+            </Text>
+            <IconButton
+              opacity={{ hover: '80' }}
+              color="text100"
+              size="sm"
+              width="full"
+              variant="primary"
+              marginLeft="auto"
+              icon={SendIcon}
+              onClick={() => navigate(ROUTES.SEND)}
+            />
+          </Box>
+        ))}
+      </Box>
+
       {collectibles.map(({ id, chainId, logo, name, balance, collectibleName, imageUrl, tokenId }) => (
         <Box key={id} flexDirection="column" gap="3" paddingBottom="5" paddingX="4" paddingTop="0">
           <Box gap="3" alignItems="center" justifyContent="center" flexDirection="column">
@@ -108,11 +160,9 @@ export const InventoryPage = () => {
             width="full"
             variant="primary"
             leftIcon={SendIcon}
-            label="Senda"
+            label="Send"
             onClick={() => navigate(ROUTES.SEND)}
           />
-
-          <Button label="Send" leftIcon={SendIcon} onClick={() => navigate(ROUTES.SEND)} />
         </Box>
       ))}
     </Box>

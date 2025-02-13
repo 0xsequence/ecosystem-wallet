@@ -3,13 +3,13 @@ import { FeeOption } from '@0xsequence/waas'
 import { ZeroAddress, formatUnits, parseUnits } from 'ethers'
 import React, { ComponentProps } from 'react'
 
+import { useTransactionHandler } from '../hooks/useTransactionHandler'
+
 interface FeeOptionSelectorProps {
   txnFeeOptions: FeeOption[]
   feeOptionBalances: { tokenName: string; decimals: number; balance: string }[]
   selectedFeeOptionAddress: string | undefined
   setSelectedFeeOptionAddress: (address: string) => void
-  checkTokenBalancesForFeeOptions: () => void
-  isRefreshingBalance: boolean
 }
 
 const isBalanceSufficient = (balance: string, fee: string, decimals: number) => {
@@ -22,10 +22,9 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
   txnFeeOptions,
   feeOptionBalances,
   selectedFeeOptionAddress,
-  setSelectedFeeOptionAddress,
-  checkTokenBalancesForFeeOptions,
-  isRefreshingBalance
+  setSelectedFeeOptionAddress
 }) => {
+  const { checkTokenBalancesForFeeOptions, isRefreshingBalance } = useTransactionHandler()
   const [feeOptionAlert, setFeeOptionAlert] = React.useState<AlertProps | undefined>()
 
   const sortedOptions = [...txnFeeOptions].sort((a, b) => {
