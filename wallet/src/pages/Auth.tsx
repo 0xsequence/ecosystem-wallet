@@ -28,6 +28,7 @@ import { EmailConflictWarning } from '../components/EmailConflictWarning'
 import { GoogleLogo } from '../components/GoogleLogo'
 
 import { googleClientId, sequenceWaas } from '../waasSetup'
+import { ROUTES } from '../routes'
 
 const PROJECT_NAME = import.meta.env.VITE_PROJECT_NAME
 const PROJECT_LOGO = import.meta.env.VITE_PROJECT_LOGO
@@ -54,10 +55,10 @@ export const Auth: React.FC = () => {
   const [isSocialLoginInProgress, setIsSocialLoginInProgress] = useState(false)
 
   // add useEffect here to check if user is already signed in
-  // if signed in, redirect to wallet page
+  // if signed in, redirect to home page
   useEffect(() => {
     if (authState.status === 'signedIn') {
-      navigate('/wallet')
+      navigate(ROUTES.HOME)
     }
   }, [authState.status, navigate])
 
