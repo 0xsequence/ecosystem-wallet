@@ -1,9 +1,16 @@
+import { SequenceAPIClient } from '@0xsequence/api'
 import { SequenceIndexer } from '@0xsequence/indexer'
 import { ChainId, networks } from '@0xsequence/network'
 
 import { projectAccessKey } from '../waasSetup'
 
-export const useIndexerClients = (chainIds: ChainId[]) => {
+import { useConfig } from './useConfig'
+
+const clientUrl = 'https://api.sequence.app'
+export const apiClient = new SequenceAPIClient(clientUrl, projectAccessKey)
+
+export const useIndexerClients = () => {
+  const { chainIds } = useConfig()
   const indexerClients = new Map<ChainId, SequenceIndexer>()
   const result = new Map<ChainId, SequenceIndexer>()
 

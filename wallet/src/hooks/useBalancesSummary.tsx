@@ -1,52 +1,30 @@
 import { compareAddress } from '@0xsequence/design-system'
-import { ContractVerificationStatus, GetTokenBalancesSummaryArgs, SequenceIndexer } from '@0xsequence/indexer'
-import { ChainId } from '@0xsequence/network'
+import { ContractVerificationStatus, GetTokenBalancesSummaryArgs } from '@0xsequence/indexer'
 import { useQuery } from '@tanstack/react-query'
 import { zeroAddress } from 'viem'
 
-import { getNativeTokenBalance, getTokenBalancesSummary } from '../utils/balance'
+import { getTokenBalancesDetails, getTokenBalancesSummary } from '../utils/balance'
 import { TIME } from '../utils/time.const'
 
-import { useAppContext } from '../context/AppContext'
 import { useAuth } from '../context/AuthContext'
 
+import { useConfig } from './useConfig'
 import { useIndexerClients } from './useIndexerClients'
-
-export const getBalancesSummary = async (
-  indexerClient: SequenceIndexer,
-  chainId: number,
-  args: GetTokenBalancesSummaryArgs
-) => {
-  if (!args.filter.accountAddresses[0]) {
-    return []
-  }
-
-  const balances = (
-    await Promise.allSettled([
-      getNativeTokenBalance(indexerClient, chainId, args.filter.accountAddresses[0]),
-      getTokenBalancesSummary(indexerClient, args)
-    ])
-  )
-    .map(res => (res.status === 'fulfilled' ? res.value : []))
-    .flat()
-
-  return balances
-}
 
 interface UseBalancesSummaryArgs extends GetTokenBalancesSummaryArgs {
   chainIds: number[]
 }
 
-export const useBalancesSummary = ({ chainIds, ...args }: UseBalancesSummaryArgs) => {
-  const indexerClients = useIndexerClients(chainIds)
+export const useBalancesSummary = ({ ...args }: UseBalancesSummaryArgs) => {
+  const indexerClients = useIndexerClients()
 
   return useQuery({
-    queryKey: ['balancesSummary', chainIds, args],
+    queryKey: ['balancesSummary', args],
     queryFn: async () => {
       const res = (
         await Promise.all(
-          Array.from(indexerClients.entries()).map(([chainId, indexerClient]) =>
-            getBalancesSummary(indexerClient, chainId, args)
+          Array.from(indexerClients.values()).map(indexerClient =>
+            getTokenBalancesSummary(indexerClient, args)
           )
         )
       ).flat()
@@ -55,18 +33,18 @@ export const useBalancesSummary = ({ chainIds, ...args }: UseBalancesSummaryArgs
     },
     retry: true,
     staleTime: 30 * TIME.SECOND,
-    enabled: chainIds.length > 0 && !!args.filter.accountAddresses[0]
+    enabled: !!args.filter.accountAddresses[0]
   })
 }
 
 export const useAssetBalance = () => {
-  const { authState } = useAuth()
-  const { chainIds } = useAppContext()
-  const accountAddress = authState.status === 'signedIn' ? authState.address : undefined
-  const hideUnlistedTokens = true
+  const { address: accountAddress } = useAuth()
+  const { chainIds, hideUnlistedTokens } = useConfig()
   const { data: tokenBalancesData, ...rest } = useBalancesSummary({
     chainIds,
+    omitMetadata: false,
     filter: {
+      omitNativeBalances: false,
       accountAddresses: accountAddress ? [accountAddress] : [],
       contractStatus: hideUnlistedTokens
         ? ContractVerificationStatus.VERIFIED
@@ -90,4 +68,26 @@ export const useAssetBalance = () => {
   })
 
   return { data: { coinBalances, collectionBalances }, ...rest }
+}
+
+export const useTokenBalancesDetails = ({ ...args }: UseBalancesSummaryArgs) => {
+  const indexerClients = useIndexerClients()
+
+  return useQuery({
+    queryKey: ['tokenBalancesDetails', args],
+    queryFn: async () => {
+      const res = (
+        await Promise.all(
+          Array.from(indexerClients.values()).map(indexerClient =>
+            getTokenBalancesDetails(indexerClient, args)
+          )
+        )
+      ).flat()
+
+      return res
+    },
+    retry: true,
+    staleTime: 30 * TIME.SECOND,
+    enabled: !!args.filter.accountAddresses[0]
+  })
 }

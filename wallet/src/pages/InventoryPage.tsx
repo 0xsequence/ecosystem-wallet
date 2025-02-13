@@ -1,19 +1,35 @@
-import { Box, Image, Text } from '@0xsequence/design-system'
-import { ChainId } from '@0xsequence/network'
+import { Box, Button, Image, SendIcon, Text } from '@0xsequence/design-system'
+import { ContractVerificationStatus } from '@0xsequence/indexer'
 import { formatUnits } from 'ethers'
+import { useNavigate } from 'react-router'
 
-import { useAssetBalance } from '../hooks/useBalancesSummary'
+import { useAuth } from '../context/AuthContext'
+
+import { useTokenBalancesDetails } from '../hooks/useBalancesSummary'
+import { useConfig } from '../hooks/useConfig'
 
 import { CollectibleTileImage } from '../components/CollectibleTileImage'
 import { NetworkImage } from '../components/NetworkImage'
 
-export const CollectiblesPage = () => {
-  const {
-    data: { collectionBalances }
-    // loading and error state to be added
-    // isPending,
-    // isError
-  } = useAssetBalance()
+import { ROUTES } from '../routes'
+
+export const InventoryPage = () => {
+  const navigate = useNavigate()
+  const { chainIds, hideUnlistedTokens } = useConfig()
+  const { address: accountAddress } = useAuth()
+  const { data: collectionBalances = [] } = useTokenBalancesDetails({
+    chainIds,
+    omitMetadata: false,
+    filter: {
+      omitNativeBalances: false,
+      accountAddresses: accountAddress ? [accountAddress] : [],
+      contractStatus: hideUnlistedTokens
+        ? ContractVerificationStatus.VERIFIED
+        : ContractVerificationStatus.ALL,
+      contractWhitelist: [],
+      contractBlacklist: []
+    }
+  })
 
   const collectibles = collectionBalances.map(collection => {
     const collectionLogo = collection?.contractInfo?.logoURI
@@ -26,18 +42,27 @@ export const CollectiblesPage = () => {
 
     return {
       id: collection.tokenID || Math.random().toString(36).substring(2, 15),
+      chainId: collection.chainId,
       logo: collectionLogo,
       name: collectionName,
       collectibleName,
       balance: balance,
-      imageUrl: collection.tokenMetadata?.image_data,
+      imageUrl: collection.tokenMetadata?.image,
       tokenId: collection.tokenID || 'Unknown Token ID'
     }
   })
+
   return (
-    <Box height="full" flexDirection="column" alignItems="center" gap="5" marginTop="20">
-      {collectibles.map(({ id, logo, name, balance, collectibleName, imageUrl, tokenId }) => (
-        <Box key={id} flexDirection="column" gap="10" paddingBottom="5" paddingX="4" paddingTop="0">
+    <Box
+      display="grid"
+      height="full"
+      alignItems="center"
+      gap="5"
+      padding="20"
+      style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gridAutoRows: 'auto' }}
+    >
+      {collectibles.map(({ id, chainId, logo, name, balance, collectibleName, imageUrl, tokenId }) => (
+        <Box key={id} flexDirection="column" gap="3" paddingBottom="5" paddingX="4" paddingTop="0">
           <Box gap="3" alignItems="center" justifyContent="center" flexDirection="column">
             <Box flexDirection="row" gap="2" justifyContent="center" alignItems="center">
               {logo && (
@@ -53,7 +78,7 @@ export const CollectiblesPage = () => {
                 <Text variant="small" fontWeight="bold" color="text100">
                   {name}
                 </Text>
-                <NetworkImage chainId={ChainId.SONEIUM} size="xs" />
+                <NetworkImage chainId={chainId} size="xs" />
               </Box>
             </Box>
             <Box flexDirection="column" justifyContent="center" alignItems="center">
@@ -78,6 +103,16 @@ export const CollectiblesPage = () => {
               </Text>
             </Box>
           </Box>
+          <Button
+            color="text100"
+            width="full"
+            variant="primary"
+            leftIcon={SendIcon}
+            label="Senda"
+            onClick={() => navigate(ROUTES.SEND)}
+          />
+
+          <Button label="Send" leftIcon={SendIcon} onClick={() => navigate(ROUTES.SEND)} />
         </Box>
       ))}
     </Box>

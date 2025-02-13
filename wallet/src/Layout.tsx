@@ -1,32 +1,15 @@
-import { Box, Button, Image, SignoutIcon, Text, truncateAddress } from '@0xsequence/design-system'
-import { Outlet } from 'react-router'
+import { Box, Image, Text } from '@0xsequence/design-system'
+import { Link, Outlet } from 'react-router'
 
-import { useConfirmDialog } from './components/ConfirmDialogProvider'
-import { CopyButton } from './components/CopyButton'
+import { AccountMenu } from './components/AccountMenu'
 import { PoweredBySequence } from './components/PoweredBySequence'
 import { PrivateRoute } from './components/PrivateRoute'
 import { useAuth } from './context/AuthContext'
+import { ROUTES } from './routes'
 
 const PROJECT_SMALL_LOGO = import.meta.env.VITE_PROJECT_SMALL_LOGO
 
 const AppHeader = () => {
-  const { confirmAction } = useConfirmDialog()
-  const { authState, signOut } = useAuth()
-  const address = authState?.status === 'signedIn' ? authState.address : undefined
-
-  const handleSignOut = () => {
-    confirmAction({
-      title: 'Signing out',
-      warningMessage: 'Are you sure you want to sign out?',
-      confirmLabel: 'Sign out',
-      onConfirm: async () => {
-        signOut()
-      },
-      cancelLabel: 'Cancel',
-      onCancel: () => {}
-    })
-  }
-
   return (
     <Box
       flexDirection="row"
@@ -35,21 +18,32 @@ const AppHeader = () => {
       backdropFilter="blur"
       padding="4"
       alignItems="center"
+      justifyContent="space-between"
     >
       {PROJECT_SMALL_LOGO && (
-        <Box>
+        <Link to={ROUTES.HOME}>
           <Image src={PROJECT_SMALL_LOGO} style={{ width: '30px', height: '30px' }} />
-        </Box>
+        </Link>
       )}
-      {address && (
-        <Box flexDirection="row" alignItems="center" justifyContent="center" gap="2">
-          <Text variant="normal" color="text100" fontWeight="bold">
-            {truncateAddress(address, 8, 6)}
+      <Box flexGrow="1" flexDirection="row" gap="10" justifyContent="center">
+        <Link to={ROUTES.INVENTORY}>
+          <Text variant="large" color="text100" fontWeight="bold">
+            {' '}
+            Inventory
           </Text>
-          <CopyButton text={address} />
-        </Box>
-      )}
-      <Button size="sm" leftIcon={SignoutIcon} onClick={handleSignOut} marginLeft="auto" />
+        </Link>
+        <Link to={ROUTES.DISCOVER}>
+          <Text variant="large" color="text100" fontWeight="bold">
+            Discover
+          </Text>
+        </Link>
+        <Link to={ROUTES.MARKET}>
+          <Text variant="large" color="text100" fontWeight="bold">
+            Market
+          </Text>
+        </Link>
+      </Box>
+      <AccountMenu />
     </Box>
   )
 }

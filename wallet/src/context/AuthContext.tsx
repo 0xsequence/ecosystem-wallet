@@ -12,6 +12,7 @@ type AuthState = { status: 'loading' } | { status: 'signedOut' } | { status: 'si
 
 interface AuthContextType {
   authState: AuthState
+  address?: string
   pendingEventOrigin: string | undefined
   setWalletAddress: (address: string) => void
   signOut: () => void
@@ -58,6 +59,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     <AuthContext.Provider
       value={{
         authState,
+        address: authState.status === 'signedIn' ? authState.address : undefined,
         pendingEventOrigin: walletTransportSnapshot.pendingEventOrigin,
         setWalletAddress,
         signOut

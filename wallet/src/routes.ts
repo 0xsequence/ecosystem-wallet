@@ -1,10 +1,11 @@
 export const ROUTES = {
-  AUTH: 'auth',
+  AUTH: '/auth',
   HOME: '/',
-  TOKENS: 'tokens',
-  COLLECTIBLES: 'collectibles',
-  SEND: 'send',
-  TRANSACTIONS: 'transactions'
+  SEND: '/send',
+  TRANSACTIONS: '/transactions',
+  INVENTORY: '/inventory',
+  DISCOVER: '/discover',
+  MARKET: '/market'
 } as const
 
 type RouteValues<T> = T[keyof T]

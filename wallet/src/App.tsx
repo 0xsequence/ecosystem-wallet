@@ -3,10 +3,9 @@ import { Navigate, Route, Routes } from 'react-router'
 
 import { AppLayout, ProtectedLayout } from './Layout'
 import { Auth } from './pages/Auth'
-import { CollectiblesPage } from './pages/CollectiblesPage'
 import { Home } from './pages/Home'
+import { InventoryPage } from './pages/InventoryPage'
 import { SendPage } from './pages/SendPage'
-import { TokensPage } from './pages/TokensPage'
 import { TransactionsPage } from './pages/TransactionsPage'
 import { ROUTES } from './routes'
 
@@ -21,10 +20,12 @@ export const App: React.FC = () => {
       {/* Protected routes */}
       <Route element={<ProtectedLayout />}>
         <Route index element={<Home />} />
-        <Route path={ROUTES.TOKENS} element={<TokensPage />} />
-        <Route path={ROUTES.COLLECTIBLES} element={<CollectiblesPage />} />
         <Route path={ROUTES.SEND} element={<SendPage />} />
         <Route path={ROUTES.TRANSACTIONS} element={<TransactionsPage />} />
+        <Route path={ROUTES.INVENTORY} element={<InventoryPage />} />
+
+        {/* <Route path={ROUTES.DISCOVER} element={<DiscoverPage />} /> */}
+        {/* <Route path={ROUTES.MARKET} element={<MarketPage />} /> */}
       </Route>
 
       {/* Redirect unknown routes to index */}
