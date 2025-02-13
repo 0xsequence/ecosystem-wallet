@@ -1,20 +1,16 @@
 import { Box, ChevronRightIcon, Text, TokenImage, compareAddress } from '@0xsequence/design-system'
 import { TokenBalance } from '@0xsequence/indexer'
 import { ethers } from 'ethers'
-import { useNavigate } from 'react-router'
-
-import { ROUTES } from '../routes'
+import { formatDisplay } from '../utils/helpers'
 
 interface BalanceItemProps {
   balance: TokenBalance
 }
 
 export const BalanceItem = ({ balance }: BalanceItemProps) => {
-  const navigate = useNavigate()
   const isNativeToken = compareAddress(balance.contractAddress, ethers.ZeroAddress)
-  // TODO
-  const { chainId } = balance
-  const nativeTokenInfo = { chainId, name: 'AAA', symbol: '???', decimals: 18, logoURI: '' }
+  // TODO get native token info
+  const nativeTokenInfo = { chainId: balance.chainId, name: '-', symbol: '???', decimals: 18, logoURI: '' }
   const logoURI = isNativeToken ? nativeTokenInfo.logoURI : balance?.contractInfo?.logoURI
   const tokenName = isNativeToken ? nativeTokenInfo.name : balance?.contractInfo?.name || 'Unknown'
   const symbol = isNativeToken ? nativeTokenInfo.symbol : balance?.contractInfo?.symbol
@@ -25,9 +21,7 @@ export const BalanceItem = ({ balance }: BalanceItemProps) => {
     }
     const decimals = isNativeToken ? nativeTokenInfo.decimals : balance?.contractInfo?.decimals
     const bal = ethers.formatUnits(balance.balance, decimals || 0)
-    // TODO
-    // const displayBalance = formatDisplay(bal)
-    const displayBalance = bal
+    const displayBalance = formatDisplay(bal)
     const symbol = isNativeToken ? nativeTokenInfo.symbol : balance?.contractInfo?.symbol
 
     return `${displayBalance} ${symbol}`
@@ -36,24 +30,9 @@ export const BalanceItem = ({ balance }: BalanceItemProps) => {
   const onClick = () => {
     const isCollection = balance.contractType === 'ERC721' || balance.contractType === 'ERC1155'
     if (isCollection) {
-      navigate(ROUTES.COLLECTIBLES)
-
-      //       setNavigation({
-      //         location: 'collection-details',
-      //         params: {
-      //           contractAddress: balance.contractAddress,
-      //           chainId: balance.chainId
-      //         }
-      //       })
+      // collection details
     } else {
-      navigate(ROUTES.TOKENS)
-      //       setNavigation({
-      //         location: 'coin-details',
-      //         params: {
-      //           contractAddress: balance.contractAddress,
-      //           chainId: balance.chainId
-      //         }
-      //       })
+      // coin details
     }
   }
 

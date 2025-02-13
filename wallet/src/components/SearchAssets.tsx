@@ -93,7 +93,7 @@ export const SearchAssets = () => {
 
   const indexedCoinBalances: IndexedData[] = coinBalances.map((balance, index) => {
     if (compareAddress(balance.contractAddress, ethers.ZeroAddress)) {
-      //       const nativeTokenInfo = getNativeTokenInfoByChainId(balance.chainId, chains)
+      // TODO get native token info
       const nativeTokenInfo = { name: 'TODO' }
 
       return {

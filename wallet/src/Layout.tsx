@@ -28,7 +28,6 @@ const AppHeader = () => {
       <Box flexGrow="1" flexDirection="row" gap="10" justifyContent="center">
         <Link to={ROUTES.INVENTORY}>
           <Text variant="large" color="text100" fontWeight="bold">
-            {' '}
             Inventory
           </Text>
         </Link>
