@@ -32,10 +32,8 @@ export const Wallet: React.FC = () => {
     selectedFeeOptionAddress,
     setSelectedFeeOptionAddress,
     hasCheckedFeeOptions,
-    isRefreshingBalance,
     handleApproveTxn,
     handleRejectTxn,
-    checkTokenBalancesForFeeOptions,
     isTransactionHandlerRegistered
   } = useTransactionHandler()
 
@@ -159,8 +157,6 @@ export const Wallet: React.FC = () => {
                     feeOptionBalances={feeOptionBalances}
                     selectedFeeOptionAddress={selectedFeeOptionAddress}
                     setSelectedFeeOptionAddress={setSelectedFeeOptionAddress}
-                    checkTokenBalancesForFeeOptions={checkTokenBalancesForFeeOptions}
-                    isRefreshingBalance={isRefreshingBalance}
                   />
                 )}
 

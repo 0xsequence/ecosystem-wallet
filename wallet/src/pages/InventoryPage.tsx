@@ -3,7 +3,6 @@ import {
   Button,
   IconButton,
   Image,
-  Modal,
   SendIcon,
   Text,
   TokenImage,
@@ -12,7 +11,6 @@ import {
 import { ContractVerificationStatus, GatewayNativeTokenBalance, TokenBalance } from '@0xsequence/indexer'
 import { ChainId } from '@0xsequence/network'
 import { formatUnits } from 'ethers'
-import { useState } from 'react'
 
 import { useAuth } from '../context/AuthContext'
 
@@ -21,11 +19,9 @@ import { useConfig } from '../hooks/useConfig'
 
 import { CollectibleTileImage } from '../components/CollectibleTileImage'
 import { NetworkImage } from '../components/NetworkImage'
-import { SendCoin } from '../components/SendCoin'
 
 export const InventoryPage = () => {
   const { hideUnlistedTokens } = useConfig()
-  const [sendModalOpen, setSendModalOpen] = useState(false)
   const { address: accountAddress } = useAuth()
   const { data } = useTokenBalancesDetails({
     omitMetadata: false,
@@ -122,7 +118,6 @@ export const InventoryPage = () => {
               variant="primary"
               marginLeft="auto"
               icon={SendIcon}
-              onClick={() => setSendModalOpen(true)}
             />
           </Box>
         ))}
@@ -149,7 +144,6 @@ export const InventoryPage = () => {
               variant="primary"
               marginLeft="auto"
               icon={SendIcon}
-              onClick={() => setSendModalOpen(true)}
             />
           </Box>
         ))}
@@ -203,15 +197,10 @@ export const InventoryPage = () => {
             variant="primary"
             leftIcon={SendIcon}
             label="Send"
-            onClick={() => setSendModalOpen(true)}
           />
         </Box>
       ))}
-      {sendModalOpen && (
-        <Modal size="medium" onClose={() => setSendModalOpen(false)}>
-          <SendCoin chainId={ChainId.ARBITRUM_NOVA} contractAddress={accountAddress || ''} />
-        </Modal>
-      )}
+
     </Box>
   )
 }
