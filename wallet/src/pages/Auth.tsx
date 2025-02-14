@@ -13,8 +13,9 @@ import {
 } from '@0xsequence/design-system'
 import { EmailConflictInfo } from '@0xsequence/waas'
 import { CredentialResponse, GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google'
-import React, { SetStateAction, useRef, useState } from 'react'
+import React, { SetStateAction, useEffect, useRef, useState } from 'react'
 import { appleAuthHelpers, useScript } from 'react-apple-signin-auth'
+import { useNavigate } from 'react-router'
 
 import { randomName } from '../utils/string'
 
@@ -26,6 +27,7 @@ import { AppleLogo } from '../components/AppleLogo'
 import { EmailConflictWarning } from '../components/EmailConflictWarning'
 import { GoogleLogo } from '../components/GoogleLogo'
 
+import { ROUTES } from '../routes'
 import { googleClientId, sequenceWaas } from '../waasSetup'
 
 const PROJECT_NAME = import.meta.env.VITE_PROJECT_NAME
@@ -47,9 +49,16 @@ interface AppleAuthResponse {
 
 export const Auth: React.FC = () => {
   useScript(appleAuthHelpers.APPLE_SCRIPT_SRC)
+  const navigate = useNavigate()
 
-  const { setWalletAddress, pendingEventOrigin } = useAuth()
+  const { setWalletAddress, pendingEventOrigin, authState } = useAuth()
   const [isSocialLoginInProgress, setIsSocialLoginInProgress] = useState(false)
+
+  useEffect(() => {
+    if (authState.status === 'signedIn') {
+      navigate(ROUTES.HOME)
+    }
+  }, [authState.status, navigate])
 
   const handleGoogleLogin = async (tokenResponse: CredentialResponse) => {
     try {

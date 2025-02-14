@@ -1,7 +1,9 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { BrowserRouter } from 'react-router'
 
-import { App } from './App.tsx'
+import { App as Router } from './App.tsx'
+import { AppContextProvider } from './context/AppContext.tsx'
 import './index.css'
 
 const favicon = document.getElementById('favicon')
@@ -14,9 +16,14 @@ if (favicon instanceof HTMLLinkElement && smallLogo) {
 if (appTitle && projectName) {
   appTitle.textContent = projectName + ' ' + 'Wallet'
 }
-
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <BrowserRouter>
+      <div id="app">
+        <AppContextProvider>
+          <Router />
+        </AppContextProvider>
+      </div>
+    </BrowserRouter>
   </StrictMode>
 )

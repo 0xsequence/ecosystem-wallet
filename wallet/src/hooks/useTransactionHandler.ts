@@ -140,15 +140,12 @@ export const useTransactionHandler = () => {
       throw new Error('User not signed in')
     }
 
-    const indexerClient = getIndexerClient(requestChainId)
+    const indexerClient = getIndexerClient()
 
-    const nativeTokenBalance = await indexerClient.getEtherBalance({
+    const nativeTokenBalance = await indexerClient.getNativeTokenBalance({
       accountAddress: authState.address
     })
-
-    const tokenBalances = await indexerClient.getTokenBalances({
-      accountAddress: authState.address
-    })
+    const tokenBalances = await indexerClient.getTokenBalances({ accountAddress: authState.address })
 
     const balances =
       txnFeeOptions?.map(option => {
@@ -156,16 +153,20 @@ export const useTransactionHandler = () => {
           return {
             tokenName: option.token.name,
             decimals: option.token.decimals || 0,
-            balance: nativeTokenBalance.balance.balanceWei
+            balance:
+              nativeTokenBalance.balances.find(balance => balance.chainId === requestChainId)?.result
+                .balance || '0'
           }
         } else {
           return {
             tokenName: option.token.name,
             decimals: option.token.decimals || 0,
             balance:
-              tokenBalances.balances.find(
-                b => b.contractAddress.toLowerCase() === option.token.contractAddress?.toLowerCase()
-              )?.balance || '0'
+              tokenBalances.balances
+                .find(balance => balance.chainId === requestChainId)
+                ?.results.find(
+                  b => b.contractAddress.toLowerCase() === option.token.contractAddress?.toLowerCase()
+                )?.balance || '0'
           }
         }
       }) || []

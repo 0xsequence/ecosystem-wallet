@@ -1,0 +1,40 @@
+import { Box, ChevronRightIcon, Text } from '@0xsequence/design-system'
+import { useNavigate } from 'react-router'
+
+import { AppRoute } from '../routes'
+
+interface WalletLinkProps {
+  toLocation: AppRoute
+  label: string
+}
+
+export const WalletLink = ({ toLocation, label }: WalletLinkProps) => {
+  const navigate = useNavigate()
+
+  const onClick = () => {
+    navigate(toLocation)
+  }
+
+  return (
+    <Box
+      onClick={onClick}
+      width="full"
+      flexDirection="row"
+      justifyContent="space-between"
+      alignItems="center"
+      userSelect="none"
+      cursor="pointer"
+      opacity={{ hover: '80' }}
+    >
+      <Text variant="normal" color="text50" fontWeight="medium">
+        {label}
+      </Text>
+      <Box flexDirection="row" justifyContent="center" alignItems="center">
+        <Text variant="normal" color="text50" fontWeight="medium">
+          View all
+        </Text>
+        <ChevronRightIcon color="text50" size="sm" />
+      </Box>
+    </Box>
+  )
+}
