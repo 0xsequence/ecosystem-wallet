@@ -1,7 +1,6 @@
 import { Box, Button, Collapsible, Spinner, Text } from '@0xsequence/design-system'
 import { AnimatePresence, motion } from 'framer-motion'
 import React from 'react'
-import { NavLink } from 'react-router'
 import { useSnapshot } from 'valtio'
 
 import { useConnectionHandler } from '../hooks/useConnectionHandler'
@@ -13,7 +12,6 @@ import { SignatureDetails } from '../components/SignatureDetails'
 import { TransactionDetails } from '../components/TransactionDetails'
 import { WalletConnect } from '../components/WalletConnect'
 
-import { ROUTES } from '../routes'
 import { walletConnectStore } from '../store/WalletConnectStore'
 
 export const Wallet: React.FC = () => {
@@ -59,15 +57,7 @@ export const Wallet: React.FC = () => {
 
   return (
     <Box>
-      <Box
-        flexDirection="column"
-        gap="2"
-        marginTop="10"
-        paddingX="4"
-        alignItems="center"
-        justifyContent="center"
-        width="full"
-      >
+      <Box flexDirection="column" gap="2" alignItems="center" justifyContent="center" width="full">
         {!transactionRequest && !connectionRequest && !signRequest && (
           <Box width="full" style={{ maxWidth: '400px' }}>
             <Collapsible
@@ -86,39 +76,7 @@ export const Wallet: React.FC = () => {
             </Collapsible>
           </Box>
         )}
-
-        {!transactionRequest && !connectionRequest && !signRequest && (
-          <Box width="full" style={{ maxWidth: '400px' }}>
-            <Collapsible
-              label={
-                <Box flexDirection="column" alignItems="flex-start" justifyContent="center" gap="2">
-                  <Text color="text100">Assets</Text>
-                  {activeWcSessions.length > 0 && (
-                    <Text color="text80" variant="small">
-                      {activeWcSessions.length} Active Connection{activeWcSessions.length > 1 ? 's' : ''}
-                    </Text>
-                  )}
-                </Box>
-              }
-            >
-              <Box flexDirection="column" gap="2" width="full">
-                <NavLink to={ROUTES.TOKENS}>
-                  <Text color="text80" variant="normal">
-                    Tokens
-                  </Text>
-                </NavLink>
-
-                <NavLink to={ROUTES.COLLECTIBLES}>
-                  <Text color="text80" variant="normal">
-                    Collectibles
-                  </Text>
-                </NavLink>
-              </Box>
-            </Collapsible>
-          </Box>
-        )}
       </Box>
-
       <AnimatePresence>
         {allHandlersRegistered && !connectionRequest && !transactionRequest && !signRequest && (
           <Box

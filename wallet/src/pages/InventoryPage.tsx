@@ -3,15 +3,16 @@ import {
   Button,
   IconButton,
   Image,
+  Modal,
   SendIcon,
   Text,
   TokenImage,
   nativeTokenImageUrl
 } from '@0xsequence/design-system'
-import { ContractVerificationStatus } from '@0xsequence/indexer'
+import { ContractVerificationStatus, GatewayNativeTokenBalance, TokenBalance } from '@0xsequence/indexer'
+import { ChainId } from '@0xsequence/network'
 import { formatUnits } from 'ethers'
-import { useNavigate } from 'react-router'
-
+import { useState } from 'react'
 
 import { useAuth } from '../context/AuthContext'
 
@@ -20,12 +21,11 @@ import { useConfig } from '../hooks/useConfig'
 
 import { CollectibleTileImage } from '../components/CollectibleTileImage'
 import { NetworkImage } from '../components/NetworkImage'
-
-import { ROUTES } from '../routes'
+import { SendCoin } from '../components/SendCoin'
 
 export const InventoryPage = () => {
-  const navigate = useNavigate()
-  const { hideUnlistedTokens, chainIds } = useConfig()
+  const { hideUnlistedTokens } = useConfig()
+  const [sendModalOpen, setSendModalOpen] = useState(false)
   const { address: accountAddress } = useAuth()
   const { data } = useTokenBalancesDetails({
     omitMetadata: false,
@@ -41,40 +41,55 @@ export const InventoryPage = () => {
   })
 
   const balances =
-    data?.balances.filter(balance => balance?.results?.length > 0).map(balance => balance.results) || []
-  const nativeBalances = data?.nativeBalances
+    data?.balances.filter(balance => balance?.results?.length > 0).flatMap(balance => balance.results) || []
+  const { erc20Balances, collectiblesBalances } = balances.reduce<{
+    erc20Balances: TokenBalance[]
+    collectiblesBalances: TokenBalance[]
+  }>(
+    (acc, balance) => {
+      if (balance.contractInfo?.type === 'ERC20') {
+        acc.erc20Balances.push(balance)
+      } else {
+        acc.collectiblesBalances.push(balance)
+      }
 
-  const collectibles = balances
-    .map(chainBalances => {
-      return chainBalances.map(chainBalance => {
-        const collectionLogo = chainBalance?.contractInfo?.logoURI
-        const collectionName = chainBalance?.contractInfo?.name || 'Unknown Collection'
+      return acc
+    },
+    { erc20Balances: [], collectiblesBalances: [] }
+  )
 
-        const decimals = chainBalance?.tokenMetadata?.decimals || 0
-        const rawBalance = chainBalance?.balance || '0'
-        const formattedBalance = formatUnits(rawBalance, decimals)
-        const collectibleName = chainBalance.tokenMetadata?.name || 'Unknown Collectible'
+  const nativeBalances = (data?.nativeBalances
+    .filter(balance => balance.results?.length > 0 && balance.results[0].balance !== '0')
+    .flatMap(balance => balance.results) || []) as unknown as (GatewayNativeTokenBalance['result'] & {
+    chainId: ChainId
+  })[]
+  // api response type mismatch, response consist chainId but not in the type
+  // {
+  //   "accountAddress": "0x12a3a50e830faa32d16a231e3420b61bed3cd911",
+  //   "chainId": 37084624,
+  //   "balance": "0"
+  // }
 
-        return {
-          id: chainBalance.tokenID || Math.random().toString(36).substring(2, 15),
-          chainId: chainBalance.chainId,
-          logo: collectionLogo,
-          name: collectionName,
-          collectibleName,
-          balance: formattedBalance,
-          imageUrl: chainBalance.tokenMetadata?.image,
-          tokenId: chainBalance.tokenID || 'Unknown Token ID'
-        }
-      })
-    })
-    .flat()
+  const collectibles = collectiblesBalances.flatMap(chainBalance => {
+    const collectionLogo = chainBalance?.contractInfo?.logoURI
+    const collectionName = chainBalance?.contractInfo?.name || 'Unknown Collection'
 
-  // @ts-expect-error types doesn't match with the api response
-  const nativeTokens = nativeBalances?.filter(balance => chainIds.includes(balance.chainID))
-    .flatMap(chainBalance =>
-      // @ts-expect-error types doesn't match with the api response
-      chainBalance.balances.filter(balance => balance.balance !== '0').map(balance => ({ ...balance, chainId: chainBalance.chainID }))
-    )
+    const decimals = chainBalance?.tokenMetadata?.decimals || 0
+    const rawBalance = chainBalance?.balance || '0'
+    const formattedBalance = formatUnits(rawBalance, decimals)
+    const collectibleName = chainBalance.tokenMetadata?.name || 'Unknown Collectible'
+
+    return {
+      id: `${chainBalance.chainId}-${chainBalance.tokenID}`,
+      chainId: chainBalance.chainId,
+      logo: collectionLogo,
+      name: collectionName,
+      collectibleName,
+      balance: formattedBalance,
+      imageUrl: chainBalance.tokenMetadata?.image,
+      tokenId: chainBalance.tokenID || 'Unknown Token ID'
+    }
+  })
 
   return (
     <Box
@@ -86,7 +101,7 @@ export const InventoryPage = () => {
       style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gridAutoRows: 'auto' }}
     >
       <Box height="full" width="full" flexDirection="column" gap="2">
-        {nativeTokens?.map(({ chainId, balance }) => (
+        {nativeBalances.map(({ chainId, balance }) => (
           <Box key={chainId} gap="3" flexDirection="row" alignItems="center" minWidth="0">
             <TokenImage src={nativeTokenImageUrl(chainId)} size="xl" withNetwork={chainId} />
             <Text
@@ -107,7 +122,34 @@ export const InventoryPage = () => {
               variant="primary"
               marginLeft="auto"
               icon={SendIcon}
-              onClick={() => navigate(ROUTES.SEND)}
+              onClick={() => setSendModalOpen(true)}
+            />
+          </Box>
+        ))}
+
+        {erc20Balances.map(({ chainId, balance }) => (
+          <Box key={chainId} gap="3" flexDirection="row" alignItems="center" minWidth="0">
+            {/* // should get erc20 token image */}
+            <TokenImage src={nativeTokenImageUrl(chainId)} size="xl" withNetwork={chainId} />
+            <Text
+              variant="normal"
+              color="text50"
+              fontWeight="bold"
+              textAlign="right"
+              whiteSpace="nowrap"
+              ellipsis
+            >
+              {formatUnits(balance, 18)}
+            </Text>
+            <IconButton
+              opacity={{ hover: '80' }}
+              color="text100"
+              size="sm"
+              width="full"
+              variant="primary"
+              marginLeft="auto"
+              icon={SendIcon}
+              onClick={() => setSendModalOpen(true)}
             />
           </Box>
         ))}
@@ -161,10 +203,15 @@ export const InventoryPage = () => {
             variant="primary"
             leftIcon={SendIcon}
             label="Send"
-            onClick={() => navigate(ROUTES.SEND)}
+            onClick={() => setSendModalOpen(true)}
           />
         </Box>
       ))}
+      {sendModalOpen && (
+        <Modal size="medium" onClose={() => setSendModalOpen(false)}>
+          <SendCoin chainId={ChainId.ARBITRUM_NOVA} contractAddress={accountAddress || ''} />
+        </Modal>
+      )}
     </Box>
   )
 }
