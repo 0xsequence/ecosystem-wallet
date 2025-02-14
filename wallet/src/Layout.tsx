@@ -1,15 +1,15 @@
-import { Box, Image, Text } from '@0xsequence/design-system'
+import { Box, Image, Text, useMediaQuery } from '@0xsequence/design-system'
 import { Link, Outlet } from 'react-router'
 
 import { AccountMenu } from './components/AccountMenu'
 import { PoweredBySequence } from './components/PoweredBySequence'
 import { PrivateRoute } from './components/PrivateRoute'
-import { useAuth } from './context/AuthContext'
 import { ROUTES } from './routes'
 
 const PROJECT_SMALL_LOGO = import.meta.env.VITE_PROJECT_SMALL_LOGO
 
 const AppHeader = () => {
+  const isDesktop = useMediaQuery('isDesktop')
   return (
     <Box
       flexDirection="row"
@@ -25,34 +25,36 @@ const AppHeader = () => {
           <Image src={PROJECT_SMALL_LOGO} style={{ width: '30px', height: '30px' }} />
         </Link>
       )}
-      <Box flexGrow="1" flexDirection="row" gap="10" justifyContent="center">
-        <Link to={ROUTES.INVENTORY}>
-          <Text variant="large" color="text100" fontWeight="bold">
-            Inventory
-          </Text>
-        </Link>
-        <Link to={ROUTES.DISCOVER}>
-          <Text variant="large" color="text100" fontWeight="bold">
-            Discover
-          </Text>
-        </Link>
-        <Link to={ROUTES.MARKET}>
-          <Text variant="large" color="text100" fontWeight="bold">
-            Market
-          </Text>
-        </Link>
-      </Box>
-      <AccountMenu />
+      {isDesktop && (
+        <>
+          <Box flexGrow="1" flexDirection="row" gap="10" justifyContent="center">
+            <Link to={ROUTES.INVENTORY}>
+              <Text variant="large" color="text100" fontWeight="bold">
+                Inventory
+              </Text>
+            </Link>
+            <Link to={ROUTES.DISCOVER}>
+              <Text variant="large" color="text100" fontWeight="bold">
+                Discover
+              </Text>
+            </Link>
+            <Link to={ROUTES.MARKET}>
+              <Text variant="large" color="text100" fontWeight="bold">
+                Market
+              </Text>
+            </Link>
+          </Box>
+          <AccountMenu />
+        </>
+      )}
     </Box>
   )
 }
 
-export const AppLayout = () => {
-  const { authState } = useAuth()
-  const isAuth = authState.status === 'signedIn'
+export const AppLayout = ({ showHeader = false }: { showHeader?: boolean }) => {
   return (
     <Box minHeight="vh" position="relative" paddingBottom="14">
-      {isAuth && <AppHeader />}
+      {showHeader && <AppHeader />}
       <Outlet />
       <PoweredBySequence />
     </Box>
@@ -62,7 +64,7 @@ export const AppLayout = () => {
 export const ProtectedLayout = () => {
   return (
     <PrivateRoute>
-      <AppLayout />
+      <AppLayout showHeader />
     </PrivateRoute>
   )
 }

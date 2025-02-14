@@ -60,7 +60,13 @@ export const Wallet: React.FC = () => {
           <Box width="full" style={{ maxWidth: '400px' }}>
             <Collapsible
               label={
-                <Box flexDirection="column" alignItems="flex-start" justifyContent="center" gap="2">
+                <Box
+                  style={{ width: '400px' }}
+                  flexDirection="column"
+                  alignItems="flex-start"
+                  justifyContent="center"
+                  gap="2"
+                >
                   <Text color="text100">WalletConnect</Text>
                   {activeWcSessions.length > 0 && (
                     <Text color="text80" variant="small">

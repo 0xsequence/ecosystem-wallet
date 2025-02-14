@@ -1,5 +1,3 @@
-import { ChainId } from '@0xsequence/network'
-
 export interface FiatCurrency {
   decimals: number
   name: {
@@ -10,15 +8,12 @@ export interface FiatCurrency {
 }
 
 interface Config {
-  chainIds: ChainId[]
   hideUnlistedTokens: boolean
   fiatCurrency: FiatCurrency
 }
 
 const config: Config = {
-  // TODO no need for this remove
-  chainIds: [ChainId.ARBITRUM_NOVA, ChainId.SONEIUM, ChainId.POLYGON],
-  hideUnlistedTokens: false,
+  hideUnlistedTokens: true,
   fiatCurrency: { symbol: 'USD', sign: '$', name: { message: 'US Dollar' }, decimals: 2 }
 }
 

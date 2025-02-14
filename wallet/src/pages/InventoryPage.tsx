@@ -8,14 +8,14 @@ import {
   TokenImage,
   nativeTokenImageUrl
 } from '@0xsequence/design-system'
-import { ContractVerificationStatus, GatewayNativeTokenBalance, TokenBalance } from '@0xsequence/indexer'
+import { ContractVerificationStatus, GatewayNativeTokenBalance } from '@0xsequence/indexer'
 import { ChainId } from '@0xsequence/network'
 import { formatUnits } from 'ethers'
 
 import { useAuth } from '../context/AuthContext'
 
-import { useTokenBalancesDetails } from '../hooks/useTokenBalancesDetails'
 import { useConfig } from '../hooks/useConfig'
+import { useTokenBalancesDetails } from '../hooks/useTokenBalancesDetails'
 
 import { CollectibleTileImage } from '../components/CollectibleTileImage'
 import { NetworkImage } from '../components/NetworkImage'
@@ -38,20 +38,11 @@ export const InventoryPage = () => {
 
   const balances =
     data?.balances.filter(balance => balance?.results?.length > 0).flatMap(balance => balance.results) || []
-  const { erc20Balances, collectiblesBalances } = balances.reduce<{
-    erc20Balances: TokenBalance[]
-    collectiblesBalances: TokenBalance[]
-  }>(
-    (acc, balance) => {
-      if (balance.contractInfo?.type === 'ERC20') {
-        acc.erc20Balances.push(balance)
-      } else {
-        acc.collectiblesBalances.push(balance)
-      }
-
-      return acc
-    },
-    { erc20Balances: [], collectiblesBalances: [] }
+  const erc20Balances = balances.filter(
+    ({ balance, contractType }) => contractType === 'ERC20' && balance !== '0'
+  )
+  const collectibleBalances = balances.filter(
+    ({ balance, contractType }) => ['ERC721', 'ERC1155'].includes(contractType) && balance !== '0'
   )
 
   const nativeBalances = (data?.nativeBalances
@@ -59,33 +50,6 @@ export const InventoryPage = () => {
     .flatMap(balance => balance.results) || []) as unknown as (GatewayNativeTokenBalance['result'] & {
     chainId: ChainId
   })[]
-  // api response type mismatch, response consist chainId but not in the type
-  // {
-  //   "accountAddress": "0x12a3a50e830faa32d16a231e3420b61bed3cd911",
-  //   "chainId": 37084624,
-  //   "balance": "0"
-  // }
-
-  const collectibles = collectiblesBalances.flatMap(chainBalance => {
-    const collectionLogo = chainBalance?.contractInfo?.logoURI
-    const collectionName = chainBalance?.contractInfo?.name || 'Unknown Collection'
-
-    const decimals = chainBalance?.tokenMetadata?.decimals || 0
-    const rawBalance = chainBalance?.balance || '0'
-    const formattedBalance = formatUnits(rawBalance, decimals)
-    const collectibleName = chainBalance.tokenMetadata?.name || 'Unknown Collectible'
-
-    return {
-      id: `${chainBalance.chainId}-${chainBalance.tokenID}`,
-      chainId: chainBalance.chainId,
-      logo: collectionLogo,
-      name: collectionName,
-      collectibleName,
-      balance: formattedBalance,
-      imageUrl: chainBalance.tokenMetadata?.image,
-      tokenId: chainBalance.tokenID || 'Unknown Token ID'
-    }
-  })
 
   return (
     <Box
@@ -96,10 +60,10 @@ export const InventoryPage = () => {
       padding="20"
       style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gridAutoRows: 'auto' }}
     >
-      <Box height="full" width="full" flexDirection="column" gap="2">
+      <Box height="full" width="full" flexDirection="column" gap="8">
         {nativeBalances.map(({ chainId, balance }) => (
           <Box key={chainId} gap="3" flexDirection="row" alignItems="center" minWidth="0">
-            <TokenImage src={nativeTokenImageUrl(chainId)} size="xl" withNetwork={chainId} />
+            <TokenImage src={nativeTokenImageUrl(chainId)} size="lg" withNetwork={chainId} />
             <Text
               variant="normal"
               color="text50"
@@ -122,10 +86,9 @@ export const InventoryPage = () => {
           </Box>
         ))}
 
-        {erc20Balances.map(({ chainId, balance }) => (
+        {erc20Balances.map(({ chainId, balance, contractInfo }) => (
           <Box key={chainId} gap="3" flexDirection="row" alignItems="center" minWidth="0">
-            {/* // should get erc20 token image */}
-            <TokenImage src={nativeTokenImageUrl(chainId)} size="xl" withNetwork={chainId} />
+            <TokenImage src={contractInfo?.logoURI} size="lg" withNetwork={chainId} />
             <Text
               variant="normal"
               color="text50"
@@ -149,58 +112,60 @@ export const InventoryPage = () => {
         ))}
       </Box>
 
-      {collectibles.map(({ id, chainId, logo, name, balance, collectibleName, imageUrl, tokenId }) => (
-        <Box key={id} flexDirection="column" gap="3" paddingBottom="5" paddingX="4" paddingTop="0">
-          <Box gap="3" alignItems="center" justifyContent="center" flexDirection="column">
-            <Box flexDirection="row" gap="2" justifyContent="center" alignItems="center">
-              {logo && (
-                <Image
-                  borderRadius="circle"
-                  width="8"
-                  src={logo}
-                  alt="collection logo"
-                  style={{ objectFit: 'cover' }}
-                />
-              )}
-              <Box gap="1" flexDirection="row" justifyContent="center" alignItems="center">
-                <Text variant="small" fontWeight="bold" color="text100">
-                  {name}
+      {collectibleBalances.map(
+        ({ chainId, balance, contractAddress, contractInfo, tokenMetadata, tokenID }) => (
+          <Box
+            key={`${contractAddress}-${chainId}`}
+            flexDirection="column"
+            gap="3"
+            paddingBottom="5"
+            paddingX="4"
+            paddingTop="0"
+          >
+            <Box gap="3" alignItems="center" justifyContent="center" flexDirection="column">
+              <Box flexDirection="row" gap="2" justifyContent="center" alignItems="center">
+                {contractInfo?.logoURI && (
+                  <Image
+                    borderRadius="circle"
+                    width="8"
+                    src={contractInfo.logoURI}
+                    alt="collection logo"
+                    style={{ objectFit: 'cover' }}
+                  />
+                )}
+                <Box gap="1" flexDirection="row" justifyContent="center" alignItems="center">
+                  <Text variant="small" fontWeight="bold" color="text100">
+                    {contractInfo?.name || 'Unknown Collection'}
+                  </Text>
+                  <NetworkImage chainId={chainId} size="xs" />
+                </Box>
+              </Box>
+              <Box flexDirection="column" justifyContent="center" alignItems="center">
+                <Text variant="large" color="text100" fontWeight="bold">
+                  {tokenMetadata?.name || 'Unknown Collectible'}
                 </Text>
-                <NetworkImage chainId={chainId} size="xs" />
+                <Text variant="small" color="text50" fontWeight="medium">
+                  {`#${tokenID}`}
+                </Text>
               </Box>
             </Box>
-            <Box flexDirection="column" justifyContent="center" alignItems="center">
-              <Text variant="large" color="text100" fontWeight="bold">
-                {collectibleName}
-              </Text>
-              <Text variant="small" color="text50" fontWeight="medium">
-                {`#${tokenId}`}
-              </Text>
+            <Box>
+              <CollectibleTileImage imageUrl={tokenMetadata?.image} />
             </Box>
-          </Box>
-          <Box>
-            <CollectibleTileImage imageUrl={imageUrl} />
-          </Box>
-          <Box>
-            <Text variant="normal" fontWeight="medium" color="text50">
-              Balance
-            </Text>
-            <Box flexDirection="row" alignItems="flex-end" justifyContent="space-between">
-              <Text variant="xlarge" fontWeight="bold" color="text100">
-                {balance}
+            <Box>
+              <Text variant="normal" fontWeight="medium" color="text50">
+                Balance
               </Text>
+              <Box flexDirection="row" alignItems="flex-end" justifyContent="space-between">
+                <Text variant="xlarge" fontWeight="bold" color="text100">
+                  {balance}
+                </Text>
+              </Box>
             </Box>
+            <Button color="text100" width="full" variant="primary" leftIcon={SendIcon} label="Send" />
           </Box>
-          <Button
-            color="text100"
-            width="full"
-            variant="primary"
-            leftIcon={SendIcon}
-            label="Send"
-          />
-        </Box>
-      ))}
-
+        )
+      )}
     </Box>
   )
 }

@@ -1,4 +1,3 @@
-import { ChainId } from '@0xsequence/network'
 import { FeeOption, Transaction } from '@0xsequence/waas'
 import { ethers } from 'ethers'
 import { ZeroAddress } from 'ethers'
@@ -142,19 +141,35 @@ export const useTransactionHandler = () => {
     }
 
     const indexerClient = getIndexerClient()
+
+    const nativeTokenBalance = await indexerClient.getNativeTokenBalance({
+      accountAddress: authState.address
+    })
     const tokenBalances = await indexerClient.getTokenBalances({ accountAddress: authState.address })
 
     const balances =
-      txnFeeOptions?.map(option => ({
-        tokenName: option.token.name,
-        decimals: option.token.decimals || 0,
-        balance:
-          option.token.contractAddress === null
-            ? tokenBalances.balances.find(balance => balance.chainId === ChainId.MAINNET)?.results[0]
+      txnFeeOptions?.map(option => {
+        if (option.token.contractAddress === null) {
+          return {
+            tokenName: option.token.name,
+            decimals: option.token.decimals || 0,
+            balance:
+              nativeTokenBalance.balances.find(balance => balance.chainId === requestChainId)?.result
                 .balance || '0'
-            : tokenBalances.balances.find(balance => balance.chainId === option.token.chainId)?.results[0]
-                .balance || '0'
-      })) || []
+          }
+        } else {
+          return {
+            tokenName: option.token.name,
+            decimals: option.token.decimals || 0,
+            balance:
+              tokenBalances.balances
+                .find(balance => balance.chainId === requestChainId)
+                ?.results.find(
+                  b => b.contractAddress.toLowerCase() === option.token.contractAddress?.toLowerCase()
+                )?.balance || '0'
+          }
+        }
+      }) || []
 
     setFeeOptionBalances(balances)
     setIsRefreshingBalance(false)
