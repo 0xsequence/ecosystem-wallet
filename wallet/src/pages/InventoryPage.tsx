@@ -16,7 +16,7 @@ import { useState } from 'react'
 
 import { useAuth } from '../context/AuthContext'
 
-import { useTokenBalancesDetails } from '../hooks/useBalancesSummary'
+import { useTokenBalancesDetails } from '../hooks/useTokenBalancesDetails'
 import { useConfig } from '../hooks/useConfig'
 
 import { CollectibleTileImage } from '../components/CollectibleTileImage'
