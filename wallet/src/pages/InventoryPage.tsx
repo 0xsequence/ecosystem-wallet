@@ -86,8 +86,14 @@ export const InventoryPage = () => {
           </Box>
         ))}
 
-        {erc20Balances.map(({ chainId, balance, contractInfo }) => (
-          <Box key={chainId} gap="3" flexDirection="row" alignItems="center" minWidth="0">
+        {erc20Balances.map(({ chainId, balance, contractAddress, contractInfo }) => (
+          <Box
+            key={`${contractAddress}-${chainId}`}
+            gap="3"
+            flexDirection="row"
+            alignItems="center"
+            minWidth="0"
+          >
             <TokenImage src={contractInfo?.logoURI} size="lg" withNetwork={chainId} />
             <Text
               variant="normal"
@@ -115,7 +121,7 @@ export const InventoryPage = () => {
       {collectibleBalances.map(
         ({ chainId, balance, contractAddress, contractInfo, tokenMetadata, tokenID }) => (
           <Box
-            key={`${contractAddress}-${chainId}`}
+            key={`${contractAddress}-${tokenID}-${chainId}`}
             flexDirection="column"
             gap="3"
             paddingBottom="5"
