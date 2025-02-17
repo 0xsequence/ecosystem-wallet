@@ -1,4 +1,4 @@
-import { Button, Spinner, Text } from '@0xsequence/design-system';
+import { Button, Spinner, Text } from '@0xsequence/design-system'
 
 import { ContentModal } from '../ContentModal'
 
@@ -26,13 +26,13 @@ export const ConfirmDialog = ({
   <ContentModal isDismissible={false} onClose={onCancel}>
     <div className="flex flex-col gap-4 p-6">
       <div className="flex flex-col gap-1">
-        <Text className="my-0" variant="medium" color="text100" asChild><h1>
-            {title}
-          </h1></Text>
+        <Text className="my-0" variant="medium" color="text100" asChild>
+          <h1>{title}</h1>
+        </Text>
         {warningMessage ? (
-          <Text className="my-2" variant="normal" color="negative" asChild><p>
-              {warningMessage}
-            </p></Text>
+          <Text className="my-2" variant="normal" color="negative" asChild>
+            <p>{warningMessage}</p>
+          </Text>
         ) : null}
       </div>
 

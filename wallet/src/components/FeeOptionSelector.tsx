@@ -1,4 +1,4 @@
-import { Button, Text } from '@0xsequence/design-system';
+import { Button, Text } from '@0xsequence/design-system'
 import { FeeOption } from '@0xsequence/waas'
 import { ZeroAddress, formatUnits, parseUnits } from 'ethers'
 import React, { ComponentProps } from 'react'
@@ -40,7 +40,7 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
   })
 
   return (
-    (<div className="my-3 w-full">
+    <div className="my-3 w-full">
       <Text variant="medium" color="text100" fontWeight="bold">
         Select a fee option
       </Text>
@@ -53,7 +53,7 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
             option.token.decimals || 0
           )
           return (
-            (<div
+            <div
               className="p-3 rounded-xl"
               key={index}
               onClick={() => {
@@ -68,7 +68,8 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
                     variant: 'warning'
                   })
                 }
-              }}>
+              }}
+            >
               <div className="flex flex-row justify-between items-center">
                 <div className="flex flex-col">
                   <Text variant="small" color="text100" fontWeight="bold">
@@ -93,8 +94,8 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
                   </Text>
                 </div>
               </div>
-            </div>)
-          );
+            </div>
+          )
         })}
       </div>
       <div className="flex my-2 items-end justify-center flex-col">
@@ -115,8 +116,8 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
           </div>
         )}
       </div>
-    </div>)
-  );
+    </div>
+  )
 }
 
 export type AlertProps = {
@@ -137,9 +138,8 @@ export const Alert = ({
   children
 }: AlertProps) => {
   return (
-    (<div className="rounded-xl">
-      <div
-        className="flex bg-background-overlay rounded-xl py-4 w-full flex-col gap-3">
+    <div className="rounded-xl">
+      <div className="flex bg-background-overlay rounded-xl py-4 w-full flex-col gap-3">
         <div className="flex w-full gap-2 justify-between">
           <div className="flex flex-col gap-1">
             <Text variant="normal" color="text100" fontWeight="medium">
@@ -166,6 +166,6 @@ export const Alert = ({
 
         {children}
       </div>
-    </div>)
-  );
+    </div>
+  )
 }

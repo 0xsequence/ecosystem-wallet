@@ -1,4 +1,4 @@
-import { Button, Divider, Spinner, TabsHeader, TabsRoot, Text, TextInput } from '@0xsequence/design-system';
+import { Button, Divider, Spinner, TabsHeader, TabsRoot, Text, TextInput } from '@0xsequence/design-system'
 import { SessionTypes } from '@walletconnect/types'
 import { useEffect, useState } from 'react'
 import { subscribe, useSnapshot } from 'valtio'
@@ -51,15 +51,14 @@ const formatTime = (timestamp: number) => {
 }
 
 const isMobileDevice = () => {
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
 }
 
 const ActiveSessionCard: React.FC<ActiveSessionCardProps> = ({ session, onDisconnect }) => {
   const isExpired = session.expiry * 1000 < Date.now()
 
   return (
-    (<div
-      className="flex bg-background-secondary rounded-xl p-4 flex-row items-center justify-between gap-4">
+    <div className="flex bg-background-secondary rounded-xl p-4 flex-row items-center justify-between gap-4">
       <div className="flex flex-row gap-3 items-center" style={{ flex: 1 }}>
         <div className="flex flex-col gap-1">
           <div className="flex flex-row items-center gap-2">
@@ -78,8 +77,8 @@ const ActiveSessionCard: React.FC<ActiveSessionCardProps> = ({ session, onDiscon
       <div className="flex flex-col gap-2 items-end">
         <Button size="sm" variant="danger" onClick={() => onDisconnect(session.topic)} label="Disconnect" />
       </div>
-    </div>)
-  );
+    </div>
+  )
 }
 
 type ConnectMethod = 'uri' | 'qr'
@@ -142,7 +141,7 @@ export const WalletConnect = () => {
   const connectMethods = getConnectMethods(isMobile)
 
   return (
-    (<div className="flex gap-2 flex-col" style={{ maxWidth: '400px' }}>
+    <div className="flex gap-2 flex-col" style={{ maxWidth: '400px' }}>
       <div className="flex flex-col gap-2">
         <div className="flex flex-col gap-3">
           <div className="flex flex-row gap-2 justify-between items-center">
@@ -187,7 +186,8 @@ export const WalletConnect = () => {
                 {isQrScannerActive ? (
                   <div
                     className="bg-background-secondary rounded-xl p-4"
-                    style={{ aspectRatio: '1', width: '100%' }}>
+                    style={{ aspectRatio: '1', width: '100%' }}
+                  >
                     {isConnecting ? (
                       <div className="flex items-center justify-center h-full">
                         <Spinner />
@@ -229,8 +229,7 @@ export const WalletConnect = () => {
       {!validSessions.length && (
         <>
           <Divider className="w-full" />
-          <div
-            className="flex flex-col items-center justify-center gap-2 p-6 bg-background-secondary rounded-xl">
+          <div className="flex flex-col items-center justify-center gap-2 p-6 bg-background-secondary rounded-xl">
             <Text className="text-center" variant="normal" color="text80">
               No active connections
             </Text>
@@ -240,6 +239,6 @@ export const WalletConnect = () => {
           </div>
         </>
       )}
-    </div>)
-  );
+    </div>
+  )
 }

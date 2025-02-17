@@ -1,7 +1,19 @@
-import { Button, IconButton, Image, SendIcon, Text, TokenImage, nativeTokenImageUrl } from '@0xsequence/design-system';
-import { ContractVerificationStatus, GatewayNativeTokenBalance } from '@0xsequence/indexer'
+import {
+  Button,
+  IconButton,
+  Image,
+  Modal,
+  ModalPrimitive,
+  SendIcon,
+  Text,
+  TokenImage,
+  nativeTokenImageUrl
+} from '@0xsequence/design-system'
+import { ContractVerificationStatus } from '@0xsequence/indexer'
 import { ChainId } from '@0xsequence/network'
 import { formatUnits } from 'ethers'
+import { AnimatePresence } from 'framer-motion'
+import { useState } from 'react'
 
 import { useAuth } from '../context/AuthContext'
 
@@ -10,10 +22,12 @@ import { useTokenBalancesDetails } from '../hooks/useTokenBalancesDetails'
 
 import { CollectibleTileImage } from '../components/CollectibleTileImage'
 import { NetworkImage } from '../components/NetworkImage'
+import { SendCoin } from '../components/SendCoin'
+import { SendCollectible } from '../components/SendCollectible'
 
 export const InventoryPage = () => {
   const { hideUnlistedTokens } = useConfig()
-  const { address: accountAddress } = useAuth()
+  const { address: accountAddress = '' } = useAuth()
   const { data } = useTokenBalancesDetails({
     omitMetadata: false,
     filter: {
@@ -26,6 +40,11 @@ export const InventoryPage = () => {
       contractBlacklist: []
     }
   })
+  const [openWalletModal, setOpenWalletModal] = useState(false)
+  const [sendOptions, setSendOptions] = useState<
+    { isCoin: boolean; chainId: ChainId; tokenId?: string } | undefined
+  >()
+  const { isCoin = true, chainId = ChainId.SONEIUM, tokenId = '' } = sendOptions || {}
 
   const balances =
     data?.balances.filter(balance => balance?.results?.length > 0).flatMap(balance => balance.results) || []
@@ -36,16 +55,18 @@ export const InventoryPage = () => {
     ({ balance, contractType }) => ['ERC721', 'ERC1155'].includes(contractType) && balance !== '0'
   )
 
-  const nativeBalances = (data?.nativeBalances
-    .filter(balance => balance.results?.length > 0 && balance.results[0].balance !== '0')
-    .flatMap(balance => balance.results) || []) as unknown as (GatewayNativeTokenBalance['result'] & {
-    chainId: ChainId
-  })[]
+  const nativeBalances =
+    data?.nativeBalances
+      .filter(balance => balance.results?.length > 0 && balance.results[0].balance !== '0')
+      .flatMap(balance => balance.results) || []
+
+  const coinBalances = [...nativeBalances, ...erc20Balances]
 
   return (
-    (<div
+    <div
       className="grid h-full items-center gap-5 p-20"
-      style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gridAutoRows: 'auto' }}>
+      style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gridAutoRows: 'auto' }}
+    >
       <div className="flex h-full w-full flex-col gap-8">
         {nativeBalances.map(({ chainId, balance }) => (
           <div className="flex gap-3 flex-row items-center min-w-0" key={chainId}>
@@ -55,35 +76,45 @@ export const InventoryPage = () => {
               variant="normal"
               color="text50"
               fontWeight="bold"
-              ellipsis>
+              ellipsis
+            >
               {formatUnits(balance, 18)}
             </Text>
             <IconButton
               className="text-text100 w-full ml-auto"
               size="sm"
               variant="primary"
-              icon={SendIcon} />
+              icon={SendIcon}
+              onClick={() => {
+                setSendOptions({ isCoin: true, chainId })
+                setOpenWalletModal(true)
+              }}
+            />
           </div>
         ))}
 
         {erc20Balances.map(({ chainId, balance, contractAddress, contractInfo }) => (
-          <div
-            className="flex gap-3 flex-row items-center min-w-0"
-            key={`${contractAddress}-${chainId}`}>
+          <div className="flex gap-3 flex-row items-center min-w-0" key={`${contractAddress}-${chainId}`}>
             <TokenImage src={contractInfo?.logoURI} size="lg" withNetwork={chainId} />
             <Text
               className="text-right whitespace-nowrap"
               variant="normal"
               color="text50"
               fontWeight="bold"
-              ellipsis>
+              ellipsis
+            >
               {formatUnits(balance, 18)}
             </Text>
             <IconButton
               className="text-text100 w-full ml-auto"
               size="sm"
               variant="primary"
-              icon={SendIcon} />
+              icon={SendIcon}
+              onClick={() => {
+                setSendOptions({ isCoin: true, chainId })
+                setOpenWalletModal(true)
+              }}
+            />
           </div>
         ))}
       </div>
@@ -91,7 +122,8 @@ export const InventoryPage = () => {
         ({ chainId, balance, contractAddress, contractInfo, tokenMetadata, tokenID }) => (
           <div
             className="flex flex-col gap-3 pb-5 px-4 pt-0"
-            key={`${contractAddress}-${tokenID}-${chainId}`}>
+            key={`${contractAddress}-${tokenID}-${chainId}`}
+          >
             <div className="flex gap-3 items-center justify-center flex-col">
               <div className="flex flex-row gap-2 justify-center items-center">
                 {contractInfo?.logoURI && (
@@ -99,7 +131,8 @@ export const InventoryPage = () => {
                     className="rounded-full w-8"
                     src={contractInfo.logoURI}
                     alt="collection logo"
-                    style={{ objectFit: 'cover' }} />
+                    style={{ objectFit: 'cover' }}
+                  />
                 )}
                 <div className="flex gap-1 flex-row justify-center items-center">
                   <Text variant="small" fontWeight="bold" color="text100">
@@ -134,10 +167,55 @@ export const InventoryPage = () => {
               className="text-text100 w-full"
               variant="primary"
               leftIcon={SendIcon}
-              label="Send" />
+              label="Send"
+              onClick={() => {
+                setSendOptions({ isCoin: false, chainId, tokenId: tokenID })
+                setOpenWalletModal(true)
+              }}
+            />
           </div>
         )
       )}
-    </div>)
-  );
+
+      <AnimatePresence>
+        {openWalletModal && (
+          <Modal
+            contentProps={{
+              style: {
+                maxWidth: '400px',
+                height: 'fit-content',
+                scrollbarColor: 'gray black',
+                scrollbarWidth: 'thin'
+              }
+            }}
+            scroll={false}
+            backdropColor="backgroundBackdrop"
+            onClose={() => setOpenWalletModal(false)}
+          >
+            <div className="bg-background-backdrop w-96 h-auto">
+              <div className="w-full h-20 bg-background-primary z-20 flex flex-row items-center justify-between pt-1.5 px-4">
+                <div>
+                  <Text fontWeight="medium" variant="small" color="text50">
+                    Secondary Header text
+                  </Text>
+                  <ModalPrimitive.Title asChild>
+                    <Text fontWeight="medium" variant="small" color="text100">
+                      Primary Header Text
+                    </Text>
+                  </ModalPrimitive.Title>
+                </div>
+                <div className="w-11 h-20" />
+              </div>
+
+              {isCoin ? (
+                <SendCoin chainId={chainId} balance={coinBalances[0]} />
+              ) : (
+                <SendCollectible chainId={chainId} tokenId={tokenId} balance={collectibleBalances[0]} />
+              )}
+            </div>
+          </Modal>
+        )}
+      </AnimatePresence>
+    </div>
+  )
 }

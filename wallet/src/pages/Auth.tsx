@@ -8,8 +8,8 @@ import {
   PINCodeInput,
   Spinner,
   Text,
-  TextInput,
-} from '@0xsequence/design-system';
+  TextInput
+} from '@0xsequence/design-system'
 import { EmailConflictInfo } from '@0xsequence/waas'
 import { CredentialResponse, GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google'
 import React, { SetStateAction, useEffect, useRef, useState } from 'react'
@@ -140,11 +140,9 @@ export const Auth: React.FC = () => {
   const isPopup = window.opener !== null
 
   return (
-    (<div className="p-4">
+    <div className="p-4">
       <div className="flex items-center justify-center">
-        <div
-          className="flex flex-col gap-2 my-4 items-center justify-center"
-          style={{ maxWidth: '400px' }}>
+        <div className="flex flex-col gap-2 my-4 items-center justify-center" style={{ maxWidth: '400px' }}>
           <div className="flex items-center flex-col mb-2">
             {PROJECT_LOGO && <Image className="max-w-1/2 max-h-1/4 aspect-square" src={PROJECT_LOGO} />}
 
@@ -164,9 +162,7 @@ export const Auth: React.FC = () => {
           <Card className="mt-4 pb-4">
             {!emailAuthInProgress && (
               <>
-                <div className="flex justify-center">
-                  Sign in with Soneium
-                </div>
+                <div className="flex justify-center">Sign in with Soneium</div>
                 <div className="flex flex-row gap-4 my-5 justify-center items-center">
                   {isSocialLoginInProgress ? (
                     <Spinner size="md" />
@@ -177,7 +173,8 @@ export const Auth: React.FC = () => {
                           <Card className="bg-transparent rounded-sm p-0 relative" clickable>
                             <div
                               className="flex w-full h-full overflow-hidden rounded-lg items-center justify-center"
-                              style={{ opacity: 0.0000001, transform: 'scale(1.4)' }}>
+                              style={{ opacity: 0.0000001, transform: 'scale(1.4)' }}
+                            >
                               <GoogleLogin
                                 className="w-56"
                                 type="icon"
@@ -189,8 +186,7 @@ export const Auth: React.FC = () => {
                                 }}
                               />
                             </div>
-                            <div
-                              className="flex bg-background-secondary rounded-sm justify-center items-center absolute pointer-events-none w-full h-full top-0 right-0">
+                            <div className="flex bg-background-secondary rounded-sm justify-center items-center absolute pointer-events-none w-full h-full top-0 right-0">
                               <GoogleLogo width={ICON_SIZE} height={ICON_SIZE} />
                             </div>
                           </Card>
@@ -201,9 +197,9 @@ export const Auth: React.FC = () => {
                         <Card
                           className="bg-transparent rounded-sm p-0 relative"
                           clickable
-                          onClick={handleAppleLogin}>
-                          <div
-                            className="flex bg-background-secondary rounded-sm justify-center items-center w-full h-full">
+                          onClick={handleAppleLogin}
+                        >
+                          <div className="flex bg-background-secondary rounded-sm justify-center items-center w-full h-full">
                             <AppleLogo width={ICON_SIZE} height={ICON_SIZE} />
                           </div>
                         </Card>
@@ -226,10 +222,7 @@ export const Auth: React.FC = () => {
             {sendChallengeAnswer ? (
               <div className="flex flex-col mt-6 p-4 items-center justify-center">
                 <div>
-                  <Text
-                    className="flex items-center justify-center"
-                    variant="normal"
-                    color="text80">
+                  <Text className="flex items-center justify-center" variant="normal" color="text80">
                     Enter code received in email.
                   </Text>
                 </div>
@@ -278,8 +271,9 @@ export const Auth: React.FC = () => {
                       data-id="loginEmail"
                     />
                     {showEmailWarning && (
-                      <Text className="my-2" variant="small" color="negative" asChild><p>Invalid email address
-                                              </p></Text>
+                      <Text className="my-2" variant="small" color="negative" asChild>
+                        <p>Invalid email address</p>
+                      </Text>
                     )}
                   </div>
                   <div className="flex gap-2 mt-4 items-center justify-center">
@@ -324,6 +318,6 @@ export const Auth: React.FC = () => {
           />
         </Modal>
       )}
-    </div>)
-  );
+    </div>
+  )
 }
