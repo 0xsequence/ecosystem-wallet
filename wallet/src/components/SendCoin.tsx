@@ -202,7 +202,9 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
 
   return (
     <form
-      className={`py-3 gap-2 flex flex-col ${isSendTxnPending ? 'pointer-events-none' : 'pointer-events-auto'}`}
+      className={`py-3 gap-2 flex flex-col ${
+        isSendTxnPending ? 'pointer-events-none' : 'pointer-events-auto'
+      }`}
       onSubmit={handleSendClick}
     >
       {!showConfirmation && (
@@ -267,10 +269,10 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
               >
                 <div className="flex items-center justify-center gap-2">
                   <GradientAvatar address={toAddress} style={{ width: '20px' }} />
-                  <Text
-                    color="text100"
-                    variant="normal"
-                  >{`0x${truncateAtMiddle(toAddress.substring(2), 10)}`}</Text>
+                  <Text color="text100" variant="normal">{`0x${truncateAtMiddle(
+                    toAddress.substring(2),
+                    10
+                  )}`}</Text>
                 </div>
                 <CloseIcon size="sm" color="white" />
               </Card>

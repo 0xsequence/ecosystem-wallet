@@ -76,8 +76,9 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
           return (
             <div
               key={index}
-              className={`px-3 py-2 rounded-md border border-solid border-thick  bg-background-secondary ${isSelected ? 'border-white' : 'border-transparent'
-                } ${isSufficient ? 'cursor-pointer opacity-100' : 'cursor-default opacity-50'}`}
+              className={`px-3 py-2 rounded-md border border-solid border-thick  bg-background-raised ${
+                isSelected ? 'border-white' : 'border-transparent'
+              } ${isSufficient ? 'cursor-pointer opacity-100' : 'cursor-default opacity-50'}`}
               onClick={() => {
                 if (isSufficient) {
                   setSelectedFeeOptionAddress(option.token.contractAddress ?? ZeroAddress)

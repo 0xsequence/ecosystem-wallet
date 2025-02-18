@@ -1,4 +1,3 @@
-import { Text } from '@0xsequence/design-system'
 import { allNetworks } from '@0xsequence/network'
 import React from 'react'
 
@@ -9,13 +8,13 @@ interface NetworkInfoProps {
 }
 
 export const NetworkInfo: React.FC<NetworkInfoProps> = ({ chainId }) => (
-  <div className="flex items-center justify-center flex-row gap-2">
-    <Text variant="small" color="text80">
-      on
-    </Text>
-    <NetworkImage chainId={chainId} size="sm" />
-    <Text variant="small" color="text100">
+  // <div className="flex gap-[0.5ex] items-center justify-between text-black text-sm font-medium w-full">
+  <div className="flex flex-col gap-1 text-black text-start overflow-x-scroll p-4 rounded-lg bg-black/10">
+    <dt className="text-sm font-medium text-seq-grey-700">Network</dt>
+
+    <dd className="flex gap-2 items-center">
+      <NetworkImage chainId={chainId} size="sm" />
       {allNetworks.find(n => n.chainId === chainId)?.title}
-    </Text>
+    </dd>
   </div>
 )
