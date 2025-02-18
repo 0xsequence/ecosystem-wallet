@@ -13,7 +13,7 @@ import { useAuth } from '../context/AuthContext'
 import { sequenceWaas } from '../waasSetup'
 import { HandlerType } from '../walletTransport'
 
-const checkTransactionFeeOptions = async ({
+export const checkTransactionFeeOptions = async ({
   transactions,
   chainId
 }: {

@@ -13,15 +13,22 @@ import {
   TextInput
 } from '@0xsequence/design-system'
 import { TokenBalance } from '@0xsequence/indexer'
-import { FeeOption } from '@0xsequence/waas'
+import { ChainId, networks } from '@0xsequence/network'
+import {
+  MaySentTransactionResponse,
+  SentTransactionResponse,
+  isSentTransactionResponse
+} from '@0xsequence/waas'
 import { ethers } from 'ethers'
 import { ChangeEvent, SyntheticEvent, useEffect, useRef, useState } from 'react'
 
 import { truncateAtMiddle } from '../utils/helpers'
 import { isEthAddress, limitDecimals } from '../utils/helpers'
-import { checkTransactionFeeOptions } from '../utils/txn'
+import { TransactionFeeOptionsResult } from '../utils/txn'
 
 import { useAuth } from '../context/AuthContext'
+
+import { checkTransactionFeeOptions } from '../hooks/useTransactionHandler'
 
 import { ERC_721_ABI, ERC_1155_ABI } from '../constants'
 import { sequenceWaas } from '../waasSetup'
@@ -31,50 +38,38 @@ import { TransactionConfirmation } from './TransactionConfirmation'
 
 interface SendCollectibleProps {
   chainId: number
-  tokenId: string
   balance: TokenBalance
+  onSuccess: (txnResponse: SentTransactionResponse) => void
 }
 
-export const SendCollectible = ({ chainId, tokenId, balance: tokenBalance }: SendCollectibleProps) => {
+export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: SendCollectibleProps) => {
   const { address: accountAddress } = useAuth()
-  // const {
-  //   transactionRequest,
-  //   requestOrigin,
-  //   requestChainId,
-  //   isSendingTxn,
-  //   txnFeeOptions,
-  //   feeOptionBalances,
-  //   selectedFeeOptionAddress,
-  //   setSelectedFeeOptionAddress,
-  //   hasCheckedFeeOptions,
-  //   isRefreshingBalance,
-  //   handleApproveTxn,
-  //   handleRejectTxn,
-  //   checkTokenBalancesForFeeOptions,
-  //   isTransactionHandlerRegistered
-  // } = useTransactionHandler()
   const amountInputRef = useRef<HTMLInputElement>(null)
   const [amount, setAmount] = useState<string>('0')
   const [toAddress, setToAddress] = useState<string>('')
   const [showAmountControls, setShowAmountControls] = useState<boolean>(false)
   const [isSendTxnPending, setIsSendTxnPending] = useState(false)
   const [showConfirmation, setShowConfirmation] = useState(false)
-  const [feeOptions, setFeeOptions] = useState<
-    | {
-        options: FeeOption[]
-        chainId: number
-      }
-    | undefined
-  >()
   const [isCheckingFeeOptions, setIsCheckingFeeOptions] = useState(false)
   const [selectedFeeTokenAddress, setSelectedFeeTokenAddress] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
+  const { name: nativeTokenName = 'Native Token' } = networks[chainId as ChainId].nativeToken
   const { contractType } = tokenBalance
   const decimals = tokenBalance?.tokenMetadata?.decimals || 0
   const name = tokenBalance?.tokenMetadata?.name || 'Unknown'
   const imageUrl = tokenBalance?.tokenMetadata?.image || tokenBalance?.contractInfo?.logoURI || ''
   const amountToSendFormatted = amount === '' ? '0' : amount
   const amountRaw = ethers.parseUnits(amountToSendFormatted, decimals)
+
+  const [transactionHash, setTransactionHash] = useState<string>()
+  const [feeOptions, setFeeOptions] = useState<TransactionFeeOptionsResult>()
+  const transactionsFeeOption = feeOptions?.feeOptions?.find(feeOption => {
+    if (selectedFeeTokenAddress === ethers.ZeroAddress && feeOption.token.contractAddress === null)
+      return true
+
+    return feeOption.token.contractAddress === selectedFeeTokenAddress
+  })
 
   useEffect(() => {
     if (tokenBalance) {
@@ -90,20 +85,11 @@ export const SendCollectible = ({ chainId, tokenId, balance: tokenBalance }: Sen
     }
   }, [contractType, decimals, tokenBalance])
 
-  // useEffect(() => {
-  //   if (pendingFeeOption && selectedFeeTokenAddress !== null) {
-  //     confirmFeeOption(pendingFeeOption.id, selectedFeeTokenAddress)
-  //   }
-  // }, [pendingFeeOption, selectedFeeTokenAddress])
-
   const insufficientFunds = amountRaw > BigInt(tokenBalance?.balance || '0')
   const isNonZeroAmount = amountRaw > 0n
 
   const handleChangeAmount = (ev: ChangeEvent<HTMLInputElement>) => {
-    const { value } = ev.target
-
-    // Prevent value from having more decimals than the token supports
-    const formattedValue = limitDecimals(value, decimals)
+    const formattedValue = limitDecimals(ev.target.value, decimals)
 
     setAmount(formattedValue)
   }
@@ -157,7 +143,7 @@ export const SendCollectible = ({ chainId, tokenId, balance: tokenBalance }: Sen
           data: new ethers.Interface(ERC_721_ABI).encodeFunctionData('safeTransferFrom', [
             accountAddress,
             toAddress,
-            tokenId
+            tokenBalance.tokenID
           ]) as `0x${string}`
         }
         break
@@ -168,7 +154,7 @@ export const SendCollectible = ({ chainId, tokenId, balance: tokenBalance }: Sen
           data: new ethers.Interface(ERC_1155_ABI).encodeFunctionData('safeBatchTransferFrom', [
             accountAddress,
             toAddress,
-            [tokenId],
+            [tokenBalance.tokenID],
             [ethers.toQuantity(sendAmount)],
             new Uint8Array()
           ]) as `0x${string}`
@@ -181,52 +167,61 @@ export const SendCollectible = ({ chainId, tokenId, balance: tokenBalance }: Sen
       chainId
     })
 
-    setFeeOptions(
-      feeOptionsResult?.feeOptions
-        ? {
-            options: feeOptionsResult.feeOptions,
-            chainId
-          }
-        : undefined
-    )
+    setFeeOptions(feeOptionsResult)
 
     setShowConfirmation(true)
-
     setIsCheckingFeeOptions(false)
   }
 
   const executeTransaction = async () => {
-    const sendAmount = ethers.parseUnits(amountToSendFormatted, decimals)
+    try {
+      setIsSendTxnPending(true)
+      const sendAmount = ethers.parseUnits(amountToSendFormatted, decimals)
 
-    switch (contractType) {
-      case 'ERC721':
-        setIsSendTxnPending(true)
-        // _from, _to, _id
-        sequenceWaas.sendTransaction({
-          to: (tokenBalance as TokenBalance).contractAddress as `0x${string}`,
+      let txResponse: MaySentTransactionResponse | undefined
+
+      if (contractType === 'ERC721') {
+        txResponse = await sequenceWaas.sendERC721({
+          to: toAddress,
           data: new ethers.Interface(ERC_721_ABI).encodeFunctionData('safeTransferFrom', [
             accountAddress,
             toAddress,
-            tokenId
-          ]) as `0x${string}`,
-          gas: null
+            tokenBalance.tokenID
+          ]),
+          token: tokenBalance.contractAddress,
+          id: tokenBalance.tokenID || '',
+          network: chainId,
+          transactionsFeeOption,
+          transactionsFeeQuote: feeOptions?.feeQuote
         })
-        break
-      case 'ERC1155':
-      default:
-        setIsSendTxnPending(true)
-        // _from, _to, _ids, _amounts, _data
-        sequenceWaas.sendTransaction({
-          to: (tokenBalance as TokenBalance).contractAddress as `0x${string}`,
+      } else {
+        txResponse = await sequenceWaas.sendERC1155({
+          to: toAddress,
           data: new ethers.Interface(ERC_1155_ABI).encodeFunctionData('safeBatchTransferFrom', [
             accountAddress,
             toAddress,
-            [tokenId],
+            [tokenBalance.tokenID],
             [ethers.toQuantity(sendAmount)],
             new Uint8Array()
           ]) as `0x${string}`,
-          gas: null
+          values: [{ id: tokenBalance.tokenID || '', amount: ethers.toQuantity(sendAmount) }],
+          token: tokenBalance.contractAddress,
+          network: chainId,
+          transactionsFeeOption,
+          transactionsFeeQuote: feeOptions?.feeQuote
         })
+      }
+
+      if (isSentTransactionResponse(txResponse)) {
+        setTransactionHash(txResponse.data.txHash)
+        onSuccess(txResponse)
+      } else {
+        setError(txResponse.data.error)
+      }
+    } catch (error: unknown) {
+      setError((error as { message?: string }).message || 'An unexpected error occured.')
+    } finally {
+      setIsSendTxnPending(false)
     }
   }
 
@@ -254,7 +249,7 @@ export const SendCollectible = ({ chainId, tokenId, balance: tokenBalance }: Sen
             />
             <NumericInput
               ref={amountInputRef}
-              // style={{ fontSize: vars.fontSizes.xlarge, fontWeight: vars.fontWeights.bold }}
+              className="text-xl font-bold"
               name="amount"
               value={amount}
               onChange={handleChangeAmount}
@@ -262,7 +257,7 @@ export const SendCollectible = ({ chainId, tokenId, balance: tokenBalance }: Sen
               controls={
                 <>
                   {showAmountControls && (
-                    <div className="grid gap-2">
+                    <div className="flex gap-2">
                       <Button
                         disabled={isMinimum}
                         size="xs"
@@ -276,7 +271,7 @@ export const SendCollectible = ({ chainId, tokenId, balance: tokenBalance }: Sen
                         label="Max"
                         onClick={handleMax}
                         data-id="maxCoin"
-                        flexShrink="0"
+                        className="shrink-0"
                       />
                     </div>
                   )}
@@ -316,8 +311,7 @@ export const SendCollectible = ({ chainId, tokenId, balance: tokenBalance }: Sen
               <TextInput
                 value={toAddress}
                 onChange={(ev: SyntheticEvent) => setToAddress((ev.target as HTMLInputElement).value)}
-                // placeholder={`${nativeTokenInfo.name} Address (0x...)`}
-                placeholder={`TODO Address (0x...)`}
+                placeholder={`${nativeTokenName} Address (0x...)`}
                 name="to-address"
                 data-1p-ignore
                 controls={
@@ -327,8 +321,8 @@ export const SendCollectible = ({ chainId, tokenId, balance: tokenBalance }: Sen
                     label="Paste"
                     onClick={handlePaste}
                     data-id="to-address"
-                    flexShrink="0"
                     leftIcon={CopyIcon}
+                    className="shrink-0"
                   />
                 }
               />
@@ -340,9 +334,8 @@ export const SendCollectible = ({ chainId, tokenId, balance: tokenBalance }: Sen
               <Spinner />
             ) : (
               <Button
-                className="h-14 rounded-md"
+                className="h-14 rounded-md mt-3"
                 color="text100"
-                marginTop="3"
                 width="full"
                 variant="primary"
                 type="submit"
@@ -358,7 +351,7 @@ export const SendCollectible = ({ chainId, tokenId, balance: tokenBalance }: Sen
       {showConfirmation && (
         <TransactionConfirmation
           name={name}
-          symbol=""
+          symbol={''}
           imageUrl={imageUrl}
           amount={amountToSendFormatted}
           toAddress={toAddress}
@@ -366,14 +359,10 @@ export const SendCollectible = ({ chainId, tokenId, balance: tokenBalance }: Sen
           chainId={chainId}
           balance={tokenBalance?.balance || '0'}
           decimals={decimals}
-          feeOptions={feeOptions}
-          onSelectFeeOption={feeTokenAddress => {
-            setSelectedFeeTokenAddress(feeTokenAddress)
-          }}
+          feeOptions={{ chainId, options: feeOptions?.feeOptions || [] }}
+          onSelectFeeOption={setSelectedFeeTokenAddress}
           isLoading={isSendTxnPending}
-          onConfirm={() => {
-            executeTransaction()
-          }}
+          onConfirm={executeTransaction}
           onCancel={() => {
             setShowConfirmation(false)
           }}

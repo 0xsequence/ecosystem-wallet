@@ -21,7 +21,6 @@ const isBalanceSufficient = (balance: string, fee: string, decimals: number) => 
 export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
   txnFeeOptions,
   feeOptionBalances,
-  selectedFeeOptionAddress,
   setSelectedFeeOptionAddress
 }) => {
   const { checkTokenBalancesForFeeOptions, isRefreshingBalance } = useTransactionHandler()
@@ -53,8 +52,8 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
             option.token.decimals || 0
           )
           return (
-            <div
-              className="p-3 rounded-xl"
+            <button
+              className="bg-background-secondary p-3 rounded-xl cursor-pointer"
               key={index}
               onClick={() => {
                 if (isSufficient) {
@@ -71,7 +70,7 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
               }}
             >
               <div className="flex flex-row justify-between items-center">
-                <div className="flex flex-col">
+                <div className="flex flex-col items-start">
                   <Text variant="small" color="text100" fontWeight="bold">
                     {option.token.name}
                   </Text>
@@ -94,7 +93,7 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
                   </Text>
                 </div>
               </div>
-            </div>
+            </button>
           )
         })}
       </div>

@@ -9,56 +9,63 @@ import {
   Spinner,
   Text,
   TextInput,
-  compareAddress,
   nativeTokenImageUrl
 } from '@0xsequence/design-system'
 import { NativeTokenBalance, TokenBalance } from '@0xsequence/indexer'
-import { ChainId } from '@0xsequence/network'
-import { FeeOption, isSentTransactionResponse } from '@0xsequence/waas'
+import { ChainId, networks } from '@0xsequence/network'
+import {
+  MaySentTransactionResponse,
+  SentTransactionResponse,
+  Transaction,
+  isSentTransactionResponse
+} from '@0xsequence/waas'
 import { ethers } from 'ethers'
 import { ChangeEvent, SyntheticEvent, useRef, useState } from 'react'
 
-import { computeBalanceFiat } from '../utils/balance'
-import { checkTransactionFeeOptions } from '../utils/feeOptions'
+import { computeBalanceFiat, isNativeCoinBalance } from '../utils/balance'
 import { isEthAddress, limitDecimals, truncateAtMiddle } from '../utils/helpers'
+import { TransactionFeeOptionsResult } from '../utils/txn'
 
 import { useAuth } from '../context/AuthContext'
 
 import { useCoinPrices, useExchangeRate } from '../hooks/useCoinPrices'
 import { useConfig } from '../hooks/useConfig'
+import { checkTransactionFeeOptions } from '../hooks/useTransactionHandler'
 
 import { ERC_20_ABI } from '../constants'
 import { sequenceWaas } from '../waasSetup'
 
-// import { SendItemInfo } from './SendItemInfo'
-// import { TransactionConfirmation } from './TransactionConfirmation'
+import { SendItemInfo } from './SendItemInfo'
+import { TransactionConfirmation } from './TransactionConfirmation'
 
 interface SendCoinProps {
   chainId: number
   balance: NativeTokenBalance | TokenBalance
+  onSuccess: (txnResponse: SentTransactionResponse) => void
 }
 
-export const isNativeCoinBalance = (
-  balance: NativeTokenBalance | TokenBalance
-): balance is NativeTokenBalance => {
-  return compareAddress(balance.accountAddress, ethers.ZeroAddress)
-}
-
-export const SendCoin = ({ chainId, balance }: SendCoinProps) => {
+export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
   const { fiatCurrency } = useConfig()
   const { address: accountAddress = '' } = useAuth()
   const amountInputRef = useRef<HTMLInputElement>(null)
   const [amount, setAmount] = useState<string>('0')
   const [toAddress, setToAddress] = useState<string>('')
   const [isSendTxnPending, setIsSendTxnPending] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [showConfirmation, setShowConfirmation] = useState(false)
-  const [feeOptions, setFeeOptions] = useState<{ chainId: ChainId; options: FeeOption[] }>()
+  const [feeOptions, setFeeOptions] = useState<TransactionFeeOptionsResult>()
   const [isCheckingFeeOptions, setIsCheckingFeeOptions] = useState(false)
   const isNativeCoin = isNativeCoinBalance(balance)
+  const [selectedFeeTokenAddress, setSelectedFeeTokenAddress] = useState<string | null>(null)
+  const [transactionHash, setTransactionHash] = useState<string>()
 
-  // const nativeTokenInfo = getNativeTokenInfoByChainId(chainId, chains)
-  const tokenBalance = balance.balance
-  // const tokenBalance = (balances).find(b => b.results .contractAddress === contractAddress)
+  const transactionsFeeOption = feeOptions?.feeOptions?.find(feeOption => {
+    if (selectedFeeTokenAddress === ethers.ZeroAddress && feeOption.token.contractAddress === null)
+      return true
+
+    return feeOption.token.contractAddress === selectedFeeTokenAddress
+  })
+
   const { data: coinPrices = [], isPending: isPendingCoinPrices } = useCoinPrices([
     {
       chainId,
@@ -72,21 +79,20 @@ export const SendCoin = ({ chainId, balance }: SendCoinProps) => {
 
   const isPending = isPendingCoinPrices || isPendingConversionRate
 
-  // Handle fee option confirmation when pendingFeeOption is available
-  // useEffect(() => {
-  //   if (pendingFeeOption && selectedFeeTokenAddress !== null) {
-  //     confirmFeeOption(pendingFeeOption.id, selectedFeeTokenAddress)
-  //   }
-  // }, [pendingFeeOption, selectedFeeTokenAddress])
-
   if (isPending) {
     return null
   }
 
-  const decimals = isNativeCoin ? 18 : balance?.contractInfo?.decimals || 18
-  const name = isNativeCoin ? 'TODO name' : balance?.contractInfo?.name || ''
+  const {
+    name: nativeTokenName = 'Native Token',
+    symbol: nativeTokenSymbol = '???',
+    decimals: nativeTokenDecimals = 18
+  } = networks[chainId as ChainId].nativeToken
+
+  const decimals = isNativeCoin ? nativeTokenDecimals : balance?.contractInfo?.decimals || 18
+  const name = isNativeCoin ? nativeTokenName : balance?.contractInfo?.name || ''
   const imageUrl = isNativeCoin ? nativeTokenImageUrl(chainId) : balance?.contractInfo?.logoURI
-  const symbol = isNativeCoin ? 'TODO symbol' : balance?.contractInfo?.symbol || ''
+  const symbol = isNativeCoin ? nativeTokenSymbol : balance?.contractInfo?.symbol || ''
   const amountToSendFormatted = amount === '' ? '0' : amount
   const amountRaw = ethers.parseUnits(amountToSendFormatted, decimals)
 
@@ -104,11 +110,8 @@ export const SendCoin = ({ chainId, balance }: SendCoinProps) => {
   const isNonZeroAmount = amountRaw > 0n
 
   const handleChangeAmount = (ev: ChangeEvent<HTMLInputElement>) => {
-    const { value } = ev.target
-
     // Prevent value from having more decimals than the token supports
-    const formattedValue = limitDecimals(value, decimals)
-
+    const formattedValue = limitDecimals(ev.target.value, decimals)
     setAmount(formattedValue)
   }
 
@@ -124,83 +127,81 @@ export const SendCoin = ({ chainId, balance }: SendCoinProps) => {
     setToAddress(result)
   }
 
-  const handleToAddressClear = () => {
-    setToAddress('')
-  }
-
   const handleSendClick = async (e: ChangeEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    setIsCheckingFeeOptions(true)
+    try {
+      setIsCheckingFeeOptions(true)
 
-    const sendAmount = ethers.parseUnits(amountToSendFormatted, decimals)
-    let transaction
+      const sendAmount = ethers.parseUnits(amountToSendFormatted, decimals).toString()
+      let transaction: Transaction
 
-    if (isNativeCoin) {
-      transaction = {
-        to: toAddress as `0x${string}`,
-        value: BigInt(sendAmount.toString())
+      if (isNativeCoin) {
+        transaction = {
+          to: toAddress,
+          value: ethers.parseEther(amount)
+        }
+      } else {
+        transaction = {
+          to: balance?.accountAddress,
+          data: new ethers.Interface(ERC_20_ABI).encodeFunctionData('transfer', [
+            toAddress,
+            ethers.toQuantity(sendAmount)
+          ]) as `0x${string}`
+        }
       }
-    } else {
-      transaction = {
-        to: tokenBalance?.contractAddress as `0x${string}`,
-        data: new ethers.Interface(ERC_20_ABI).encodeFunctionData('transfer', [
-          toAddress,
-          ethers.toQuantity(sendAmount)
-        ]) as `0x${string}`
-      }
+
+      // Check fee options before showing confirmation
+      const feeOptionsResult = await checkTransactionFeeOptions({ transactions: [transaction], chainId })
+
+      setFeeOptions(feeOptionsResult)
+      setShowConfirmation(true)
+    } catch (err: unknown) {
+      setError((err as { message?: string }).message || 'An unexpected error occured.')
+    } finally {
+      setIsCheckingFeeOptions(false)
     }
-
-    // Check fee options before showing confirmation
-    const feeOptionsResult = await checkTransactionFeeOptions({ transactions: [transaction] })
-
-    setFeeOptions(
-      feeOptionsResult?.feeOptions
-        ? {
-            options: feeOptionsResult.feeOptions,
-            chainId
-          }
-        : undefined
-    )
-
-    setShowConfirmation(true)
-
-    setIsCheckingFeeOptions(false)
   }
 
   const executeTransaction = async () => {
-    setIsSendTxnPending(true)
-    const sendAmount = ethers.parseUnits(amountToSendFormatted, decimals)
+    try {
+      setIsSendTxnPending(true)
 
-    if (isNativeCoin) {
-      const tx = await sequenceWaas.sendTransaction({
-        transactions: [
-          {
-            to: toAddress,
-            value: ethers.parseEther(amount)
-          }
-        ],
-        network: ChainId.SONEIUM,
-        transactionsFeeOption: feeOption
-        // transactionsFeeQuote: feeQuote
-      })
-    } else {
-      const tx = await sequenceWaas.sendERC20({
-        token: accountAddress,
-        to: toAddress,
-        value: sendAmount,
-        // TODO check network
-        network: ChainId.SONEIUM,
-        transactionsFeeOption: feeOption
-        // transactionsFeeQuote: feeQuote
-      })
-      if (isSentTransactionResponse(tx)) {
-        // setTransactionHash(tx.data.txHash)
+      let txResponse: MaySentTransactionResponse | undefined
+      if (isNativeCoin) {
+        txResponse = await sequenceWaas.sendTransaction({
+          transactions: [
+            {
+              to: toAddress,
+              value: ethers.parseEther(amount)
+            }
+          ],
+          network: chainId,
+          transactionsFeeOption,
+          transactionsFeeQuote: feeOptions?.feeQuote
+        })
       } else {
-        // setError(tx.data.error)
+        txResponse = await sequenceWaas.sendERC20({
+          token: balance.contractAddress,
+          to: toAddress,
+          value: ethers.parseUnits(amountToSendFormatted, decimals),
+          network: chainId,
+          transactionsFeeOption,
+          transactionsFeeQuote: feeOptions?.feeQuote
+        })
       }
+      if (isSentTransactionResponse(txResponse)) {
+        setTransactionHash(txResponse.data.txHash)
+        onSuccess(txResponse)
+      } else {
+        setError(txResponse.data.error)
+      }
+    } catch (err: unknown) {
+      console.log('e', err)
+      setError((err as { message?: string }).message || 'An unexpected error occured.')
+    } finally {
+      setIsSendTxnPending(false)
     }
-    setIsSendTxnPending(false)
   }
 
   return (
@@ -211,40 +212,40 @@ export const SendCoin = ({ chainId, balance }: SendCoinProps) => {
       {!showConfirmation && (
         <>
           <div className="bg-background-secondary rounded-md p-4 gap-2 flex flex-col">
-            {/* <SendItemInfo */}
-            {/*   imageUrl={imageUrl} */}
-            {/*   decimals={decimals} */}
-            {/*   name={name} */}
-            {/*   symbol={symbol} */}
-            {/*   balance={tokenBalance?.balance || '0'} */}
-            {/*   fiatValue={computeBalanceFiat({ */}
-            {/*     balance: tokenBalance as TokenBalance, */}
-            {/*     prices: coinPrices, */}
-            {/*     conversionRate, */}
-            {/*     decimals */}
-            {/*   })} */}
-            {/*   chainId={chainId} */}
-            {/* /> */}
+            <SendItemInfo
+              imageUrl={imageUrl}
+              decimals={decimals}
+              name={name}
+              symbol={symbol}
+              balance={balance?.balance || '0'}
+              fiatValue={computeBalanceFiat({
+                balance: balance as TokenBalance,
+                prices: coinPrices,
+                conversionRate,
+                decimals
+              })}
+              chainId={chainId}
+            />
             <NumericInput
               ref={amountInputRef}
-              // style={{ fontSize: vars.fontSizes.xlarge, fontWeight: vars.fontWeights.bold }}
+              className="text-xl font-bold"
               name="amount"
               value={amount}
               onChange={handleChangeAmount}
               controls={
                 <>
-                  <Text variant="small" color="text50" whiteSpace="nowrap">
+                  <Text className="whitespace-nowrap text-style-sm" color="text50">
                     {`~${fiatCurrency.sign}${amountToSendFiat}`}
                   </Text>
                   <Button
+                    className="shrink-0"
                     size="xs"
                     shape="square"
                     label="Max"
                     onClick={handleMax}
                     data-id="maxCoin"
-                    flexShrink="0"
                   />
-                  <Text variant="xlarge" fontWeight="bold" color="text100">
+                  <Text className="text-style-sm font-bold" color="text100">
                     {symbol}
                   </Text>
                 </>
@@ -262,12 +263,10 @@ export const SendCoin = ({ chainId, balance }: SendCoinProps) => {
             </Text>
             {isEthAddress(toAddress) ? (
               <Card
+                className="flex justify-between items-center"
                 clickable
                 width="full"
-                flexDirection="row"
-                justifyContent="space-between"
-                alignItems="center"
-                onClick={handleToAddressClear}
+                onClick={() => setToAddress('')}
                 style={{ height: '52px' }}
               >
                 <div className="flex items-center justify-center gap-2">
@@ -283,8 +282,7 @@ export const SendCoin = ({ chainId, balance }: SendCoinProps) => {
               <TextInput
                 value={toAddress}
                 onChange={(ev: SyntheticEvent) => setToAddress((ev.target as HTMLInputElement).value)}
-                placeholder={`TODO Address (0x...)`}
-                // placeholder={`${nativeTokenInfo.name} Address (0x...)`}
+                placeholder={`${nativeTokenName} Address (0x...)`}
                 name="to-address"
                 data-1p-ignore
                 controls={
@@ -294,7 +292,7 @@ export const SendCoin = ({ chainId, balance }: SendCoinProps) => {
                     label="Paste"
                     onClick={handlePaste}
                     data-id="to-address"
-                    flexShrink="0"
+                    className="shrink-0"
                     leftIcon={CopyIcon}
                   />
                 }
@@ -307,9 +305,8 @@ export const SendCoin = ({ chainId, balance }: SendCoinProps) => {
               <Spinner />
             ) : (
               <Button
-                className="h-14 rounded-md"
+                className="h-14 rounded-md mt-3"
                 color="text100"
-                marginTop="3"
                 width="full"
                 variant="primary"
                 type="submit"
@@ -322,28 +319,26 @@ export const SendCoin = ({ chainId, balance }: SendCoinProps) => {
         </>
       )}
 
-      {/* {showConfirmation && ( */}
-      {/*   <TransactionConfirmation */}
-      {/*     name={name} */}
-      {/*     symbol={symbol} */}
-      {/*     imageUrl={imageUrl} */}
-      {/*     amount={amountToSendFormatted} */}
-      {/*     toAddress={toAddress} */}
-      {/*     chainId={chainId} */}
-      {/*     balance={tokenBalance?.balance || '0'} */}
-      {/*     decimals={decimals} */}
-      {/*     fiatValue={amountToSendFiat} */}
-      {/*     feeOptions={{ options: feeOptions || [], chainId }} */}
-      {/*     onSelectFeeOption={feeTokenAddress => { */}
-      {/*       setSelectedFeeTokenAddress(feeTokenAddress) */}
-      {/*     }} */}
-      {/*     isLoading={isSendTxnPending} */}
-      {/*     onConfirm={executeTransaction} */}
-      {/*     onCancel={() => { */}
-      {/*       setShowConfirmation(false) */}
-      {/*     }} */}
-      {/*   /> */}
-      {/* )} */}
+      {showConfirmation && (
+        <TransactionConfirmation
+          name={name}
+          symbol={symbol}
+          imageUrl={imageUrl}
+          amount={amountToSendFormatted}
+          toAddress={toAddress}
+          chainId={chainId}
+          balance={balance.balance || '0'}
+          decimals={decimals}
+          fiatValue={amountToSendFiat}
+          feeOptions={{ options: feeOptions?.feeOptions || [], chainId }}
+          onSelectFeeOption={setSelectedFeeTokenAddress}
+          isLoading={isSendTxnPending}
+          onConfirm={executeTransaction}
+          onCancel={() => {
+            setShowConfirmation(false)
+          }}
+        />
+      )}
     </form>
   )
 }

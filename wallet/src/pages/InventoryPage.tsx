@@ -1,5 +1,6 @@
 import {
   Button,
+  Divider,
   IconButton,
   Image,
   Modal,
@@ -11,9 +12,11 @@ import {
 } from '@0xsequence/design-system'
 import { ContractVerificationStatus } from '@0xsequence/indexer'
 import { ChainId } from '@0xsequence/network'
-import { formatUnits } from 'ethers'
+import { ethers, formatUnits } from 'ethers'
 import { AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
+
+import { createNativeTokenBalance } from '../utils/balance'
 
 import { useAuth } from '../context/AuthContext'
 
@@ -42,9 +45,9 @@ export const InventoryPage = () => {
   })
   const [openWalletModal, setOpenWalletModal] = useState(false)
   const [sendOptions, setSendOptions] = useState<
-    { isCoin: boolean; chainId: ChainId; tokenId?: string } | undefined
+    { chainId: ChainId; contractAddress?: string; tokenId?: string } | undefined
   >()
-  const { isCoin = true, chainId = ChainId.SONEIUM, tokenId = '' } = sendOptions || {}
+  const { chainId = ChainId.SONEIUM, contractAddress, tokenId = '' } = sendOptions || {}
 
   const balances =
     data?.balances.filter(balance => balance?.results?.length > 0).flatMap(balance => balance.results) || []
@@ -58,14 +61,21 @@ export const InventoryPage = () => {
   const nativeBalances =
     data?.nativeBalances
       .filter(balance => balance.results?.length > 0 && balance.results[0].balance !== '0')
-      .flatMap(balance => balance.results) || []
+      .flatMap(balance =>
+        balance.results.map(result =>
+          createNativeTokenBalance(balance.chainId, result.accountAddress, result.balance)
+        )
+      ) || []
 
-  const coinBalances = [...nativeBalances, ...erc20Balances]
+  const collectibleBalanceToSend = collectibleBalances.find(collectible => collectible.tokenID === tokenId)
+  const coinBalanceToSend = tokenId
+    ? null
+    : (contractAddress ? erc20Balances : nativeBalances).find(balance => balance.chainId === chainId)
 
   return (
     <div
       className="grid h-full items-center gap-5 p-20"
-      style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gridAutoRows: 'auto' }}
+      style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gridAutoRows: 'auto' }}
     >
       <div className="flex h-full w-full flex-col gap-8">
         {nativeBalances.map(({ chainId, balance }) => (
@@ -81,17 +91,19 @@ export const InventoryPage = () => {
               {formatUnits(balance, 18)}
             </Text>
             <IconButton
-              className="text-text100 w-full ml-auto"
+              className="text-text100 w-full ml-auto max-w-8"
               size="sm"
               variant="primary"
               icon={SendIcon}
               onClick={() => {
-                setSendOptions({ isCoin: true, chainId })
+                setSendOptions({ chainId })
                 setOpenWalletModal(true)
               }}
             />
           </div>
         ))}
+
+        <Divider />
 
         {erc20Balances.map(({ chainId, balance, contractAddress, contractInfo }) => (
           <div className="flex gap-3 flex-row items-center min-w-0" key={`${contractAddress}-${chainId}`}>
@@ -103,15 +115,15 @@ export const InventoryPage = () => {
               fontWeight="bold"
               ellipsis
             >
-              {formatUnits(balance, 18)}
+              {formatUnits(balance, contractInfo?.decimals || 18)}
             </Text>
             <IconButton
-              className="text-text100 w-full ml-auto"
+              className="text-text100 w-full ml-auto max-w-8"
               size="sm"
               variant="primary"
               icon={SendIcon}
               onClick={() => {
-                setSendOptions({ isCoin: true, chainId })
+                setSendOptions({ chainId, contractAddress })
                 setOpenWalletModal(true)
               }}
             />
@@ -159,7 +171,7 @@ export const InventoryPage = () => {
               </Text>
               <div className="flex flex-row items-end justify-between">
                 <Text variant="xlarge" fontWeight="bold" color="text100">
-                  {balance}
+                  {ethers.formatUnits(balance, tokenMetadata?.decimals || 2)}
                 </Text>
               </div>
             </div>
@@ -169,7 +181,7 @@ export const InventoryPage = () => {
               leftIcon={SendIcon}
               label="Send"
               onClick={() => {
-                setSendOptions({ isCoin: false, chainId, tokenId: tokenID })
+                setSendOptions({ chainId, tokenId: tokenID })
                 setOpenWalletModal(true)
               }}
             />
@@ -190,27 +202,34 @@ export const InventoryPage = () => {
             }}
             scroll={false}
             backdropColor="backgroundBackdrop"
-            onClose={() => setOpenWalletModal(false)}
+            onClose={() => {
+              setSendOptions(undefined)
+              setOpenWalletModal(false)
+            }}
           >
             <div className="bg-background-backdrop w-96 h-auto">
               <div className="w-full h-20 bg-background-primary z-20 flex flex-row items-center justify-between pt-1.5 px-4">
-                <div>
-                  <Text fontWeight="medium" variant="small" color="text50">
-                    Secondary Header text
+                <ModalPrimitive.Title asChild>
+                  <Text className="text-lg font-bold text-gray-100">
+                    {sendOptions?.tokenId ? 'Send Collectible' : 'Send Coin'}
                   </Text>
-                  <ModalPrimitive.Title asChild>
-                    <Text fontWeight="medium" variant="small" color="text100">
-                      Primary Header Text
-                    </Text>
-                  </ModalPrimitive.Title>
-                </div>
+                </ModalPrimitive.Title>
                 <div className="w-11 h-20" />
               </div>
 
-              {isCoin ? (
-                <SendCoin chainId={chainId} balance={coinBalances[0]} />
-              ) : (
-                <SendCollectible chainId={chainId} tokenId={tokenId} balance={collectibleBalances[0]} />
+              {coinBalanceToSend && (
+                <SendCoin
+                  chainId={chainId}
+                  balance={coinBalanceToSend}
+                  onSuccess={() => setOpenWalletModal(false)}
+                />
+              )}
+              {collectibleBalanceToSend && (
+                <SendCollectible
+                  chainId={chainId}
+                  balance={collectibleBalanceToSend}
+                  onSuccess={() => setOpenWalletModal(false)}
+                />
               )}
             </div>
           </Modal>

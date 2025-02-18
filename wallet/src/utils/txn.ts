@@ -3,6 +3,12 @@ import { FeeOption, Transaction } from '@0xsequence/waas'
 
 import { sequenceWaas } from '../waasSetup'
 
+export interface TransactionFeeOptionsResult {
+  feeQuote: string | undefined
+  feeOptions: FeeOption[] | undefined
+  isSponsored: boolean
+}
+
 export async function checkTransactionFeeOptions({
   transactions,
   chainId
