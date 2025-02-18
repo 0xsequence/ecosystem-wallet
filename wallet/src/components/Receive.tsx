@@ -69,16 +69,23 @@ export const Receive = ({ chainId }: { chainId: ChainId }) => {
             </Text>
           </div>
         </div>
-        <div className="gap-3 flex">
+        <div className="gap-3">
           <CopyToClipboard text={address || ''}>
-            <Button
-              className="bg-black"
-              onClick={onClickCopy}
-              leftIcon={CopyIcon}
-              label={isCopied ? 'Copied!' : 'Copy'}
-            />
+            <Button onClick={onClickCopy} leftIcon={CopyIcon} label={isCopied ? 'Copied!' : 'Copy'} />
           </CopyToClipboard>
-          <Button className="bg-black" onClick={onClickShare} leftIcon={ShareIcon} label="Share" />
+          <Button onClick={onClickShare} leftIcon={ShareIcon} label="Share" />
+        </div>
+        <div className="flex justify-center items-center" style={{ maxWidth: '260px', textAlign: 'center' }}>
+          <Text
+            color="text100"
+            variant="small"
+            style={{
+              maxWidth: '260px',
+              overflowWrap: 'anywhere'
+            }}
+          >
+            {`This is a ${nativeTokenInfo.name} address. Please only send assets on the ${nativeTokenInfo.name} network.`}
+          </Text>
         </div>
         <div className="flex justify-center items-center" style={{ maxWidth: '260px', textAlign: 'center' }}>
           <Text

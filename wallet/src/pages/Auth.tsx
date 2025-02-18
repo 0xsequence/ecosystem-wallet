@@ -156,6 +156,7 @@ export const Auth: React.FC = () => {
                       <div
                         className="rounded-sm relative bg-white/10 gap-2 items-center text-style-normal font-bold inline-flex justify-center min-h-[3rem] py-2 px-3 data-[disabled=='true
                             :disabled:cursor-default cursor-pointer"
+                        data-disabled={!!isSocialLoginInProgress}
                       >
                         {isSocialLoginInProgress === 'google' ? (
                           <Spinner size="md" />
@@ -352,10 +353,3 @@ function AuthCoverWrapper({ children }: { children: React.ReactNode }) {
     </div>
   )
 }
-
-// {isPopup && (
-//   <Text className="text-center mt-4" variant="normal" color="text100">
-//     Sign in to your <Text fontWeight="bold">{PROJECT_NAME}</Text> wallet to give access to dapp
-//     with origin <Text fontWeight="bold">{pendingEventOrigin}</Text>
-//   </Text>
-// )}
