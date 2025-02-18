@@ -51,13 +51,11 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
   const [amount, setAmount] = useState<string>('0')
   const [toAddress, setToAddress] = useState<string>('')
   const [isSendTxnPending, setIsSendTxnPending] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const [showConfirmation, setShowConfirmation] = useState(false)
   const [feeOptions, setFeeOptions] = useState<TransactionFeeOptionsResult>()
   const [isCheckingFeeOptions, setIsCheckingFeeOptions] = useState(false)
   const isNativeCoin = isNativeCoinBalance(balance)
   const [selectedFeeTokenAddress, setSelectedFeeTokenAddress] = useState<string | null>(null)
-  const [transactionHash, setTransactionHash] = useState<string>()
 
   const transactionsFeeOption = feeOptions?.feeOptions?.find(feeOption => {
     if (selectedFeeTokenAddress === ethers.ZeroAddress && feeOption.token.contractAddress === null)
@@ -156,8 +154,8 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
 
       setFeeOptions(feeOptionsResult)
       setShowConfirmation(true)
-    } catch (err: unknown) {
-      setError((err as { message?: string }).message || 'An unexpected error occured.')
+    } catch {
+      // TODO error handling
     } finally {
       setIsCheckingFeeOptions(false)
     }
@@ -191,14 +189,12 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
         })
       }
       if (isSentTransactionResponse(txResponse)) {
-        setTransactionHash(txResponse.data.txHash)
         onSuccess(txResponse)
       } else {
-        setError(txResponse.data.error)
+        // TODO error handling
       }
-    } catch (err: unknown) {
-      console.log('e', err)
-      setError((err as { message?: string }).message || 'An unexpected error occured.')
+    } catch {
+      // TODO error handling
     } finally {
       setIsSendTxnPending(false)
     }

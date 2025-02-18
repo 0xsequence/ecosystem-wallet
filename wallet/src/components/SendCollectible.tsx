@@ -52,7 +52,6 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
   const [showConfirmation, setShowConfirmation] = useState(false)
   const [isCheckingFeeOptions, setIsCheckingFeeOptions] = useState(false)
   const [selectedFeeTokenAddress, setSelectedFeeTokenAddress] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
 
   const { name: nativeTokenName = 'Native Token' } = networks[chainId as ChainId].nativeToken
   const { contractType } = tokenBalance
@@ -62,7 +61,6 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
   const amountToSendFormatted = amount === '' ? '0' : amount
   const amountRaw = ethers.parseUnits(amountToSendFormatted, decimals)
 
-  const [transactionHash, setTransactionHash] = useState<string>()
   const [feeOptions, setFeeOptions] = useState<TransactionFeeOptionsResult>()
   const transactionsFeeOption = feeOptions?.feeOptions?.find(feeOption => {
     if (selectedFeeTokenAddress === ethers.ZeroAddress && feeOption.token.contractAddress === null)
@@ -213,13 +211,12 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
       }
 
       if (isSentTransactionResponse(txResponse)) {
-        setTransactionHash(txResponse.data.txHash)
         onSuccess(txResponse)
       } else {
-        setError(txResponse.data.error)
+        // TODO error handling
       }
-    } catch (error: unknown) {
-      setError((error as { message?: string }).message || 'An unexpected error occured.')
+    } catch {
+      // TODO error handling
     } finally {
       setIsSendTxnPending(false)
     }
