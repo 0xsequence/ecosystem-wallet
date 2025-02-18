@@ -9,8 +9,10 @@ import { AuthProvider } from './AuthContext'
 const queryClient = new QueryClient()
 
 export const AppContextProvider = ({ children }: PropsWithChildren) => {
+  const theme = import.meta.env.VITE_PROJECT_BASE_THEME || 'dark'
+
   return (
-    <ThemeProvider root="#app" scope="app" theme="dark">
+    <ThemeProvider root="#app" scope="app" theme={theme}>
       <AuthProvider>
         <ToastProvider>
           <ConfirmDialogProvider>

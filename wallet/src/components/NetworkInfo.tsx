@@ -1,4 +1,4 @@
-import { Text } from '@0xsequence/design-system';
+import { Text } from '@0xsequence/design-system'
 import { allNetworks } from '@0xsequence/network'
 import React from 'react'
 

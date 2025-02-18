@@ -1,4 +1,4 @@
-import { NetworkImage as DesignSystemNetworkImage, Tooltip } from '@0xsequence/design-system';
+import { NetworkImage as DesignSystemNetworkImage, Tooltip } from '@0xsequence/design-system'
 import { NetworkType, allNetworks } from '@0xsequence/network'
 
 export const NetworkImage = ({
@@ -15,7 +15,7 @@ export const NetworkImage = ({
   const chain = allNetworks.find(c => c.chainId === chainId)
 
   return (
-    (<NetworkImageWrapper chainId={chainId} shouldShowTooltip={shouldShowTooltip}>
+    <NetworkImageWrapper chainId={chainId} shouldShowTooltip={shouldShowTooltip}>
       <DesignSystemNetworkImage chainId={chainId} disableAnimation={disableAnimation} size={size} />
       {chain?.type === NetworkType.TESTNET && (
         <div
@@ -24,10 +24,11 @@ export const NetworkImage = ({
             border: '2px solid #1a1a1a',
             left: '-2px',
             top: '-2px'
-          }} />
+          }}
+        />
       )}
-    </NetworkImageWrapper>)
-  );
+    </NetworkImageWrapper>
+  )
 }
 
 export const NetworkImageWrapper = ({
@@ -44,16 +45,10 @@ export const NetworkImageWrapper = ({
   const networkTitle = network?.title || network?.name || 'Unknown Network'
   if (shouldShowTooltip) {
     return (
-      (<Tooltip message={`${networkTitle}${network?.testnet ? ' (Testnet)' : ''}`} vOffset={2}>
-        <div className="relative w-fit h-fit bg-transparent">
-          {children}
-        </div>
-      </Tooltip>)
-    );
+      <Tooltip message={`${networkTitle}${network?.testnet ? ' (Testnet)' : ''}`} vOffset={2}>
+        <div className="relative w-fit h-fit bg-transparent">{children}</div>
+      </Tooltip>
+    )
   }
-  return (
-    (<div className="relative w-fit h-fit bg-transparent">
-      {children}
-    </div>)
-  );
+  return <div className="relative w-fit h-fit bg-transparent">{children}</div>
 }

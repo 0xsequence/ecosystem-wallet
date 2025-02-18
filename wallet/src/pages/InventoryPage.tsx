@@ -1,6 +1,6 @@
-import { Button, IconButton, Image, SendIcon, Text, TokenImage, nativeTokenImageUrl } from '@0xsequence/design-system';
-import { ContractVerificationStatus, GatewayNativeTokenBalance } from '@0xsequence/indexer'
-import { ChainId } from '@0xsequence/network'
+import { Button, Image, Modal, TokenImage, cn } from '@0xsequence/design-system'
+import { ContractVerificationStatus, type NativeTokenBalance, type TokenBalance } from '@0xsequence/indexer'
+import { networks, type NetworkMetadata, type ChainId } from '@0xsequence/network'
 import { formatUnits } from 'ethers'
 
 import { useAuth } from '../context/AuthContext'
@@ -8,8 +8,35 @@ import { useAuth } from '../context/AuthContext'
 import { useConfig } from '../hooks/useConfig'
 import { useTokenBalancesDetails } from '../hooks/useTokenBalancesDetails'
 
-import { CollectibleTileImage } from '../components/CollectibleTileImage'
 import { NetworkImage } from '../components/NetworkImage'
+import { ComponentProps, createContext, useContext, useState } from 'react'
+import { Link } from 'react-router'
+import { ROUTES } from '../routes'
+import { AnimatePresence } from 'framer-motion'
+
+function padArray<T>(arr: T[], item: T, minLength = 12): T[] {
+  return arr.concat(Array(Math.max(0, minLength - arr.length)).fill(item))
+}
+
+type InventoryContext = {
+  showInventoryItem: { contractAddress: string; tokenId?: string } | false
+  setShowInventoryItem: (show: { contractAddress: string; tokenId?: string } | false) => void
+  contractInfo: (contractAddress: string, tokenId: string) => unknown
+  inventoryItems: InventoryItemTypeProps['item'][]
+}
+
+const Inventory = createContext<InventoryContext | null>(null)
+
+function useInventory() {
+  const context = useContext(Inventory)
+
+  if (!context) {
+    console.error('useInventory must be used within a InventoryProvider')
+    return null
+  }
+
+  return context
+}
 
 export const InventoryPage = () => {
   const { hideUnlistedTokens } = useConfig()
@@ -27,117 +54,282 @@ export const InventoryPage = () => {
     }
   })
 
+  // Remove any chains with no balance
   const balances =
-    data?.balances.filter(balance => balance?.results?.length > 0).flatMap(balance => balance.results) || []
-  const erc20Balances = balances.filter(
-    ({ balance, contractType }) => contractType === 'ERC20' && balance !== '0'
-  )
-  const collectibleBalances = balances.filter(
-    ({ balance, contractType }) => ['ERC721', 'ERC1155'].includes(contractType) && balance !== '0'
-  )
+    data?.balances
+      .filter(balance => balance?.results?.length > 0)
+      .flatMap(balance => balance.results)
+      .map(item => {
+        /* @ts-expect-error WIP */
+        const chain = networks[item.chainId] as NetworkMetadata
+        return { ...item, chain }
+      }) || []
 
-  const nativeBalances = (data?.nativeBalances
-    .filter(balance => balance.results?.length > 0 && balance.results[0].balance !== '0')
-    .flatMap(balance => balance.results) || []) as unknown as (GatewayNativeTokenBalance['result'] & {
-    chainId: ChainId
-  })[]
+  // Get ERC20 contracts
+  const erc20Balances = balances
+    .filter(({ balance, contractType }) => contractType === 'ERC20' && balance !== '0')
+    .map(item => ({ ...item, inventoryCategory: 'erc20' }))
+
+  // Get ERC721 & ERC1155 contracts
+  const collectibleBalances = balances
+    .filter(({ balance, contractType }) => ['ERC721', 'ERC1155'].includes(contractType) && balance !== '0')
+    .map(item => ({ ...item, inventoryCategory: 'collectable' }))
+
+  // Get native balance
+  const nativeBalances = (
+    data?.nativeBalances
+      .filter(balance => balance.results?.length > 0 && balance.results[0].balance !== '0')
+      .flatMap(
+        balance =>
+          balance.results as (NativeTokenBalance & {
+            chainId: ChainId
+          })[]
+      ) || []
+  ).map(balance => {
+    const chain = networks[balance.chainId] as NetworkMetadata
+    return { ...balance, ...chain, inventoryCategory: 'nativeBalance' }
+  })
+
+  // Merge
+  let inventoryItems = [
+    ...nativeBalances,
+    ...erc20Balances,
+    ...collectibleBalances
+  ] as unknown as InventoryItemTypeProps['item'][]
+
+  const isInventoryEmpty = !inventoryItems?.length
+
+  const [showInventoryItem, setShowInventoryItem] = useState<
+    { contractAddress: string; tokenId: string } | false
+  >(false)
+
+  if (isInventoryEmpty) {
+    return <InventoryEmpty />
+  }
+
+  // Create empty inventory slots
+  inventoryItems = padArray(inventoryItems, { inventoryCategory: 'empty' }, 12)
+
+  function contractInfo(contractAddress: string, tokenId?: string) {
+    const result = inventoryItems.find(item => {
+      /* @ts-expect-error WIP */
+
+      if (!item.contractAddress || !item.tokenID) return false
+      if (contractAddress && tokenId) {
+        /* @ts-expect-error WIP */
+
+        if (item.contractAddress === contractAddress && item.tokenID === tokenId) {
+          return item
+        }
+      }
+
+      if (contractAddress && !tokenId) {
+        /* @ts-expect-error WIP */
+
+        if (item.contractAddress === contractAddress) {
+          return item
+        }
+      }
+    })
+
+    console.log(result)
+    return result
+  }
 
   return (
-    (<div
-      className="grid h-full items-center gap-5 p-20"
-      style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gridAutoRows: 'auto' }}>
-      <div className="flex h-full w-full flex-col gap-8">
-        {nativeBalances.map(({ chainId, balance }) => (
-          <div className="flex gap-3 flex-row items-center min-w-0" key={chainId}>
-            <TokenImage src={nativeTokenImageUrl(chainId)} size="lg" withNetwork={chainId} />
-            <Text
-              className="text-right whitespace-nowrap"
-              variant="normal"
-              color="text50"
-              fontWeight="bold"
-              ellipsis>
-              {formatUnits(balance, 18)}
-            </Text>
-            <IconButton
-              className="text-text100 w-full ml-auto"
-              size="sm"
-              variant="primary"
-              icon={SendIcon} />
-          </div>
-        ))}
+    /* @ts-expect-error WIP */
 
-        {erc20Balances.map(({ chainId, balance, contractAddress, contractInfo }) => (
-          <div
-            className="flex gap-3 flex-row items-center min-w-0"
-            key={`${contractAddress}-${chainId}`}>
-            <TokenImage src={contractInfo?.logoURI} size="lg" withNetwork={chainId} />
-            <Text
-              className="text-right whitespace-nowrap"
-              variant="normal"
-              color="text50"
-              fontWeight="bold"
-              ellipsis>
-              {formatUnits(balance, 18)}
-            </Text>
-            <IconButton
-              className="text-text100 w-full ml-auto"
-              size="sm"
-              variant="primary"
-              icon={SendIcon} />
-          </div>
+    <Inventory.Provider value={{ showInventoryItem, setShowInventoryItem, inventoryItems, contractInfo }}>
+      <div className="grid w-full max-w-screen-md grid-cols-2 sm:grid-cols-4 gap-2 mx-auto mt-2 sm:mt-18 sm:px-2 p-8 sm:py-0">
+        {inventoryItems.map((item, index) => (
+          /* @ts-expect-error native token overload issue */
+          <InventoryItemType key={index} item={item} />
         ))}
       </div>
-      {collectibleBalances.map(
-        ({ chainId, balance, contractAddress, contractInfo, tokenMetadata, tokenID }) => (
-          <div
-            className="flex flex-col gap-3 pb-5 px-4 pt-0"
-            key={`${contractAddress}-${tokenID}-${chainId}`}>
-            <div className="flex gap-3 items-center justify-center flex-col">
-              <div className="flex flex-row gap-2 justify-center items-center">
-                {contractInfo?.logoURI && (
-                  <Image
-                    className="rounded-full w-8"
-                    src={contractInfo.logoURI}
-                    alt="collection logo"
-                    style={{ objectFit: 'cover' }} />
-                )}
-                <div className="flex gap-1 flex-row justify-center items-center">
-                  <Text variant="small" fontWeight="bold" color="text100">
-                    {contractInfo?.name || 'Unknown Collection'}
-                  </Text>
-                  <NetworkImage chainId={chainId} size="xs" />
-                </div>
-              </div>
-              <div className="flex flex-col justify-center items-center">
-                <Text variant="large" color="text100" fontWeight="bold">
-                  {tokenMetadata?.name || 'Unknown Collectible'}
-                </Text>
-                <Text variant="small" color="text50" fontWeight="medium">
-                  {`#${tokenID}`}
-                </Text>
-              </div>
-            </div>
-            <div>
-              <CollectibleTileImage imageUrl={tokenMetadata?.image} />
-            </div>
-            <div>
-              <Text variant="normal" fontWeight="medium" color="text50">
-                Balance
-              </Text>
-              <div className="flex flex-row items-end justify-between">
-                <Text variant="xlarge" fontWeight="bold" color="text100">
-                  {balance}
-                </Text>
-              </div>
-            </div>
-            <Button
-              className="text-text100 w-full"
-              variant="primary"
-              leftIcon={SendIcon}
-              label="Send" />
+
+      <AnimatePresence>
+        {showInventoryItem && (
+          <Modal scroll={false} onClose={() => setShowInventoryItem(false)} className="bg-white">
+            <InventoryItemDetails {...showInventoryItem} />
+          </Modal>
+        )}
+      </AnimatePresence>
+    </Inventory.Provider>
+  )
+}
+
+function InventoryItemDetails({ contractAddress, tokenId }: { contractAddress: string; tokenId: string }) {
+  const inventory = useInventory()
+  const item = inventory?.contractInfo(contractAddress, tokenId)
+
+  console.log(item)
+
+  if (!item) {
+    return null
+  }
+
+  return (
+    <div className="w-full flex flex-col">
+      <div className="flex items-center justify-center bg-black/20">
+        {/* @ts-expect-error WIP */}
+        <Image src={item?.tokenMetadata?.image} className="max-w-[300px]" />
+      </div>
+      <div className="p-6 flex flex-col gap-1 text-center justify-center">
+        <span className="text-seq-grey-500 text-sm font-bold">
+          {/* @ts-expect-error WIP */}
+          {item?.contractInfo?.extensions?.description}
+        </span>
+        {/* @ts-expect-error WIP */}
+        <span className="text-xl font-bold">{item?.tokenMetadata?.name}</span>
+        {/* @ts-expect-error WIP */}
+        <span className="text-seq-grey-500 text-sm font-bold">#{item?.tokenID}</span>
+        <span className="inline-flex mx-auto items-center gap-2 font-bold text-xs">
+          {/* @ts-expect-error WIP */}
+          <NetworkImage chainId={item?.chain?.chainId} size="xs" /> {item?.chain?.title}
+        </span>
+        <Button>Send</Button>
+      </div>
+    </div>
+  )
+}
+
+function InventoryEmpty() {
+  return (
+    <div className="grid w-full max-w-screen-md grid-cols-2 sm:grid-cols-4 gap-1 mx-auto mt-2 sm:mt-18 sm:px-2 p-8 sm:py-0">
+      <EmptyInventoryCell />
+      <EmptyInventoryCell />
+      <EmptyInventoryCell className="hidden sm:block" />
+      <EmptyInventoryCell className="hidden sm:block" />
+      <EmptyInventoryCell className="hidden sm:block" />
+      <div className="col-span-4 py-12 sm:col-span-2 flex flex-col items-center justify-center px-8 sm:py-4 text-center gap-1">
+        <span className="font-bold text-style-normal">You have no items</span>
+        <p className="font-bold text-style-sm text-seq-grey-100">
+          Discover the apps and games of Soneium and grow your collection
+        </p>
+        <Button asChild size="sm" className="mt-2">
+          <Link to={ROUTES.DISCOVER}>Discover</Link>
+        </Button>
+      </div>
+      <EmptyInventoryCell />
+      <EmptyInventoryCell />
+      <EmptyInventoryCell className="hidden sm:block" />
+      <EmptyInventoryCell className="hidden sm:block" />
+      <EmptyInventoryCell className="hidden sm:block" />
+    </div>
+  )
+}
+
+type EmptyInventoryCellProps = ComponentProps<'div'>
+
+function EmptyInventoryCell(props: EmptyInventoryCellProps) {
+  const { className = '', ...rest } = props
+
+  return <div className={cn('aspect-square bg-black/5 rounded-md', className)} {...rest}></div>
+}
+
+type InventoryItemTypeProps =
+  | { item: NativeBalanceItemProps & { inventoryCategory: 'nativeBalance' } }
+  | { item: TokenBalance & { inventoryCategory: 'erc20' } }
+  | { item: TokenBalance & { inventoryCategory: 'collectable' } }
+  | { item: { inventoryCategory: 'empty' } }
+
+// function InventoryItemType(props: { item: NativeBalanceItemProps & { inventoryCategory: "nativeBalance" } }): JSX.Element | null;
+// function InventoryItemType(props: { item: TokenBalance & { inventoryCategory: "erc20" } }): JSX.Element | null;
+// function InventoryItemType(props: { item: TokenBalance & { inventoryCategory: "collectable" } }): JSX.Element | null;
+// function InventoryItemType(props: { item: { inventoryCategory: "empty" } }): JSX.Element | null;
+
+// Implementation
+function InventoryItemType(props: InventoryItemTypeProps) {
+  const { item } = props
+
+  switch (item.inventoryCategory) {
+    case 'nativeBalance':
+      return <NativeBalanceItem {...item} />
+    case 'collectable':
+      return <CollectableItem {...item} />
+    case 'erc20':
+      return <Erc20Item {...item} />
+    default:
+      return <EmptyInventoryCell />
+  }
+}
+
+function Erc20Item(props: TokenBalance) {
+  const { chainId, balance, contractInfo, contractAddress, tokenID } = props
+
+  return (
+    <InventoryItem
+      contractAddress={contractAddress}
+      tokenId={tokenID}
+      className="p-4 flex flex-col items-start gap-3"
+    >
+      {contractInfo?.logoURI ? (
+        <TokenImage src={contractInfo.logoURI} size="lg" withNetwork={chainId} />
+      ) : null}
+      <div className="flex flex-col flex-1 justify-end">
+        {contractInfo?.decimals && contractInfo?.symbol ? (
+          <div>
+            <span className="text-style-lg font-bold">{formatUnits(balance, contractInfo.decimals)}</span>{' '}
+            <span className="text-style-sm">{contractInfo.symbol}</span>
           </div>
-        )
-      )}
-    </div>)
-  );
+        ) : null}
+      </div>
+    </InventoryItem>
+  )
+}
+
+function InventoryItem(
+  props: { children: React.ReactNode; contractAddress: string; tokenId?: string } & ComponentProps<'button'>
+) {
+  const { children, contractAddress, tokenId, className = '', ...rest } = props
+
+  const inventory = useInventory()
+
+  return (
+    <button
+      type="button"
+      onClick={() => inventory?.setShowInventoryItem({ contractAddress, tokenId })}
+      className={cn('aspect-square  rounded-md overflow-clip bg-black/20 text-black', className)}
+      {...rest}
+    >
+      {children}
+    </button>
+  )
+}
+
+function CollectableItem(props: TokenBalance) {
+  const { tokenMetadata, contractAddress, tokenID } = props
+
+  return (
+    <InventoryItem contractAddress={contractAddress} tokenId={tokenID}>
+      <Image src={tokenMetadata?.image} />
+    </InventoryItem>
+  )
+}
+
+type NativeBalanceItemProps = NativeTokenBalance &
+  NetworkMetadata & {
+    chainId: ChainId
+  }
+
+function NativeBalanceItem({ chainId, title, balance, nativeToken }: NativeBalanceItemProps) {
+  const contractAddress = ''
+  const tokenID = ''
+
+  return (
+    <InventoryItem
+      contractAddress={contractAddress}
+      tokenId={tokenID}
+      className="p-4 flex flex-col items-start gap-3"
+    >
+      <NetworkImage chainId={chainId} size="lg" />
+      <div className="flex flex-col flex-1 justify-end items-start">
+        <span className="text-style-normal font-bold text-seq-grey-500">{title}</span>
+        <div>
+          <span className="text-style-lg font-bold">{formatUnits(balance, nativeToken.decimals)}</span>{' '}
+          <span className="text-style-sm">{nativeToken.symbol}</span>
+        </div>
+      </div>
+    </InventoryItem>
+  )
 }

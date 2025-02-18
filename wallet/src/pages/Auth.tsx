@@ -7,9 +7,8 @@ import {
   Modal,
   PINCodeInput,
   Spinner,
-  Text,
-  TextInput,
-} from '@0xsequence/design-system';
+  Text
+} from '@0xsequence/design-system'
 import { EmailConflictInfo } from '@0xsequence/waas'
 import { CredentialResponse, GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google'
 import React, { SetStateAction, useEffect, useRef, useState } from 'react'
@@ -30,7 +29,7 @@ import { ROUTES } from '../routes'
 import { googleClientId, sequenceWaas } from '../waasSetup'
 
 const PROJECT_NAME = import.meta.env.VITE_PROJECT_NAME
-const PROJECT_LOGO = import.meta.env.VITE_PROJECT_LOGO
+// const PROJECT_LOGO = import.meta.env.VITE_PROJECT_LOGO
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
 
@@ -49,8 +48,8 @@ export const Auth: React.FC = () => {
   useScript(appleAuthHelpers.APPLE_SCRIPT_SRC)
   const navigate = useNavigate()
 
-  const { setWalletAddress, pendingEventOrigin, authState } = useAuth()
-  const [isSocialLoginInProgress, setIsSocialLoginInProgress] = useState(false)
+  const { setWalletAddress, authState } = useAuth()
+  const [isSocialLoginInProgress, setIsSocialLoginInProgress] = useState<false | string>(false)
 
   useEffect(() => {
     if (authState.status === 'signedIn') {
@@ -60,7 +59,7 @@ export const Auth: React.FC = () => {
 
   const handleGoogleLogin = async (tokenResponse: CredentialResponse) => {
     try {
-      setIsSocialLoginInProgress(true)
+      setIsSocialLoginInProgress('google')
       const res = await sequenceWaas.signIn(
         {
           idToken: tokenResponse.credential!
@@ -77,7 +76,7 @@ export const Auth: React.FC = () => {
 
   const handleAppleLogin = async () => {
     try {
-      setIsSocialLoginInProgress(true)
+      setIsSocialLoginInProgress('apple')
       await appleAuthHelpers.signIn({
         authOptions: {
           clientId: APPLE_CLIENT_ID,
@@ -136,49 +135,38 @@ export const Auth: React.FC = () => {
     setIsEmailConflictModalOpen(true)
   })
 
-  const isPopup = window.opener !== null
+  // const isPopup = window.opener !== null
 
   return (
-    (<div className="p-4">
-      <div className="flex items-center justify-center">
-        <div
-          className="flex flex-col gap-2 my-4 items-center justify-center"
-          style={{ maxWidth: '400px' }}>
-          <div className="flex items-center flex-col mb-2">
-            {PROJECT_LOGO && <Image className="max-w-1/2 max-h-1/4 aspect-square" src={PROJECT_LOGO} />}
-
-            {isPopup && (
-              <Text className="text-center mt-4" variant="normal" color="text100">
-                Sign in to your <Text fontWeight="bold">{PROJECT_NAME}</Text> wallet to give access to dapp
-                with origin <Text fontWeight="bold">{pendingEventOrigin}</Text>
-              </Text>
-            )}
-            {!isPopup && (
-              <Text className="mt-4" variant="medium" color="text80">
-                Sign in to your <Text color="text100">{PROJECT_NAME}</Text> wallet
-              </Text>
-            )}
-          </div>
-
-          <Card className="mt-4 pb-4">
-            {!emailAuthInProgress && (
-              <>
-                <div className="flex justify-center">
-                  Sign in with Soneium
-                </div>
-                <div className="flex flex-row gap-4 my-5 justify-center items-center">
-                  {isSocialLoginInProgress ? (
-                    <Spinner size="md" />
-                  ) : (
-                    <>
-                      {GOOGLE_CLIENT_ID && (
-                        <GoogleOAuthProvider clientId={googleClientId}>
-                          <Card className="bg-transparent rounded-sm p-0 relative" clickable>
-                            <div
-                              className="flex w-full h-full overflow-hidden rounded-lg items-center justify-center"
-                              style={{ opacity: 0.0000001, transform: 'scale(1.4)' }}>
+    <div className="flex flex-col flex-1 items-center justify-center">
+      <AuthCoverWrapper>
+        <Card className="w-full bg-black gap-6 flex flex-col px-6 py-[5rem] rounded-none">
+          {!emailAuthInProgress && (
+            <>
+              <div className="flex items-center gap-4 flex-col">
+                <Image src={import.meta.env.VITE_PROJECT_LOGO} className="size-16" />
+                <span>
+                  Sign in to <span className="font-bold">{PROJECT_NAME}</span>
+                </span>
+              </div>
+              <div className="flex flex-col">
+                <div className="flex flex-col gap-2">
+                  {GOOGLE_CLIENT_ID ? (
+                    <GoogleOAuthProvider clientId={googleClientId}>
+                      <div
+                        className="rounded-sm relative bg-white/10 gap-2 items-center text-style-normal font-bold inline-flex justify-center min-h-[3rem] py-2 px-3 data-[disabled=='true
+                            :disabled:cursor-default cursor-pointer"
+                        data-disabled={!!isSocialLoginInProgress}
+                      >
+                        {isSocialLoginInProgress === 'google' ? (
+                          <Spinner size="md" />
+                        ) : (
+                          <>
+                            {/* @ts-expect-error logo doesn't want className, but accepts it */}
+                            <GoogleLogo className="size-6 flex-shrink-0" />
+                            Continue with Google
+                            <div className="opacity-0 absolute w-full h-full pointer-events-auto">
                               <GoogleLogin
-                                // className="w-56"
                                 type="icon"
                                 size="large"
                                 onSuccess={handleGoogleLogin}
@@ -188,119 +176,112 @@ export const Auth: React.FC = () => {
                                 }}
                               />
                             </div>
-                            <div
-                              className="flex bg-background-secondary rounded-sm justify-center items-center absolute pointer-events-none w-full h-full top-0 right-0">
-                              <GoogleLogo />
-                            </div>
-                          </Card>
-                        </GoogleOAuthProvider>
+                          </>
+                        )}
+                      </div>
+                    </GoogleOAuthProvider>
+                  ) : null}
+
+                  {APPLE_CLIENT_ID ? (
+                    <button
+                      type="button"
+                      className="rounded-sm relative bg-white/10 gap-2 items-center text-style-normal font-bold inline-flex justify-center min-h-[3rem] py-2 px-3 disabled:cursor-default cursor-pointer"
+                      onClick={handleAppleLogin}
+                      disabled={!!isSocialLoginInProgress}
+                    >
+                      {isSocialLoginInProgress === 'apple' ? (
+                        <Spinner size="md" />
+                      ) : (
+                        <>
+                          <AppleLogo className="size-8 flex-shrink-0" />
+                          Continue with Apple
+                        </>
                       )}
-
-                      {APPLE_CLIENT_ID && (
-                        <Card
-                          className="bg-transparent rounded-sm p-0 relative"
-                          clickable
-                          onClick={handleAppleLogin}>
-                          <div
-                            className="flex bg-background-secondary rounded-sm justify-center items-center w-full h-full">
-                            <AppleLogo />
-                          </div>
-                        </Card>
-                      )}
-                    </>
-                  )}
-                </div>
-                <div className="relative w-full">
-                  <Divider className="bg-button-glass w-full" />
-                </div>
-              </>
-            )}
-
-            <div className="flex justify-center">
-              <Text variant="medium" color="text100">
-                Sign in with email
-              </Text>
-            </div>
-
-            {sendChallengeAnswer ? (
-              <div className="flex flex-col mt-6 p-4 items-center justify-center">
-                <div>
-                  <Text
-                    className="flex items-center justify-center"
-                    variant="normal"
-                    color="text80">
-                    Enter code received in email.
-                  </Text>
-                </div>
-                <div className="mt-4">
-                  <PINCodeInput value={code} digits={6} onChange={setCode} />
-                </div>
-
-                <div className="flex gap-2 mt-4 items-center justify-center">
-                  {emailAuthLoading ? (
-                    <Spinner />
-                  ) : (
-                    <Button
-                      variant="primary"
-                      disabled={code.includes('')}
-                      label="Verify"
-                      onClick={() => sendChallengeAnswer(code.join(''))}
-                      data-id="verifyButton"
-                    />
-                  )}
+                    </button>
+                  ) : null}
                 </div>
               </div>
-            ) : (
-              <div className="mt-2">
-                <Text variant="normal" color="text80">
-                  Enter your email to receive a code to login and create your wallet.
-                </Text>
 
-                <div className="flex flex-row gap-2">
-                  <div className="mt-4 w-full">
-                    <TextInput
-                      name="email"
-                      type="email"
-                      onChange={(ev: { target: { value: SetStateAction<string> } }) => {
-                        setEmail(ev.target.value)
-                      }}
-                      ref={inputRef}
-                      onKeyDown={(ev: { key: string }) => {
-                        if (email && ev.key === 'Enter') {
-                          initiateEmailAuth(email)
-                        }
-                      }}
-                      onBlur={() => setEmailWarning(!!email && !isEmailValid)}
-                      value={email}
-                      placeholder="hello@example.com"
-                      required
-                      data-id="loginEmail"
-                    />
-                    {showEmailWarning && (
-                      <Text className="my-2" variant="small" color="negative" asChild><p>Invalid email address
-                                              </p></Text>
-                    )}
-                  </div>
-                  <div className="flex gap-2 mt-4 items-center justify-center">
+              <div className="flex gap-4 items-center">
+                <Divider className="bg-white/10 flex-1" />
+                <span className="text-seq-grey-200 text-sm font-medium">or</span>
+                <Divider className="bg-white/10 flex-1" />
+              </div>
+            </>
+          )}
+
+          {sendChallengeAnswer ? (
+            <div className="flex flex-col  p-4 items-center justify-center">
+              <div>
+                <Text className="flex items-center justify-center" variant="normal" color="text80">
+                  Check your email for your access code
+                </Text>
+              </div>
+              <div className="mt-4">
+                <PINCodeInput value={code} digits={6} onChange={setCode} />
+              </div>
+
+              <div className="flex gap-2 mt-4 items-center justify-center">
+                {emailAuthLoading ? (
+                  <Spinner />
+                ) : (
+                  <Button
+                    variant="primary"
+                    disabled={code.includes('')}
+                    label="Verify"
+                    onClick={() => sendChallengeAnswer(code.join(''))}
+                    data-id="verifyButton"
+                  />
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="mt-2">
+              <div className="flex flex-col gap-2">
+                <div className="relative border border-seq-grey-500 rounded-md w-full min-h-[3.25rem] flex items-stretch justify-end focus-within:ring-1 focus-within:border-seq-purple-700 ring-seq-purple-700 overflow-clip">
+                  <input
+                    name="email"
+                    type="email"
+                    onChange={(ev: { target: { value: SetStateAction<string> } }) => {
+                      setEmail(ev.target.value)
+                    }}
+                    ref={inputRef}
+                    onKeyDown={(ev: { key: string }) => {
+                      if (email && ev.key === 'Enter') {
+                        initiateEmailAuth(email)
+                      }
+                    }}
+                    onBlur={() => setEmailWarning(!!email && !isEmailValid)}
+                    value={email}
+                    placeholder="Email address"
+                    required
+                    className="absolute w-full h-full p-4 outline-none placeholder:text-seq-grey-200 sm:text-style-normal font-medium"
+                    data-id="loginEmail"
+                  />
+                  <div className="flex items-center justify-center aspect-square z-50 bg-gradient-to-r from-black/0 from-0% to-35% to-black pointer-events-none">
                     {emailAuthLoading ? (
                       <Spinner />
                     ) : (
                       <Button
-                        variant="primary"
+                        variant={isEmailValid ? 'primary' : ''}
                         shape="circle"
                         disabled={!isEmailValid}
                         leftIcon={ArrowRightIcon}
                         onClick={() => initiateEmailAuth(email)}
                         data-id="continueButton"
+                        className=" size-8 pointer-events-auto"
                       />
                     )}
                   </div>
                 </div>
+                {showEmailWarning && (
+                  <p className="text-negative text-sm font-medium">Please enter a valid email address</p>
+                )}
               </div>
-            )}
-          </Card>
-        </div>
-      </div>
+            </div>
+          )}
+        </Card>
+      </AuthCoverWrapper>
       {isEmailConflictModalOpen && emailConflictInfo && (
         <Modal size="small" onClose={() => setIsEmailConflictModalOpen(false)}>
           <EmailConflictWarning
@@ -323,6 +304,44 @@ export const Auth: React.FC = () => {
           />
         </Modal>
       )}
-    </div>)
-  );
+    </div>
+  )
+}
+
+// {isPopup ? <Text className="text-center mt-4" variant="normal" color="text100">
+//   Sign in to your <Text fontWeight="bold">{PROJECT_NAME}</Text> wallet to give access to dapp
+//   with origin <Text fontWeight="bold">{pendingEventOrigin}</Text>
+// </Text>
+// : <span>Sign in to <span className="font-bold">{PROJECT_NAME}</span></span>
+// }
+
+function AuthCoverWrapper({ children }: { children: React.ReactNode }) {
+  const coverImage = import.meta.env.VITE_PROJECT_AUTH_COVER
+  const title = import.meta.env.VITE_PROJECT_AUTH_TITLE
+  const message = import.meta.env.VITE_PROJECT_AUTH_MESSAGE
+
+  if (!coverImage) {
+    return <div className="w-full max-w-[24rem] rounded-lg overflow-clip">{children}</div>
+  }
+
+  const style = {
+    '--background': `url(${coverImage})`
+  } as React.CSSProperties
+
+  return (
+    <div className="flex rounded-lg overflow-clip">
+      <div className="flex-shrink-0 w-[24rem] max-w-full">{children}</div>
+      <div
+        className="flex flex-col items-end justify-end p-8  w-[500px] flex-shrink [background-image:var(--background)] bg-cover bg-no-repeat"
+        style={style}
+      >
+        {title || message ? (
+          <div className="max-w-[16rem] w-full text-black text-right">
+            {title ? <p className="font-bold mb-3">{title}</p> : null}
+            {message ? <p className="text-style-sm">{message}</p> : null}
+          </div>
+        ) : null}
+      </div>
+    </div>
+  )
 }

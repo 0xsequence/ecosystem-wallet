@@ -98,3 +98,9 @@
   --color-seq-purple-950: #270a6b;
   --color-seq-purple-primary: #7537f9; /* --color-seq-purple-600 */
 }
+
+@layer base {
+  [data-theme='light'] {
+    --color-background-raised: rgba(255, 255, 255, 0.7);
+  }
+}

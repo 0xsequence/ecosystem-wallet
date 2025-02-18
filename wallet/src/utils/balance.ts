@@ -4,10 +4,17 @@ import {
   ContractType,
   GetTokenBalancesDetailsArgs,
   GetTokenBalancesSummaryArgs,
+  NativeTokenBalance,
   SequenceIndexerGateway,
   TokenBalance
 } from '@0xsequence/indexer'
 import { ethers } from 'ethers'
+
+export const isNativeCoinBalance = (
+  balance: NativeTokenBalance | TokenBalance
+): balance is NativeTokenBalance => {
+  return compareAddress((balance as TokenBalance).contractAddress, ethers.ZeroAddress)
+}
 
 export const getTokenBalancesDetails = async (
   indexerClient: SequenceIndexerGateway,

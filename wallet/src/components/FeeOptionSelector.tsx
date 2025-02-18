@@ -1,13 +1,34 @@
-import { Button, Text } from '@0xsequence/design-system';
-import { FeeOption } from '@0xsequence/waas'
+import { Text, TokenImage } from '@0xsequence/design-system'
 import { ZeroAddress, formatUnits, parseUnits } from 'ethers'
-import React, { ComponentProps } from 'react'
+import React from 'react'
 
-import { useTransactionHandler } from '../hooks/useTransactionHandler'
+import { Alert, AlertProps } from './Alert'
 
-interface FeeOptionSelectorProps {
+export interface FeeOption {
+  token: FeeToken
+  to: string
+  value: string
+  gasLimit: number
+}
+export interface FeeToken {
+  chainId: number
+  name: string
+  symbol: string
+  decimals?: number
+  logoURL: string
+  contractAddress?: string
+  tokenID?: string
+}
+
+export interface FeeOptionBalance {
+  tokenName: string
+  decimals: number
+  balance: string
+}
+
+export interface FeeOptionSelectorProps {
   txnFeeOptions: FeeOption[]
-  feeOptionBalances: { tokenName: string; decimals: number; balance: string }[]
+  feeOptionBalances: FeeOptionBalance[]
   selectedFeeOptionAddress: string | undefined
   setSelectedFeeOptionAddress: (address: string) => void
 }
@@ -21,9 +42,9 @@ const isBalanceSufficient = (balance: string, fee: string, decimals: number) => 
 export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
   txnFeeOptions,
   feeOptionBalances,
+  selectedFeeOptionAddress,
   setSelectedFeeOptionAddress
 }) => {
-  const { checkTokenBalancesForFeeOptions, isRefreshingBalance } = useTransactionHandler()
   const [feeOptionAlert, setFeeOptionAlert] = React.useState<AlertProps | undefined>()
 
   const sortedOptions = [...txnFeeOptions].sort((a, b) => {
@@ -39,12 +60,13 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
   })
 
   return (
-    (<div className="my-3 w-full">
-      <Text variant="medium" color="text100" fontWeight="bold">
+    <div className="mt-3 w-full">
+      <Text variant="normal" color="text100" fontWeight="bold">
         Select a fee option
       </Text>
       <div className="flex flex-col mt-2 gap-2">
         {sortedOptions.map((option, index) => {
+          const isSelected = selectedFeeOptionAddress === (option.token.contractAddress ?? ZeroAddress)
           const balance = feeOptionBalances.find(b => b.tokenName === option.token.name)
           const isSufficient = isBalanceSufficient(
             balance?.balance || '0',
@@ -52,34 +74,41 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
             option.token.decimals || 0
           )
           return (
-            (<div
-              className="p-3 rounded-xl"
+            <div
               key={index}
+              className={`px-3 py-2 rounded-md border border-solid border-thick  bg-background-raised ${
+                isSelected ? 'border-white' : 'border-transparent'
+              } ${isSufficient ? 'cursor-pointer opacity-100' : 'cursor-default opacity-50'}`}
               onClick={() => {
                 if (isSufficient) {
                   setSelectedFeeOptionAddress(option.token.contractAddress ?? ZeroAddress)
                   setFeeOptionAlert(undefined)
                 } else {
+                  setSelectedFeeOptionAddress('')
                   setFeeOptionAlert({
-                    title: 'Insufficient balance',
-                    description: `You do not have enough balance to pay the fee with ${option.token.name}.`,
-                    secondaryDescription: 'Please select another fee option or add funds to your wallet.',
+                    title: `Insufficient ${option.token.name} balance`,
+                    description: `Please select another fee option or add funds to your wallet.`,
                     variant: 'warning'
                   })
                 }
-              }}>
+              }}
+            >
               <div className="flex flex-row justify-between items-center">
-                <div className="flex flex-col">
-                  <Text variant="small" color="text100" fontWeight="bold">
-                    {option.token.name}
-                  </Text>
-                  <Text variant="xsmall" color="text80">
-                    Fee:{' '}
-                    {parseFloat(formatUnits(BigInt(option.value), option.token.decimals || 0)).toLocaleString(
-                      undefined,
-                      { maximumFractionDigits: 6 }
-                    )}
-                  </Text>
+                <div className="flex flex-row items-center gap-2">
+                  <TokenImage src={option.token.logoURL} symbol={option.token.name} />
+                  <div className="flex flex-col">
+                    <Text variant="small" color="text100" fontWeight="bold">
+                      {option.token.name}
+                    </Text>
+                    <Text variant="xsmall" color="text80">
+                      Fee:{' '}
+                      {parseFloat(
+                        formatUnits(BigInt(option.value), option.token.decimals || 0)
+                      ).toLocaleString(undefined, {
+                        maximumFractionDigits: 6
+                      })}
+                    </Text>
+                  </div>
                 </div>
                 <div className="flex flex-col items-end">
                   <Text variant="xsmall" color="text80">
@@ -92,17 +121,11 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
                   </Text>
                 </div>
               </div>
-            </div>)
-          );
+            </div>
+          )
         })}
       </div>
-      <div className="flex my-2 items-end justify-center flex-col">
-        <Button
-          size="sm"
-          onClick={checkTokenBalancesForFeeOptions}
-          label={isRefreshingBalance ? 'Refreshing...' : 'Refresh Balance'}
-          disabled={isRefreshingBalance}
-        />
+      <div className="mt-3 items-end justify-center flex flex-col">
         {feeOptionAlert && (
           <div className="mt-3">
             <Alert
@@ -114,56 +137,6 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
           </div>
         )}
       </div>
-    </div>)
-  );
-}
-
-export type AlertProps = {
-  title: string
-  description: string
-  secondaryDescription?: string
-  variant: 'negative' | 'warning' | 'positive'
-  buttonProps?: ComponentProps<typeof Button>
-  children?: React.ReactNode
-}
-
-export const Alert = ({
-  title,
-  description,
-  secondaryDescription,
-  buttonProps,
-  children
-}: AlertProps) => {
-  return (
-    (<div className="rounded-xl">
-      <div
-        className="flex bg-background-overlay rounded-xl py-4 w-full flex-col gap-3">
-        <div className="flex w-full gap-2 justify-between">
-          <div className="flex flex-col gap-1">
-            <Text variant="normal" color="text100" fontWeight="medium">
-              {title}
-            </Text>
-
-            <Text variant="normal" color="text50" fontWeight="medium">
-              {description}
-            </Text>
-
-            {secondaryDescription && (
-              <Text variant="normal" color="text80" fontWeight="medium">
-                {secondaryDescription}
-              </Text>
-            )}
-          </div>
-
-          {buttonProps ? (
-            <div className="rounded-lg w-min h-min">
-              <Button className="shrink-0" variant="emphasis" shape="square" {...buttonProps} />
-            </div>
-          ) : null}
-        </div>
-
-        {children}
-      </div>
-    </div>)
-  );
+    </div>
+  )
 }

@@ -12,7 +12,7 @@ export const PrivateRoute = ({ children }: PropsWithChildren) => {
 
   if (authState.status === 'loading') {
     return (
-      <div className="flex items-center justify-center" style={{ height: 'calc(100vh - 24px)' }}>
+      <div className="flex items-center justify-center h-[calc(100vh-24px)]">
         <Spinner size="lg" />
       </div>
     )
