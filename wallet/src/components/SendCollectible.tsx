@@ -232,7 +232,7 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
 
   return (
     <form
-      className={`grid gap-5 p-5 pt-3 ${isSendTxnPending ? 'pointer-events-none' : 'pointer-events-auto'}`}
+      className={`grid gap-5 py-3 ${isSendTxnPending ? 'pointer-events-none' : 'pointer-events-auto'}`}
       onSubmit={handleSendClick}
     >
       {!showConfirmation && (
@@ -290,7 +290,7 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
             </Text>
             {isEthAddress(toAddress) ? (
               <Card
-                className='flex items-center justify-between'
+                className="flex items-center justify-between"
                 clickable
                 width="full"
                 onClick={handleToAddressClear}

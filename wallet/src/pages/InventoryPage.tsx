@@ -207,16 +207,16 @@ export const InventoryPage = () => {
             }}
           >
             <div className="bg-background-primary w-96 h-auto">
-              <div className="w-full h-20 bg-background-primary z-20 flex flex-row items-center justify-between pt-1.5 px-4">
-                <div className="w-11 h-20" />
+              <div className="w-full h-12 bg-background-primary z-20 flex flex-row items-center justify-between pt-1.5 px-4">
+                <div className="w-11 h-12" />
                 <ModalPrimitive.Title asChild>
-                  <Text className="text-lg font-bold text-gray-100">
+                  <Text variant="small" className="font-bold text-gray-100">
                     {sendOptions?.tokenId ? 'Send Collectible' : 'Send Coin'}
                   </Text>
                 </ModalPrimitive.Title>
-                <div className="w-11 h-20" />
+                <div className="w-11 h-12" />
               </div>
-              <div className='ml-5'>
+              <div className="ml-5">
                 {coinBalanceToSend && (
                   <SendCoin
                     chainId={chainId}

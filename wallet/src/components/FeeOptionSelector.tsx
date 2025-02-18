@@ -50,8 +50,12 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
   const sortedOptions = [...txnFeeOptions].sort((a, b) => {
     const balanceA = feeOptionBalances.find(balance => balance.tokenName === a.token.name)
     const balanceB = feeOptionBalances.find(balance => balance.tokenName === b.token.name)
-    const isSufficientA = balanceA ? isBalanceSufficient(balanceA.balance, a.value, a.token.decimals || 0) : false
-    const isSufficientB = balanceB ? isBalanceSufficient(balanceB.balance, b.value, b.token.decimals || 0) : false
+    const isSufficientA = balanceA
+      ? isBalanceSufficient(balanceA.balance, a.value, a.token.decimals || 0)
+      : false
+    const isSufficientB = balanceB
+      ? isBalanceSufficient(balanceB.balance, b.value, b.token.decimals || 0)
+      : false
     return isSufficientA === isSufficientB ? 0 : isSufficientA ? -1 : 1
   })
 
@@ -64,12 +68,17 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
         {sortedOptions.map((option, index) => {
           const isSelected = selectedFeeOptionAddress === (option.token.contractAddress ?? ZeroAddress)
           const balance = feeOptionBalances.find(b => b.tokenName === option.token.name)
-          const isSufficient = isBalanceSufficient(balance?.balance || '0', option.value, option.token.decimals || 0)
+          const isSufficient = isBalanceSufficient(
+            balance?.balance || '0',
+            option.value,
+            option.token.decimals || 0
+          )
           return (
             <div
               key={index}
-              className={`px-3 py-2 rounded-md border border-solid border-thick  bg-background-raised ${isSelected ? 'border-white' : 'border-transparent'
-                } ${isSufficient ? 'cursor-pointer opacity-100' : 'cursor-default opacity-50'}`}
+              className={`px-3 py-2 rounded-md border border-solid border-thick  bg-background-raised ${
+                isSelected ? 'border-white' : 'border-transparent'
+              } ${isSufficient ? 'cursor-pointer opacity-100' : 'cursor-default opacity-50'}`}
               onClick={() => {
                 if (isSufficient) {
                   setSelectedFeeOptionAddress(option.token.contractAddress ?? ZeroAddress)
@@ -93,7 +102,9 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
                     </Text>
                     <Text variant="xsmall" color="text80">
                       Fee:{' '}
-                      {parseFloat(formatUnits(BigInt(option.value), option.token.decimals || 0)).toLocaleString(undefined, {
+                      {parseFloat(
+                        formatUnits(BigInt(option.value), option.token.decimals || 0)
+                      ).toLocaleString(undefined, {
                         maximumFractionDigits: 6
                       })}
                     </Text>
@@ -104,10 +115,9 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
                     Balance:
                   </Text>
                   <Text variant="xsmall" color="text100">
-                    {parseFloat(formatUnits(BigInt(balance?.balance || '0'), option.token.decimals || 0)).toLocaleString(
-                      undefined,
-                      { maximumFractionDigits: 6 }
-                    )}
+                    {parseFloat(
+                      formatUnits(BigInt(balance?.balance || '0'), option.token.decimals || 0)
+                    ).toLocaleString(undefined, { maximumFractionDigits: 6 })}
                   </Text>
                 </div>
               </div>

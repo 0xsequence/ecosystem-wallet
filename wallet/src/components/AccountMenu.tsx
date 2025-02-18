@@ -40,7 +40,7 @@ export const AccountMenu = () => {
       confirmLabel: 'Sign out',
       onConfirm: signOut,
       cancelLabel: 'Cancel',
-      onCancel: () => { }
+      onCancel: () => {}
     })
   }
 

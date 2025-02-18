@@ -206,7 +206,7 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
 
   return (
     <form
-      className={`p-5 pt-3 gap-2 flex flex-col ${isSendTxnPending ? 'pointer-events-none' : 'pointer-events-auto'}`}
+      className={`py-3 gap-2 flex flex-col ${isSendTxnPending ? 'pointer-events-none' : 'pointer-events-auto'}`}
       onSubmit={handleSendClick}
     >
       {!showConfirmation && (
