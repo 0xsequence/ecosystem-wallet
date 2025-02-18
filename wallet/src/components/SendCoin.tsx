@@ -211,7 +211,7 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
     >
       {!showConfirmation && (
         <>
-          <div className="bg-background-secondary rounded-md p-4 gap-2 flex flex-col">
+          <Card className="bg-background-secondary rounded-md p-4 gap-2 flex flex-col">
             <SendItemInfo
               imageUrl={imageUrl}
               decimals={decimals}
@@ -256,7 +256,7 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
                 Insufficient Funds
               </Text>
             )}
-          </div>
+          </Card>
           <div className="bg-background-secondary rounded-md p-4 gap-2 flex flex-col">
             <Text variant="normal" color="text50">
               To

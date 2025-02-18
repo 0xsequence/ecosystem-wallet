@@ -237,7 +237,7 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
     >
       {!showConfirmation && (
         <>
-          <div className="bg-background-secondary rounded-md p-4 gap-2 flex flex-col">
+          <Card className="bg-background-secondary rounded-md p-4 gap-2 flex flex-col">
             <SendItemInfo
               imageUrl={imageUrl}
               showSquareImage
@@ -283,18 +283,16 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
                 Insufficient Balance
               </Text>
             )}
-          </div>
+          </Card>
           <div className="grid gap-2 p-4 rounded-md bg-background-secondary">
             <Text variant="normal" color="text50">
               To
             </Text>
             {isEthAddress(toAddress) ? (
               <Card
+                className='flex items-center justify-between'
                 clickable
                 width="full"
-                flexDirection="row"
-                justifyContent="space-between"
-                alignItems="center"
                 onClick={handleToAddressClear}
                 style={{ height: '52px' }}
               >

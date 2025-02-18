@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router'
 
 import { AppLayout, ProtectedLayout } from './Layout'
 import { Auth } from './pages/Auth'
+import { HistoryPage } from './pages/HistoryPage'
 import { Home } from './pages/Home'
 import { InventoryPage } from './pages/InventoryPage'
 import { SendPage } from './pages/SendPage'
@@ -22,6 +23,7 @@ export const App: React.FC = () => {
         <Route path={ROUTES.SEND} element={<SendPage />} />
         <Route path={ROUTES.TRANSACTIONS} element={<TransactionsPage />} />
         <Route path={ROUTES.INVENTORY} element={<InventoryPage />} />
+        <Route path={ROUTES.HISTORY} element={<HistoryPage />} />
 
         {/* <Route path={ROUTES.DISCOVER} element={<DiscoverPage />} /> */}
         {/* <Route path={ROUTES.MARKET} element={<MarketPage />} /> */}

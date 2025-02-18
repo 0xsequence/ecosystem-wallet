@@ -201,14 +201,14 @@ export const InventoryPage = () => {
               }
             }}
             scroll={false}
-            backdropColor="backgroundBackdrop"
             onClose={() => {
               setSendOptions(undefined)
               setOpenWalletModal(false)
             }}
           >
-            <div className="bg-background-backdrop w-96 h-auto">
+            <div className="bg-background-primary w-96 h-auto">
               <div className="w-full h-20 bg-background-primary z-20 flex flex-row items-center justify-between pt-1.5 px-4">
+                <div className="w-11 h-20" />
                 <ModalPrimitive.Title asChild>
                   <Text className="text-lg font-bold text-gray-100">
                     {sendOptions?.tokenId ? 'Send Collectible' : 'Send Coin'}
@@ -216,21 +216,22 @@ export const InventoryPage = () => {
                 </ModalPrimitive.Title>
                 <div className="w-11 h-20" />
               </div>
-
-              {coinBalanceToSend && (
-                <SendCoin
-                  chainId={chainId}
-                  balance={coinBalanceToSend}
-                  onSuccess={() => setOpenWalletModal(false)}
-                />
-              )}
-              {collectibleBalanceToSend && (
-                <SendCollectible
-                  chainId={chainId}
-                  balance={collectibleBalanceToSend}
-                  onSuccess={() => setOpenWalletModal(false)}
-                />
-              )}
+              <div className='ml-5'>
+                {coinBalanceToSend && (
+                  <SendCoin
+                    chainId={chainId}
+                    balance={coinBalanceToSend}
+                    onSuccess={() => setOpenWalletModal(false)}
+                  />
+                )}
+                {collectibleBalanceToSend && (
+                  <SendCollectible
+                    chainId={chainId}
+                    balance={collectibleBalanceToSend}
+                    onSuccess={() => setOpenWalletModal(false)}
+                  />
+                )}
+              </div>
             </div>
           </Modal>
         )}
