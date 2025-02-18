@@ -345,3 +345,10 @@ function AuthCoverWrapper({ children }: { children: React.ReactNode }) {
     </div>
   )
 }
+
+// {isPopup && (
+//   <Text className="text-center mt-4" variant="normal" color="text100">
+//     Sign in to your <Text fontWeight="bold">{PROJECT_NAME}</Text> wallet to give access to dapp
+//     with origin <Text fontWeight="bold">{pendingEventOrigin}</Text>
+//   </Text>
+// )}

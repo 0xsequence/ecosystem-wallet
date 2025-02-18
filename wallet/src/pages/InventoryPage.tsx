@@ -40,7 +40,7 @@ function useInventory() {
 
 export const InventoryPage = () => {
   const { hideUnlistedTokens } = useConfig()
-  const { address: accountAddress } = useAuth()
+  const { address: accountAddress = '' } = useAuth()
   const { data } = useTokenBalancesDetails({
     omitMetadata: false,
     filter: {
