@@ -45,11 +45,13 @@ const AppHeader = () => {
 
 export const AppLayout = ({ showHeader = false }: { showHeader?: boolean }) => {
   return (
-    <div className="min-h-screen relative pb-14">
+    <>
       {showHeader && <AppHeader />}
-      <Outlet />
-      <PoweredBySequence />
-    </div>
+      <div className="min-h-screen relative pb-14 container mx-auto">
+        <Outlet />
+        <PoweredBySequence />
+      </div>
+    </>
   )
 }
 

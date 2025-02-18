@@ -23,6 +23,7 @@ export const App: React.FC = () => {
         <Route path={ROUTES.TRANSACTIONS} element={<TransactionsPage />} />
         <Route path={ROUTES.INVENTORY} element={<InventoryPage />} />
 
+        {/* <Route path={ROUTES.HISTORY} element={<HistoryPage />} /> */}
         {/* <Route path={ROUTES.DISCOVER} element={<DiscoverPage />} /> */}
         {/* <Route path={ROUTES.MARKET} element={<MarketPage />} /> */}
       </Route>
