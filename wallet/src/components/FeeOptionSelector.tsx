@@ -42,7 +42,6 @@ const isBalanceSufficient = (balance: string, fee: string, decimals: number) => 
 export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
   txnFeeOptions,
   feeOptionBalances,
-  selectedFeeOptionAddress,
   setSelectedFeeOptionAddress
 }) => {
   const [feeOptionAlert, setFeeOptionAlert] = React.useState<AlertProps | undefined>()

@@ -37,8 +37,7 @@ const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
 const APPLE_CLIENT_ID = import.meta.env.VITE_APPLE_CLIENT_ID
 const APPLE_REDIRECT_URI = import.meta.env.VITE_APPLE_REDIRECT_URI
 
-const BUTTON_SIZE = '14'
-const ICON_SIZE = '10'
+// const BUTTON_SIZE = '14'
 
 interface AppleAuthResponse {
   authorization: {
@@ -176,7 +175,7 @@ export const Auth: React.FC = () => {
                               style={{ opacity: 0.0000001, transform: 'scale(1.4)' }}
                             >
                               <GoogleLogin
-                                className="w-56"
+                                // className="w-56"
                                 type="icon"
                                 size="large"
                                 onSuccess={handleGoogleLogin}
@@ -187,7 +186,7 @@ export const Auth: React.FC = () => {
                               />
                             </div>
                             <div className="flex bg-background-secondary rounded-sm justify-center items-center absolute pointer-events-none w-full h-full top-0 right-0">
-                              <GoogleLogo width={ICON_SIZE} height={ICON_SIZE} />
+                              <GoogleLogo />
                             </div>
                           </Card>
                         </GoogleOAuthProvider>
@@ -200,7 +199,7 @@ export const Auth: React.FC = () => {
                           onClick={handleAppleLogin}
                         >
                           <div className="flex bg-background-secondary rounded-sm justify-center items-center w-full h-full">
-                            <AppleLogo width={ICON_SIZE} height={ICON_SIZE} />
+                            <AppleLogo />
                           </div>
                         </Card>
                       )}

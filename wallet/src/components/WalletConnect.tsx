@@ -55,7 +55,7 @@ const isMobileDevice = () => {
 }
 
 const ActiveSessionCard: React.FC<ActiveSessionCardProps> = ({ session, onDisconnect }) => {
-  const isExpired = session.expiry * 1000 < Date.now()
+  // const isExpired = session.expiry * 1000 < Date.now()
 
   return (
     <div className="flex bg-background-secondary rounded-xl p-4 flex-row items-center justify-between gap-4">
@@ -159,6 +159,7 @@ export const WalletConnect = () => {
             {connectMethod === 'uri' ? (
               <>
                 <TextInput
+                  name="wallet-connect"
                   value={wcUri}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWcUri(e.target.value)}
                   placeholder="wc:..."

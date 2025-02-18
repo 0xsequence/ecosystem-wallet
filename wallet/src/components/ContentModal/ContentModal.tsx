@@ -25,6 +25,7 @@ export const ContentModal = ({
     size={size}
     contentProps={{
       style: {
+        /* @ts-expect-error Framer motion issue with the style property */
         overflowY: 'scroll',
         ...contentProps?.style
       },
