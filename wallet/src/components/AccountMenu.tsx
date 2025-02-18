@@ -40,7 +40,7 @@ export const AccountMenu = () => {
       confirmLabel: 'Sign out',
       onConfirm: signOut,
       cancelLabel: 'Cancel',
-      onCancel: () => {}
+      onCancel: () => { }
     })
   }
 
@@ -135,7 +135,6 @@ export const AccountMenu = () => {
               }
             }}
             scroll={false}
-            backdropColor="backgroundBackdrop"
             onClose={() => setOpenReceiveModal(false)}
           >
             <Receive chainId={ChainId.POLYGON} />
