@@ -4,7 +4,8 @@ import {
   Image,
   TokenImage,
   Collapsible,
-  nativeTokenImageUrl
+  nativeTokenImageUrl,
+  cn
 } from '@0xsequence/design-system'
 import { SendIcon } from '../../../design-system-patch/icons'
 import { useInventory } from '../helpers/use-inventory'
@@ -74,7 +75,7 @@ function CoinDetails(props: TokenTypeProps) {
   const { price, price24hChange } = data[0] || {}
   const priceText = price ? `$${formatDisplay((price.value * Number(units)), { disableScientificNotation: true, significantDigits: 2, maximumFractionDigits: 3 })}` : ''
   const priceChangeText = price24hChange
-    ? `${price24hChange.value > 0 ? '+ ' : '-'}${formatDisplay(price24hChange.value, { disableScientificNotation: true, significantDigits: 2 })}%`
+    ? `${price24hChange.value > 0 ? '+' : ''}${formatDisplay(price24hChange.value, { disableScientificNotation: true, significantDigits: 2 })}%`
     : ''
 
   return (
@@ -87,7 +88,7 @@ function CoinDetails(props: TokenTypeProps) {
           <TokenImage src={logoURI} size="xl" withNetwork={chainId} />
           <div className="flex-1 grid place-items-center">
             {priceText && <p className="text-style-md font-bold">{priceText}</p>}
-            {priceChangeText && <p className="text-style-sm text-seq-green-400">{priceChangeText}</p>}
+            {priceChangeText && <p className={cn('text-style-sm', [priceChangeText.startsWith('-') ? 'text-red-400' : 'text-green-400'])}>{priceChangeText}</p>}
           </div>
           <span className="inline-flex mx-auto items-center gap-2 font-bold text-[9px] bg-black/10 px-1.25 py-1 rounded-xs">
             <NetworkImage chainId={chainId} size="xs" /> {chain?.title || props?.title}
