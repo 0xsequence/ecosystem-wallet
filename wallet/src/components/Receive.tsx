@@ -1,5 +1,5 @@
 import { Button, CopyIcon, Image, ShareIcon, Text, nativeTokenImageUrl } from '@0xsequence/design-system'
-import { ChainId, networks } from '@0xsequence/network'
+import { ChainId } from '@0xsequence/network'
 import { QRCodeCanvas } from 'qrcode.react'
 import { useEffect, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
@@ -10,7 +10,6 @@ export const Receive = ({ chainId }: { chainId: ChainId }) => {
   const { address = '' } = useAuth()
   const [isCopied, setCopied] = useState<boolean>(false)
 
-  const nativeTokenInfo = networks[chainId].nativeToken
 
   useEffect(() => {
     if (isCopied) {
