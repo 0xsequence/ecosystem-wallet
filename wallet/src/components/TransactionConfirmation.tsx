@@ -104,8 +104,8 @@ export const TransactionConfirmation = ({
   const isConfirmDisabled = isFeeSelectionRequired && !selectedFeeOptionAddress
 
   return (
-    <div className="w-full h-full flex items-center justify-center bg-black">
-      <div className="flex flex-col gap-2 bg-black w-full">
+    <div className="w-full h-full flex items-center justify-center bg-background-primary">
+      <div className="flex flex-col gap-2 bg-background-primary w-full">
         <div className="bg-background-secondary rounded-md p-4 pb-3 flex flex-col gap-2">
           <SendItemInfo
             imageUrl={imageUrl}
@@ -140,10 +140,10 @@ export const TransactionConfirmation = ({
             <Card className="w-full flex flex-row items-center" style={{ height: '52px' }}>
               <div className="flex flex-row items-center justify-center gap-2">
                 <GradientAvatar address={toAddress} style={{ width: '20px' }} />
-                <Text
-                  color="text100"
-                  variant="normal"
-                >{`0x${truncateAtMiddle(toAddress.substring(2), 10)}`}</Text>
+                <Text color="text100" variant="normal">{`0x${truncateAtMiddle(
+                  toAddress.substring(2),
+                  10
+                )}`}</Text>
               </div>
             </Card>
           </div>

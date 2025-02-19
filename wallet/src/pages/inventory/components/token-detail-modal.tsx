@@ -73,9 +73,18 @@ function CoinDetails(props: TokenTypeProps) {
     }
   ])
   const { price, price24hChange } = data[0] || {}
-  const priceText = price ? `$${formatDisplay((price.value * Number(units)), { disableScientificNotation: true, significantDigits: 2, maximumFractionDigits: 3 })}` : ''
+  const priceText = price
+    ? `$${formatDisplay(price.value * Number(units), {
+        disableScientificNotation: true,
+        significantDigits: 2,
+        maximumFractionDigits: 3
+      })}`
+    : ''
   const priceChangeText = price24hChange
-    ? `${price24hChange.value > 0 ? '+' : ''}${formatDisplay(price24hChange.value, { disableScientificNotation: true, significantDigits: 2 })}%`
+    ? `${price24hChange.value > 0 ? '+' : ''}${formatDisplay(price24hChange.value, {
+        disableScientificNotation: true,
+        significantDigits: 2
+      })}%`
     : ''
 
   return (
@@ -88,7 +97,15 @@ function CoinDetails(props: TokenTypeProps) {
           <TokenImage src={logoURI} size="xl" withNetwork={chainId} />
           <div className="flex-1 grid place-items-center">
             {priceText && <p className="text-style-md font-bold">{priceText}</p>}
-            {priceChangeText && <p className={cn('text-style-sm', [priceChangeText.startsWith('-') ? 'text-red-400' : 'text-green-400'])}>{priceChangeText}</p>}
+            {priceChangeText && (
+              <p
+                className={cn('text-style-sm', [
+                  priceChangeText.startsWith('-') ? 'text-red-400' : 'text-green-400'
+                ])}
+              >
+                {priceChangeText}
+              </p>
+            )}
           </div>
           <span className="inline-flex mx-auto items-center gap-2 font-bold text-[9px] bg-black/10 px-1.25 py-1 rounded-xs">
             <NetworkImage chainId={chainId} size="xs" /> {chain?.title || props?.title}
@@ -108,7 +125,10 @@ function CoinDetails(props: TokenTypeProps) {
         </div>
         <span className="text-xl font-bold">{tokenMetadata?.name}</span>
       </div>
-      <button className="bg-black text-white rounded-full flex items-center justify-center gap-2 text-sm font-bold h-12 p-4" onClick={() => setShowSendModal(true)}>
+      <button
+        className="bg-black text-white rounded-full flex items-center justify-center gap-2 text-sm font-bold h-12 p-4"
+        onClick={() => setShowSendModal(true)}
+      >
         <SendIcon />
         Send
       </button>
@@ -144,7 +164,10 @@ function TokenDetailsCollectable(props: TokenTileProps) {
         </span>
       </div>
       <div className="grid gap-2">
-        <button className="bg-black text-white rounded-full flex items-center justify-center gap-2 text-sm font-bold h-12 p-4" onClick={() => setShowSendModal(true)}>
+        <button
+          className="bg-black text-white rounded-full flex items-center justify-center gap-2 text-sm font-bold h-12 p-4"
+          onClick={() => setShowSendModal(true)}
+        >
           <SendIcon />
           Send
         </button>

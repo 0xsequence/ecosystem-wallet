@@ -21,7 +21,11 @@ type InventoryContext = {
   setShowInventoryItem: (show: ShowInventoryItem) => void
   contractInfo: (info: InventoryItemIdentifier) => TokenTypeProps | null
   inventory: (TokenTypeProps | null)[]
-  inventoryByTokenClass: { nativeBalances: TokenBalance[]; erc20Inventory: TokenBalance[]; collectibleInventory: TokenBalance[] }
+  inventoryByTokenClass: {
+    nativeBalances: TokenBalance[]
+    erc20Inventory: TokenBalance[]
+    collectibleInventory: TokenBalance[]
+  }
   inventoryIsEmpty: boolean
   status: { isLoading: boolean }
   refetchInventory: () => void
@@ -58,7 +62,18 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <Inventory.Provider
-      value={{ showSendModal, setShowSendModal, showInventoryItem, setShowInventoryItem, contractInfo, inventory, inventoryByTokenClass, inventoryIsEmpty, status, refetchInventory }}
+      value={{
+        showSendModal,
+        setShowSendModal,
+        showInventoryItem,
+        setShowInventoryItem,
+        contractInfo,
+        inventory,
+        inventoryByTokenClass,
+        inventoryIsEmpty,
+        status,
+        refetchInventory
+      }}
     >
       {children}
     </Inventory.Provider>

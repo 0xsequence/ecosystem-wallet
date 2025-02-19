@@ -26,13 +26,13 @@ export function getErc20Inventory(data?: { balances: GatewayTokenBalance[] }) {
     .filter(({ balance, contractType }) => contractType === 'ERC20' && balance !== '0')
     .map(item => ({ ...item, tokenClass: 'erc20' }))
     .sort((a, b) => {
-      const nameA = a.tokenMetadata?.name || '';
-      const nameB = b.tokenMetadata?.name || '';
+      const nameA = a.tokenMetadata?.name || ''
+      const nameB = b.tokenMetadata?.name || ''
 
-      if (nameA < nameB) return -1;
-      if (nameA > nameB) return 1;
-      return 0;
-    });
+      if (nameA < nameB) return -1
+      if (nameA > nameB) return 1
+      return 0
+    })
 }
 
 // Get collectibles
@@ -46,13 +46,13 @@ export function getCollectibleInventory(data?: { balances: GatewayTokenBalance[]
     .filter(({ balance, contractType }) => ['ERC721', 'ERC1155'].includes(contractType) && balance !== '0')
     .map(item => ({ ...item, tokenClass: 'collectable' }))
     .sort((a, b) => {
-      const nameA = a.tokenMetadata?.name || '';
-      const nameB = b.tokenMetadata?.name || '';
+      const nameA = a.tokenMetadata?.name || ''
+      const nameB = b.tokenMetadata?.name || ''
 
-      if (nameA < nameB) return -1;
-      if (nameA > nameB) return 1;
-      return 0;
-    });
+      if (nameA < nameB) return -1
+      if (nameA > nameB) return 1
+      return 0
+    })
 }
 
 // Get native token balances
@@ -71,8 +71,8 @@ export function getNativeInventory(address: string, data?: { nativeBalances: Gat
       const balanceA = Number(a.balance)
       const balanceB = Number(b.balance)
 
-      if (balanceA < balanceB) return -1;
-      if (balanceA > balanceB) return 1;
-      return 0;
-    });
+      if (balanceA < balanceB) return -1
+      if (balanceA > balanceB) return 1
+      return 0
+    })
 }
