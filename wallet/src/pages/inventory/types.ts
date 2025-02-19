@@ -6,7 +6,6 @@ export type TokenTileEmptyProps = ComponentProps<'div'>
 
 export type TokenTileProps = TokenBalance & { title?: string; chain: NetworkMetadata }
 
-export type TokenTypeProps =
-  (TokenTileProps & {
-    tokenClass: 'erc20' | 'collectable' | 'nativeBalance'
-  })
+export type TokenTypeProps = TokenTileProps & {
+  tokenClass: 'erc20' | 'collectable' | 'nativeBalance'
+}

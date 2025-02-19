@@ -11,6 +11,13 @@
 
 :root {
   --seq-color-background-primary: var(--color-background-primary);
+  --color-background-secondary: rgba(0, 0, 0, 0.2);
+  --color-secondary: black;
+  --color-muted: rgba(0, 0, 0, 0.75);
+}
+
+button[aria-label='Close'] {
+  @apply bg-black text-white;
 }
 
 body {

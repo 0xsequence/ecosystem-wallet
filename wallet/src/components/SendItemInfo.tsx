@@ -62,22 +62,14 @@ export const SendItemInfo = ({
         )}
         <div className="flex flex-col items-start">
           <div className="flex flex-row items-center gap-1">
-            <Text variant="medium" color="text100">
-              {name}
-            </Text>
+            <span className="font-medium text-black">{name}</span>
             <NetworkImage chainId={chainId} size="xs" />
           </div>
-          <Text color="text50" variant="normal">
-            {`${balanceDisplayed} ${symbol} available`}
-          </Text>
+          <span className="text-black">{`${balanceDisplayed} ${symbol} available`}</span>
         </div>
       </div>
       <div className="flex flex-col items-end justify-end">
-        {fiatValue && (
-          <Text variant="normal" color="text100">
-            {`${fiatCurrency.sign}${fiatValue}`}
-          </Text>
-        )}
+        {fiatValue && <span className="text-black">{`${fiatCurrency.sign}${fiatValue}`}</span>}
       </div>
     </div>
   )

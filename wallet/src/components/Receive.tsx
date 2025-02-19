@@ -1,5 +1,5 @@
 import { Button, CopyIcon, Image, ShareIcon, Text, nativeTokenImageUrl } from '@0xsequence/design-system'
-import { ChainId } from '@0xsequence/network'
+import { ChainId, networks } from '@0xsequence/network'
 import { QRCodeCanvas } from 'qrcode.react'
 import { useEffect, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
@@ -10,6 +10,7 @@ export const Receive = ({ chainId }: { chainId: ChainId }) => {
   const { address = '' } = useAuth()
   const [isCopied, setCopied] = useState<boolean>(false)
 
+  const nativeTokenInfo = networks[chainId].nativeToken
 
   useEffect(() => {
     if (isCopied) {
@@ -78,6 +79,30 @@ export const Receive = ({ chainId }: { chainId: ChainId }) => {
             />
           </CopyToClipboard>
           <Button className="bg-black" onClick={onClickShare} leftIcon={ShareIcon} label="Share" />
+        </div>
+        <div className="flex justify-center items-center" style={{ maxWidth: '260px', textAlign: 'center' }}>
+          <Text
+            color="black"
+            variant="small"
+            style={{
+              maxWidth: '260px',
+              overflowWrap: 'anywhere'
+            }}
+          >
+            {`This is a ${nativeTokenInfo.name} address. Please only send assets on the ${nativeTokenInfo.name} network.`}
+          </Text>
+        </div>
+        <div className="flex justify-center items-center" style={{ maxWidth: '260px', textAlign: 'center' }}>
+          <Text
+            color="black"
+            variant="small"
+            style={{
+              maxWidth: '260px',
+              overflowWrap: 'anywhere'
+            }}
+          >
+            {`This is a ${nativeTokenInfo.name} address. Please only send assets on the ${nativeTokenInfo.name} network.`}
+          </Text>
         </div>
       </div>
     </div>

@@ -2,13 +2,11 @@ import { Navigate, Route, Routes } from 'react-router'
 
 import { AppLayout, ProtectedLayout } from './Layout'
 import { Auth } from './pages/Auth'
-// import { Home } from './pages/Home'
 import { InventoryPage } from './pages/inventory/InventoryPage'
-import { SendPage } from './pages/SendPage'
 import { TransactionsPage } from './pages/TransactionsPage'
-// import { ReceivePage } from './pages/ReceivePage'
 import { ROUTES } from './routes'
 import { DiscoverPage } from './pages/DiscoverPage'
+import { Home } from './pages/home/Home'
 
 export const App: React.FC = () => {
   return (
@@ -20,8 +18,8 @@ export const App: React.FC = () => {
 
       {/* Protected routes */}
       <Route element={<ProtectedLayout />}>
-        <Route index element={<InventoryPage />} />
-        <Route path={ROUTES.SEND} element={<SendPage />} />
+        <Route index element={<Home />} />
+        <Route path={ROUTES.INVENTORY} element={<InventoryPage />} />
         <Route path={ROUTES.TRANSACTIONS} element={<TransactionsPage />} />
         {/* <Route path={ROUTES.HISTORY} element={<HistoryPage />} /> */}
         <Route path={ROUTES.DISCOVER} element={<DiscoverPage />} />
