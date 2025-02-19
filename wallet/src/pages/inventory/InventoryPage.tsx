@@ -28,14 +28,18 @@ function Inventory() {
 }
 
 function Send() {
-  const { inventoryByTokenClass, showInventoryItem, showSendModal, setShowSendModal } = useInventory()
+  const { inventoryByTokenClass, showInventoryItem, setShowInventoryItem, showSendModal, setShowSendModal, refetchInventory } = useInventory()
   const { chainId, tokenId, contractAddress } = showInventoryItem || {}
-  const collectibleBalanceToSend = inventoryByTokenClass.collectibleInventory.find(collectible => collectible.tokenID === tokenId)
-  const coinBalanceToSend = collectibleBalanceToSend
-    ? null
-    : (contractAddress ? inventoryByTokenClass.erc20Inventory : inventoryByTokenClass.nativeBalances).find(balance => balance.chainId === chainId)
+  const isCoin = (!tokenId || tokenId === '0')
+  const collectibleBalanceToSend = isCoin ? null : inventoryByTokenClass.collectibleInventory.find(collectible => collectible.tokenID === tokenId)
+  const coinBalanceToSend = isCoin ? (contractAddress ? inventoryByTokenClass.erc20Inventory : inventoryByTokenClass.nativeBalances).find(balance => balance.chainId === chainId) : null
 
   if (!showSendModal) return null
+
+  const onSendSuccess = () => {
+    setShowSendModal(false)
+    refetchInventory()
+  }
 
   return (
     <Modal
@@ -50,6 +54,7 @@ function Send() {
       }}
       scroll={false}
       onClose={() => {
+        setShowInventoryItem(false)
         setShowSendModal(false)
       }}
     >
@@ -68,14 +73,14 @@ function Send() {
             <SendCoin
               chainId={chainId as number}
               balance={coinBalanceToSend}
-              onSuccess={() => setShowSendModal(false)}
+              onSuccess={onSendSuccess}
             />
           )}
           {collectibleBalanceToSend && (
             <SendCollectible
               chainId={chainId as number}
               balance={collectibleBalanceToSend}
-              onSuccess={() => setShowSendModal(false)}
+              onSuccess={onSendSuccess}
             />
           )}
         </div>
