@@ -2,6 +2,7 @@ import { TokenImage } from '@0xsequence/design-system'
 import { TokenTile } from './token-tile'
 import { TokenBalance } from '@0xsequence/indexer'
 import { formatUnits } from 'ethers'
+import { formatDisplay } from '../../../utils/helpers'
 
 export function TokenTileErc20(props: TokenBalance) {
   const { chainId, balance, contractInfo, contractAddress, tokenID } = props
@@ -18,7 +19,7 @@ export function TokenTileErc20(props: TokenBalance) {
       <div className="flex flex-col flex-1 justify-end">
         {contractInfo?.decimals && contractInfo?.symbol ? (
           <div>
-            <span className="text-style-lg font-bold">{formatUnits(balance, contractInfo.decimals)}</span>{' '}
+            <span className="text-style-lg font-bold">{formatDisplay(formatUnits(balance, contractInfo.decimals))}</span>{' '}
             <span className="text-style-sm">{contractInfo.symbol}</span>
           </div>
         ) : null}
