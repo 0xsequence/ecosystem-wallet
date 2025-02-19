@@ -1,4 +1,4 @@
-import { Button, Card, ChevronRightIcon, GradientAvatar, Spinner, Text } from '@0xsequence/design-system'
+import { Button, Card, ChevronRightIcon, GradientAvatar, Spinner } from '@0xsequence/design-system'
 import { FeeOption } from '@0xsequence/waas'
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'

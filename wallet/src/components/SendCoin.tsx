@@ -6,7 +6,6 @@ import {
   GradientAvatar,
   NumericInput,
   Spinner,
-  Text,
   TextInput,
   nativeTokenImageUrl
 } from '@0xsequence/design-system'
