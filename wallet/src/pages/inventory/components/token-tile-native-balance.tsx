@@ -5,9 +5,7 @@ import { formatUnits } from 'ethers'
 import type { TokenTileProps } from '../types'
 import { formatDisplay } from '../../../utils/helpers'
 
-export function TokenTileNativeBalance(
-  props: TokenTileProps
-) {
+export function TokenTileNativeBalance(props: TokenTileProps) {
   const { chain, chainId, title, balance } = props
   const contractAddress = ''
   const tokenID = ''
@@ -15,6 +13,7 @@ export function TokenTileNativeBalance(
 
   return (
     <TokenTile
+      chainId={chainId}
       contractAddress={contractAddress}
       tokenId={tokenID}
       className="p-4 flex flex-col items-start gap-3"
