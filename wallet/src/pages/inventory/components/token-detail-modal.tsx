@@ -126,6 +126,7 @@ function TokenDetailsCollectable(props: TokenTileProps) {
     '--background': `url(${import.meta.env.VITE_PROJECT_BACKGROUND})`
   } as React.CSSProperties
 
+  const { setShowSendModal } = useInventory()
   const { tokenMetadata, chainId, chain, contractInfo } = props
 
   return (
@@ -143,7 +144,7 @@ function TokenDetailsCollectable(props: TokenTileProps) {
         </span>
       </div>
       <div className="grid gap-2">
-        <button className="bg-black text-white rounded-full flex items-center justify-center gap-2 text-sm font-bold min-h-[3rem] py-2 px-3">
+        <button className="bg-black text-white rounded-full flex items-center justify-center gap-2 text-sm font-bold h-12 p-4" onClick={() => setShowSendModal(true)}>
           <SendIcon />
           Send
         </button>
