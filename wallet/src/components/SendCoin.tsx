@@ -57,8 +57,6 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
   const isNativeCoin = isNativeCoinBalance(balance)
   const [selectedFeeTokenAddress, setSelectedFeeTokenAddress] = useState<string | null>(null)
 
-  console.log('SendCoinProps', { chainId, balance, onSuccess })
-
   const transactionsFeeOption = feeOptions?.feeOptions?.find(feeOption => {
     if (selectedFeeTokenAddress === ethers.ZeroAddress && feeOption.token.contractAddress === null)
       return true

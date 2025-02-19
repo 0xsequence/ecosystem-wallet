@@ -9,7 +9,7 @@ import { TokenTypeProps } from '../types'
 export function useFetchInventory() {
   const { hideUnlistedTokens } = useConfig()
   const { address = '' } = useAuth()
-  const { data, isLoading } = useTokenBalancesDetails({
+  const { data, isLoading, refetch } = useTokenBalancesDetails({
     omitMetadata: false,
     filter: {
       omitNativeBalances: false,
@@ -36,6 +36,7 @@ export function useFetchInventory() {
   ) as (TokenTypeProps | null)[]
 
   return {
+    refetchInventory: refetch,
     inventory,
     inventoryIsEmpty,
     raw: { data },

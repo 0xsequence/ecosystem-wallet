@@ -19,7 +19,6 @@ export const Alert = ({
   children
 }: AlertProps) => {
   const alertBg = 'bg-' + variant
-  console.log({ alertBg })
   return (
     <div className={`rounded-md ${alertBg}`}>
       <div className="rounded-md p-4 w-full flex flex-col gap-3" style={{ background: 'backgroundOverlay' }}>

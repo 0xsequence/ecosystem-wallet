@@ -24,6 +24,7 @@ type InventoryContext = {
   inventoryByTokenClass: { nativeBalances: TokenBalance[]; erc20Inventory: TokenBalance[]; collectibleInventory: TokenBalance[] }
   inventoryIsEmpty: boolean
   status: { isLoading: boolean }
+  refetchInventory: () => void
 }
 
 export const Inventory = createContext<InventoryContext | null>(null)
@@ -32,7 +33,7 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
   const [showSendModal, setShowSendModal] = useState<boolean>(false)
   const [showInventoryItem, setShowInventoryItem] = useState<ShowInventoryItem>(false)
 
-  const { inventory, inventoryByTokenClass, inventoryIsEmpty, status } = useFetchInventory()
+  const { inventory, inventoryByTokenClass, inventoryIsEmpty, status, refetchInventory } = useFetchInventory()
 
   function contractInfo({ chainId, contractAddress, tokenId }: InventoryItemIdentifier) {
     const result = inventory.find(item => {
@@ -57,7 +58,7 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <Inventory.Provider
-      value={{ showSendModal, setShowSendModal, showInventoryItem, setShowInventoryItem, contractInfo, inventory, inventoryByTokenClass, inventoryIsEmpty, status }}
+      value={{ showSendModal, setShowSendModal, showInventoryItem, setShowInventoryItem, contractInfo, inventory, inventoryByTokenClass, inventoryIsEmpty, status, refetchInventory }}
     >
       {children}
     </Inventory.Provider>
