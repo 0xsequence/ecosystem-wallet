@@ -105,8 +105,8 @@ export const TransactionConfirmation = ({
 
   return (
     <div className="w-full h-full flex items-center justify-center">
-      <div className="flex flex-col gap-2  w-full">
-        <div className=" rounded-md p-4 pb-3 flex flex-col gap-2">
+      <div className="flex flex-col gap-2 w-full">
+        <div className=" rounded-md p-4 pb-3 flex flex-col gap-4 text-black">
           <SendItemInfo
             imageUrl={imageUrl}
             showSquareImage={showSquareImage}
@@ -117,33 +117,37 @@ export const TransactionConfirmation = ({
             decimals={decimals}
           />
 
-          <div className="mt-2 flex flex-col gap-1 text-black">
-            Amount
-            <div className="flex flex-row items-center gap-2 w-full justify-between">
-              <span className="text-sm font-bold">
-                {amount} {symbol}
-              </span>
-              {fiatValue && <span className="text-sm font-bold">~${fiatValue}</span>}
-            </div>
+          <div className=" flex flex-col gap-1 ">
+            <span className="text-black text-sm font-bold">Amount</span>
+            <Card className="w-full flex flex-row items-center rounded-full px-4 py-3 bg-black/10">
+              <div className="flex flex-row items-center gap-2 w-full justify-between">
+                <span className="text-sm font-bold">
+                  {amount} {symbol}
+                </span>
+                {fiatValue && <span className="text-sm font-bold">~${fiatValue}</span>}
+              </div>
+            </Card>
           </div>
+          <div className=" flex flex-col gap-1">
+            <span className="text-black text-sm font-bold">To</span>
 
-          <div className="mt-2 flex flex-col gap-1">
-            To
-            <Card className="w-full flex flex-row items-center" style={{ height: '52px' }}>
+            <Card className="w-full flex flex-row items-center rounded-full px-3 py-2 bg-black/10">
               <div className="flex justify-center items-center gap-2">
-                <GradientAvatar address={toAddress} style={{ width: '20px' }} />
+                <GradientAvatar address={toAddress} className="size-5" />
                 <span className="text-black">{`0x${truncateAtMiddle(toAddress.substring(2), 10)}`}</span>
               </div>
             </Card>
           </div>
 
           {isFeeSelectionRequired && feeOptions?.options && (
-            <FeeOptionSelector
-              txnFeeOptions={feeOptions.options}
-              feeOptionBalances={feeOptionBalances}
-              selectedFeeOptionAddress={selectedFeeOptionAddress}
-              setSelectedFeeOptionAddress={handleFeeOptionSelect}
-            />
+            <div className=" flex flex-col gap-1">
+              <FeeOptionSelector
+                txnFeeOptions={feeOptions.options}
+                feeOptionBalances={feeOptionBalances}
+                selectedFeeOptionAddress={selectedFeeOptionAddress}
+                setSelectedFeeOptionAddress={handleFeeOptionSelect}
+              />
+            </div>
           )}
         </div>
 

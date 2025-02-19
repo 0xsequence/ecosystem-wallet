@@ -201,11 +201,12 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
 
   return (
     <form
-      className={`gap-2 flex flex-col ${isSendTxnPending ? 'pointer-events-none' : 'pointer-events-auto'}`}
+      data-txn-pending={isSendTxnPending ? true : undefined}
+      className="data-txn-pending:pointer-events-none pointer-events-auto"
       onSubmit={handleSendClick}
     >
       {!showConfirmation && (
-        <>
+        <div className="p-4 gap-2 flex flex-col">
           <Card className="bg-black/10 text-black rounded-md p-4 gap-2 flex flex-col">
             <SendItemInfo
               imageUrl={imageUrl}
@@ -268,6 +269,7 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
                 onChange={(ev: SyntheticEvent) => setToAddress((ev.target as HTMLInputElement).value)}
                 placeholder={`${nativeTokenName} Address (0x...)`}
                 name="to-address"
+                className="text-black"
                 data-1p-ignore
                 controls={
                   <Button
@@ -299,7 +301,7 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
               />
             )}
           </div>
-        </>
+        </div>
       )}
 
       {showConfirmation && (

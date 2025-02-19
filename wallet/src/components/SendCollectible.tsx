@@ -2,14 +2,12 @@ import {
   AddIcon,
   Button,
   Card,
-  ChevronRightIcon,
   CloseIcon,
   CopyIcon,
   GradientAvatar,
   NumericInput,
   Spinner,
   SubtractIcon,
-  Text,
   TextInput
 } from '@0xsequence/design-system'
 import { TokenBalance } from '@0xsequence/indexer'
@@ -223,10 +221,10 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
     }
   }
 
-  const maxAmount = ethers.formatUnits(tokenBalance?.balance || 0, decimals).toString()
+  // const maxAmount = ethers.formatUnits(tokenBalance?.balance || 0, decimals).toString()
 
-  const isMinimum = Number(amount) === 0
-  const isMaximum = Number(amount) >= Number(maxAmount)
+  // const isMinimum = Number(amount) === 0
+  // const isMaximum = Number(amount) >= Number(maxAmount)
 
   return (
     <form
@@ -234,7 +232,7 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
       onSubmit={handleSendClick}
     >
       {!showConfirmation && (
-        <>
+        <div className="p-4 gap-2 flex flex-col">
           <Card className="bg-black/10 text-black rounded-md p-4 gap-2 flex flex-col">
             <SendItemInfo
               imageUrl={imageUrl}
@@ -257,19 +255,24 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
                   {showAmountControls && (
                     <div className="flex gap-2">
                       <Button
-                        disabled={isMinimum}
                         size="xs"
+                        className="text-black flex-shrin-0 bg-black/20"
                         onClick={handleSubtractOne}
                         leftIcon={SubtractIcon}
                       />
-                      <Button disabled={isMaximum} size="xs" onClick={handleAddOne} leftIcon={AddIcon} />
+                      <Button
+                        className="text-black flex-shrin-0 bg-black/20"
+                        size="xs"
+                        onClick={handleAddOne}
+                        leftIcon={AddIcon}
+                      />
                       <Button
                         size="xs"
                         shape="square"
                         label="Max"
                         onClick={handleMax}
                         data-id="maxCoin"
-                        className="shrink-0"
+                        className="shrink-0 text-black bg-black/20"
                       />
                     </div>
                   )}
@@ -333,7 +336,7 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
               />
             )}
           </div>
-        </>
+        </div>
       )}
 
       {showConfirmation && (
