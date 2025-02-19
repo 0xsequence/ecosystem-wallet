@@ -1,6 +1,6 @@
 import { SendCollectible } from '../../../components/SendCollectible'
 import { SendCoin } from '../../../components/SendCoin'
-import { Modal } from '@0xsequence/design-system'
+import { Modal, ModalPrimitive } from '@0xsequence/design-system'
 import { useInventory } from '../helpers/use-inventory'
 
 export function SendTokens() {
@@ -12,9 +12,9 @@ export function SendTokens() {
     setShowSendModal,
     refetchInventory
   } = useInventory()
+  const { chainId, tokenId, tokenClass, contractAddress } = showInventoryItem || {}
 
-  const { chainId, tokenId, contractAddress } = showInventoryItem || {}
-  const isCoin = !tokenId || tokenId === '0'
+  const isCoin = tokenClass !== 'collectable'
   const collectibleBalanceToSend = isCoin
     ? null
     : inventoryByTokenClass.collectibleInventory.find(collectible => collectible.tokenID === tokenId)
@@ -34,35 +34,41 @@ export function SendTokens() {
   return (
     <Modal
       title
-      autoHeight={true}
-      scroll={false}
       contentProps={{
         style: {
           maxWidth: '400px',
           padding: 0,
-          minHeight: '400px',
+          height: 'fit-content',
+          scrollbarColor: 'gray black',
           scrollbarWidth: 'thin'
         }
       }}
+      scroll={false}
       onClose={() => {
         setShowInventoryItem(false)
         setShowSendModal(false)
       }}
     >
-      <div className="h-full overflow-scroll">
-        <div className=" text-black  text-sm font-bold w-full sticky top-0 h-[3.75rem] bg-white/95 backdrop-blur-3xl z-20 flex flex-row items-center justify-between px-4  shadow-[0_1px_3px_-1.5px_theme(color.black/10%)]">
-          {collectibleBalanceToSend ? 'Send Collectible' : 'Send Coins'}
+      <div className="">
+        <div className="border-b border-black/10 w-full z-20 flex flex-row items-center justify-between px-4">
+          <ModalPrimitive.Title asChild>
+            <div className="text-black h-[3.75rem] text-sm font-bold flex items-center justify-center">
+              {collectibleBalanceToSend ? 'Send Collectible' : 'Send Coins'}
+            </div>
+          </ModalPrimitive.Title>
         </div>
-        {coinBalanceToSend && (
-          <SendCoin chainId={chainId as number} balance={coinBalanceToSend} onSuccess={onSendSuccess} />
-        )}
-        {collectibleBalanceToSend && (
-          <SendCollectible
-            chainId={chainId as number}
-            balance={collectibleBalanceToSend}
-            onSuccess={onSendSuccess}
-          />
-        )}
+        <div className="p-4">
+          {coinBalanceToSend && (
+            <SendCoin chainId={chainId as number} balance={coinBalanceToSend} onSuccess={onSendSuccess} />
+          )}
+          {collectibleBalanceToSend && (
+            <SendCollectible
+              chainId={chainId as number}
+              balance={collectibleBalanceToSend}
+              onSuccess={onSendSuccess}
+            />
+          )}
+        </div>
       </div>
     </Modal>
   )

@@ -8,17 +8,18 @@ export function TokenTile(
     children: React.ReactNode
     chainId: ChainId
     contractAddress: string
+    tokenClass: 'erc20' | 'collectable' | 'nativeBalance'
     tokenId?: string
   } & ComponentProps<'button'>
 ) {
-  const { children, chainId, contractAddress, tokenId, className = '', ...rest } = props
+  const { children, chainId, contractAddress, tokenClass, tokenId, className = '', ...rest } = props
 
   const { setShowInventoryItem } = useInventory()
 
   return (
     <button
       type="button"
-      onClick={() => setShowInventoryItem({ chainId, contractAddress, tokenId })}
+      onClick={() => setShowInventoryItem({ chainId, contractAddress, tokenClass, tokenId })}
       className={cn(
         'aspect-square rounded-md overflow-clip bg-black/20 text-black cursor-pointer hover:scale-102 hover:-translate-y-0.5 transition-transform',
         className

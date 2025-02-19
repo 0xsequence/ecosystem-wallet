@@ -9,6 +9,7 @@ import { TokenBalance } from '@0xsequence/indexer'
 type InventoryItemIdentifier = {
   chainId: ChainId
   contractAddress: string
+  tokenClass: 'erc20' | 'collectable' | 'nativeBalance'
   tokenId?: string
 }
 
