@@ -69,15 +69,20 @@ export const Receive = ({ chainId }: { chainId: ChainId }) => {
             </Text>
           </div>
         </div>
-        <div className="gap-3">
+        <div className="gap-3 flex">
           <CopyToClipboard text={address || ''}>
-            <Button onClick={onClickCopy} leftIcon={CopyIcon} label={isCopied ? 'Copied!' : 'Copy'} />
+            <Button
+              className="bg-black"
+              onClick={onClickCopy}
+              leftIcon={CopyIcon}
+              label={isCopied ? 'Copied!' : 'Copy'}
+            />
           </CopyToClipboard>
-          <Button onClick={onClickShare} leftIcon={ShareIcon} label="Share" />
+          <Button className="bg-black" onClick={onClickShare} leftIcon={ShareIcon} label="Share" />
         </div>
         <div className="flex justify-center items-center" style={{ maxWidth: '260px', textAlign: 'center' }}>
           <Text
-            color="text100"
+            color="black"
             variant="small"
             style={{
               maxWidth: '260px',
