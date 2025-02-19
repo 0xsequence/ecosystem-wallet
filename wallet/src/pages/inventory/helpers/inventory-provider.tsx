@@ -4,6 +4,7 @@ import { type TokenTypeProps } from '../types'
 import { useFetchInventory } from './use-fetch-inventory'
 import { ZeroAddress } from 'ethers'
 import { ChainId } from '@0xsequence/network'
+import { TokenBalance } from '@0xsequence/indexer'
 
 type InventoryItemIdentifier = {
   chainId: ChainId
@@ -14,10 +15,13 @@ type InventoryItemIdentifier = {
 type ShowInventoryItem = InventoryItemIdentifier | false
 
 type InventoryContext = {
+  showSendModal: boolean
+  setShowSendModal: (show: boolean) => void
   showInventoryItem: ShowInventoryItem
   setShowInventoryItem: (show: ShowInventoryItem) => void
   contractInfo: (info: InventoryItemIdentifier) => TokenTypeProps | null
   inventory: (TokenTypeProps | null)[]
+  inventoryByTokenClass: { nativeBalances: TokenBalance[]; erc20Inventory: TokenBalance[]; collectibleInventory: TokenBalance[] }
   inventoryIsEmpty: boolean
   status: { isLoading: boolean }
 }
@@ -25,9 +29,10 @@ type InventoryContext = {
 export const Inventory = createContext<InventoryContext | null>(null)
 
 export function InventoryProvider({ children }: { children: React.ReactNode }) {
+  const [showSendModal, setShowSendModal] = useState<boolean>(false)
   const [showInventoryItem, setShowInventoryItem] = useState<ShowInventoryItem>(false)
 
-  const { inventory, inventoryIsEmpty, status } = useFetchInventory()
+  const { inventory, inventoryByTokenClass, inventoryIsEmpty, status } = useFetchInventory()
 
   function contractInfo({ chainId, contractAddress, tokenId }: InventoryItemIdentifier) {
     const result = inventory.find(item => {
@@ -52,7 +57,7 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <Inventory.Provider
-      value={{ showInventoryItem, setShowInventoryItem, contractInfo, inventory, inventoryIsEmpty, status }}
+      value={{ showSendModal, setShowSendModal, showInventoryItem, setShowInventoryItem, contractInfo, inventory, inventoryByTokenClass, inventoryIsEmpty, status }}
     >
       {children}
     </Inventory.Provider>

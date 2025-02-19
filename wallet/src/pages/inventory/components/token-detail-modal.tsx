@@ -55,6 +55,7 @@ function CoinDetails(props: TokenTypeProps) {
     '--background': `url(${import.meta.env.VITE_PROJECT_BACKGROUND})`
   } as React.CSSProperties
 
+  const { setShowSendModal } = useInventory()
   const { balance, contractAddress, tokenMetadata, chainId, chain, contractInfo } = props
   const logoURI = contractInfo?.logoURI || nativeTokenImageUrl(props.chainId)
   const { symbol = chain?.nativeToken?.symbol || '', decimals = chain?.nativeToken?.decimals || 18 } = {
@@ -71,9 +72,9 @@ function CoinDetails(props: TokenTypeProps) {
     }
   ])
   const { price, price24hChange } = data[0] || {}
-  const priceText = price ? `$${formatDisplay((price.value * Number(units)), { significantDigits: 2, maximumFractionDigits: 3 })}` : ''
+  const priceText = price ? `$${formatDisplay((price.value * Number(units)), { disableScientificNotation: true, significantDigits: 2, maximumFractionDigits: 3 })}` : ''
   const priceChangeText = price24hChange
-    ? `${price24hChange.value > 0 ? '+ ' : '-'}${formatDisplay(price24hChange.value, { significantDigits: 2 })}%`
+    ? `${price24hChange.value > 0 ? '+ ' : '-'}${formatDisplay(price24hChange.value, { disableScientificNotation: true, significantDigits: 2 })}%`
     : ''
 
   return (
@@ -106,7 +107,7 @@ function CoinDetails(props: TokenTypeProps) {
         </div>
         <span className="text-xl font-bold">{tokenMetadata?.name}</span>
       </div>
-      <button className="bg-black text-white rounded-full flex items-center justify-center gap-2 text-sm font-bold h-12 p-4">
+      <button className="bg-black text-white rounded-full flex items-center justify-center gap-2 text-sm font-bold h-12 p-4" onClick={() => setShowSendModal(true)}>
         <SendIcon />
         Send
       </button>
