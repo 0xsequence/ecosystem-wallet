@@ -19,7 +19,7 @@ if (appTitle && projectName) {
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
-      <div id="app">
+      <div id="app" className="flex flex-col flex-1">
         <AppContextProvider>
           <Router />
         </AppContextProvider>

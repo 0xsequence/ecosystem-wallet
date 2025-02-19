@@ -1,33 +1,26 @@
 import {
   Button,
+  Modal,
   Card,
   ChevronDownIcon,
-  CloseIcon,
   GradientAvatar,
-  IconButton,
-  Modal,
-  QrCodeIcon,
-  SettingsIcon,
-  SignoutIcon,
-  Text,
-  TransactionsIcon
+  truncateAddress
 } from '@0xsequence/design-system'
+
 import { ChainId } from '@0xsequence/network'
 import * as PopoverPrimitive from '@radix-ui/react-popover'
 import { AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
-import { useNavigate } from 'react-router'
-
-import { truncateAtMiddle } from '../utils/helpers'
+import { Link } from 'react-router'
 
 import { useAuth } from '../context/AuthContext'
 
+import { CloseIcon, ScanIcon, SignoutIcon, TransactionIcon } from '../design-system-patch/icons'
+import { CopyButton } from '../design-system-patch/copy-button/CopyButton'
 import { useConfirmDialog } from './ConfirmDialogProvider'
-import { CopyButton } from './CopyButton'
 import { Receive } from './Receive'
 
 export const AccountMenu = () => {
-  const navigate = useNavigate()
   const [isOpen, toggleOpen] = useState(false)
   const { address = '', signOut } = useAuth()
   const { confirmAction } = useConfirmDialog()
@@ -44,80 +37,52 @@ export const AccountMenu = () => {
     })
   }
 
+  function handleClose() {
+    toggleOpen(false)
+  }
+
   return (
     <>
       <PopoverPrimitive.Root open={isOpen} onOpenChange={toggleOpen}>
         <PopoverPrimitive.Trigger asChild>
-          <div
-            className="flex border-1 border-solid rounded-xl px-4 py-3 cursor-pointer gap-2 items-center select-none"
-            style={{ height: 52 }}
+          <button
+            type="button"
+            className="flex bg-black/20 text-black ~dark:bg-white/10 rounded-full px-3 py-2 cursor-pointer gap-2 items-center select-none"
           >
-            <div className="flex flex-col">
-              <div className="flex flex-row gap-2 justify-end items-center">
-                <GradientAvatar address={String(address)} size="sm" />
-                <Text variant="normal" fontWeight="bold" color="text100">
-                  {`0x${truncateAtMiddle(address.substring(2), 4)}`}
-                </Text>
-              </div>
-            </div>
+            <GradientAvatar address={String(address)} size="sm" />
+            <span className="font-bold text-style-normal">{truncateAddress(String(address), 0, 3)}</span>
 
-            <div className="text-text50">
-              <ChevronDownIcon />
-            </div>
-          </div>
+            <ChevronDownIcon />
+          </button>
         </PopoverPrimitive.Trigger>
         {isOpen && (
           <PopoverPrimitive.Portal>
             <PopoverPrimitive.Content side="bottom" sideOffset={8} align="end" asChild>
-              <Card
-                className="grid gap-2 z-20 bg-background-raised backdrop-blur-md relative p-2"
-                style={{ minWidth: 360 }}
-              >
-                <Card className="flex items-center gap-2 bg-transparent pb-2">
-                  <GradientAvatar address={String(address)} size="md" />
-                  <div className="flex items-center gap-1 flex-1">
-                    <Text className="font-bold" variant="normal" color="text80">
-                      {`0x${truncateAtMiddle(address.substring(2), 8)}`}
-                    </Text>
-                    <CopyButton text={address} />
-                  </div>
-
-                  <PopoverPrimitive.Close>
-                    <IconButton icon={CloseIcon} size="sm" />
-                  </PopoverPrimitive.Close>
-                </Card>
-                <Button
-                  className="w-full py-2 px-4"
-                  shape="square"
-                  variant="emphasis"
-                  leftIcon={QrCodeIcon}
-                  label="Receive"
-                  onClick={() => setOpenReceiveModal(true)}
-                />
-                <Button
-                  className="w-full py-2 px-4"
-                  shape="square"
-                  variant="emphasis"
-                  leftIcon={TransactionsIcon}
-                  label="History"
-                  onClick={() => navigate('/history')}
-                />
-                <Button
-                  className="w-full py-2 px-4"
-                  shape="square"
-                  variant="emphasis"
-                  leftIcon={SettingsIcon}
-                  label="Settings"
-                  onClick={() => navigate('/history')}
-                />
-                <Button
-                  className="w-full py-2 px-4"
-                  shape="square"
-                  variant="emphasis"
-                  leftIcon={SignoutIcon}
-                  label="Sign out"
-                  onClick={handleSignOut}
-                />
+              <Card className="z-20 flex flex-col gap-2 bg-[#F2F2F2] shadow-[0_0_12px_0_theme(colors.black/20%)] relative p-4 min-w-[320px]">
+                <div className="flex items-center gap-3 justify-between">
+                  {address ? (
+                    <CopyButton
+                      copyText={address}
+                      className="flex gap-2 text-sm font-bold items-center cursor-pointer text-black"
+                    >
+                      <GradientAvatar address={String(address)} size="md" />
+                      {truncateAddress(address, 4, 4)}
+                      <CopyButton.Status />
+                    </CopyButton>
+                  ) : null}
+                  <button
+                    type="button"
+                    onClick={handleClose}
+                    className="bg-black/20 text-black rounded-full flex items-center justify-center size-7 cursor-pointer"
+                  >
+                    <CloseIcon className="size-4" />
+                    <span className="sr-only">Close</span>
+                  </button>
+                </div>
+                <MenuButton label="Receive" icon={ScanIcon} onClick={() => setOpenReceiveModal(true)} />
+                <MenuLink label="History" icon={TransactionIcon} href="/history" />
+                {/* <MenuLink label="Settings" icon={SettingsIcon} href="/settings" /> */}
+                <MenuButton label="Sign out" icon={SignoutIcon} onClick={handleSignOut} />
               </Card>
             </PopoverPrimitive.Content>
           </PopoverPrimitive.Portal>
@@ -142,5 +107,43 @@ export const AccountMenu = () => {
         )}
       </AnimatePresence>
     </>
+  )
+}
+
+interface MenuLinkProps {
+  label: string
+  href: string
+  icon?: typeof TransactionIcon
+}
+
+function MenuLink(props: MenuLinkProps) {
+  const { label, icon, href } = props
+
+  return (
+    <Button
+      className="w-full bg-black/20 text-sm font-bold rounded-sm text-black"
+      leftIcon={icon}
+      label={label}
+      asChild
+    >
+      <Link to={href}></Link>
+    </Button>
+  )
+}
+interface MenuButtonProps {
+  label: string
+  onClick?: React.MouseEventHandler
+  icon?: typeof TransactionIcon
+}
+function MenuButton(props: MenuButtonProps) {
+  const { label, icon, onClick } = props
+
+  return (
+    <Button
+      className="w-full bg-black/20 text-sm font-bold rounded-sm text-black"
+      leftIcon={icon}
+      label={label}
+      onClick={onClick}
+    />
   )
 }
