@@ -68,12 +68,12 @@ export function SendTransactionPanel({ handler }: { handler: TransactionHandler 
         <Button
           label="Reject"
           onClick={handleRejectTxn}
-          className="bg-black/20 text-black flex-1 "
+          className="bg-black/20 text-black flex-1 rounded-md"
           disabled={!hasCheckedFeeOptions}
         />
         <Button
           label="Approve"
-          className="flex-1 bg-black text-white"
+          className="flex-1 bg-black text-white rounded-md"
           onClick={handleApproveTxn}
           disabled={
             !hasCheckedFeeOptions || (txnFeeOptions && txnFeeOptions.length > 0 && !selectedFeeOptionAddress)

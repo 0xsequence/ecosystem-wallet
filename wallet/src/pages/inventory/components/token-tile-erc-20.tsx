@@ -18,10 +18,10 @@ export function TokenTileErc20(props: TokenBalance) {
       {contractInfo?.logoURI ? (
         <TokenImage src={contractInfo.logoURI} size="lg" withNetwork={chainId} />
       ) : null}
-      <div className="flex flex-col flex-1 justify-end">
+      <div className="flex flex-col flex-1 justify-end items-start">
         {contractInfo?.decimals && contractInfo?.symbol ? (
-          <div>
-            <span className="text-style-lg font-bold">
+          <div className="text-start leading-[0]">
+            <span className="text-style-lg font-bold ">
               {formatDisplay(formatUnits(balance, contractInfo.decimals))}
             </span>{' '}
             <span className="text-style-sm">{contractInfo.symbol}</span>

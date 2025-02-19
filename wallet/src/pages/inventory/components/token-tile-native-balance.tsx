@@ -21,7 +21,7 @@ export function TokenTileNativeBalance(props: TokenTileProps) {
     >
       <TokenImage src={nativeTokenImageUrl(chainId, 'lg')} size="lg" withNetwork={chainId} />
       <div className="flex flex-col flex-1 justify-end items-start">
-        <span className="text-style-normal font-bold text-seq-grey-500">{title}</span>
+        <span className="text-style-sm  font-bold text-seq-grey-500 leading-tight text-start">{title}</span>
         <div>
           <span className="text-style-lg font-bold">{formatDisplay(formatUnits(balance, decimals))}</span>{' '}
           <span className="text-style-sm">{symbol}</span>

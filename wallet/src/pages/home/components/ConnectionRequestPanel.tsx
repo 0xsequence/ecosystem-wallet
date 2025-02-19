@@ -33,8 +33,16 @@ export function ConnectionRequestPanel({ handler }: { handler: ReturnType<typeof
         </ul>
       </div>
       <div className="flex mt-auto mb-0 gap-2 w-full sticky bottom-0 bg-white/80 backdrop-blur-xl p-4 shadow-[0_-1px_3px_-1.5px_theme(color.black/10%)]">
-        <Button label="Reject" onClick={handleRejectConnection} className="flex-1 bg-black/20 text-black" />
-        <Button label="Approve" onClick={handleApproveConnection} className="flex-1 bg-black text-white" />
+        <Button
+          label="Reject"
+          onClick={handleRejectConnection}
+          className="flex-1 bg-black/20 text-black rounded-md"
+        />
+        <Button
+          label="Approve"
+          onClick={handleApproveConnection}
+          className="flex-1 bg-black text-white rounded-md"
+        />
       </div>
     </>
   )
