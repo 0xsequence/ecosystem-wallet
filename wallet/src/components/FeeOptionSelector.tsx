@@ -71,7 +71,7 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
           variant={feeOptionAlert.variant}
         />
       )}
-      <div className=" w-full flex flex-col text-black bg-black/10 rounded-lg overflow-clip">
+      <div className=" w-full flex flex-col text-black bg-black/10 rounded-md overflow-clip">
         <div className="flex flex-col text-black">
           {sortedOptions.map((option, index) => {
             const isSelected = selectedFeeOptionAddress === (option.token.contractAddress ?? ZeroAddress)

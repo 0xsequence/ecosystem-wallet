@@ -36,6 +36,7 @@ import { sequenceWaas } from '../waasSetup'
 import { SendItemInfo } from './SendItemInfo'
 import { TransactionConfirmation } from './TransactionConfirmation'
 import { SendIcon } from '../design-system-patch/icons'
+import { WrappedInput } from './wrapped-input'
 
 interface SendCoinProps {
   chainId: number
@@ -222,36 +223,40 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
               })}
               chainId={chainId}
             />
-            <NumericInput
-              ref={amountInputRef}
-              className="text-xl font-bold text-black"
-              name="amount"
-              value={amount}
-              onChange={handleChangeAmount}
-              controls={
-                <>
-                  <span className="whitespace-nowrap text-style-sm text-black">
-                    {`~${fiatCurrency.sign}${amountToSendFiat}`}
-                  </span>
-                  <Button
-                    className="shrink-0 text-black bg-black/5"
-                    size="xs"
-                    shape="square"
-                    label="Max"
-                    onClick={handleMax}
-                    data-id="maxCoin"
-                  />
-                  <span className="text-style-sm font-bold text-black">{symbol}</span>
-                </>
-              }
-            />
+            <WrappedInput>
+              <NumericInput
+                ref={amountInputRef}
+                className="text-xl font-bold text-black"
+                name="amount"
+                value={amount}
+                onChange={handleChangeAmount}
+                controls={
+                  <>
+                    <span className="whitespace-nowrap text-style-sm text-black">
+                      {`~${fiatCurrency.sign}${amountToSendFiat}`}
+                    </span>
+                    <Button
+                      className="shrink-0 text-black bg-black/5"
+                      size="xs"
+                      shape="square"
+                      label="Max"
+                      onClick={handleMax}
+                      data-id="maxCoin"
+                    />
+                    <span className="text-style-sm font-bold text-black">{symbol}</span>
+                  </>
+                }
+              />
+            </WrappedInput>
+
             {insufficientFunds && <span className="text-seq-red-700">Insufficient Funds</span>}
           </Card>
           <div className="bg-black/10 rounded-md p-4 gap-2 flex flex-col">
             <span className="text-black text-sm font-bold">To</span>
+
             {isEthAddress(toAddress) ? (
               <Card
-                className="flex items-center justify-between bg-black/10"
+                className="w-full flex flex-row items-center rounded-md min-h-[3rem] px-3 py-2 bg-black/10 justify-between"
                 clickable
                 width="full"
                 onClick={() => setToAddress('')}
@@ -264,34 +269,38 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
                 <CloseIcon size="sm" color="black" />
               </Card>
             ) : (
-              <TextInput
-                value={toAddress}
-                onChange={(ev: SyntheticEvent) => setToAddress((ev.target as HTMLInputElement).value)}
-                placeholder={`${nativeTokenName} Address (0x...)`}
-                name="to-address"
-                className="text-black"
-                data-1p-ignore
-                controls={
-                  <Button
-                    size="xs"
-                    shape="square"
-                    label="Paste"
-                    onClick={handlePaste}
-                    data-id="to-address"
-                    className="shrink-0 text-black bg-black/5"
-                    leftIcon={CopyIcon}
-                  />
-                }
-              />
+              <WrappedInput>
+                <TextInput
+                  value={toAddress}
+                  onChange={(ev: SyntheticEvent) => setToAddress((ev.target as HTMLInputElement).value)}
+                  placeholder={`${nativeTokenName} Address (0x...)`}
+                  name="to-address"
+                  className="text-black"
+                  data-1p-ignore
+                  controls={
+                    <Button
+                      size="xs"
+                      shape="square"
+                      label="Paste"
+                      onClick={handlePaste}
+                      data-id="to-address"
+                      className="shrink-0 text-black bg-black/5"
+                      leftIcon={CopyIcon}
+                    />
+                  }
+                />
+              </WrappedInput>
             )}
           </div>
 
-          <div className=" flex items-center justify-center">
+          <div className="grid grid-cols-1 grid-rows-1 justify-center items-center min-h-[3rem]">
             {isCheckingFeeOptions ? (
-              <Spinner />
+              <div className="flex-shrink-0 rounded-md bg-black/50 flex items-center justify-center w-full col-start-1 row-start-1  min-h-[3rem]">
+                <Spinner className="text-white" />
+              </div>
             ) : (
               <Button
-                className="flex-shrink-0 min-h-[3rem] rounded-md bg-black w-full text-white"
+                className="flex-shrink-0 rounded-md bg-black w-full text-white col-start-1 row-start-1  min-h-[3rem]"
                 width="full"
                 variant="primary"
                 type="submit"

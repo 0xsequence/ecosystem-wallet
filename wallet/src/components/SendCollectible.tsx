@@ -34,6 +34,7 @@ import { sequenceWaas } from '../waasSetup'
 import { SendItemInfo } from './SendItemInfo'
 import { TransactionConfirmation } from './TransactionConfirmation'
 import { SendIcon } from '../design-system-patch/icons'
+import { WrappedInput } from './wrapped-input'
 
 interface SendCollectibleProps {
   chainId: number
@@ -243,42 +244,44 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
               balance={tokenBalance?.balance || '0'}
               chainId={chainId}
             />
-            <NumericInput
-              ref={amountInputRef}
-              className="text-xl font-bold text-black"
-              name="amount"
-              value={amount}
-              onChange={handleChangeAmount}
-              disabled={!showAmountControls}
-              controls={
-                <>
-                  {showAmountControls && (
-                    <div className="flex gap-2">
-                      <Button
-                        size="xs"
-                        className="text-black flex-shrin-0 bg-black/20"
-                        onClick={handleSubtractOne}
-                        leftIcon={SubtractIcon}
-                      />
-                      <Button
-                        className="text-black flex-shrin-0 bg-black/20"
-                        size="xs"
-                        onClick={handleAddOne}
-                        leftIcon={AddIcon}
-                      />
-                      <Button
-                        size="xs"
-                        shape="square"
-                        label="Max"
-                        onClick={handleMax}
-                        data-id="maxCoin"
-                        className="shrink-0 text-black bg-black/20"
-                      />
-                    </div>
-                  )}
-                </>
-              }
-            />
+            <WrappedInput>
+              <NumericInput
+                ref={amountInputRef}
+                className="text-xl font-bold text-black"
+                name="amount"
+                value={amount}
+                onChange={handleChangeAmount}
+                disabled={!showAmountControls}
+                controls={
+                  <>
+                    {showAmountControls && (
+                      <div className="flex gap-2">
+                        <Button
+                          size="xs"
+                          className="text-black flex-shrin-0 bg-black/20"
+                          onClick={handleSubtractOne}
+                          leftIcon={SubtractIcon}
+                        />
+                        <Button
+                          className="text-black flex-shrin-0 bg-black/20"
+                          size="xs"
+                          onClick={handleAddOne}
+                          leftIcon={AddIcon}
+                        />
+                        <Button
+                          size="xs"
+                          shape="square"
+                          label="Max"
+                          onClick={handleMax}
+                          data-id="maxCoin"
+                          className="shrink-0 text-black bg-black/20"
+                        />
+                      </div>
+                    )}
+                  </>
+                }
+              />
+            </WrappedInput>
             {insufficientFunds && <span className="text-seq-red-700">Insufficient Balance</span>}
           </Card>
           <div className="bg-black/10 rounded-md p-4 gap-2 flex flex-col">
@@ -286,7 +289,7 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
 
             {isEthAddress(toAddress) ? (
               <Card
-                className="flex items-center justify-between bg-black/10"
+                className="w-full flex flex-row items-center rounded-md min-h-[3rem] px-3 py-2 bg-black/10 justify-between"
                 clickable
                 width="full"
                 onClick={handleToAddressClear}
@@ -299,34 +302,38 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
                 <CloseIcon size="sm" color="black" />
               </Card>
             ) : (
-              <TextInput
-                value={toAddress}
-                onChange={(ev: SyntheticEvent) => setToAddress((ev.target as HTMLInputElement).value)}
-                className="text-black"
-                placeholder={`${nativeTokenName} Address (0x...)`}
-                name="to-address"
-                data-1p-ignore
-                controls={
-                  <Button
-                    size="xs"
-                    shape="square"
-                    label="Paste"
-                    onClick={handlePaste}
-                    data-id="to-address"
-                    leftIcon={CopyIcon}
-                    className="shrink-0 text-black bg-black/5"
-                  />
-                }
-              />
+              <WrappedInput>
+                <TextInput
+                  value={toAddress}
+                  onChange={(ev: SyntheticEvent) => setToAddress((ev.target as HTMLInputElement).value)}
+                  className="text-black"
+                  placeholder={`${nativeTokenName} Address (0x...)`}
+                  name="to-address"
+                  data-1p-ignore
+                  controls={
+                    <Button
+                      size="xs"
+                      shape="square"
+                      label="Paste"
+                      onClick={handlePaste}
+                      data-id="to-address"
+                      leftIcon={CopyIcon}
+                      className="shrink-0 text-black bg-black/5"
+                    />
+                  }
+                />
+              </WrappedInput>
             )}
           </div>
 
-          <div className="flex justify-center items-center">
+          <div className="grid grid-cols-1 grid-rows-1 justify-center items-center min-h-[3rem]">
             {isCheckingFeeOptions ? (
-              <Spinner />
+              <div className="flex-shrink-0 rounded-md bg-black/50 flex items-center justify-center w-full col-start-1 row-start-1  min-h-[3rem]">
+                <Spinner className="text-white" />
+              </div>
             ) : (
               <Button
-                className="flex-shrink-0 min-h-[3rem] rounded-md bg-black w-full text-white"
+                className="flex-shrink-0 rounded-md bg-black w-full text-white col-start-1 row-start-1  min-h-[3rem]"
                 width="full"
                 variant="primary"
                 type="submit"
