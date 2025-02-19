@@ -1,7 +1,10 @@
+import { Image } from '@0xsequence/design-system'
+
 export const DiscoverPage = () => {
   const discoverItems = [
     {
-      title: 'Game 1',
+      title: 'Mining Quest',
+      img: 'https://sequence.tor1.digitaloceanspaces.com/n64-pickaxe-mining-game-coverart.jpg',
       href: 'https://google.com'
     },
     {
@@ -51,12 +54,16 @@ export const DiscoverPage = () => {
       {discoverItems.map(item => (
         <a
           href={item.href}
-          className="bg-black/20 aspect-[8.5/11] rounded-lg flex p-6 text-black items-end font-bold text-sm"
+          className="bg-black/20 aspect-video rounded-lg flex text-black items-end font-bold text-sm overflow-clip"
           target="_blank"
           key={item.title}
           rel="noreferrer noopener"
         >
-          {item.title}
+          {item.img ? (
+            <Image src={item.img} className="object-cover w-full h-full" />
+          ) : (
+            <div className="p-6">{item.title}</div>
+          )}
         </a>
       ))}
     </div>

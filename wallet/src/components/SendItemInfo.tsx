@@ -1,4 +1,4 @@
-import { NetworkImage, Skeleton, Text, TokenImage } from '@0xsequence/design-system'
+import { NetworkImage, Skeleton, TokenImage } from '@0xsequence/design-system'
 import { ethers } from 'ethers'
 
 import { formatDisplay } from '../utils/helpers'
@@ -52,32 +52,27 @@ export const SendItemInfo = ({
 
   return (
     <div className="flex items-end justify-between">
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-start justify-between gap-2">
         {showSquareImage ? (
-          <div className="w-10">
+          <div className="w-10 flex-shrink-0">
             <CollectibleTileImage imageUrl={imageUrl} />
           </div>
         ) : (
           <TokenImage src={imageUrl} size="lg" />
         )}
         <div className="flex flex-col items-start">
-          <div className="flex flex-row items-center gap-1">
-            <Text variant="medium" color="text100">
-              {name}
-            </Text>
-            <NetworkImage chainId={chainId} size="xs" />
+          <div className="flex flex-row items-start gap-1">
+            <span className="font-medium text-black">{name}</span>
           </div>
-          <Text color="text50" variant="normal">
+
+          <span className="text-black text-sm inline-flex gap-1 items-center">
+            <NetworkImage chainId={chainId} size="xs" />
             {`${balanceDisplayed} ${symbol} available`}
-          </Text>
+          </span>
         </div>
       </div>
       <div className="flex flex-col items-end justify-end">
-        {fiatValue && (
-          <Text variant="normal" color="text100">
-            {`${fiatCurrency.sign}${fiatValue}`}
-          </Text>
-        )}
+        {fiatValue && <span className="text-black">{`${fiatCurrency.sign}${fiatValue}`}</span>}
       </div>
     </div>
   )

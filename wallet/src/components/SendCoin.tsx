@@ -1,13 +1,11 @@
 import {
   Button,
   Card,
-  ChevronRightIcon,
   CloseIcon,
   CopyIcon,
   GradientAvatar,
   NumericInput,
   Spinner,
-  Text,
   TextInput,
   nativeTokenImageUrl
 } from '@0xsequence/design-system'
@@ -37,6 +35,7 @@ import { sequenceWaas } from '../waasSetup'
 
 import { SendItemInfo } from './SendItemInfo'
 import { TransactionConfirmation } from './TransactionConfirmation'
+import { SendIcon } from '../design-system-patch/icons'
 
 interface SendCoinProps {
   chainId: number
@@ -202,14 +201,13 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
 
   return (
     <form
-      className={`py-3 gap-2 flex flex-col ${
-        isSendTxnPending ? 'pointer-events-none' : 'pointer-events-auto'
-      }`}
+      data-txn-pending={isSendTxnPending ? true : undefined}
+      className="data-txn-pending:pointer-events-none pointer-events-auto"
       onSubmit={handleSendClick}
     >
       {!showConfirmation && (
-        <>
-          <Card className="bg-background-secondary rounded-md p-4 gap-2 flex flex-col">
+        <div className="p-4 gap-2 flex flex-col">
+          <Card className="bg-black/10 text-black rounded-md p-4 gap-2 flex flex-col">
             <SendItemInfo
               imageUrl={imageUrl}
               decimals={decimals}
@@ -226,42 +224,34 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
             />
             <NumericInput
               ref={amountInputRef}
-              className="text-xl font-bold"
+              className="text-xl font-bold text-black"
               name="amount"
               value={amount}
               onChange={handleChangeAmount}
               controls={
                 <>
-                  <Text className="whitespace-nowrap text-style-sm" color="text50">
+                  <span className="whitespace-nowrap text-style-sm text-black">
                     {`~${fiatCurrency.sign}${amountToSendFiat}`}
-                  </Text>
+                  </span>
                   <Button
-                    className="shrink-0"
+                    className="shrink-0 text-black bg-black/5"
                     size="xs"
                     shape="square"
                     label="Max"
                     onClick={handleMax}
                     data-id="maxCoin"
                   />
-                  <Text className="text-style-sm font-bold" color="text100">
-                    {symbol}
-                  </Text>
+                  <span className="text-style-sm font-bold text-black">{symbol}</span>
                 </>
               }
             />
-            {insufficientFunds && (
-              <Text as="div" variant="normal" color="negative" marginTop="2">
-                Insufficient Funds
-              </Text>
-            )}
+            {insufficientFunds && <span className="text-seq-red-700">Insufficient Funds</span>}
           </Card>
-          <div className="bg-background-secondary rounded-md p-4 gap-2 flex flex-col">
-            <Text variant="normal" color="text50">
-              To
-            </Text>
+          <div className="bg-black/10 rounded-md p-4 gap-2 flex flex-col">
+            <span className="text-black text-sm font-bold">To</span>
             {isEthAddress(toAddress) ? (
               <Card
-                className="flex justify-between items-center"
+                className="flex items-center justify-between bg-black/10"
                 clickable
                 width="full"
                 onClick={() => setToAddress('')}
@@ -269,12 +259,9 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
               >
                 <div className="flex items-center justify-center gap-2">
                   <GradientAvatar address={toAddress} style={{ width: '20px' }} />
-                  <Text color="text100" variant="normal">{`0x${truncateAtMiddle(
-                    toAddress.substring(2),
-                    10
-                  )}`}</Text>
+                  <span className="text-black">{`0x${truncateAtMiddle(toAddress.substring(2), 10)}`}</span>
                 </div>
-                <CloseIcon size="sm" color="white" />
+                <CloseIcon size="sm" color="black" />
               </Card>
             ) : (
               <TextInput
@@ -282,6 +269,7 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
                 onChange={(ev: SyntheticEvent) => setToAddress((ev.target as HTMLInputElement).value)}
                 placeholder={`${nativeTokenName} Address (0x...)`}
                 name="to-address"
+                className="text-black"
                 data-1p-ignore
                 controls={
                   <Button
@@ -290,7 +278,7 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
                     label="Paste"
                     onClick={handlePaste}
                     data-id="to-address"
-                    className="shrink-0"
+                    className="shrink-0 text-black bg-black/5"
                     leftIcon={CopyIcon}
                   />
                 }
@@ -298,23 +286,22 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
             )}
           </div>
 
-          <div className="h-14 flex items-center justify-center">
+          <div className=" flex items-center justify-center">
             {isCheckingFeeOptions ? (
               <Spinner />
             ) : (
               <Button
-                className="h-14 rounded-md mt-3"
-                color="text100"
+                className="flex-shrink-0 min-h-[3rem] rounded-md bg-black w-full text-white"
                 width="full"
                 variant="primary"
                 type="submit"
                 disabled={!isNonZeroAmount || !isEthAddress(toAddress) || insufficientFunds}
                 label="Send"
-                rightIcon={ChevronRightIcon}
+                leftIcon={SendIcon}
               />
             )}
           </div>
-        </>
+        </div>
       )}
 
       {showConfirmation && (

@@ -92,6 +92,18 @@ export const Receive = ({ chainId }: { chainId: ChainId }) => {
             {`This is a ${nativeTokenInfo.name} address. Please only send assets on the ${nativeTokenInfo.name} network.`}
           </Text>
         </div>
+        <div className="flex justify-center items-center" style={{ maxWidth: '260px', textAlign: 'center' }}>
+          <Text
+            color="black"
+            variant="small"
+            style={{
+              maxWidth: '260px',
+              overflowWrap: 'anywhere'
+            }}
+          >
+            {`This is a ${nativeTokenInfo.name} address. Please only send assets on the ${nativeTokenInfo.name} network.`}
+          </Text>
+        </div>
       </div>
     </div>
   )

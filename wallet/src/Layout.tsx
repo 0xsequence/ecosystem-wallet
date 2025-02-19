@@ -33,13 +33,15 @@ const AppHeader = () => {
             <ExploreIcon className="size-4.5" />
             Discover
           </NavLink>
-          <NavLink
-            to={ROUTES.MARKET}
-            className="flex items-center gap-2 border-b-3 border-b-transparent aria-[current='page']:border-b-black self-stretch "
+          <button
+            type="button"
+            // to={ROUTES.MARKET}
+            className="flex items-center gap-2 border-b-3 border-b-transparent aria-[current='page']:border-b-black self-stretch opacity-50"
+            disabled={true}
           >
             <MarketplaceIcon className="size-4.5" />
             Market
-          </NavLink>
+          </button>
         </nav>
         <AccountMenu />
       </header>

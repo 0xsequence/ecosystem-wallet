@@ -26,7 +26,7 @@ export function TokenDetailModal() {
   return (
     <>
       {item && (
-        <Modal scroll={false} autoHeight onClose={() => setShowInventoryItem(false)} className="bg-white">
+        <Modal scroll={false} autoHeight onClose={() => setShowInventoryItem(false)}>
           <TokenDetails item={item} />
         </Modal>
       )}
@@ -126,7 +126,7 @@ function CoinDetails(props: TokenTypeProps) {
         <span className="text-xl font-bold">{tokenMetadata?.name}</span>
       </div>
       <button
-        className="bg-black text-white rounded-full flex items-center justify-center gap-2 text-sm font-bold h-12 p-4"
+        className="bg-black text-white rounded-full flex items-center justify-center gap-2 text-sm font-bold p-4 cursor-pointer"
         onClick={() => setShowSendModal(true)}
       >
         <SendIcon />
@@ -165,7 +165,7 @@ function TokenDetailsCollectable(props: TokenTileProps) {
       </div>
       <div className="grid gap-2">
         <button
-          className="bg-black text-white rounded-full flex items-center justify-center gap-2 text-sm font-bold h-12 p-4"
+          className="bg-black text-white rounded-full flex items-center justify-center gap-2 text-sm font-bold p-4 cursor-pointer"
           onClick={() => setShowSendModal(true)}
         >
           <SendIcon />

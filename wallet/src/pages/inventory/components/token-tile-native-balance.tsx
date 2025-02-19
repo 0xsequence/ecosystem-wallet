@@ -16,6 +16,7 @@ export function TokenTileNativeBalance(props: TokenTileProps) {
       chainId={chainId}
       contractAddress={contractAddress}
       tokenId={tokenID}
+      tokenClass="nativeBalance"
       className="p-4 flex flex-col items-start gap-3"
     >
       <TokenImage src={nativeTokenImageUrl(chainId, 'lg')} size="lg" withNetwork={chainId} />

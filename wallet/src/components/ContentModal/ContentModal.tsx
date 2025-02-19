@@ -19,7 +19,6 @@ export const ContentModal = ({
 }) => (
   <Modal
     className={className}
-    backdropColor="backgroundBackdrop"
     disableAnimation
     scroll={false}
     size={size}

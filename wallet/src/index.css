@@ -16,6 +16,10 @@
   --color-muted: rgba(0, 0, 0, 0.75);
 }
 
+button[aria-label='Close'] {
+  @apply bg-black text-white;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
