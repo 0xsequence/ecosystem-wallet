@@ -1,4 +1,4 @@
-import { Text, TokenImage } from '@0xsequence/design-system'
+import { TokenImage } from '@0xsequence/design-system'
 import { ZeroAddress, formatUnits, parseUnits } from 'ethers'
 import React from 'react'
 
@@ -60,11 +60,10 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
   })
 
   return (
-    <div className="mt-3 w-full">
-      <Text variant="normal" color="text100" fontWeight="bold">
-        Select a fee option
-      </Text>
-      <div className="flex flex-col mt-2 gap-2">
+    <div className=" w-full flex flex-col gap-4 text-black bg-black/10 p-4 rounded-xl">
+      <h3 className="text-style-md text-[15px]">Select a fee option</h3>
+
+      <div className="flex flex-col gap-4 text-black">
         {sortedOptions.map((option, index) => {
           const isSelected = selectedFeeOptionAddress === (option.token.contractAddress ?? ZeroAddress)
           const balance = feeOptionBalances.find(b => b.tokenName === option.token.name)
@@ -76,9 +75,9 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
           return (
             <div
               key={index}
-              className={`px-3 py-2 rounded-md border border-solid border-thick  bg-background-raised ${
-                isSelected ? 'border-white' : 'border-transparent'
-              } ${isSufficient ? 'cursor-pointer opacity-100' : 'cursor-default opacity-50'}`}
+              data-selected={isSelected}
+              data-nsf={!isSufficient}
+              className="cursor-pointer opacity-100 data-nsf:cursor-default data-nsf:opacity-50"
               onClick={() => {
                 if (isSufficient) {
                   setSelectedFeeOptionAddress(option.token.contractAddress ?? ZeroAddress)
@@ -94,49 +93,50 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
               }}
             >
               <div className="flex flex-row justify-between items-center">
-                <div className="flex flex-row items-center gap-2">
-                  <TokenImage src={option.token.logoURL} symbol={option.token.name} />
+                <div className="flex flex-row items-center gap-3">
+                  <TokenImage
+                    src={option.token.logoURL}
+                    symbol={option.token.name}
+                    className="size-7 data-nsf:[&>img]:grayscale"
+                    data-nsf={!isSufficient}
+                  />
                   <div className="flex flex-col">
-                    <Text variant="small" color="text100" fontWeight="bold">
-                      {option.token.name}
-                    </Text>
-                    <Text variant="xsmall" color="text80">
+                    <span className="text-black text-sm font-bold">{option.token.name}</span>
+
+                    <span className="text-style-xs text-seq-grey-600">
                       Fee:{' '}
                       {parseFloat(
                         formatUnits(BigInt(option.value), option.token.decimals || 0)
                       ).toLocaleString(undefined, {
                         maximumFractionDigits: 6
                       })}
-                    </Text>
+                    </span>
                   </div>
                 </div>
                 <div className="flex flex-col items-end">
-                  <Text variant="xsmall" color="text80">
-                    Balance:
-                  </Text>
-                  <Text variant="xsmall" color="text100">
+                  <span className="text-style-xs">Balance</span>
+
+                  <span>
                     {parseFloat(
                       formatUnits(BigInt(balance?.balance || '0'), option.token.decimals || 0)
                     ).toLocaleString(undefined, { maximumFractionDigits: 6 })}
-                  </Text>
+                  </span>
                 </div>
               </div>
             </div>
           )
         })}
       </div>
-      <div className="mt-3 items-end justify-center flex flex-col">
-        {feeOptionAlert && (
-          <div className="mt-3">
-            <Alert
-              title={feeOptionAlert.title}
-              description={feeOptionAlert.description}
-              secondaryDescription={feeOptionAlert.secondaryDescription}
-              variant={feeOptionAlert.variant}
-            />
-          </div>
-        )}
-      </div>
+      {feeOptionAlert && (
+        <div className="items-end justify-center flex flex-col">
+          <Alert
+            title={feeOptionAlert.title}
+            description={feeOptionAlert.description}
+            secondaryDescription={feeOptionAlert.secondaryDescription}
+            variant={feeOptionAlert.variant}
+          />
+        </div>
+      )}
     </div>
   )
 }

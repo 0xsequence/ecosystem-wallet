@@ -24,19 +24,13 @@ export const Alert = ({
       <div className="rounded-md p-4 w-full flex flex-col gap-3" style={{ background: 'backgroundOverlay' }}>
         <div className="w-full flex sm:flex-col md:flex-row gap-2 justify-between">
           <div className="flex flex-col gap-1">
-            <Text variant="normal" color="text100" fontWeight="medium">
-              {title}
-            </Text>
+            <span className="font-medium">{title}</span>
 
             <Text variant="normal" color="text50" fontWeight="medium">
               {description}
             </Text>
 
-            {secondaryDescription && (
-              <Text variant="normal" color="text80" fontWeight="medium">
-                {secondaryDescription}
-              </Text>
-            )}
+            {secondaryDescription && <span className="font-medium">{secondaryDescription}</span>}
           </div>
 
           {buttonProps ? (

@@ -56,18 +56,20 @@ export function SendTokens() {
             </div>
           </ModalPrimitive.Title>
         </div>
-        <div className="p-4">
-          {coinBalanceToSend && (
+        {coinBalanceToSend && (
+          <div className="p-4">
             <SendCoin chainId={chainId as number} balance={coinBalanceToSend} onSuccess={onSendSuccess} />
-          )}
-          {collectibleBalanceToSend && (
+          </div>
+        )}
+        {collectibleBalanceToSend && (
+          <div className="p-4">
             <SendCollectible
               chainId={chainId as number}
               balance={collectibleBalanceToSend}
               onSuccess={onSendSuccess}
             />
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </Modal>
   )
