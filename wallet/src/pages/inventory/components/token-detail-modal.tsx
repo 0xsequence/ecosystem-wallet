@@ -26,7 +26,7 @@ export function TokenDetailModal() {
   return (
     <>
       {item && (
-        <Modal scroll={false} autoHeight onClose={() => setShowInventoryItem(false)} className="bg-white">
+        <Modal scroll={false} autoHeight onClose={() => setShowInventoryItem(false)}>
           <TokenDetails item={item} />
         </Modal>
       )}

@@ -35,6 +35,7 @@ import { sequenceWaas } from '../waasSetup'
 
 import { SendItemInfo } from './SendItemInfo'
 import { TransactionConfirmation } from './TransactionConfirmation'
+import { SendIcon } from '../design-system-patch/icons'
 
 interface SendCollectibleProps {
   chainId: number
@@ -229,12 +230,12 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
 
   return (
     <form
-      className={`grid gap-5 py-3 ${isSendTxnPending ? 'pointer-events-none' : 'pointer-events-auto'}`}
+      className={`grid gap-2  ${isSendTxnPending ? 'pointer-events-none' : 'pointer-events-auto'}`}
       onSubmit={handleSendClick}
     >
       {!showConfirmation && (
         <>
-          <Card className="bg-background-secondary rounded-md p-4 gap-2 flex flex-col">
+          <Card className="bg-black/10 text-black rounded-md p-4 gap-2 flex flex-col">
             <SendItemInfo
               imageUrl={imageUrl}
               showSquareImage
@@ -246,7 +247,7 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
             />
             <NumericInput
               ref={amountInputRef}
-              className="text-xl font-bold"
+              className="text-xl font-bold text-black"
               name="amount"
               value={amount}
               onChange={handleChangeAmount}
@@ -275,19 +276,14 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
                 </>
               }
             />
-            {insufficientFunds && (
-              <Text as="div" variant="normal" color="negative" marginTop="2">
-                Insufficient Balance
-              </Text>
-            )}
+            {insufficientFunds && <span className="text-seq-red-700">Insufficient Balance</span>}
           </Card>
-          <div className="grid gap-2 p-4 rounded-md bg-background-secondary">
-            <Text variant="normal" color="text50">
-              To
-            </Text>
+          <div className="bg-black/10 rounded-md p-4 gap-2 flex flex-col">
+            <span className="text-black text-sm font-bold">To</span>
+
             {isEthAddress(toAddress) ? (
               <Card
-                className="flex items-center justify-between"
+                className="flex items-center justify-between bg-black/10"
                 clickable
                 width="full"
                 onClick={handleToAddressClear}
@@ -295,17 +291,15 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
               >
                 <div className="flex justify-center items-center gap-2">
                   <GradientAvatar address={toAddress} style={{ width: '20px' }} />
-                  <Text
-                    color="text100"
-                    variant="normal"
-                  >{`0x${truncateAtMiddle(toAddress.substring(2), 10)}`}</Text>
+                  <span className="text-black">{`0x${truncateAtMiddle(toAddress.substring(2), 10)}`}</span>
                 </div>
-                <CloseIcon size="sm" color="white" />
+                <CloseIcon size="sm" color="black" />
               </Card>
             ) : (
               <TextInput
                 value={toAddress}
                 onChange={(ev: SyntheticEvent) => setToAddress((ev.target as HTMLInputElement).value)}
+                className="text-black"
                 placeholder={`${nativeTokenName} Address (0x...)`}
                 name="to-address"
                 data-1p-ignore
@@ -317,26 +311,25 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
                     onClick={handlePaste}
                     data-id="to-address"
                     leftIcon={CopyIcon}
-                    className="shrink-0"
+                    className="shrink-0 text-black bg-black/5"
                   />
                 }
               />
             )}
           </div>
 
-          <div className="flex justify-center items-center h-12">
+          <div className="flex justify-center items-center">
             {isCheckingFeeOptions ? (
               <Spinner />
             ) : (
               <Button
-                className="h-14 rounded-md mt-3"
-                color="text100"
+                className="flex-shrink-0 min-h-[3rem] rounded-md bg-black w-full text-white"
                 width="full"
                 variant="primary"
                 type="submit"
                 disabled={!isNonZeroAmount || !isEthAddress(toAddress) || insufficientFunds}
                 label="Send"
-                rightIcon={ChevronRightIcon}
+                leftIcon={SendIcon}
               />
             )}
           </div>
