@@ -9,8 +9,6 @@ export function TokenTileNativeBalance(
     tokenClass: 'nativeBalance'
   }
 ) {
-  console.log(props)
-
   const { chainId, title, balance, nativeToken } = props
   const contractAddress = ''
   const tokenID = ''
