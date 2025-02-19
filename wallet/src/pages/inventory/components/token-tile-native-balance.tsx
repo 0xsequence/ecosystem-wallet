@@ -6,9 +6,7 @@ import type { TokenTileProps } from '../types'
 import { formatDisplay } from '../../../utils/helpers'
 
 export function TokenTileNativeBalance(
-  props: TokenTileProps & {
-    tokenClass: 'nativeBalance'
-  }
+  props: TokenTileProps
 ) {
   const { chain, chainId, title, balance } = props
   const contractAddress = ''

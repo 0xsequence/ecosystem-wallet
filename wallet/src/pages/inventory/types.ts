@@ -8,6 +8,5 @@ export type TokenTileProps = TokenBalance & { title?: string; chain: NetworkMeta
 
 export type TokenTypeProps =
   (TokenTileProps & {
-    title?: string
     tokenClass: 'erc20' | 'collectable' | 'nativeBalance'
   })
