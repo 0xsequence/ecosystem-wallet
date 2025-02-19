@@ -12,9 +12,7 @@ export type TokenTileNativeBalanceProps = NativeTokenBalance &
   }
 
 export type TokenTypeProps =
-  | (TokenTileProps & {
-      tokenClass: 'erc20' | 'collectable'
-    })
-  | (TokenTileNativeBalanceProps & {
-      tokenClass: 'nativeBalance'
-    })
+  (TokenTileProps & {
+    title?: string
+    tokenClass: 'erc20' | 'collectable' | 'nativeBalance'
+  })

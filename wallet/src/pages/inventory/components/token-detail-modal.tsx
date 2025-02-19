@@ -1,4 +1,4 @@
-import { NetworkImage, Modal, Image, TokenImage } from '@0xsequence/design-system'
+import { NetworkImage, Modal, Image, TokenImage, Collapsible, nativeTokenImageUrl } from '@0xsequence/design-system'
 import { SendIcon } from '../../../design-system-patch/icons'
 import { useInventory } from '../helpers/use-inventory'
 import { TokenTileProps, TokenTypeProps } from '../types'
@@ -33,44 +33,55 @@ function TokenDetails({ item }: { item: TokenTypeProps }) {
   // Implementation
   switch (item?.tokenClass) {
     case 'nativeBalance':
-      return <></> //<TokenTileTokenDetails {...item} />
+    case 'erc20':
+      return <CoinDetails {...item} />
     case 'collectable':
       return <TokenDetailsCollectable {...item} />
-    case 'erc20':
-      return <TokenDetailsErc20 {...item} />
     default:
       return null
   }
 }
 
-function TokenDetailsErc20(props: TokenTileProps) {
+function CoinDetails(props: TokenTypeProps) {
   const style = {
     '--background': `url(${import.meta.env.VITE_PROJECT_BACKGROUND})`
   } as React.CSSProperties
 
-  const { tokenMetadata, tokenID, chainId, chain, contractInfo } = props
+  const { tokenMetadata, chainId, chain, contractInfo } = props
+  const logoURI = contractInfo?.logoURI || nativeTokenImageUrl(props.chainId)
 
-  console.log(props)
   return (
-    <div className="w-full flex flex-col text-black py-12 px-6">
+    <div className="w-full flex flex-col gap-6 p-6 text-black">
       <div
-        className="flex items-center justify-center h-[300px] [background-image:var(--background)] bg-cover bg-center rounded-sm"
+        className="py-8 h-[240px] [background-image:var(--background)] bg-cover bg-center rounded-sm"
         style={style}
       >
-        <TokenImage src={contractInfo?.logoURI} size="xl" withNetwork={chainId} />
+        <div className='grid gap-2 place-items-center'>
+          <TokenImage src={logoURI} size="xl" withNetwork={chainId} />
+          <p className='flex-1 text-style-lg font-bold'>3.976812 USDC.e</p>
+          <span className="inline-flex mx-auto items-center gap-2 font-bold text-[9px] bg-black/10 px-1.25 py-1 rounded-xs">
+            <NetworkImage chainId={chainId} size="xs" /> {chain?.title || props?.title}
+          </span>
+        </div>
       </div>
-      <div className="p-6 flex flex-col gap-1 text-center justify-center">
-        <span className="text-seq-grey-500 text-xs font-bold">{contractInfo?.extensions?.description}</span>
+      <div className="flex flex-col gap-1 text-center justify-center">
+        <div className='grid justify-items-start gap-2 '>
+          <span className="text-seq-grey-500 text-xs font-bold">Balance</span>
+          <div className="w-full flex items-center gap-2">
+            <TokenImage className='h-7 w-7' src={logoURI} size="xl" withNetwork={chainId} />
+            <p className='flex-1 text-start text-style-lg font-bold'>3.976812 USDC.e</p>
+            <p className='text-style-sm font-bold text-seq-grey-500'>$5.67</p>
+          </div>
+        </div>
         <span className="text-xl font-bold">{tokenMetadata?.name}</span>
-        <span className="text-seq-grey-500 text-xs font-bold">#{tokenID}</span>
-        <span className="inline-flex mx-auto items-center gap-2 font-bold text-[9px] bg-black/10 px-1.25 py-1 rounded-xs">
-          <NetworkImage chainId={chainId} size="xs" /> {chain?.title}
-        </span>
       </div>
-      <button className="bg-black text-white rounded-full flex items-center justify-center gap-2 text-sm font-bold min-h-[3rem] py-2 px-3">
+      <button className="bg-black text-white rounded-full flex items-center justify-center gap-2 text-sm font-bold h-12 p-4">
         <SendIcon />
         Send
       </button>
+      <Collapsible label="Details" className='bg-gray-300'>
+        <div className="text-seq-grey-500 text-xs font-bold">{contractInfo?.extensions?.description}</div>
+      </Collapsible>
     </div>
   )
 }
@@ -80,7 +91,7 @@ function TokenDetailsCollectable(props: TokenTileProps) {
     '--background': `url(${import.meta.env.VITE_PROJECT_BACKGROUND})`
   } as React.CSSProperties
 
-  const { tokenMetadata, tokenID, chainId, chain, contractInfo } = props
+  const { tokenMetadata, chainId, chain, contractInfo } = props
 
   return (
     <div className="w-full flex flex-col text-black py-12 px-6">
@@ -91,17 +102,21 @@ function TokenDetailsCollectable(props: TokenTileProps) {
         <Image src={tokenMetadata?.image} className="max-w-[300px] aspect-square" />
       </div>
       <div className="p-6 flex flex-col gap-1 text-center justify-center">
-        <span className="text-seq-grey-500 text-xs font-bold">{contractInfo?.extensions?.description}</span>
         <span className="text-xl font-bold">{tokenMetadata?.name}</span>
-        <span className="text-seq-grey-500 text-xs font-bold">#{tokenID}</span>
         <span className="inline-flex mx-auto items-center gap-2 font-bold text-[9px] bg-black/10 px-1.25 py-1 rounded-xs">
           <NetworkImage chainId={chainId} size="xs" /> {chain?.title}
         </span>
       </div>
-      <button className="bg-black text-white rounded-full flex items-center justify-center gap-2 text-sm font-bold min-h-[3rem] py-2 px-3">
-        <SendIcon />
-        Send
-      </button>
+      <div className='grid gap-2'>
+        <button className="bg-black text-white rounded-full flex items-center justify-center gap-2 text-sm font-bold min-h-[3rem] py-2 px-3">
+          <SendIcon />
+          Send
+        </button>
+
+        <Collapsible label="Details" className='bg-gray-300'>
+          <span className="text-seq-grey-500 text-xs font-bold">{contractInfo?.extensions?.description}</span>
+        </Collapsible>
+      </div>
     </div>
   )
 }

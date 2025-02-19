@@ -1,5 +1,6 @@
 import type { NativeTokenBalance, GatewayNativeTokenBalances, GatewayTokenBalance } from '@0xsequence/indexer'
 import { networks, type ChainId } from '@0xsequence/network'
+import { createNativeTokenBalance } from '../../../utils/balance'
 
 // Helper functions to tidy up the data and remove empty chains
 function tidyBalances(data?: GatewayTokenBalance[]) {
@@ -55,7 +56,7 @@ export function getCollectibleInventory(data?: { balances: GatewayTokenBalance[]
 }
 
 // Get native token balances
-export function getNativeInventory(data?: { nativeBalances: GatewayNativeTokenBalances[] }) {
+export function getNativeInventory(address: string, data?: { nativeBalances: GatewayNativeTokenBalances[] }) {
   if (!data || !data?.nativeBalances) return []
 
   return data.nativeBalances
@@ -63,7 +64,8 @@ export function getNativeInventory(data?: { nativeBalances: GatewayNativeTokenBa
     .flatMap(balance => balance.results as (NativeTokenBalance & { chainId: ChainId })[])
     .map(balance => {
       const chain = networks[balance.chainId]
-      return { ...balance, ...chain, tokenClass: 'nativeBalance' }
+      const nativeTokenBalance = createNativeTokenBalance(balance.chainId, address, balance.balance)
+      return { ...nativeTokenBalance, ...chain, tokenClass: 'nativeBalance' }
     })
     .sort((a, b) => {
       const balanceA = Number(a.balance)

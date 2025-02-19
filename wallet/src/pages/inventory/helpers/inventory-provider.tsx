@@ -2,6 +2,7 @@ import { createContext, useState } from 'react'
 import { type TokenTypeProps } from '../types'
 
 import { useFetchInventory } from './use-fetch-inventory'
+import { ZeroAddress } from 'ethers'
 
 type InventoryContext = {
   showInventoryItem: { contractAddress: string; tokenId?: string } | false
@@ -29,8 +30,8 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
-      if (contractAddress && !tokenId && item?.tokenClass !== 'nativeBalance') {
-        if (item?.contractAddress === contractAddress) {
+      if (!tokenId) {
+        if (item?.contractAddress === contractAddress || item?.contractAddress === ZeroAddress) {
           return item
         }
       }
