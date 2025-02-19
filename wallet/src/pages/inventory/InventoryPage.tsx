@@ -3,19 +3,16 @@ import { InventoryList } from './components/inventory-list'
 import { InventoryProvider } from './helpers/inventory-provider.tsx'
 import { useInventory } from './helpers/use-inventory'
 import { InventoryListEmpty } from './components/inventory-list-empty'
-// import { SendCollectible } from '../../components/SendCollectible'
-// import { SendCoin } from '../../components/SendCoin'
-// import { Modal, ModalPrimitive, Text } from '@0xsequence/design-system'
-// import { ChainId } from '@0xsequence/network'
-// import { useState } from 'react'
+import { SendCollectible } from '../../components/SendCollectible'
+import { SendCoin } from '../../components/SendCoin'
+import { Modal, ModalPrimitive, Text } from '@0xsequence/design-system'
 
 export const InventoryPage = () => {
   return (
     <InventoryProvider>
       <Inventory />
-      )
       <TokenDetailModal />
-      {/* <Send/> */}
+      <Send />
     </InventoryProvider>
   )
 }
@@ -30,62 +27,59 @@ function Inventory() {
   )
 }
 
-// function Send(){
-//   const [openWalletModal, setOpenWalletModal] = useState(false)
-//     const [sendOptions, setSendOptions] = useState<
-//       { chainId: ChainId; contractAddress?: string; tokenId?: string } | undefined
-//     >()
-//     const { chainId = ChainId.SONEIUM, contractAddress, tokenId = '' } = sendOptions || {}
+function Send() {
+  const { inventoryByTokenClass, showInventoryItem, showSendModal, setShowSendModal } = useInventory()
+  const { chainId, tokenId, contractAddress } = showInventoryItem || {}
+  const collectibleBalanceToSend = inventoryByTokenClass.collectibleInventory.find(collectible => collectible.tokenID === tokenId)
+  const coinBalanceToSend = collectibleBalanceToSend
+    ? null
+    : (contractAddress ? inventoryByTokenClass.erc20Inventory : inventoryByTokenClass.nativeBalances).find(balance => balance.chainId === chainId)
 
-//     const collectibleBalanceToSend = collectibleBalances.find(collectible => collectible.tokenID === tokenId)
-//     const coinBalanceToSend = tokenId
-//       ? null
-//       : (contractAddress ? erc20Balances : nativeBalances).find(balance => balance.chainId === chainId)
+  if (!showSendModal) return null
 
-//  return <>{openWalletModal && (
-//           <Modal
-//             contentProps={{
-//               style: {
-//                 maxWidth: '400px',
-//                 height: 'fit-content',
-//                 scrollbarColor: 'gray black',
-//                 scrollbarWidth: 'thin'
-//               }
-//             }}
-//             scroll={false}
-//             onClose={() => {
-//               setSendOptions(undefined)
-//               setOpenWalletModal(false)
-//             }}
-//           >
-//             <div className="bg-background-primary w-96 h-auto">
-//               <div className="w-full h-12 bg-background-primary z-20 flex flex-row items-center justify-between pt-1.5 px-4">
-//                 <div className="w-11 h-12" />
-//                 <ModalPrimitive.Title asChild>
-//                   <Text variant="small" className="font-bold text-gray-100">
-//                     {sendOptions?.tokenId ? 'Send Collectible' : 'Send Coin'}
-//                   </Text>
-//                 </ModalPrimitive.Title>
-//                 <div className="w-11 h-12" />
-//               </div>
-//               <div className="ml-5">
-//                 {coinBalanceToSend && (
-//                   <SendCoin
-//                     chainId={chainId}
-//                     balance={coinBalanceToSend}
-//                     onSuccess={() => setOpenWalletModal(false)}
-//                   />
-//                 )}
-//                 {collectibleBalanceToSend && (
-//                   <SendCollectible
-//                     chainId={chainId}
-//                     balance={collectibleBalanceToSend}
-//                     onSuccess={() => setOpenWalletModal(false)}
-//                   />
-//                 )}
-//               </div>
-//             </div>
-//           </Modal>
-//         )}
-//       </>
-// }
+  return (
+    <Modal
+      contentProps={{
+        style: {
+          background: 'black',
+          maxWidth: '400px',
+          height: 'fit-content',
+          scrollbarColor: 'gray black',
+          scrollbarWidth: 'thin'
+        }
+      }}
+      scroll={false}
+      onClose={() => {
+        setShowSendModal(false)
+      }}
+    >
+      <div className="w-96 h-auto">
+        <div className="w-full h-12 z-20 flex flex-row items-center justify-between pt-1.5 px-4">
+          <div className="w-11 h-12" />
+          <ModalPrimitive.Title asChild>
+            <Text variant="small" className="font-bold text-gray-100">
+              {collectibleBalanceToSend ? 'Send Collectible' : 'Send Coin'}
+            </Text>
+          </ModalPrimitive.Title>
+          <div className="w-11 h-12" />
+        </div>
+        <div className="ml-5">
+          {coinBalanceToSend && (
+            <SendCoin
+              chainId={chainId as number}
+              balance={coinBalanceToSend}
+              onSuccess={() => setShowSendModal(false)}
+            />
+          )}
+          {collectibleBalanceToSend && (
+            <SendCollectible
+              chainId={chainId as number}
+              balance={collectibleBalanceToSend}
+              onSuccess={() => setShowSendModal(false)}
+            />
+          )}
+        </div>
+      </div>
+    </Modal>
+  )
+}

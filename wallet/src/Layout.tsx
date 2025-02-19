@@ -15,7 +15,7 @@ const AppHeader = () => {
       <header className="flex flex-row gap-4 px-6  items-center justify-between min-h-[4.5rem] text-style-normal font-bold w-full max-w-screen-xl mx-auto">
         {PROJECT_SMALL_LOGO && (
           <Link to={ROUTES.HOME}>
-            <Image src={PROJECT_SMALL_LOGO} className="max-w-[128px]" />
+            <Image src={PROJECT_SMALL_LOGO} className="max-h-14" />
           </Link>
         )}
         <nav className="flex-row gap-10 h-full justify-center md:flex hidden mx-auto flex-shrink-0 absolute left-[50%] translate-x-[-50%] -mb-[2px]">

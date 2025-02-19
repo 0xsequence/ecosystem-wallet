@@ -8,7 +8,7 @@ import { TokenTypeProps } from '../types'
 
 export function useFetchInventory() {
   const { hideUnlistedTokens } = useConfig()
-  const { address } = useAuth()
+  const { address = '' } = useAuth()
   const { data, isLoading } = useTokenBalancesDetails({
     omitMetadata: false,
     filter: {
@@ -24,7 +24,7 @@ export function useFetchInventory() {
 
   const erc20Inventory = getErc20Inventory(data)
   const collectibleInventory = getCollectibleInventory(data)
-  const nativeBalances = getNativeInventory(data)
+  const nativeBalances = getNativeInventory(address, data)
 
   const inventoryIsEmpty = !nativeBalances?.length && !erc20Inventory?.length && !collectibleInventory?.length
 
