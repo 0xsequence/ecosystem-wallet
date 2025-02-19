@@ -156,7 +156,6 @@ export const Auth: React.FC = () => {
                       <div
                         className="rounded-sm relative bg-white/10 gap-2 items-center text-style-normal font-bold inline-flex justify-center min-h-[3rem] py-2 px-3 data-[disabled=='true
                             :disabled:cursor-default cursor-pointer"
-                        data-disabled={!!isSocialLoginInProgress}
                       >
                         {isSocialLoginInProgress === 'google' ? (
                           <Spinner size="md" />
@@ -165,16 +164,24 @@ export const Auth: React.FC = () => {
                             {/* @ts-expect-error logo doesn't want className, but accepts it */}
                             <GoogleLogo className="size-6 flex-shrink-0" />
                             Continue with Google
-                            <div className="opacity-0 absolute w-full h-full pointer-events-auto">
-                              <GoogleLogin
-                                type="icon"
-                                size="large"
-                                onSuccess={handleGoogleLogin}
-                                onError={() => {
-                                  console.log('Login Failed')
-                                  setIsSocialLoginInProgress(false)
-                                }}
-                              />
+                            <div
+                              className="opacity-0 absolute w-full h-full pointer-events-auto overflow-clip "
+                              data-id="googleAuth"
+                            >
+                              <div className="scale-150">
+                                <GoogleLogin
+                                  type="standard"
+                                  shape="rectangular"
+                                  theme="filled_black"
+                                  size="large"
+                                  width="1000"
+                                  onSuccess={handleGoogleLogin}
+                                  onError={() => {
+                                    console.log('Login Failed')
+                                    setIsSocialLoginInProgress(false)
+                                  }}
+                                />
+                              </div>
                             </div>
                           </>
                         )}
@@ -258,7 +265,7 @@ export const Auth: React.FC = () => {
                     className="absolute w-full h-full p-4 outline-none placeholder:text-seq-grey-200 sm:text-style-normal font-medium"
                     data-id="loginEmail"
                   />
-                  <div className="flex items-center justify-center aspect-square z-50 bg-gradient-to-r from-black/0 from-0% to-35% to-black pointer-events-none">
+                  <div className="flex items-center justify-center size-12 z-50 bg-gradient-to-r from-black/0 from-0% to-35% to-black pointer-events-none">
                     {emailAuthLoading ? (
                       <Spinner />
                     ) : (
@@ -269,7 +276,7 @@ export const Auth: React.FC = () => {
                         leftIcon={ArrowRightIcon}
                         onClick={() => initiateEmailAuth(email)}
                         data-id="continueButton"
-                        className=" size-8 pointer-events-auto"
+                        className="size-8 pointer-events-auto"
                       />
                     )}
                   </div>

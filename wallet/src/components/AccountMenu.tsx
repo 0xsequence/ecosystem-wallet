@@ -47,7 +47,7 @@ export const AccountMenu = () => {
         <PopoverPrimitive.Trigger asChild>
           <button
             type="button"
-            className="flex bg-black/20 ~dark:bg-white/10 rounded-full px-3 py-2 cursor-pointer gap-2 items-center select-none"
+            className="flex bg-black/20 text-black ~dark:bg-white/10 rounded-full px-3 py-2 cursor-pointer gap-2 items-center select-none"
           >
             <GradientAvatar address={String(address)} size="sm" />
             <span className="font-bold text-style-normal">{truncateAddress(String(address), 0, 3)}</span>
@@ -58,12 +58,12 @@ export const AccountMenu = () => {
         {isOpen && (
           <PopoverPrimitive.Portal>
             <PopoverPrimitive.Content side="bottom" sideOffset={8} align="end" asChild>
-              <Card className="z-20 flex flex-col gap-2 bg-background-raised backdrop-blur-md relative p-4 min-w-[320px]">
+              <Card className="z-20 flex flex-col gap-2 bg-[#F2F2F2] shadow-[0_0_12px_0_theme(colors.black/20%)] relative p-4 min-w-[320px]">
                 <div className="flex items-center gap-3 justify-between">
                   {address ? (
                     <CopyButton
                       copyText={address}
-                      className="flex gap-2 text-sm font-bold items-center cursor-pointer"
+                      className="flex gap-2 text-sm font-bold items-center cursor-pointer text-black"
                     >
                       <GradientAvatar address={String(address)} size="md" />
                       {truncateAddress(address, 4, 4)}
@@ -73,7 +73,7 @@ export const AccountMenu = () => {
                   <button
                     type="button"
                     onClick={handleClose}
-                    className="bg-white/10 rounded-full flex items-center justify-center size-7 cursor-pointer"
+                    className="bg-black/20 text-black rounded-full flex items-center justify-center size-7 cursor-pointer"
                   >
                     <CloseIcon className="size-4" />
                     <span className="sr-only">Close</span>
@@ -120,7 +120,12 @@ function MenuLink(props: MenuLinkProps) {
   const { label, icon, href } = props
 
   return (
-    <Button className="w-full bg-black/20 text-sm font-bold rounded-sm" leftIcon={icon} label={label} asChild>
+    <Button
+      className="w-full bg-black/20 text-sm font-bold rounded-sm text-black"
+      leftIcon={icon}
+      label={label}
+      asChild
+    >
       <Link to={href}></Link>
     </Button>
   )
@@ -135,7 +140,7 @@ function MenuButton(props: MenuButtonProps) {
 
   return (
     <Button
-      className="w-full bg-black/20 text-sm font-bold rounded-sm"
+      className="w-full bg-black/20 text-sm font-bold rounded-sm text-black"
       leftIcon={icon}
       label={label}
       onClick={onClick}
