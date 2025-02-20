@@ -44,6 +44,38 @@ interface SendCoinProps {
   onSuccess: (txnResponse: SentTransactionResponse) => void
 }
 
+const SendCoinSkeleton = () => {
+  return (
+    <div className="p-4 gap-2 flex flex-col">
+      <Card className="bg-black/10 text-black rounded-md p-4 gap-2 flex flex-col">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-full bg-black/5 animate-pulse" />
+          <div className="flex-1">
+            <div className="h-4 w-24 bg-black/5 rounded animate-pulse mb-1" />
+            <div className="h-3 w-16 bg-black/5 rounded animate-pulse" />
+          </div>
+        </div>
+        <WrappedInput>
+          <div className="flex items-center justify-between w-full h-12 px-3">
+            <div className="h-6 w-32 bg-black/5 rounded animate-pulse" />
+            <div className="flex items-center gap-2">
+              <div className="h-6 w-16 bg-black/5 rounded animate-pulse" />
+              <div className="h-6 w-12 bg-black/5 rounded animate-pulse" />
+            </div>
+          </div>
+        </WrappedInput>
+      </Card>
+      <div className="bg-black/10 rounded-md p-4 gap-2 flex flex-col">
+        <span className="text-black text-sm font-bold">To</span>
+        <WrappedInput>
+          <div className="h-12 w-full bg-black/5 rounded animate-pulse" />
+        </WrappedInput>
+      </div>
+      <div className="h-12 w-full bg-black/50 rounded animate-pulse" />
+    </div>
+  )
+}
+
 export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
   const { fiatCurrency } = useConfig()
   const { address: accountAddress = '' } = useAuth()
@@ -78,7 +110,7 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
   const isPending = isPendingCoinPrices || isPendingConversionRate
 
   if (isPending) {
-    return null
+    return <SendCoinSkeleton />
   }
 
   const {
@@ -87,10 +119,20 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
     decimals: nativeTokenDecimals = 18
   } = networks[chainId as ChainId].nativeToken
 
-  const decimals = isNativeCoin ? nativeTokenDecimals : balance?.contractInfo?.decimals || 18
-  const name = isNativeCoin ? nativeTokenName : balance?.contractInfo?.name || ''
-  const imageUrl = isNativeCoin ? nativeTokenImageUrl(chainId) : balance?.contractInfo?.logoURI
-  const symbol = isNativeCoin ? nativeTokenSymbol : balance?.contractInfo?.symbol || ''
+  const decimals = isNativeCoin
+    ? nativeTokenDecimals
+    : ('contractInfo' in balance ? balance.contractInfo?.decimals : undefined) || 18
+  const name = isNativeCoin
+    ? nativeTokenName
+    : ('contractInfo' in balance ? balance.contractInfo?.name : undefined) || ''
+  const imageUrl = isNativeCoin
+    ? nativeTokenImageUrl(chainId)
+    : 'contractInfo' in balance
+      ? balance.contractInfo?.logoURI
+      : undefined
+  const symbol = isNativeCoin
+    ? nativeTokenSymbol
+    : ('contractInfo' in balance ? balance.contractInfo?.symbol : undefined) || ''
   const amountToSendFormatted = amount === '' ? '0' : amount
   const amountRaw = ethers.parseUnits(amountToSendFormatted, decimals)
 
@@ -178,7 +220,7 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
           transactionsFeeOption,
           transactionsFeeQuote: feeOptions?.feeQuote
         })
-      } else {
+      } else if ('contractAddress' in balance) {
         txResponse = await sequenceWaas.sendERC20({
           token: balance.contractAddress,
           to: toAddress,
