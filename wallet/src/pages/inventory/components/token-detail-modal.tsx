@@ -13,6 +13,7 @@ import { TokenTileProps, TokenTypeProps } from '../types'
 import { formatDisplay } from '../../../utils/helpers'
 import { formatUnits } from 'ethers'
 import { useCoinPrices } from '../../../hooks/useCoinPrices'
+import { WrappedCollapse } from '../../../components/wrapped-collapse'
 
 export function TokenDetailModal() {
   const { showInventoryItem, setShowInventoryItem, contractInfo } = useInventory()
@@ -125,18 +126,24 @@ function CoinDetails(props: TokenTypeProps) {
         </div>
         <span className="text-xl font-bold">{tokenMetadata?.name}</span>
       </div>
-      <button
-        className="bg-black text-white rounded-full flex items-center justify-center gap-2 text-sm font-bold p-4 cursor-pointer"
-        onClick={() => setShowSendModal(true)}
-      >
-        <SendIcon />
-        Send
-      </button>
-      {contractInfo?.extensions?.description && (
-        <Collapsible label="Details" className="bg-gray-300">
-          <span className="text-seq-grey-500 text-xs font-bold">{contractInfo?.extensions?.description}</span>
-        </Collapsible>
-      )}
+      <div className="w-full flex flex-col gap-2">
+        <button
+          className="bg-black text-white rounded-md flex items-center justify-center gap-2 text-sm font-bold p-4 cursor-pointer"
+          onClick={() => setShowSendModal(true)}
+        >
+          <SendIcon />
+          Send
+        </button>
+        {contractInfo?.extensions?.description && (
+          <WrappedCollapse>
+            <Collapsible label="Details" className="bg-gray-300">
+              <span className="text-seq-grey-500 text-xs font-bold">
+                {contractInfo?.extensions?.description}
+              </span>
+            </Collapsible>
+          </WrappedCollapse>
+        )}
+      </div>
     </div>
   )
 }
@@ -150,7 +157,7 @@ function TokenDetailsCollectable(props: TokenTileProps) {
   const { tokenMetadata, chainId, chain, contractInfo } = props
 
   return (
-    <div className="w-full flex flex-col text-black py-12 px-6">
+    <div className="w-full flex flex-col text-black p-6">
       <div
         className="flex items-center justify-center h-[300px] [background-image:var(--background)] bg-cover bg-center rounded-sm"
         style={style}
@@ -163,9 +170,9 @@ function TokenDetailsCollectable(props: TokenTileProps) {
           <NetworkImage chainId={chainId} size="xs" /> {chain?.title}
         </span>
       </div>
-      <div className="grid gap-2">
+      <div className="w-full flex flex-col gap-2">
         <button
-          className="bg-black text-white rounded-full flex items-center justify-center gap-2 text-sm font-bold p-4 cursor-pointer"
+          className="bg-black text-white rounded-md flex items-center justify-center gap-2 text-sm font-bold p-4 cursor-pointer"
           onClick={() => setShowSendModal(true)}
         >
           <SendIcon />
@@ -173,11 +180,13 @@ function TokenDetailsCollectable(props: TokenTileProps) {
         </button>
 
         {contractInfo?.extensions?.description && (
-          <Collapsible label="Details" className="bg-gray-300">
-            <span className="text-seq-grey-500 text-xs font-bold">
-              {contractInfo?.extensions?.description}
-            </span>
-          </Collapsible>
+          <WrappedCollapse>
+            <Collapsible label="Details">
+              <span className="text-seq-grey-500 text-xs font-bold">
+                {contractInfo?.extensions?.description}
+              </span>
+            </Collapsible>
+          </WrappedCollapse>
         )}
       </div>
     </div>

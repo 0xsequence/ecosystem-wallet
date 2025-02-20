@@ -119,7 +119,7 @@ export const TransactionConfirmation = ({
 
           <div className=" flex flex-col gap-1 ">
             <span className="text-black text-sm font-bold">Amount</span>
-            <Card className="w-full flex flex-row items-center rounded-full px-4 py-3 bg-black/10">
+            <Card className="w-full flex flex-row items-center rounded-md min-h-[3rem] px-4 py-3 bg-black/10">
               <div className="flex flex-row items-center gap-2 w-full justify-between">
                 <span className="text-sm font-bold">
                   {amount} {symbol}
@@ -131,7 +131,7 @@ export const TransactionConfirmation = ({
           <div className=" flex flex-col gap-1">
             <span className="text-black text-sm font-bold">To</span>
 
-            <Card className="w-full flex flex-row items-center rounded-full px-3 py-2 bg-black/10">
+            <Card className="w-full flex flex-row items-center rounded-md min-h-[3rem] px-3 py-2 bg-black/10">
               <div className="flex justify-center items-center gap-2">
                 <GradientAvatar address={toAddress} className="size-5" />
                 <span className="text-black">{`0x${truncateAtMiddle(toAddress.substring(2), 10)}`}</span>
@@ -159,13 +159,13 @@ export const TransactionConfirmation = ({
           ) : (
             <>
               <Button
-                className="flex-1 bg-black text-white"
+                className="flex-1 bg-black text-white rounded-md"
                 onClick={onConfirm}
                 label="Confirm"
                 rightIcon={ChevronRightIcon}
                 disabled={isConfirmDisabled}
               />
-              <Button className="bg-black/20 text-black " onClick={onCancel} label="Cancel" />
+              <Button className="bg-black/20 text-black  rounded-md " onClick={onCancel} label="Cancel" />
             </>
           )}
         </div>

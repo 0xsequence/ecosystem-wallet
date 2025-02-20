@@ -5,7 +5,7 @@ export const DiscoverPage = () => {
     {
       title: 'Mining Quest',
       img: 'https://sequence.tor1.digitaloceanspaces.com/n64-pickaxe-mining-game-coverart.jpg',
-      href: 'https://google.com'
+      href: 'https://mining-quest.pages.dev/'
     },
     {
       title: 'Game 2',

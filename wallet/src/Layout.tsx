@@ -15,7 +15,7 @@ const AppHeader = () => {
       <header className="flex flex-row gap-4 px-6  items-center justify-between min-h-[4.5rem] text-style-normal font-bold w-full max-w-screen-xl mx-auto">
         {PROJECT_HEADER_LOGO && (
           <Link to={ROUTES.INVENTORY}>
-            <Image src={PROJECT_HEADER_LOGO} className="max-w-[128px]" />
+            <Image src={PROJECT_HEADER_LOGO} className="max-w-[96px] sm:max-w-[128px] transition-all" />
           </Link>
         )}
         <nav className="flex-row gap-10 h-full justify-center md:flex hidden mx-auto flex-shrink-0 absolute left-[50%] translate-x-[-50%] -mb-[2px]">
@@ -53,6 +53,7 @@ export const AppLayout = ({ showHeader = false }: { showHeader?: boolean }) => {
   const style = {
     '--background': `url(${import.meta.env.VITE_PROJECT_BACKGROUND})`
   } as React.CSSProperties
+  const isPopup = window.opener !== null
 
   return (
     <div
@@ -63,6 +64,34 @@ export const AppLayout = ({ showHeader = false }: { showHeader?: boolean }) => {
       <div className="flex flex-col flex-1">
         <Outlet />
       </div>
+      <nav
+        data-is-popup={isPopup}
+        className="flex data-[is-popup='true']:hidden md:hidden mt-auto mb-0 gap-2 justify-around w-full sticky text-black bottom-0 bg-white/80 backdrop-blur-xl  p-1 shadow-[0_-1px_3px_-1.5px_theme(color.black/10%)]"
+      >
+        <NavLink
+          to={ROUTES.INVENTORY}
+          className="flex flex-col items-center text-xs flex-1 gap-1 font-medium aria-[current='page']:font-semibold aria-[current='page']:bg-black/10 py-3 px-4 rounded-md self-stretch"
+        >
+          <InventoryIcon className="size-4" />
+          Inventory
+        </NavLink>
+        <NavLink
+          to={ROUTES.DISCOVER}
+          className="flex flex-col items-center text-xs gap-1  flex-1 font-medium aria-[current='page']:font-semibold aria-[current='page']:bg-black/10 py-3 px-4 rounded-md self-stretch "
+        >
+          <ExploreIcon className="size-4" />
+          Discover
+        </NavLink>
+        <button
+          type="button"
+          // to={ROUTES.MARKET}
+          className="flex flex-col items-center text-xs gap-1 flex-1 font-medium aria-[current='page']:font-semibold aria-[current='page']:bg-black/10 py-3 px-4 rounded-md self-stretch disabled:opacity-45"
+          disabled={true}
+        >
+          <MarketplaceIcon className="size-4" />
+          Market
+        </button>
+      </nav>
     </div>
   )
 }

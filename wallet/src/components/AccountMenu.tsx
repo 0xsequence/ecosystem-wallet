@@ -47,12 +47,12 @@ export const AccountMenu = () => {
         <PopoverPrimitive.Trigger asChild>
           <button
             type="button"
-            className="flex bg-black/20 text-black ~dark:bg-white/10 rounded-full px-3 py-2 cursor-pointer gap-2 items-center select-none"
+            className="flex bg-black/20 text-black ~dark:bg-white/10 rounded-full pl-2 pr-3 sm:px-3 py-1 sm:py-2 cursor-pointer gap-2 items-center select-none"
           >
             <GradientAvatar address={String(address)} size="sm" />
             <span className="font-bold text-style-normal">{truncateAddress(String(address), 0, 3)}</span>
 
-            <ChevronDownIcon />
+            <ChevronDownIcon className="size-4" />
           </button>
         </PopoverPrimitive.Trigger>
         {isOpen && (

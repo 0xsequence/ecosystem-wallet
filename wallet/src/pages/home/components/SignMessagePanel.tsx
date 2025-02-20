@@ -47,8 +47,16 @@ export function SignMessagePanel({ handler }: { handler: ReturnType<typeof useSi
         </div>
       </div>
       <div className="flex mt-auto mb-0 gap-2 w-full sticky bottom-0 bg-white/80 backdrop-blur-xl p-4 shadow-[0_-1px_3px_-1.5px_theme(color.black/10%)]">
-        <Button label="Reject" onClick={handleRejectSign} className="bg-black/20 text-black flex-1" />
-        <Button label="Approve" className="flex-1 bg-black text-white" onClick={handleApproveSign} />
+        <Button
+          label="Reject"
+          onClick={handleRejectSign}
+          className="bg-black/20 text-black flex-1 rounded-md"
+        />
+        <Button
+          label="Approve"
+          className="flex-1 bg-black text-white rounded-md"
+          onClick={handleApproveSign}
+        />
       </div>
     </>
   )
