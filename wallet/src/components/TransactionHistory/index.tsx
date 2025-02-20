@@ -1,6 +1,6 @@
-import { IconButton, Text } from '@0xsequence/design-system'
+import { Text } from '@0xsequence/design-system'
 import { Transaction } from '@0xsequence/indexer'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 
 import { TransactionHistoryItem } from './TransactionHistoryItem'
 import { TransactionHistorySkeleton } from './TransactionHistorySkeleton'
@@ -8,10 +8,11 @@ import { useAuth } from '../../context/AuthContext'
 import { useTransactionHistorySummary } from '../../hooks/useTransactionHistorySummary'
 import { ChainId } from '@0xsequence/network'
 import { TransactionDetails } from './TransactionDetails'
-import { ArrowLeftIcon } from '../../design-system-patch/icons'
 
 interface TransactionHistoryListProps {
   chainIds: ChainId[]
+  selectedTransaction?: Transaction | null
+  setSelectedTransaction: (transaction: Transaction | null) => void
 }
 
 type TransactionPeriodId = 'today' | 'yesterday' | 'week' | 'month' | 'year' | 'years'
@@ -48,13 +49,12 @@ const transactionPeriods: TransactionPeriods[] = [
   }
 ]
 
-export const TransactionHistory = ({ chainIds }: TransactionHistoryListProps) => {
+export const TransactionHistory = ({ chainIds, selectedTransaction, setSelectedTransaction }: TransactionHistoryListProps) => {
   const { address: accountAddress = '' } = useAuth()
   const { data: transactions = [], isPending } = useTransactionHistorySummary({
     accountAddress,
     chainIds
   })
-  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
 
   const transactionsByTime = useMemo(() => {
     const todayTreshold = new Date(new Date().setHours(0, 0, 0, 0)).getTime()
@@ -138,15 +138,7 @@ export const TransactionHistory = ({ chainIds }: TransactionHistoryListProps) =>
   }
 
   return (
-    <div className="relative py-8 px-4">
-      {selectedTransaction && (
-        <IconButton
-          className="absolute top-3 left-3 text-black"
-          icon={ArrowLeftIcon}
-          size="sm"
-          onClick={() => setSelectedTransaction(null)}
-        />
-      )}
+    <div className="p-4">
       {selectedTransaction ? (
         <TransactionDetails transaction={selectedTransaction} />
       ) : (
@@ -165,8 +157,7 @@ export const TransactionHistory = ({ chainIds }: TransactionHistoryListProps) =>
           })}
           {transactions.length === 0 && (
             <div className="grid gap-3">
-              <TimeLabel label={'History'} />
-              <Text color="text100">No Recent Transaction History Found</Text>
+              <Text className='text-style-md text-black'>No Recent Transaction History Found</Text>
             </div>
           )}
         </div>
