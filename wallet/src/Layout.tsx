@@ -5,7 +5,7 @@ import { AccountMenu } from './components/AccountMenu'
 // import { PoweredBySequence } from './components/PoweredBySequence'
 import { PrivateRoute } from './components/PrivateRoute'
 import { ExploreIcon, InventoryIcon, MarketplaceIcon } from './design-system-patch/icons'
-import { ROUTES } from './routes'
+import { isPublicRoute, ROUTES } from './routes'
 
 const PROJECT_HEADER_LOGO = import.meta.env.VITE_PROJECT_HEADER_LOGO
 
@@ -66,7 +66,8 @@ export const AppLayout = ({ showHeader = false }: { showHeader?: boolean }) => {
       </div>
       <nav
         data-is-popup={isPopup}
-        className="flex data-[is-popup='true']:hidden md:hidden mt-auto mb-0 gap-2 justify-around w-full sticky text-black bottom-0 bg-white/80 backdrop-blur-xl  p-1 shadow-[0_-1px_3px_-1.5px_theme(color.black/10%)]"
+        className="flex data-[is-popup='true']:hidden md:hidden mt-auto mb-0 gap-2 justify-around w-full sticky text-black bottom-0 bg-white/80 backdrop-blur-xl p-1 shadow-[0_-1px_3px_-1.5px_theme(color.black/10%)]"
+        style={{ display: isPublicRoute(window.location.pathname) ? 'none' : undefined }}
       >
         <NavLink
           to={ROUTES.INVENTORY}

@@ -333,18 +333,20 @@ function AuthCoverWrapper({ children }: { children: React.ReactNode }) {
   } as React.CSSProperties
 
   return (
-    <div className="flex rounded-lg overflow-clip">
-      <div className="md:max-w-[24rem] w-full">{children}</div>
-      <div
-        className="hidden sm:flex flex-col items-end justify-end p-8  w-[500px] flex-shrink [background-image:var(--background)] bg-cover bg-no-repeat"
-        style={style}
-      >
-        {title || message ? (
-          <div className="max-w-[16rem] w-full text-black text-right">
-            {title ? <p className="font-bold mb-3">{title}</p> : null}
-            {message ? <p className="text-style-sm">{message}</p> : null}
-          </div>
-        ) : null}
+    <div className="flex w-full md:w-auto px-4 pd:mx-0">
+      <div className="flex w-full overflow-clip rounded-lg">
+        <div className="md:max-w-[24rem] w-full">{children}</div>
+        <div
+          className="hidden sm:flex flex-col items-end justify-end p-8  w-[550px] flex-shrink [background-image:var(--background)] bg-cover bg-no-repeat"
+          style={style}
+        >
+          {title || message ? (
+            <div className="max-w-[16rem] w-full text-black text-right">
+              {title ? <p className="font-bold mb-3">{title}</p> : null}
+              {message ? <p className="text-style-sm">{message}</p> : null}
+            </div>
+          ) : null}
+        </div>
       </div>
     </div>
   )
