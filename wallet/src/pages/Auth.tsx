@@ -120,7 +120,7 @@ export const Auth: React.FC = () => {
 
   const [email, setEmail] = useState('')
   const inputRef = useRef<HTMLInputElement | null>(null)
-  const isEmailValid = inputRef.current?.validity.valid
+  const isEmailValid = inputRef.current?.validity.valid && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)
   const [showEmailWarning, setEmailWarning] = useState(false)
   const [code, setCode] = useState<string[]>([])
 
