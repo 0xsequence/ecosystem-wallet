@@ -1,16 +1,14 @@
-import { Button, CopyIcon, Image, ShareIcon, Text, nativeTokenImageUrl } from '@0xsequence/design-system'
-import { ChainId, networks } from '@0xsequence/network'
+import { Button, CopyIcon, ShareIcon, Text } from '@0xsequence/design-system'
 import { QRCodeCanvas } from 'qrcode.react'
 import { useEffect, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 
 import { useAuth } from '../context/AuthContext'
 
-export const Receive = ({ chainId }: { chainId: ChainId }) => {
+export const Receive = () => {
   const { address = '' } = useAuth()
   const [isCopied, setCopied] = useState<boolean>(false)
 
-  const nativeTokenInfo = networks[chainId].nativeToken
 
   useEffect(() => {
     if (isCopied) {
@@ -42,32 +40,18 @@ export const Receive = ({ chainId }: { chainId: ChainId }) => {
             data-id="receiveQR"
           />
         </div>
-        <div>
-          <div className="flex flex-row items-center justify-center gap-2">
-            <Text
-              variant="medium"
-              color="black"
-              textAlign="center"
-              lineHeight="inherit"
-              style={{ fontWeight: '700' }}
-            >
-              My Wallet
-            </Text>
-            <Image width="5" src={nativeTokenImageUrl(chainId)} alt="icon" />
-          </div>
-          <div className="mt-2" style={{ maxWidth: '180px', textAlign: 'center' }}>
-            <Text
-              textAlign="center"
-              color="black"
-              style={{
-                fontSize: '14px',
-                maxWidth: '180px',
-                overflowWrap: 'anywhere'
-              }}
-            >
-              {address}
-            </Text>
-          </div>
+        <div className="mt-2" style={{ maxWidth: '180px', textAlign: 'center' }}>
+          <Text
+            textAlign="center"
+            color="black"
+            style={{
+              fontSize: '14px',
+              maxWidth: '180px',
+              overflowWrap: 'anywhere'
+            }}
+          >
+            {address}
+          </Text>
         </div>
         <div className="gap-3 flex">
           <CopyToClipboard text={address || ''}>
@@ -79,30 +63,6 @@ export const Receive = ({ chainId }: { chainId: ChainId }) => {
             />
           </CopyToClipboard>
           <Button className="bg-black" onClick={onClickShare} leftIcon={ShareIcon} label="Share" />
-        </div>
-        <div className="flex justify-center items-center" style={{ maxWidth: '260px', textAlign: 'center' }}>
-          <Text
-            color="black"
-            variant="small"
-            style={{
-              maxWidth: '260px',
-              overflowWrap: 'anywhere'
-            }}
-          >
-            {`This is a ${nativeTokenInfo.name} address. Please only send assets on the ${nativeTokenInfo.name} network.`}
-          </Text>
-        </div>
-        <div className="flex justify-center items-center" style={{ maxWidth: '260px', textAlign: 'center' }}>
-          <Text
-            color="black"
-            variant="small"
-            style={{
-              maxWidth: '260px',
-              overflowWrap: 'anywhere'
-            }}
-          >
-            {`This is a ${nativeTokenInfo.name} address. Please only send assets on the ${nativeTokenInfo.name} network.`}
-          </Text>
         </div>
       </div>
     </div>
