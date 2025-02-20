@@ -8,7 +8,8 @@ import {
   NumericInput,
   Spinner,
   SubtractIcon,
-  TextInput
+  TextInput,
+  useToast
 } from '@0xsequence/design-system'
 import { TokenBalance } from '@0xsequence/indexer'
 import { ChainId, networks } from '@0xsequence/network'
@@ -35,6 +36,7 @@ import { SendItemInfo } from './SendItemInfo'
 import { TransactionConfirmation } from './TransactionConfirmation'
 import { SendIcon } from '../design-system-patch/icons'
 import { WrappedInput } from './wrapped-input'
+import { TIME } from '../utils/time.const'
 
 interface SendCollectibleProps {
   chainId: number
@@ -44,6 +46,7 @@ interface SendCollectibleProps {
 
 export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: SendCollectibleProps) => {
   const { address: accountAddress } = useAuth()
+  const toast = useToast()
   const amountInputRef = useRef<HTMLInputElement>(null)
   const [amount, setAmount] = useState<string>('0')
   const [toAddress, setToAddress] = useState<string>('')
@@ -212,11 +215,25 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
 
       if (isSentTransactionResponse(txResponse)) {
         onSuccess(txResponse)
+
+        toast({
+          title: 'Transaction successful',
+          variant: 'success',
+          duration: TIME.SECOND * 5,
+        })
       } else {
-        // TODO error handling
+        toast({
+          title: 'Transaction failed',
+          variant: 'error',
+          duration: TIME.SECOND * 5
+        })
       }
     } catch {
-      // TODO error handling
+      toast({
+        title: 'Transaction failed',
+        variant: 'error',
+        duration: TIME.SECOND * 5
+      })
     } finally {
       setIsSendTxnPending(false)
     }
