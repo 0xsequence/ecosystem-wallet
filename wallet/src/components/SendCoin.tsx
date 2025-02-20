@@ -20,11 +20,9 @@ import {
 import { ethers } from 'ethers'
 import { ChangeEvent, SyntheticEvent, useRef, useState } from 'react'
 
-import { computeBalanceFiat, isNativeCoinBalance } from '../utils/balance'
+import { computeBalanceFiat, createNativeTokenBalance, isNativeCoinBalance } from '../utils/balance'
 import { isEthAddress, limitDecimals, truncateAtMiddle } from '../utils/helpers'
 import { TransactionFeeOptionsResult } from '../utils/txn'
-
-import { useAuth } from '../context/AuthContext'
 
 import { useCoinPrices, useExchangeRate } from '../hooks/useCoinPrices'
 import { useConfig } from '../hooks/useConfig'
@@ -78,7 +76,6 @@ const SendCoinSkeleton = () => {
 
 export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
   const { fiatCurrency } = useConfig()
-  const { address: accountAddress = '' } = useAuth()
   const amountInputRef = useRef<HTMLInputElement>(null)
   const [amount, setAmount] = useState<string>('0')
   const [toAddress, setToAddress] = useState<string>('')
@@ -96,10 +93,15 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
     return feeOption.token.contractAddress === selectedFeeTokenAddress
   })
 
+  const contractAddress = isNativeCoin
+    ? ethers.ZeroAddress
+    : 'contractAddress' in balance
+      ? balance.contractAddress
+      : ethers.ZeroAddress
   const { data: coinPrices = [], isPending: isPendingCoinPrices } = useCoinPrices([
     {
       chainId,
-      contractAddress: accountAddress
+      contractAddress
     }
   ])
 
@@ -137,10 +139,12 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
   const amountRaw = ethers.parseUnits(amountToSendFormatted, decimals)
 
   const amountToSendFiat = computeBalanceFiat({
-    balance: {
-      ...(balance as TokenBalance),
-      balance: amountRaw.toString()
-    },
+    balance: isNativeCoin
+      ? createNativeTokenBalance(chainId, balance.accountAddress, amountRaw.toString())
+      : {
+          ...(balance as TokenBalance),
+          balance: amountRaw.toString()
+        },
     prices: coinPrices,
     conversionRate,
     decimals
@@ -258,7 +262,9 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
               symbol={symbol}
               balance={balance?.balance || '0'}
               fiatValue={computeBalanceFiat({
-                balance: balance as TokenBalance,
+                balance: isNativeCoin
+                  ? createNativeTokenBalance(chainId, balance.accountAddress, balance.balance || '0')
+                  : (balance as TokenBalance),
                 prices: coinPrices,
                 conversionRate,
                 decimals
@@ -291,7 +297,7 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
               />
             </WrappedInput>
 
-            {insufficientFunds && <span className="text-seq-red-700">Insufficient Funds</span>}
+            {insufficientFunds && <span className="text-seq-red-700 text-sm">Insufficient Funds</span>}
           </Card>
           <div className="bg-black/10 rounded-md p-4 gap-2 flex flex-col">
             <span className="text-black text-sm font-bold">To</span>
