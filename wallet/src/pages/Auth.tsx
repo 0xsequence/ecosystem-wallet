@@ -6,8 +6,7 @@ import {
   Image,
   Modal,
   PINCodeInput,
-  Spinner,
-  Text
+  Spinner
 } from '@0xsequence/design-system'
 import { EmailConflictInfo } from '@0xsequence/waas'
 import { CredentialResponse, GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google'
@@ -158,7 +157,7 @@ export const Auth: React.FC = () => {
                             :disabled:cursor-default cursor-pointer"
                       >
                         {isSocialLoginInProgress === 'google' ? (
-                          <Spinner size="md" />
+                          <Spinner className="text-white" size="md" />
                         ) : (
                           <>
                             {/* @ts-expect-error logo doesn't want className, but accepts it */}
@@ -197,7 +196,7 @@ export const Auth: React.FC = () => {
                       disabled={!!isSocialLoginInProgress}
                     >
                       {isSocialLoginInProgress === 'apple' ? (
-                        <Spinner size="md" />
+                        <Spinner className="text-white" size="md" />
                       ) : (
                         <>
                           <AppleLogo className="size-8 flex-shrink-0" />
@@ -220,9 +219,7 @@ export const Auth: React.FC = () => {
           {sendChallengeAnswer ? (
             <div className="flex flex-col  p-4 items-center justify-center">
               <div>
-                <Text className="flex items-center justify-center" variant="normal" color="text80">
-                  Check your email for your access code
-                </Text>
+                <span className="text-white text-sm">Check your email for your access code</span>
               </div>
               <div className="mt-4">
                 <PINCodeInput value={code} digits={6} onChange={setCode} />
