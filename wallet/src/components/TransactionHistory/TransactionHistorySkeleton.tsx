@@ -17,7 +17,7 @@ export const TransactionHistorySkeleton = () => {
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 px-4 py-6">
       <Skeleton style={{ width: '70px', height: '17px' }} />
       <div className="flex flex-col gap-2">
         {Array(8)
@@ -25,7 +25,7 @@ export const TransactionHistorySkeleton = () => {
           .map((_, index) => {
             return (
               <div
-                className="rounded-md p-4 gap-2 items-center justify-center flex flex-col bg-backgroundSecondary"
+                className="rounded-md p-4 gap-2 items-center justify-center flex flex-col bg-background-secondary animate-pulse"
                 key={index}
               >
                 {getTransactionItem()}

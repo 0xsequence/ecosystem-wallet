@@ -4,7 +4,9 @@ import {
   Card,
   ChevronDownIcon,
   GradientAvatar,
-  truncateAddress
+  truncateAddress,
+  ModalPrimitive,
+  IconButton,
 } from '@0xsequence/design-system'
 
 import * as PopoverPrimitive from '@radix-ui/react-popover'
@@ -13,7 +15,7 @@ import { useState } from 'react'
 
 import { useAuth } from '../context/AuthContext'
 
-import { CloseIcon, ScanIcon, SignoutIcon, TransactionIcon } from '../design-system-patch/icons'
+import { ArrowLeftIcon, CloseIcon, ScanIcon, SignoutIcon, TransactionIcon } from '../design-system-patch/icons'
 import { CopyButton } from '../design-system-patch/copy-button/CopyButton'
 import { useConfirmDialog } from './ConfirmDialogProvider'
 import { Receive } from './Receive'
@@ -21,12 +23,14 @@ import { useFetchInventory } from '../pages/inventory/helpers/use-fetch-inventor
 import { TransactionHistory } from './TransactionHistory'
 import { AnimateChangeInHeight } from './AnimateChangeInHeight'
 import { ChainId } from '@0xsequence/network'
+import { Transaction } from '@0xsequence/indexer'
 
 export const AccountMenu = () => {
   const [isOpen, toggleOpen] = useState(false)
   const { address = '', signOut } = useAuth()
   const { confirmAction } = useConfirmDialog()
   const [openModal, setOpenModal] = useState<{ type: 'receive' | 'history' } | false>(false)
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
 
   const { inventory } = useFetchInventory()
   const chainIds: ChainId[] = [...new Set(inventory.filter(Boolean).map(item => item!.chainId))]
@@ -116,8 +120,18 @@ export const AccountMenu = () => {
             scroll
             onClose={() => setOpenModal(false)}
           >
+
             <AnimateChangeInHeight>
-              {openModal.type === 'history' ? <TransactionHistory chainIds={chainIds} /> : <Receive />}
+              <div className="border-b border-black/10 w-full z-20 flex flex-row items-center justify-between px-4">
+                <ModalPrimitive.Title asChild>
+                  <div className="text-black h-[3.75rem] text-sm font-bold flex items-center justify-center">
+                    {selectedTransaction && <IconButton className='text-black' icon={ArrowLeftIcon} size='sm' onClick={() => setSelectedTransaction(null)} />}
+                    {openModal.type === 'history' ? `Transaction ${selectedTransaction ? 'Details' : 'History'}` : 'Receive'}
+                  </div>
+                </ModalPrimitive.Title>
+              </div>
+
+              {openModal.type === 'history' ? <TransactionHistory chainIds={chainIds} selectedTransaction={selectedTransaction} setSelectedTransaction={setSelectedTransaction} /> : <Receive />}
             </AnimateChangeInHeight>
           </Modal>
         )}
