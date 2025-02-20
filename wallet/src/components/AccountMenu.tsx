@@ -20,6 +20,7 @@ import { Receive } from './Receive'
 import { useFetchInventory } from '../pages/inventory/helpers/use-fetch-inventory'
 import { TransactionHistory } from './TransactionHistory'
 import { AnimateChangeInHeight } from './AnimateChangeInHeight'
+import { ChainId } from '@0xsequence/network'
 
 export const AccountMenu = () => {
   const [isOpen, toggleOpen] = useState(false)
@@ -28,7 +29,7 @@ export const AccountMenu = () => {
   const [openModal, setOpenModal] = useState<{ type: 'receive' | 'history' } | false>(false)
 
   const { inventory } = useFetchInventory()
-  const chainIds: ChainId[] = [...new Set(inventory.map(item => item!.chainId))].filter(Boolean)
+  const chainIds: ChainId[] = [...new Set(inventory.filter(Boolean).map(item => item!.chainId))]
 
   const handleSignOut = () => {
     confirmAction({
