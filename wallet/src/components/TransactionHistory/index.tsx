@@ -158,7 +158,12 @@ export const TransactionHistory = ({ chainIds, selectedTransaction, setSelectedT
           })}
           {transactions.length === 0 && (
             <div className="grid gap-3">
-              <Text className='text-style-md text-black'>No Recent Transaction History Found</Text>
+              <div className="flex flex-col items-center justify-center py-12 px-4 text-black">
+                <h3 className="font-semibold text-lg mb-2">No transactions yet</h3>
+                <p className="text-center text-sm text-muted-foreground mb-6">
+                  When you make transactions with your wallet, they&apos;ll appear here.
+                </p>
+              </div>
             </div>
           )}
         </div>
