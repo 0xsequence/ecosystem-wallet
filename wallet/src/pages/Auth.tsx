@@ -337,7 +337,7 @@ function AuthCoverWrapper({ children }: { children: React.ReactNode }) {
       <div className="flex w-full overflow-clip rounded-lg">
         <div className="md:max-w-[24rem] w-full">{children}</div>
         <div
-          className="hidden sm:flex flex-col items-end justify-end p-8  w-[500px] flex-shrink [background-image:var(--background)] bg-cover bg-no-repeat"
+          className="hidden sm:flex flex-col items-end justify-end p-8  w-[550px] flex-shrink [background-image:var(--background)] bg-cover bg-no-repeat"
           style={style}
         >
           {title || message ? (
