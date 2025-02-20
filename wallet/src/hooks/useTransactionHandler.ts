@@ -11,7 +11,7 @@ import { useAuth } from '../context/AuthContext'
 
 import { sequenceWaas } from '../waasSetup'
 import { HandlerType } from '../walletTransport'
-import { IndexerClientGateway } from '../utils/indexer'
+import { INDEXER_CLIENT_GATEWAY } from '../utils/indexer'
 
 export const checkTransactionFeeOptions = async ({
   transactions,
@@ -141,10 +141,10 @@ export const useTransactionHandler = () => {
     }
 
 
-    const nativeTokenBalance = await IndexerClientGateway.getNativeTokenBalance({
+    const nativeTokenBalance = await INDEXER_CLIENT_GATEWAY.getNativeTokenBalance({
       accountAddress: authState.address
     })
-    const tokenBalances = await IndexerClientGateway.getTokenBalances({ accountAddress: authState.address })
+    const tokenBalances = await INDEXER_CLIENT_GATEWAY.getTokenBalances({ accountAddress: authState.address })
 
     const balances =
       txnFeeOptions?.map(option => {

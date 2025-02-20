@@ -3,7 +3,7 @@ import { ChainId, networks } from '@0xsequence/network'
 
 const PROJECT_ACCESS_KEY = import.meta.env.VITE_PROJECT_ACCESS_KEY
 
-export const IndexerClientGateway = new SequenceIndexerGateway(`https://indexer.sequence.app`, PROJECT_ACCESS_KEY)
+export const INDEXER_CLIENT_GATEWAY = new SequenceIndexerGateway(`https://indexer.sequence.app`, PROJECT_ACCESS_KEY)
 
 export const getIndexerClient = (chainId: ChainId) => {
   const network = networks[chainId]
