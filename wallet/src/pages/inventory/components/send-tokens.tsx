@@ -20,7 +20,9 @@ export function SendTokens() {
     : inventoryByTokenClass.collectibleInventory.find(collectible => collectible.tokenID === tokenId)
   const coinBalanceToSend = isCoin
     ? (contractAddress ? inventoryByTokenClass.erc20Inventory : inventoryByTokenClass.nativeBalances).find(
-        balance => balance.chainId === chainId
+        balance =>
+          balance.chainId === chainId &&
+          (contractAddress ? balance.contractAddress === contractAddress : true)
       )
     : null
 
