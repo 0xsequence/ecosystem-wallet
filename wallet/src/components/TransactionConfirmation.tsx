@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 
 import { truncateAtMiddle } from '../utils/helpers'
-import { getIndexerClient } from '../utils/indexer'
+import { INDEXER_CLIENT_GATEWAY } from '../utils/indexer'
 
 import { useAuth } from '../context/AuthContext'
 
@@ -34,18 +34,17 @@ interface TransactionConfirmationProps {
 
 const useFeeOptionBalances = (feeOptions: TransactionConfirmationProps['feeOptions'], chainId: number) => {
   const { address: accountAddress = '' } = useAuth()
-  const indexerClient = getIndexerClient()
 
   return useQuery({
     queryKey: ['feeOptionBalances', chainId, accountAddress, feeOptions?.options?.length],
     queryFn: async () => {
-      if (!feeOptions?.options || !accountAddress || !indexerClient) return []
+      if (!feeOptions?.options || !accountAddress) return []
 
-      const nativeTokenBalance = await indexerClient.getNativeTokenBalance({
+      const nativeTokenBalance = await INDEXER_CLIENT_GATEWAY.getNativeTokenBalance({
         accountAddress
       })
 
-      const tokenBalances = await indexerClient.getTokenBalances({
+      const tokenBalances = await INDEXER_CLIENT_GATEWAY.getTokenBalances({
         accountAddress
       })
 
@@ -69,7 +68,7 @@ const useFeeOptionBalances = (feeOptions: TransactionConfirmationProps['feeOptio
         }
       })
     },
-    enabled: Boolean(feeOptions?.options && accountAddress && indexerClient),
+    enabled: Boolean(feeOptions?.options && accountAddress),
     refetchInterval: 10000,
     staleTime: 10000
   })

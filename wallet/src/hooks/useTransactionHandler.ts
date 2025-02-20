@@ -4,7 +4,6 @@ import { ZeroAddress } from 'ethers'
 import { useEffect, useRef, useState } from 'react'
 import { UserRejectedRequestError } from 'viem'
 
-import { getIndexerClient } from '../utils/indexer'
 import { Deferred } from '../utils/promise'
 
 import { walletTransport } from '../context/AuthContext'
@@ -12,6 +11,7 @@ import { useAuth } from '../context/AuthContext'
 
 import { sequenceWaas } from '../waasSetup'
 import { HandlerType } from '../walletTransport'
+import { INDEXER_CLIENT_GATEWAY } from '../utils/indexer'
 
 export const checkTransactionFeeOptions = async ({
   transactions,
@@ -140,12 +140,11 @@ export const useTransactionHandler = () => {
       throw new Error('User not signed in')
     }
 
-    const indexerClient = getIndexerClient()
 
-    const nativeTokenBalance = await indexerClient.getNativeTokenBalance({
+    const nativeTokenBalance = await INDEXER_CLIENT_GATEWAY.getNativeTokenBalance({
       accountAddress: authState.address
     })
-    const tokenBalances = await indexerClient.getTokenBalances({ accountAddress: authState.address })
+    const tokenBalances = await INDEXER_CLIENT_GATEWAY.getTokenBalances({ accountAddress: authState.address })
 
     const balances =
       txnFeeOptions?.map(option => {

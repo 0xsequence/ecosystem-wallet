@@ -10,7 +10,6 @@ import {
 import * as PopoverPrimitive from '@radix-ui/react-popover'
 import { AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
-import { Link } from 'react-router'
 
 import { useAuth } from '../context/AuthContext'
 
@@ -18,12 +17,19 @@ import { CloseIcon, ScanIcon, SignoutIcon, TransactionIcon } from '../design-sys
 import { CopyButton } from '../design-system-patch/copy-button/CopyButton'
 import { useConfirmDialog } from './ConfirmDialogProvider'
 import { Receive } from './Receive'
+import { useFetchInventory } from '../pages/inventory/helpers/use-fetch-inventory'
+import { TransactionHistory } from './TransactionHistory'
+import { AnimateChangeInHeight } from './AnimateChangeInHeight'
+import { ChainId } from '@0xsequence/network'
 
 export const AccountMenu = () => {
   const [isOpen, toggleOpen] = useState(false)
   const { address = '', signOut } = useAuth()
   const { confirmAction } = useConfirmDialog()
-  const [openReceiveModal, setOpenReceiveModal] = useState(false)
+  const [openModal, setOpenModal] = useState<{ type: 'receive' | 'history' } | false>(false)
+
+  const { inventory } = useFetchInventory()
+  const chainIds: ChainId[] = [...new Set(inventory.filter(Boolean).map(item => item!.chainId))]
 
   const handleSignOut = () => {
     confirmAction({
@@ -32,7 +38,7 @@ export const AccountMenu = () => {
       confirmLabel: 'Sign out',
       onConfirm: signOut,
       cancelLabel: 'Cancel',
-      onCancel: () => {}
+      onCancel: () => { }
     })
   }
 
@@ -78,8 +84,16 @@ export const AccountMenu = () => {
                     <span className="sr-only">Close</span>
                   </button>
                 </div>
-                <MenuButton label="Receive" icon={ScanIcon} onClick={() => setOpenReceiveModal(true)} />
-                <MenuLink label="History" icon={TransactionIcon} href="/history" />
+                <MenuButton
+                  label="Receive"
+                  icon={ScanIcon}
+                  onClick={() => setOpenModal({ type: 'receive' })}
+                />
+                <MenuButton
+                  label="History"
+                  icon={TransactionIcon}
+                  onClick={() => setOpenModal({ type: 'history' })}
+                />
                 {/* <MenuLink label="Settings" icon={SettingsIcon} href="/settings" /> */}
                 <MenuButton label="Sign out" icon={SignoutIcon} onClick={handleSignOut} />
               </Card>
@@ -88,20 +102,23 @@ export const AccountMenu = () => {
         )}
       </PopoverPrimitive.Root>
       <AnimatePresence>
-        {openReceiveModal && (
+        {openModal && (
           <Modal
             contentProps={{
               style: {
                 maxWidth: '400px',
-                height: 'fit-content',
-                scrollbarColor: 'gray black',
+                height: 'auto',
+                overflowY: 'auto',
+                scrollbarColor: 'gray white',
                 scrollbarWidth: 'thin'
               }
             }}
-            scroll={false}
-            onClose={() => setOpenReceiveModal(false)}
+            scroll
+            onClose={() => setOpenModal(false)}
           >
-            <Receive />
+            <AnimateChangeInHeight>
+              {openModal.type === 'history' ? <TransactionHistory chainIds={chainIds} /> : <Receive />}
+            </AnimateChangeInHeight>
           </Modal>
         )}
       </AnimatePresence>
@@ -109,26 +126,27 @@ export const AccountMenu = () => {
   )
 }
 
-interface MenuLinkProps {
-  label: string
-  href: string
-  icon?: typeof TransactionIcon
-}
+// interface MenuLinkProps {
+//   label: string
+//   href: string
+//   icon?: typeof TransactionIcon
+// }
+//
+// function MenuLink(props: MenuLinkProps) {
+//   const { label, icon, href } = props
+//
+//   return (
+//     <Button
+//       className="w-full bg-black/20 text-sm font-bold rounded-sm text-black"
+//       leftIcon={icon}
+//       label={label}
+//       asChild
+//     >
+//       <Link to={href}></Link>
+//     </Button>
+//   )
+// }
 
-function MenuLink(props: MenuLinkProps) {
-  const { label, icon, href } = props
-
-  return (
-    <Button
-      className="w-full bg-black/20 text-sm font-bold rounded-sm text-black"
-      leftIcon={icon}
-      label={label}
-      asChild
-    >
-      <Link to={href}></Link>
-    </Button>
-  )
-}
 interface MenuButtonProps {
   label: string
   onClick?: React.MouseEventHandler
