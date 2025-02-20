@@ -14,7 +14,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
   return (
     <ThemeProvider root="#app" scope="app" theme={theme}>
       <AuthProvider>
-        <ToastProvider>
+        <ToastProvider swipeDirection='right'>
           <ConfirmDialogProvider>
             <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
           </ConfirmDialogProvider>

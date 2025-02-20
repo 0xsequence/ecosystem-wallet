@@ -45,6 +45,11 @@ code {
   margin: 0 !important;
 }
 
+/** Toast adjustments */
+div[role='region'] ol li[role='status'] {
+  @apply bg-black/20;
+}
+
 /* a {
   color: inherit;
   text-decoration: inherit;
