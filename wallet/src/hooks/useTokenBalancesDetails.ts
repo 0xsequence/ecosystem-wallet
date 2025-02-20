@@ -11,6 +11,8 @@ export const useTokenBalancesDetails = ({ ...args }: GetTokenBalancesDetailsArgs
     queryFn: () => getTokenBalancesDetails(INDEXER_CLIENT_GATEWAY, args),
     retry: true,
     staleTime: 30 * TIME.SECOND,
-    enabled: !!args.filter.accountAddresses[0]
+    enabled: !!args.filter.accountAddresses[0],
+    refetchInterval: 30 * TIME.SECOND,
+    refetchOnWindowFocus: true
   })
 }
