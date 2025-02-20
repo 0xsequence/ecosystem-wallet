@@ -55,6 +55,7 @@ export const TransactionHistory = ({ chainIds, selectedTransaction, setSelectedT
     accountAddress,
     chainIds
   })
+  const isLoading = chainIds.length > 0 && isPending
 
   const transactionsByTime = useMemo(() => {
     const todayTreshold = new Date(new Date().setHours(0, 0, 0, 0)).getTime()
@@ -94,7 +95,7 @@ export const TransactionHistory = ({ chainIds, selectedTransaction, setSelectedT
     return transactionsByTime
   }, [transactions])
 
-  if (isPending) {
+  if (isLoading) {
     return (
       <div className="flex flex-col gap-2">
         <TransactionHistorySkeleton />
