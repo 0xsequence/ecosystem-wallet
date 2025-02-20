@@ -7,7 +7,6 @@ import {
   truncateAddress
 } from '@0xsequence/design-system'
 
-import { ChainId } from '@0xsequence/network'
 import * as PopoverPrimitive from '@radix-ui/react-popover'
 import { AnimatePresence } from 'framer-motion'
 import { useState } from 'react'

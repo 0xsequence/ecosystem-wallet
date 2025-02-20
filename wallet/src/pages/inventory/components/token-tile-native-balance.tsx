@@ -3,13 +3,13 @@ import { nativeTokenImageUrl, TokenImage } from '@0xsequence/design-system'
 import { formatUnits } from 'ethers'
 
 import type { TokenTileProps } from '../types'
-import { formatDisplay } from '../../../utils/helpers'
+import { formatDisplay, limitDecimals } from '../../../utils/helpers'
 
 export function TokenTileNativeBalance(props: TokenTileProps) {
-  const { chain, chainId, title, balance } = props
+  const { chainId, title, balance, nativeToken } = props
   const contractAddress = ''
   const tokenID = ''
-  const { symbol = '', decimals = 18 } = chain?.nativeToken || {}
+  const { symbol = '', decimals = 18 } = nativeToken || {}
 
   return (
     <TokenTile
@@ -23,7 +23,9 @@ export function TokenTileNativeBalance(props: TokenTileProps) {
       <div className="flex flex-col flex-1 justify-end items-start">
         <span className="text-style-sm  font-bold text-seq-grey-500 leading-tight text-start">{title}</span>
         <div>
-          <span className="text-style-lg font-bold">{formatDisplay(formatUnits(balance, decimals))}</span>{' '}
+          <span className="text-style-lg font-bold">
+            {limitDecimals(formatDisplay(formatUnits(balance, decimals)), 5)}
+          </span>{' '}
           <span className="text-style-sm">{symbol}</span>
         </div>
       </div>

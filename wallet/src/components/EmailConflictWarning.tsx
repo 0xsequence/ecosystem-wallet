@@ -48,8 +48,8 @@ export const EmailConflictWarning = (props: EmailConflictWarningProps) => {
         <Text className="text-center" variant="normal" color="text50" asChild>
           <div>
             It looks like you've previously signed into this email{' '}
-            <Text color="text80">({props.info.email})</Text>with another login method. Please sign in again
-            and select the <Text color="text80">{accountTypeText(props.info)}</Text>option to access your
+            <Text color="text80">({props.info.email})</Text> with another login method. Please sign in again
+            and select the <Text color="text80">{accountTypeText(props.info)}</Text> option to access your
             account.
           </div>
         </Text>

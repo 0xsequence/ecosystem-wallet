@@ -65,7 +65,7 @@ export function getNativeInventory(address: string, data?: { nativeBalances: Gat
     .map(balance => {
       const chain = networks[balance.chainId]
       const nativeTokenBalance = createNativeTokenBalance(balance.chainId, address, balance.balance)
-      return { ...nativeTokenBalance, ...chain, tokenClass: 'nativeBalance' }
+      return { ...chain, ...nativeTokenBalance, tokenClass: 'nativeBalance' }
     })
     .sort((a, b) => {
       const balanceA = Number(a.balance)

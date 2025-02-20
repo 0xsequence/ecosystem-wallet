@@ -1,4 +1,5 @@
-import { Button, CopyIcon, ShareIcon, Text } from '@0xsequence/design-system'
+import { Button, CopyIcon, Text } from '@0xsequence/design-system'
+
 import { QRCodeCanvas } from 'qrcode.react'
 import { useEffect, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
@@ -8,7 +9,6 @@ import { useAuth } from '../context/AuthContext'
 export const Receive = () => {
   const { address = '' } = useAuth()
   const [isCopied, setCopied] = useState<boolean>(false)
-
 
   useEffect(() => {
     if (isCopied) {
@@ -20,12 +20,6 @@ export const Receive = () => {
 
   const onClickCopy = () => {
     setCopied(true)
-  }
-
-  const onClickShare = () => {
-    if (typeof window !== 'undefined') {
-      window.open(`https://twitter.com/intent/tweet?text=Here%20is%20my%20address%20${address}`)
-    }
   }
 
   return (
@@ -40,18 +34,31 @@ export const Receive = () => {
             data-id="receiveQR"
           />
         </div>
-        <div className="mt-2" style={{ maxWidth: '180px', textAlign: 'center' }}>
-          <Text
-            textAlign="center"
-            color="black"
-            style={{
-              fontSize: '14px',
-              maxWidth: '180px',
-              overflowWrap: 'anywhere'
-            }}
-          >
-            {address}
-          </Text>
+        <div>
+          <div className="flex flex-row items-center justify-center gap-2">
+            <Text
+              variant="medium"
+              color="black"
+              textAlign="center"
+              lineHeight="inherit"
+              style={{ fontWeight: '700' }}
+            >
+              Wallet address
+            </Text>
+          </div>
+          <div className="mt-2" style={{ textAlign: 'center' }}>
+            <Text
+              textAlign="center"
+              color="black"
+              style={{
+                fontSize: '14px',
+                maxWidth: '180px',
+                overflowWrap: 'anywhere'
+              }}
+            >
+              {address}
+            </Text>
+          </div>
         </div>
         <div className="gap-3 flex">
           <CopyToClipboard text={address || ''}>
@@ -62,7 +69,6 @@ export const Receive = () => {
               label={isCopied ? 'Copied!' : 'Copy'}
             />
           </CopyToClipboard>
-          <Button className="bg-black" onClick={onClickShare} leftIcon={ShareIcon} label="Share" />
         </div>
       </div>
     </div>

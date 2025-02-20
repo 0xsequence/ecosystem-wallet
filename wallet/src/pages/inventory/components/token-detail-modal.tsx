@@ -67,7 +67,7 @@ function CoinDetails(props: TokenTypeProps) {
   const units = formatUnits(balance, decimals)
   const diplayedBalance = formatDisplay(units)
 
-  const { data = [] } = useCoinPrices([
+  const { data = [], isPending } = useCoinPrices([
     {
       chainId,
       contractAddress
@@ -97,15 +97,24 @@ function CoinDetails(props: TokenTypeProps) {
         <div className="grid gap-2 place-items-center">
           <TokenImage src={logoURI} size="xl" withNetwork={chainId} />
           <div className="flex-1 grid place-items-center">
-            {priceText && <p className="text-style-md font-bold">{priceText}</p>}
-            {priceChangeText && (
-              <p
-                className={cn('text-style-sm', [
-                  priceChangeText.startsWith('-') ? 'text-red-400' : 'text-green-400'
-                ])}
-              >
-                {priceChangeText}
-              </p>
+            {isPending ? (
+              <div className="h-[52px] grid place-items-center gap-2">
+                <div className="h-7 w-24 bg-black/5 rounded animate-pulse" />
+                <div className="h-5 w-16 bg-black/5 rounded animate-pulse" />
+              </div>
+            ) : (
+              <>
+                {priceText && <p className="text-style-md font-bold">{priceText}</p>}
+                {priceChangeText && (
+                  <p
+                    className={cn('text-style-sm', [
+                      priceChangeText.startsWith('-') ? 'text-red-400' : 'text-green-400'
+                    ])}
+                  >
+                    {priceChangeText}
+                  </p>
+                )}
+              </>
             )}
           </div>
           <span className="inline-flex mx-auto items-center gap-2 font-bold text-[9px] bg-black/10 px-1.25 py-1 rounded-xs">
@@ -121,7 +130,11 @@ function CoinDetails(props: TokenTypeProps) {
             <p className="flex-1 text-start text-style-lg font-bold">
               {diplayedBalance} {symbol}
             </p>
-            {priceText && <p className="text-style-sm font-bold text-seq-grey-500">{priceText}</p>}
+            {isPending ? (
+              <div className="h-6 w-24 bg-black/5 rounded animate-pulse" />
+            ) : (
+              priceText && <p className="text-style-sm font-bold text-seq-grey-500">{priceText}</p>
+            )}
           </div>
         </div>
         <span className="text-xl font-bold">{tokenMetadata?.name}</span>
