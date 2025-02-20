@@ -46,16 +46,21 @@ export const EmailConflictWarning = (props: EmailConflictWarningProps) => {
       </div>
       <div className="h-full">
         <Text className="text-center" variant="normal" color="text50" asChild>
-          <div>
+          <div className="leading-[1.5]">
             It looks like you've previously signed into this email{' '}
-            <Text color="text80">({props.info.email})</Text> with another login method. Please sign in again
-            and select the <Text color="text80">{accountTypeText(props.info)}</Text> option to access your
-            account.
+            <Text color="text80" fontWeight="bold">
+              ({props.info.email})
+            </Text>{' '}
+            with another login method. Please sign in again and select the{' '}
+            <Text color="text80" fontWeight="bold">
+              {accountTypeText(props.info)}
+            </Text>{' '}
+            option to access your account.
           </div>
         </Text>
       </div>
       <div className="flex flex-row gap-3 mt-2 mb-2">
-        <Button label="OK" onClick={onCancel} />
+        <Button className="bg-black" label="OK" onClick={onCancel} />
       </div>
     </div>
   )
