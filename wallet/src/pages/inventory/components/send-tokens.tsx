@@ -20,17 +20,20 @@ export function SendTokens() {
     : inventoryByTokenClass.collectibleInventory.find(collectible => collectible.tokenID === tokenId)
   const coinBalanceToSend = isCoin
     ? (contractAddress ? inventoryByTokenClass.erc20Inventory : inventoryByTokenClass.nativeBalances).find(
-      balance =>
-        balance.chainId === chainId &&
-        (contractAddress ? balance.contractAddress === contractAddress : true)
-    )
+        balance =>
+          balance.chainId === chainId &&
+          (contractAddress ? balance.contractAddress === contractAddress : true)
+      )
     : null
 
   if (!showSendModal) return null
 
   const onSendSuccess = () => {
     setShowSendModal(false)
-    refetchInventory()
+    //delay 2 seconds to give indexer some time
+    setTimeout(() => {
+      refetchInventory()
+    }, 2000)
     setShowInventoryItem(false)
   }
 
