@@ -145,9 +145,9 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
     balance: isNativeCoin
       ? createNativeTokenBalance(chainId, balance.accountAddress, amountRaw.toString())
       : {
-        ...(balance as TokenBalance),
-        balance: amountRaw.toString()
-      },
+          ...(balance as TokenBalance),
+          balance: amountRaw.toString()
+        },
     prices: coinPrices,
     conversionRate,
     decimals
@@ -240,9 +240,9 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
       if (isSentTransactionResponse(txResponse)) {
         onSuccess(txResponse)
         toast({
-          title: "Transaction succesfull",
+          title: 'Transaction successful',
           variant: 'success',
-          duration: TIME.SECOND * 5,
+          duration: TIME.SECOND * 5
         })
       } else {
         toast({
@@ -337,7 +337,7 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
                 <TextInput
                   value={toAddress}
                   onChange={(ev: SyntheticEvent) => setToAddress((ev.target as HTMLInputElement).value)}
-                  placeholder={`${nativeTokenName} Address (0x...)`}
+                  placeholder="Ethereum Address (0x...)"
                   name="to-address"
                   className="text-black"
                   data-1p-ignore
