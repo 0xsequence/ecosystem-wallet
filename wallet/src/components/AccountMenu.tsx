@@ -30,7 +30,6 @@ import { useFetchInventory } from '../pages/inventory/helpers/use-fetch-inventor
 import { TransactionHistory } from './TransactionHistory'
 import { ChainId } from '@0xsequence/network'
 import { Transaction } from '@0xsequence/indexer'
-import { AnimateChangeInHeight } from './AnimateChangeInHeight'
 
 export const AccountMenu = () => {
   const isMobile = useMediaQuery('isMobile')
@@ -123,7 +122,7 @@ export const AccountMenu = () => {
               style: {
                 maxWidth: '400px',
                 minHeight: '480px',
-                height: isMobile ? '100vh' : 'auto',
+                height: isMobile ? '90vh' : '60vh',
                 overflowY: 'auto',
                 scrollbarColor: 'gray white',
                 scrollbarWidth: 'thin',
@@ -135,35 +134,33 @@ export const AccountMenu = () => {
               setSelectedTransaction(null)
             }}
           >
-            <AnimateChangeInHeight>
-              <div className="border-b border-black/10 w-full z-20 flex flex-row items-center justify-between px-4">
-                <ModalPrimitive.Title asChild>
-                  <div className="text-black h-[3.75rem] text-sm font-bold flex items-center justify-center">
-                    {selectedTransaction && (
-                      <IconButton
-                        className="text-black"
-                        icon={ArrowLeftIcon}
-                        size="sm"
-                        onClick={() => setSelectedTransaction(null)}
-                      />
-                    )}
-                    {openModal.type === 'history'
-                      ? `Transaction ${selectedTransaction ? 'Details' : 'History'}`
-                      : 'Receive'}
-                  </div>
-                </ModalPrimitive.Title>
-              </div>
+            <div className="border-b border-black/10 w-full z-20 flex flex-row items-center justify-between px-4">
+              <ModalPrimitive.Title asChild>
+                <div className="text-black h-[3.75rem] text-sm font-bold flex items-center justify-center">
+                  {selectedTransaction && (
+                    <IconButton
+                      className="text-black"
+                      icon={ArrowLeftIcon}
+                      size="sm"
+                      onClick={() => setSelectedTransaction(null)}
+                    />
+                  )}
+                  {openModal.type === 'history'
+                    ? `Transaction ${selectedTransaction ? 'Details' : 'History'}`
+                    : 'Receive'}
+                </div>
+              </ModalPrimitive.Title>
+            </div>
 
-              {openModal.type === 'history' ? (
-                <TransactionHistory
-                  chainIds={chainIds}
-                  selectedTransaction={selectedTransaction}
-                  setSelectedTransaction={setSelectedTransaction}
-                />
-              ) : (
-                <Receive />
-              )}
-            </AnimateChangeInHeight>
+            {openModal.type === 'history' ? (
+              <TransactionHistory
+                chainIds={chainIds}
+                selectedTransaction={selectedTransaction}
+                setSelectedTransaction={setSelectedTransaction}
+              />
+            ) : (
+              <Receive />
+            )}
           </Modal>
         )}
       </AnimatePresence>
