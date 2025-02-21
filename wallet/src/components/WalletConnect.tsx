@@ -141,7 +141,7 @@ export const WalletConnect = () => {
   const connectMethods = getConnectMethods(isMobile)
 
   return (
-    <div className="flex gap-2 flex-col" style={{ maxWidth: '400px' }}>
+    <div className="flex gap-2 flex-col w-full p-4">
       <div className="flex flex-col gap-2">
         <div className="flex flex-col gap-3">
           <div className="flex flex-row gap-2 justify-between items-center">
@@ -174,6 +174,7 @@ export const WalletConnect = () => {
                     <Spinner />
                   ) : (
                     <Button
+                      className='w-full'
                       variant="primary"
                       onClick={() => handlePair(wcUri)}
                       disabled={!wcUri || isConnecting || !isReady}

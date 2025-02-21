@@ -7,7 +7,8 @@ import {
   truncateAddress,
   ModalPrimitive,
   IconButton,
-  useMediaQuery
+  useMediaQuery,
+  WalletConnectIcon
 } from '@0xsequence/design-system'
 
 import * as PopoverPrimitive from '@radix-ui/react-popover'
@@ -30,13 +31,15 @@ import { useFetchInventory } from '../pages/inventory/helpers/use-fetch-inventor
 import { TransactionHistory } from './TransactionHistory'
 import { ChainId } from '@0xsequence/network'
 import { Transaction } from '@0xsequence/indexer'
+import { WalletConnect } from './WalletConnect'
+
 
 export const AccountMenu = () => {
   const isMobile = useMediaQuery('isMobile')
   const [isOpen, toggleOpen] = useState(false)
   const { address = '', signOut } = useAuth()
   const { confirmAction } = useConfirmDialog()
-  const [openModal, setOpenModal] = useState<{ type: 'receive' | 'history' } | false>(false)
+  const [openModal, setOpenModal] = useState<{ type: 'wallet' | 'receive' | 'history' } | false>(false)
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
 
   const { inventory } = useFetchInventory()
@@ -44,6 +47,20 @@ export const AccountMenu = () => {
   const chainIds: ChainId[] = [
     ...new Set([...inventoryChainIds, ChainId.ARBITRUM, ChainId.ARBITRUM_NOVA, ChainId.ARBITRUM_SEPOLIA])
   ]
+
+
+  const getModalTitle = () => {
+    if (!openModal) return ''
+
+    const modalType = openModal?.type
+    if (modalType === 'wallet') return 'WalletConnect'
+
+    if (modalType === 'receive') return 'Receive'
+
+    if (modalType === 'history') {
+      return selectedTransaction ? 'Transaction Details' : 'Transaction History'
+    }
+  }
 
   const handleSignOut = () => {
     confirmAction({
@@ -99,6 +116,11 @@ export const AccountMenu = () => {
                   </button>
                 </div>
                 <MenuButton
+                  label="WalletConnect"
+                  icon={WalletConnectIcon}
+                  onClick={() => setOpenModal({ type: 'wallet' })}
+                />
+                <MenuButton
                   label="Receive"
                   icon={ScanIcon}
                   onClick={() => setOpenModal({ type: 'receive' })}
@@ -145,22 +167,24 @@ export const AccountMenu = () => {
                       onClick={() => setSelectedTransaction(null)}
                     />
                   )}
-                  {openModal.type === 'history'
-                    ? `Transaction ${selectedTransaction ? 'Details' : 'History'}`
-                    : 'Receive'}
+                  {getModalTitle()}
                 </div>
               </ModalPrimitive.Title>
             </div>
 
-            {openModal.type === 'history' ? (
+            {openModal.type === 'wallet' &&
+              (<div className='mx-4 my-6 bg-background-secondary rounded-md'>
+                <WalletConnect />
+              </div>)
+            }
+            {openModal.type === 'history' && (
               <TransactionHistory
                 chainIds={chainIds}
                 selectedTransaction={selectedTransaction}
                 setSelectedTransaction={setSelectedTransaction}
               />
-            ) : (
-              <Receive />
             )}
+            {openModal.type === 'receive' && (<Receive />)}
           </Modal>
         )}
       </AnimatePresence>

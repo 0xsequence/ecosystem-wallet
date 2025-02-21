@@ -1,11 +1,13 @@
-import { Image } from '@0xsequence/design-system'
+import { Image, Modal } from '@0xsequence/design-system'
 import { Link, NavLink, Outlet } from 'react-router'
 
 import { AccountMenu } from './components/AccountMenu'
-// import { PoweredBySequence } from './components/PoweredBySequence'
 import { PrivateRoute } from './components/PrivateRoute'
 import { ExploreIcon, InventoryIcon, MarketplaceIcon } from './design-system-patch/icons'
 import { isPublicRoute, ROUTES } from './routes'
+import { useEffect, useState } from 'react'
+import { WalletConnectModal } from './pages/WalletConnectModal'
+import { useWalletConnect } from './context/WalletConnectContext'
 
 const PROJECT_HEADER_LOGO = import.meta.env.VITE_PROJECT_HEADER_LOGO
 
@@ -54,6 +56,21 @@ export const AppLayout = ({ showHeader = false }: { showHeader?: boolean }) => {
     '--background': `url(${import.meta.env.VITE_PROJECT_BACKGROUND})`
   } as React.CSSProperties
   const isPopup = window.opener !== null
+  const { connectionHandler, signMessageHandler, transactionHandler } = useWalletConnect()
+  const [walletConnectModalOpen, setWalletConnectModalOpen] = useState(false)
+  const { connectionRequest, isConnectionHandlerRegistered } = connectionHandler
+  const { transactionRequest, isSendingTxn, isTransactionHandlerRegistered } = transactionHandler
+  const { signRequest, isSigningMessage, isSignHandlerRegistered } = signMessageHandler
+  const allHandlersRegistered =
+    isConnectionHandlerRegistered && isTransactionHandlerRegistered && isSignHandlerRegistered
+
+  const sendInProgress = isSendingTxn || isSigningMessage
+
+  useEffect(() => {
+    if (isPopup) return
+
+    setWalletConnectModalOpen(!!connectionRequest || !!transactionRequest || !!signRequest)
+  }, [allHandlersRegistered, connectionRequest, isPopup, sendInProgress, signRequest, transactionRequest])
 
   return (
     <div
@@ -63,6 +80,26 @@ export const AppLayout = ({ showHeader = false }: { showHeader?: boolean }) => {
       {showHeader && <AppHeader />}
       <div className="flex flex-col flex-1">
         <Outlet />
+
+        {walletConnectModalOpen && (
+          <Modal
+            title
+            contentProps={{
+              style: {
+                maxWidth: '400px',
+                padding: 0,
+                height: 'fit-content',
+                scrollbarColor: 'gray white',
+                scrollbarWidth: 'thin'
+              }
+            }}
+            scroll={false}
+            onClose={() => { setWalletConnectModalOpen(false) }}
+          >
+            <WalletConnectModal />
+          </Modal>
+        )}
+
       </div>
       <nav
         data-is-popup={isPopup}

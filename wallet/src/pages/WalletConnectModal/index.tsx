@@ -2,22 +2,16 @@ import { Spinner } from '@0xsequence/design-system'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect } from 'react'
 
-import { useConnectionHandler } from '../../hooks/useConnectionHandler'
-import { useSignMessageHandler } from '../../hooks/useSignMessageHandler'
-import { useTransactionHandler } from '../../hooks/useTransactionHandler'
-
 import { SignMessagePanel } from './components/SignMessagePanel'
 import { SendTransactionPanel } from './components/SendTransactionPanel'
 import { ConnectionRequestPanel } from './components/ConnectionRequestPanel'
 
 import { useNavigate } from 'react-router'
 import { ROUTES } from '../../routes'
+import { useWalletConnect } from '../../context/WalletConnectContext'
 
-export function Home() {
-  // Setup handlers
-  const connectionHandler = useConnectionHandler()
-  const transactionHandler = useTransactionHandler()
-  const signMessageHandler = useSignMessageHandler()
+export function WalletConnectModal({ variant = 'default' }: { variant?: 'popup' | 'default' }) {
+  const { connectionHandler, transactionHandler, signMessageHandler } = useWalletConnect()
 
   const { connectionRequest, isConnectionHandlerRegistered } = connectionHandler
   const { transactionRequest, isSendingTxn, isTransactionHandlerRegistered } = transactionHandler
@@ -31,10 +25,12 @@ export function Home() {
   // If not a popup request, redirect to inventory
   const navigate = useNavigate()
   useEffect(() => {
+    if (variant !== 'popup') return
+
     if (!isPopup && !transactionRequest && !connectionRequest && !signRequest) {
       navigate(ROUTES.INVENTORY)
     }
-  }, [isPopup, transactionRequest, connectionRequest, signRequest])
+  }, [transactionRequest, connectionRequest, signRequest, navigate, isPopup, variant])
 
   return (
     <div className="flex flex-col flex-1 items-center justify-center w-full">
