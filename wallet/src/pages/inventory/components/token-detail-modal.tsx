@@ -192,12 +192,10 @@ function TokenDetailsCollectable(props: TokenTileProps) {
           Send
         </button>
 
-        {contractInfo?.extensions?.description && (
+        {tokenMetadata?.description && (
           <WrappedCollapse>
             <Collapsible label="Details">
-              <span className="text-seq-grey-500 text-xs font-bold">
-                {contractInfo?.extensions?.description}
-              </span>
+              <span className="text-seq-grey-500 text-xs font-bold">{tokenMetadata?.description}</span>
             </Collapsible>
           </WrappedCollapse>
         )}
