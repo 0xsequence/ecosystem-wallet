@@ -6,7 +6,8 @@ import {
   GradientAvatar,
   truncateAddress,
   ModalPrimitive,
-  IconButton
+  IconButton,
+  useMediaQuery
 } from '@0xsequence/design-system'
 
 import * as PopoverPrimitive from '@radix-ui/react-popover'
@@ -27,11 +28,12 @@ import { useConfirmDialog } from './ConfirmDialogProvider'
 import { Receive } from './Receive'
 import { useFetchInventory } from '../pages/inventory/helpers/use-fetch-inventory'
 import { TransactionHistory } from './TransactionHistory'
-import { AnimateChangeInHeight } from './AnimateChangeInHeight'
 import { ChainId } from '@0xsequence/network'
 import { Transaction } from '@0xsequence/indexer'
+import { AnimateChangeInHeight } from './AnimateChangeInHeight'
 
 export const AccountMenu = () => {
+  const isMobile = useMediaQuery('isMobile')
   const [isOpen, toggleOpen] = useState(false)
   const { address = '', signOut } = useAuth()
   const { confirmAction } = useConfirmDialog()
@@ -51,7 +53,7 @@ export const AccountMenu = () => {
       confirmLabel: 'Sign out',
       onConfirm: signOut,
       cancelLabel: 'Cancel',
-      onCancel: () => {}
+      onCancel: () => { }
     })
   }
 
@@ -120,14 +122,18 @@ export const AccountMenu = () => {
             contentProps={{
               style: {
                 maxWidth: '400px',
-                height: 'auto',
+                minHeight: '480px',
+                height: isMobile ? '100vh' : 'auto',
                 overflowY: 'auto',
                 scrollbarColor: 'gray white',
-                scrollbarWidth: 'thin'
+                scrollbarWidth: 'thin',
               }
             }}
             scroll
-            onClose={() => setOpenModal(false)}
+            onClose={() => {
+              setOpenModal(false)
+              setSelectedTransaction(null)
+            }}
           >
             <AnimateChangeInHeight>
               <div className="border-b border-black/10 w-full z-20 flex flex-row items-center justify-between px-4">

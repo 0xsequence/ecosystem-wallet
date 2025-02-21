@@ -167,7 +167,7 @@ export const TransactionDetails = ({ transaction }: TransactionDetailProps) => {
   }
 
   return (
-    <div className="bg-background-secondary p-5 pt-3 flex flex-col items-center justify-center gap-10 mt-5 rounded-md">
+    <div className="bg-background-secondary p-5 pt-3 flex flex-col items-center justify-center gap-10 rounded-md">
       <div className="mt-6 flex flex-col justify-center items-center gap-1 text-black">
         <span className="text-style-normal font-medium">Transaction details</span>
         <Text variant="small" className="mb-1 font-medium text-text50">
