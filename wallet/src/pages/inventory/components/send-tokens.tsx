@@ -30,10 +30,10 @@ export function SendTokens() {
 
   const onSendSuccess = () => {
     setShowSendModal(false)
-    //delay 2 seconds to give indexer some time
+    // delay a second to give indexer some time
     setTimeout(() => {
       refetchInventory()
-    }, 2000)
+    }, 1000)
     setShowInventoryItem(false)
   }
 
