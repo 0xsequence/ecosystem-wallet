@@ -173,7 +173,7 @@ export const AccountMenu = () => {
             </div>
 
             {openModal.type === 'wallet' &&
-              (<div className='mx-4 my-6 bg-background-secondary rounded-md'>
+              (<div className='mx-4 my-6 rounded-md'>
                 <WalletConnect />
               </div>)
             }

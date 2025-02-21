@@ -6,6 +6,7 @@ import { subscribe, useSnapshot } from 'valtio'
 import { walletConnectStore } from '../store/WalletConnectStore'
 
 import { QRScanner } from './QRScanner'
+import { WrappedInput } from './wrapped-input'
 
 interface SessionViewProps {
   topic: string
@@ -62,7 +63,7 @@ const ActiveSessionCard: React.FC<ActiveSessionCardProps> = ({ session, onDiscon
       <div className="flex flex-row gap-3 items-center" style={{ flex: 1 }}>
         <div className="flex flex-col gap-1">
           <div className="flex flex-row items-center gap-2">
-            <Text variant="normal" color="text100" fontWeight="bold">
+            <Text className='font-bold text-black' variant="normal" color="text100">
               {session.peerMetadata.name}
             </Text>
           </div>
@@ -141,14 +142,12 @@ export const WalletConnect = () => {
   const connectMethods = getConnectMethods(isMobile)
 
   return (
-    <div className="flex gap-2 flex-col w-full p-4">
+    <div className="flex gap-2 flex-col w-full p-2">
       <div className="flex flex-col gap-2">
         <div className="flex flex-col gap-3">
-          <div className="flex flex-row gap-2 justify-between items-center">
-            <Text variant="small" color="text80">
-              Connect to a dApp using WalletConnect
-            </Text>
-          </div>
+          <Text className='font-bold text-center text-black!' variant="medium" color="text80">
+            Connect to a dApp using WalletConnect
+          </Text>
           <TabsRoot
             value={connectMethod}
             onValueChange={(value: string) => setConnectMethod(value as ConnectMethod)}
@@ -158,24 +157,25 @@ export const WalletConnect = () => {
           <div className="flex flex-col gap-2 w-full">
             {connectMethod === 'uri' ? (
               <>
-                <TextInput
-                  name="wallet-connect"
-                  value={wcUri}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWcUri(e.target.value)}
-                  placeholder="wc:..."
-                  onKeyDown={(e: React.KeyboardEvent) => {
-                    if (e.key === 'Enter') {
-                      handlePair(wcUri)
-                    }
-                  }}
-                />
+                <WrappedInput>
+                  <TextInput
+                    name="wallet-connect"
+                    value={wcUri}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWcUri(e.target.value)}
+                    placeholder="wc:..."
+                    onKeyDown={(e: React.KeyboardEvent) => {
+                      if (e.key === 'Enter') {
+                        handlePair(wcUri)
+                      }
+                    }}
+                  />
+                </WrappedInput>
                 <div className="flex items-center justify-center mt-2 h-10">
                   {isConnecting ? (
                     <Spinner />
                   ) : (
                     <Button
-                      className='w-full'
-                      variant="primary"
+                      className='w-full bg-black'
                       onClick={() => handlePair(wcUri)}
                       disabled={!wcUri || isConnecting || !isReady}
                       label="Connect"
