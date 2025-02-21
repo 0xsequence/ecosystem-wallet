@@ -42,7 +42,14 @@ export const AccountMenu = () => {
   const { inventory } = useFetchInventory()
   const inventoryChainIds = [...new Set(inventory.filter(Boolean).map(item => item!.chainId))]
   const chainIds: ChainId[] = [
-    ...new Set([...inventoryChainIds, ChainId.ARBITRUM, ChainId.ARBITRUM_NOVA, ChainId.ARBITRUM_SEPOLIA])
+    ...new Set([
+      ...inventoryChainIds,
+      ChainId.SONEIUM,
+      ChainId.SONEIUM_MINATO,
+      ChainId.ARBITRUM,
+      ChainId.ARBITRUM_NOVA,
+      ChainId.ARBITRUM_SEPOLIA
+    ])
   ]
 
   const handleSignOut = () => {
@@ -52,7 +59,7 @@ export const AccountMenu = () => {
       confirmLabel: 'Sign out',
       onConfirm: signOut,
       cancelLabel: 'Cancel',
-      onCancel: () => { }
+      onCancel: () => {}
     })
   }
 
@@ -125,7 +132,7 @@ export const AccountMenu = () => {
                 height: isMobile ? '90vh' : '60vh',
                 overflowY: 'auto',
                 scrollbarColor: 'gray white',
-                scrollbarWidth: 'thin',
+                scrollbarWidth: 'thin'
               }
             }}
             scroll
