@@ -39,7 +39,7 @@ export function ConnectionRequestPanel({ handler }: { handler: ReturnType<typeof
           className="flex-1 bg-black/20 text-black rounded-md"
         />
         <Button
-          label="Approve"
+          label="Connect"
           onClick={handleApproveConnection}
           className="flex-1 bg-black text-white rounded-md"
         />
