@@ -72,7 +72,7 @@ export function SendTransactionPanel({ handler }: { handler: TransactionHandler 
           disabled={!hasCheckedFeeOptions}
         />
         <Button
-          label="Approve"
+          label="Send Transaction"
           className="flex-1 bg-black text-white rounded-md"
           onClick={handleApproveTxn}
           disabled={
