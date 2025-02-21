@@ -167,7 +167,7 @@ function TokenDetailsCollectable(props: TokenTileProps) {
   } as React.CSSProperties
 
   const { setShowSendModal } = useInventory()
-  const { tokenMetadata, chainId, chain, contractInfo } = props
+  const { tokenMetadata, chainId, chain } = props
 
   return (
     <div className="w-full flex flex-col text-black p-6">
