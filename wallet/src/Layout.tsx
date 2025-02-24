@@ -87,6 +87,7 @@ export const AppLayout = ({ showHeader = false }: { showHeader?: boolean }) => {
             contentProps={{
               style: {
                 maxWidth: '400px',
+                minHeight: '600px',
                 padding: 0,
                 height: 'fit-content',
                 scrollbarColor: 'gray white',
@@ -94,12 +95,13 @@ export const AppLayout = ({ showHeader = false }: { showHeader?: boolean }) => {
               }
             }}
             scroll={false}
-            onClose={() => { setWalletConnectModalOpen(false) }}
+            onClose={() => {
+              setWalletConnectModalOpen(false)
+            }}
           >
             <WalletConnectModal />
           </Modal>
         )}
-
       </div>
       <nav
         data-is-popup={isPopup}
