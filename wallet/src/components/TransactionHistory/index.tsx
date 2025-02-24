@@ -1,6 +1,6 @@
 import { Text } from '@0xsequence/design-system'
 import { Transaction } from '@0xsequence/indexer'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 
 import { TransactionHistoryItem } from './TransactionHistoryItem'
 import { TransactionHistorySkeleton } from './TransactionHistorySkeleton'
@@ -8,6 +8,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useTransactionHistorySummary } from '../../hooks/useTransactionHistorySummary'
 import { ChainId } from '@0xsequence/network'
 import { TransactionDetails } from './TransactionDetails'
+import { useFetchInventory } from '../../pages/inventory/helpers/use-fetch-inventory'
 
 interface TransactionHistoryListProps {
   chainIds: ChainId[]
@@ -49,7 +50,15 @@ const transactionPeriods: TransactionPeriods[] = [
   }
 ]
 
-export const TransactionHistory = ({ chainIds, selectedTransaction, setSelectedTransaction }: TransactionHistoryListProps) => {
+export const TransactionHistory = () => {
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>()
+
+  const { inventory } = useFetchInventory()
+  const inventoryChainIds = [...new Set(inventory.filter(Boolean).map(item => item!.chainId))]
+  const chainIds: ChainId[] = [
+    ...new Set([...inventoryChainIds, ChainId.ARBITRUM, ChainId.ARBITRUM_NOVA, ChainId.ARBITRUM_SEPOLIA])
+  ]
+
   const { address: accountAddress = '' } = useAuth()
   const { data: transactions = [], isPending } = useTransactionHistorySummary({
     accountAddress,
@@ -57,7 +66,88 @@ export const TransactionHistory = ({ chainIds, selectedTransaction, setSelectedT
   })
   const isLoading = chainIds.length > 0 && isPending
 
-  const transactionsByTime = useMemo(() => {
+  const transactionsByTime = useTransactionsByTime(transactions)
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-2">
+        <TransactionHistorySkeleton />
+      </div>
+    )
+  }
+
+  return (
+    <div className="isolate flex flex-col w-full max-w-screen-md grid-cols-2 sm:grid-cols-4 gap-2 mx-auto mt-2 sm:mt-18 sm:px-2 p-8 sm:py-0 text-black">
+      <h1 className="text-style-xl font-bold">Transaction History</h1>
+      <div className="grid gap-5">
+        {transactionPeriods.map(period => {
+          const txs = transactionsByTime[period.id]
+          if (txs.length === 0) {
+            return null
+          }
+          return (
+            <div key={period.id} className="flex flex-col gap-1">
+              <TimeLabel label={period.label} />
+              <TransactionsList transactions={txs} setSelectedTransaction={setSelectedTransaction} />
+            </div>
+          )
+        })}
+        {transactions.length === 0 && (
+          <div className="grid gap-3">
+            <div className="flex flex-col items-center justify-center py-12 px-4 text-black">
+              <h3 className="font-semibold text-lg mb-2">No transactions yet</h3>
+              <p className="text-center text-sm text-muted-foreground mb-6">
+                When you make transactions with your wallet, they&apos;ll appear here.
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// {selectedTransaction ? (
+//   <TransactionDetails transaction={selectedTransaction} />
+// ) : (
+
+interface TimeLabelProps {
+  label: string
+}
+
+function TimeLabel({ label }: TimeLabelProps) {
+  return (
+    <div>
+      <Text variant="normal" color="text50" fontWeight="medium">
+        {label}
+      </Text>
+    </div>
+  )
+}
+interface TransactionsListProps {
+  transactions: Transaction[]
+  setSelectedTransaction: React.Dispatch<React.SetStateAction<Transaction | null | undefined>>
+}
+function TransactionsList({ transactions, setSelectedTransaction }: TransactionsListProps) {
+  return (
+    <>
+      {transactions.map((transaction, index) => {
+        return (
+          <div key={`${transaction.txnHash}-${index}`} className="grid gap-2">
+            <pre>{JSON.stringify(transaction, null, 2)}</pre>
+            <TransactionHistoryItem
+              transaction={transaction}
+              onClickTransaction={() => setSelectedTransaction(transaction)}
+            />
+          </div>
+        )
+      })}
+    </>
+  )
+}
+
+function useTransactionsByTime(transactions: Transaction[]) {
+  return useMemo(() => {
     const todayTreshold = new Date(new Date().setHours(0, 0, 0, 0)).getTime()
     const yesterdayTreshold = new Date(new Date().setDate(new Date(todayTreshold).getDate() - 1)).getTime()
     const weekTreshold = new Date(new Date().setDate(new Date().getDate() - 7)).getTime()
@@ -94,80 +184,4 @@ export const TransactionHistory = ({ chainIds, selectedTransaction, setSelectedT
 
     return transactionsByTime
   }, [transactions])
-
-  if (isLoading) {
-    return (
-      <div className="flex flex-col gap-2">
-        <TransactionHistorySkeleton />
-      </div>
-    )
-  }
-
-  interface TimeLabelProps {
-    label: string
-  }
-
-  const TimeLabel = ({ label }: TimeLabelProps) => {
-    return (
-      <div>
-        <Text variant="normal" color="text50" fontWeight="medium">
-          {label}
-        </Text>
-      </div>
-    )
-  }
-
-  interface TransactionsListProps {
-    transactions: Transaction[]
-  }
-
-  const TransactionsList = ({ transactions }: TransactionsListProps) => {
-    return (
-      <div className="grid gap-2">
-        {transactions.map((transaction, index) => {
-          return (
-            <div key={`${transaction.txnHash}-${index}`} className="grid gap-2">
-              <TransactionHistoryItem
-                transaction={transaction}
-                onClickTransaction={() => setSelectedTransaction(transaction)}
-              />
-            </div>
-          )
-        })}
-      </div>
-    )
-  }
-
-  return (
-    <div className="p-4">
-      {selectedTransaction ? (
-        <TransactionDetails transaction={selectedTransaction} />
-      ) : (
-        <div className="grid gap-5">
-          {transactionPeriods.map(period => {
-            const txs = transactionsByTime[period.id]
-            if (txs.length === 0) {
-              return null
-            }
-            return (
-              <div key={period.id} className="grid gap-3">
-                <TimeLabel label={period.label} />
-                <TransactionsList transactions={txs} />
-              </div>
-            )
-          })}
-          {transactions.length === 0 && (
-            <div className="grid gap-3">
-              <div className="flex flex-col items-center justify-center py-12 px-4 text-black">
-                <h3 className="font-semibold text-lg mb-2">No transactions yet</h3>
-                <p className="text-center text-sm text-muted-foreground mb-6">
-                  When you make transactions with your wallet, they&apos;ll appear here.
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  )
 }

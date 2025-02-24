@@ -6,7 +6,8 @@ export const ROUTES = {
   INVENTORY: '/inventory',
   DISCOVER: '/discover',
   MARKET: '/market',
-  RECEIVE: '/receive'
+  RECEIVE: '/receive',
+  HISTORY: '/history'
 } as const
 
 type RouteValues<T> = T[keyof T]
