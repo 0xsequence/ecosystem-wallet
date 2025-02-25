@@ -18,6 +18,16 @@
   --color-button-glass: rgba(0, 0, 0, 0.2);
 }
 
+.auth-grid-template {
+  grid-template-columns: minmax(24rem, auto) 1fr;
+}
+
+@media (max-width: 640px) {
+  .auth-grid-template {
+    grid-template-columns: 1fr;
+  }
+}
+
 .grid-template-collapse {
   grid-template-rows: 1fr 0fr 0fr;
 }
@@ -68,7 +78,7 @@ div[role='region'] ol li[role='status'] {
   position: relative;
 }
 [data-href='inherit'] a[href]:not(:first-of-type),
-button {
+[data-href='inherit'] button {
   position: relative;
   z-index: 200;
 }

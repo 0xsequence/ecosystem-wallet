@@ -63,7 +63,7 @@ export const Receive = () => {
         <div className="gap-3 flex">
           <CopyToClipboard text={address || ''}>
             <Button
-              className="bg-black"
+              className="bg-black text-white"
               onClick={onClickCopy}
               leftIcon={CopyIcon}
               label={isCopied ? 'Copied!' : 'Copy'}

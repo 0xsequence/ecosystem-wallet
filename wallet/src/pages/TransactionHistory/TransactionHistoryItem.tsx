@@ -62,7 +62,7 @@ export const TransactionHistoryItem = ({ transaction }: TransactionHistoryItemPr
 
   return (
     <div className="bg-black/5 rounded-md justify-center grid grid-cols-1 focus-within:ring-2">
-      <div className="flex flex-col px-4 pt-4">
+      <div className="flex flex-col px-4 pt-4 cursor-pointer" onClick={toggleTransactionDetails}>
         {transfers?.map((transfer, position) => {
           return (
             <div key={`${transaction.txnHash}-${position}`} className="w-full">

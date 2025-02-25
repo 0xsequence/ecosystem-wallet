@@ -1,13 +1,4 @@
-import {
-  ArrowRightIcon,
-  Button,
-  Card,
-  Divider,
-  Image,
-  Modal,
-  PINCodeInput,
-  Spinner
-} from '@0xsequence/design-system'
+import { Button, Card, Divider, Image, Modal, PINCodeInput, Spinner } from '@0xsequence/design-system'
 import { EmailConflictInfo } from '@0xsequence/waas'
 import { CredentialResponse, GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google'
 import React, { SetStateAction, useEffect, useRef, useState } from 'react'
@@ -26,6 +17,7 @@ import { GoogleLogo } from '../components/GoogleLogo'
 
 import { ROUTES } from '../routes'
 import { googleClientId, sequenceWaas } from '../waasSetup'
+import { ArrowRightIcon } from '../design-system-patch/icons'
 
 const PROJECT_NAME = import.meta.env.VITE_PROJECT_NAME
 // const PROJECT_LOGO = import.meta.env.VITE_PROJECT_LOGO
@@ -266,15 +258,14 @@ export const Auth: React.FC = () => {
                     {emailAuthLoading ? (
                       <Spinner />
                     ) : (
-                      <Button
-                        variant={isEmailValid ? 'primary' : ''}
-                        shape="circle"
+                      <button
+                        type="button"
                         disabled={!isEmailValid}
-                        leftIcon={ArrowRightIcon}
                         onClick={() => initiateEmailAuth(email)}
-                        data-id="continueButton"
-                        className="size-8 pointer-events-auto"
-                      />
+                        className="size-8 pointer-events-auto disabled:opacity-25 rounded-full bg-white/20  flex items-center justify-center"
+                      >
+                        <ArrowRightIcon />
+                      </button>
                     )}
                   </div>
                 </div>
@@ -334,14 +325,14 @@ function AuthCoverWrapper({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex w-full md:w-auto px-4 pd:mx-0">
-      <div className="flex w-full overflow-clip rounded-lg">
-        <div className="md:max-w-[24rem] w-full">{children}</div>
+      <div className="overflow-clip rounded-lg grid auth-grid-template bg-black max-w-screen-lg w-full min-h-[32rem] aspect-video">
+        <div className="flex flex-col items-center flex-1 place-self-center w-full">{children}</div>
         <div
-          className="hidden sm:flex flex-col items-end justify-end p-8  w-[550px] flex-shrink [background-image:var(--background)] bg-cover bg-no-repeat"
+          className="hidden sm:flex flex-col items-end justify-end p-8 flex-shrink [background-image:var(--background)] bg-cover bg-no-repeat"
           style={style}
         >
           {title || message ? (
-            <div className="max-w-[16rem] w-full text-black text-right">
+            <div className="flex-shrink text-black text-right">
               {title ? <p className="font-bold mb-3">{title}</p> : null}
               {message ? <p className="text-style-sm">{message}</p> : null}
             </div>
