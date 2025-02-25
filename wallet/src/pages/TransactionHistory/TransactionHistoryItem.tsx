@@ -100,7 +100,7 @@ export const TransactionHistoryItem = ({ transaction }: TransactionHistoryItemPr
         <div className="min-h-0">
           <div
             aria-hidden={!showDetails}
-            className="aria-hidden:scale-95 transition-all aria-hidden:blur-xl aria-hidden:translate-y-2 aria-hidden:opacity-00 duration-300 px-4 pb-4"
+            className="aria-hidden:scale-y-90 transition-all aria-hidden:blur-lg aria-hidden:translate-y-2 aria-hidden:opacity-00 duration-300 px-4 pb-4"
           >
             <TransactionDetails transaction={transaction} />
           </div>
