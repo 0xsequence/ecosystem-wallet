@@ -69,7 +69,7 @@ export const TransactionHistory = () => {
 
   if (isLoading) {
     return (
-      <div className="isolate flex flex-col w-full max-w-screen-md grid-cols-2 sm:grid-cols-4 gap-2 mx-auto mt-2 sm:mt-18 sm:px-2 p-8 sm:py-0 text-black mb-16">
+      <div className="isolate flex flex-col w-full max-w-screen-md grid-cols-2 sm:grid-cols-4 gap-2 mx-auto mt-2 sm:mt-18 sm:px-2 p-8 sm:py-0  mb-16">
         <h1 className="text-style-xl font-bold mb-12">Transaction History</h1>
         <div className="flex flex-col gap-1">
           <TimeLabel label="--" />
@@ -80,7 +80,7 @@ export const TransactionHistory = () => {
   }
 
   return (
-    <div className="isolate flex flex-col w-full max-w-screen-md grid-cols-2 sm:grid-cols-4 gap-2 mx-auto mt-2 sm:mt-18 sm:px-2 p-8 sm:py-0 text-black mb-16">
+    <div className="isolate flex flex-col w-full max-w-screen-md grid-cols-2 sm:grid-cols-4 gap-2 mx-auto mt-2 sm:mt-18 sm:px-2 p-8 sm:py-0  mb-16">
       <h1 className="text-style-xl font-bold mb-12">Transaction History</h1>
       <div className="grid gap-5">
         {transactionPeriods.map(period => {
@@ -97,7 +97,7 @@ export const TransactionHistory = () => {
         })}
         {transactions.length === 0 && (
           <div className="grid gap-3">
-            <div className="flex flex-col items-center justify-center py-12 px-4 text-black">
+            <div className="flex flex-col items-center justify-center py-12 px-4 ">
               <h3 className="font-semibold text-lg mb-2">No transactions yet</h3>
               <p className="text-center text-sm text-muted-foreground mb-6">
                 When you make transactions with your wallet, they&apos;ll appear here.

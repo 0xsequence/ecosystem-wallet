@@ -47,7 +47,7 @@ interface SendCoinProps {
 const SendCoinSkeleton = () => {
   return (
     <div className="p-4 gap-2 flex flex-col">
-      <Card className="bg-black/10 text-black rounded-md p-4 gap-2 flex flex-col">
+      <Card className="bg-background-raised rounded-md p-4 gap-2 flex flex-col">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-full bg-black/5 animate-pulse" />
           <div className="flex-1">
@@ -65,8 +65,8 @@ const SendCoinSkeleton = () => {
           </div>
         </WrappedInput>
       </Card>
-      <div className="bg-black/10 rounded-md p-4 gap-2 flex flex-col">
-        <span className="text-black text-sm font-bold">To</span>
+      <div className="bg-background-secondary rounded-md p-4 gap-2 flex flex-col">
+        <span className=" text-sm font-bold">To</span>
         <WrappedInput>
           <div className="h-12 w-full bg-black/5 rounded animate-pulse" />
         </WrappedInput>
@@ -270,7 +270,7 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
     >
       {!showConfirmation && (
         <div className="p-4 gap-2 flex flex-col">
-          <Card className="bg-black/10 text-black rounded-md p-4 gap-2 flex flex-col">
+          <Card className="bg-background-secondary  rounded-md p-4 gap-2 flex flex-col">
             <SendItemInfo
               imageUrl={imageUrl}
               decimals={decimals}
@@ -290,24 +290,24 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
             <WrappedInput>
               <NumericInput
                 ref={amountInputRef}
-                className="text-xl font-bold text-black"
+                className="text-xl font-bold "
                 name="amount"
                 value={amount}
                 onChange={handleChangeAmount}
                 controls={
                   <>
-                    <span className="whitespace-nowrap text-style-sm text-black">
+                    <span className="whitespace-nowrap text-style-sm ">
                       {`~${fiatCurrency.sign}${amountToSendFiat}`}
                     </span>
                     <Button
-                      className="shrink-0 text-black bg-black/5"
+                      className="shrink-0  bg-black/5"
                       size="xs"
                       shape="square"
                       label="Max"
                       onClick={handleMax}
                       data-id="maxCoin"
                     />
-                    <span className="text-style-sm font-bold text-black">{symbol}</span>
+                    <span className="text-style-sm font-bold ">{symbol}</span>
                   </>
                 }
               />
@@ -315,12 +315,12 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
 
             {insufficientFunds && <span className="text-seq-red-700 text-sm">Insufficient Funds</span>}
           </Card>
-          <div className="bg-black/10 rounded-md p-4 gap-2 flex flex-col">
-            <span className="text-black text-sm font-bold">To</span>
+          <div className="bg-background-secondary rounded-md p-4 gap-2 flex flex-col">
+            <span className=" text-sm font-bold">To</span>
 
             {isEthAddress(toAddress) ? (
               <Card
-                className="w-full flex flex-row items-center rounded-md min-h-[3rem] px-3 py-2 bg-black/10 justify-between"
+                className="w-full flex flex-row items-center rounded-md min-h-[3rem] px-3 py-2  justify-between"
                 clickable
                 width="full"
                 onClick={() => setToAddress('')}
@@ -328,7 +328,7 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
               >
                 <div className="flex items-center justify-center gap-2">
                   <GradientAvatar address={toAddress} style={{ width: '20px' }} />
-                  <span className="text-black">{`0x${truncateAtMiddle(toAddress.substring(2), 10)}`}</span>
+                  <span className="">{`0x${truncateAtMiddle(toAddress.substring(2), 10)}`}</span>
                 </div>
                 <CloseIcon size="sm" color="black" />
               </Card>
@@ -339,7 +339,7 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
                   onChange={(ev: SyntheticEvent) => setToAddress((ev.target as HTMLInputElement).value)}
                   placeholder="Ethereum Address (0x...)"
                   name="to-address"
-                  className="text-black"
+                  className=""
                   data-1p-ignore
                   controls={
                     <Button
@@ -348,7 +348,7 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
                       label="Paste"
                       onClick={handlePaste}
                       data-id="to-address"
-                      className="shrink-0 text-black bg-black/5"
+                      className="shrink-0  bg-black/5"
                       leftIcon={CopyIcon}
                     />
                   }
@@ -359,12 +359,12 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
 
           <div className="grid grid-cols-1 grid-rows-1 justify-center items-center min-h-[3rem]">
             {isCheckingFeeOptions ? (
-              <div className="flex-shrink-0 rounded-md bg-black/50 flex items-center justify-center w-full col-start-1 row-start-1  min-h-[3rem]">
-                <Spinner className="text-white" />
+              <div className="flex-shrink-0 rounded-md bg-background-secondary flex items-center justify-center w-full col-start-1 row-start-1  min-h-[3rem]">
+                <Spinner className="text-primary" />
               </div>
             ) : (
               <Button
-                className="flex-shrink-0 rounded-md bg-black w-full text-white col-start-1 row-start-1  min-h-[3rem]"
+                className="flex-shrink-0 rounded-md w-full col-start-1 row-start-1  min-h-[3rem]"
                 width="full"
                 variant="primary"
                 type="submit"

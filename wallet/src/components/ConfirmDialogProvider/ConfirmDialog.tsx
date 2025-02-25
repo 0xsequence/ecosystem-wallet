@@ -24,7 +24,7 @@ export const ConfirmDialog = ({
   warningMessage
 }: ConfirmDialogProps) => (
   <ContentModal isDismissible={false} onClose={onCancel}>
-    <div className="flex flex-col gap-4 p-6 text-black">
+    <div className="flex flex-col gap-4 p-6 ">
       <div className="flex flex-col gap-1">
         <h1 className="text-xl font-bold">{title}</h1>
         {warningMessage ? <p>{warningMessage}</p> : null}
@@ -42,7 +42,7 @@ export const ConfirmDialog = ({
             )
           }
           shape="square"
-          className="bg-black text-white"
+          className="bg-button-glass"
           disabled={isProcessing}
           onClick={onConfirm}
         />

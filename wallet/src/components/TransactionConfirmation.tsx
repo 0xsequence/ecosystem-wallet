@@ -105,7 +105,7 @@ export const TransactionConfirmation = ({
   return (
     <div className="w-full h-full flex items-center justify-center">
       <div className="flex flex-col gap-2 w-full">
-        <div className=" rounded-md p-4 pb-3 flex flex-col gap-4 text-black">
+        <div className=" rounded-md p-4 pb-3 flex flex-col gap-4 ">
           <SendItemInfo
             imageUrl={imageUrl}
             showSquareImage={showSquareImage}
@@ -117,8 +117,8 @@ export const TransactionConfirmation = ({
           />
 
           <div className=" flex flex-col gap-1 ">
-            <span className="text-black text-sm font-bold">Amount</span>
-            <Card className="w-full flex flex-row items-center rounded-md min-h-[3rem] px-4 py-3 bg-black/10">
+            <span className=" text-sm font-bold">Amount</span>
+            <Card className="w-full flex flex-row items-center rounded-md min-h-[3rem] px-4 py-3 bg-background-secondary">
               <div className="flex flex-row items-center gap-2 w-full justify-between">
                 <span className="text-sm font-bold">
                   {amount} {symbol}
@@ -128,12 +128,12 @@ export const TransactionConfirmation = ({
             </Card>
           </div>
           <div className=" flex flex-col gap-1">
-            <span className="text-black text-sm font-bold">To</span>
+            <span className=" text-sm font-bold">To</span>
 
-            <Card className="w-full flex flex-row items-center rounded-md min-h-[3rem] px-3 py-2 bg-black/10">
+            <Card className="w-full flex flex-row items-center rounded-md min-h-[3rem] px-3 py-2 bg-background-secondary">
               <div className="flex justify-center items-center gap-2">
                 <GradientAvatar address={toAddress} className="size-5" />
-                <span className="text-black">{`0x${truncateAtMiddle(toAddress.substring(2), 10)}`}</span>
+                <span className="">{`0x${truncateAtMiddle(toAddress.substring(2), 10)}`}</span>
               </div>
             </Card>
           </div>
@@ -150,7 +150,7 @@ export const TransactionConfirmation = ({
           )}
         </div>
 
-        <div className="flex mt-auto mb-0 gap-2 w-full sticky bottom-0 bg-white/80 backdrop-blur-xl p-4 shadow-[0_-1px_3px_-1.5px_theme(color.black/10%)]">
+        <div className="flex mt-auto mb-0 gap-2 w-full sticky bottom-0 p-4 shadow-[0_-1px_3px_-1.5px_theme(color.black/10%)]">
           {isLoading ? (
             <div className="w-full flex items-center justify-center">
               <Spinner />
@@ -158,13 +158,14 @@ export const TransactionConfirmation = ({
           ) : (
             <>
               <Button
-                className="flex-1 bg-black text-white rounded-md"
+                className="flex-1 rounded-md"
                 onClick={onConfirm}
                 label="Confirm"
+                variant="primary"
                 rightIcon={ChevronRightIcon}
                 disabled={isConfirmDisabled}
               />
-              <Button className="bg-black/20 text-black  rounded-md " onClick={onCancel} label="Cancel" />
+              <Button className="bg-button-glass rounded-md " onClick={onCancel} label="Cancel" />
             </>
           )}
         </div>

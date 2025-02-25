@@ -22,7 +22,7 @@ export function SendTransactionPanel({ handler }: { handler: TransactionHandler 
 
   return (
     <>
-      <div className="flex flex-col flex-1 items-start px-4 py-6 gap-2 text-black">
+      <div className="flex flex-col flex-1 items-start px-4 py-6 gap-2 ">
         <div className="flex flex-col gap-1 mb-4 px-4">
           <h2 className="text-xl font-bold">Transaction Request</h2>
           <p className="text-sm font-medium text-seq-grey-500">
@@ -45,7 +45,7 @@ export function SendTransactionPanel({ handler }: { handler: TransactionHandler 
                 className="w-full"
               >
                 <Collapsible label="Transaction data">
-                  <pre className="text-black text-start text-xs overflow-x-scroll p-4 rounded-lg bg-black/10">
+                  <pre className=" text-start text-xs overflow-x-scroll p-4 rounded-lg bg-background-secondary">
                     {JSON.stringify(txn, null, 2)}
                   </pre>
                 </Collapsible>
@@ -64,16 +64,18 @@ export function SendTransactionPanel({ handler }: { handler: TransactionHandler 
         )}
       </div>
 
-      <div className="flex mt-auto mb-0 gap-2 w-full sticky bottom-0 bg-white/80 backdrop-blur-xl p-4 shadow-[0_-1px_3px_-1.5px_theme(color.black/10%)]">
+      <div className="flex mt-auto mb-0 gap-2 w-full sticky bottom-0 bg-background-primary p-4">
         <Button
           label="Reject"
           onClick={handleRejectTxn}
-          className="bg-black/20 text-black flex-1 rounded-md"
+          className="  flex-1 rounded-md"
           disabled={!hasCheckedFeeOptions}
+          variant="glass"
         />
         <Button
           label="Send Transaction"
-          className="flex-1 bg-black text-white rounded-md"
+          variant="primary"
+          className="flex-1 rounded-md"
           onClick={handleApproveTxn}
           disabled={
             !hasCheckedFeeOptions || (txnFeeOptions && txnFeeOptions.length > 0 && !selectedFeeOptionAddress)

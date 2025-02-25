@@ -35,10 +35,10 @@
 .grid-template-collapse[inert] {
   grid-template-rows: 0fr 0fr 0fr;
 }
-
+/*
 button[aria-label='Close'] {
   @apply bg-black text-white;
-}
+} */
 
 body {
   margin: 0;

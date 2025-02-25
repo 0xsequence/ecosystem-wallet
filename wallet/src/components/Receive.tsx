@@ -25,7 +25,7 @@ export const Receive = () => {
   return (
     <div>
       <div className="p-5 pt-3 flex flex-col justify-center items-center gap-4">
-        <div className="mt-1 w-fit bg-white rounded-md flex items-center justify-center p-4">
+        <div className="mt-1 w-fit bg-background-inverse text-inverse rounded-md flex items-center justify-center p-4">
           <QRCodeCanvas
             value={address || ''}
             size={200}
@@ -36,20 +36,13 @@ export const Receive = () => {
         </div>
         <div>
           <div className="flex flex-row items-center justify-center gap-2">
-            <Text
-              variant="medium"
-              color="black"
-              textAlign="center"
-              lineHeight="inherit"
-              style={{ fontWeight: '700' }}
-            >
+            <Text variant="medium" textAlign="center" lineHeight="inherit" style={{ fontWeight: '700' }}>
               Wallet address
             </Text>
           </div>
           <div className="mt-2" style={{ textAlign: 'center' }}>
             <Text
               textAlign="center"
-              color="black"
               style={{
                 fontSize: '14px',
                 maxWidth: '180px',
@@ -63,7 +56,7 @@ export const Receive = () => {
         <div className="gap-3 flex">
           <CopyToClipboard text={address || ''}>
             <Button
-              className="bg-black text-white"
+              className="bg-button-glass"
               onClick={onClickCopy}
               leftIcon={CopyIcon}
               label={isCopied ? 'Copied!' : 'Copy'}

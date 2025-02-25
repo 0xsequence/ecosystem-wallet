@@ -61,7 +61,7 @@ export const TransactionHistoryItem = ({ transaction }: TransactionHistoryItemPr
   }
 
   return (
-    <div className="bg-black/5 rounded-md justify-center grid grid-cols-1 focus-within:ring-2">
+    <div className="bg-background-secondary rounded-md justify-center grid grid-cols-1 focus-within:ring-2">
       <div className="flex flex-col px-4 pt-4 cursor-pointer" onClick={toggleTransactionDetails}>
         {transfers?.map((transfer, position) => {
           return (
@@ -82,7 +82,7 @@ export const TransactionHistoryItem = ({ transaction }: TransactionHistoryItemPr
       <button
         onClick={toggleTransactionDetails}
         type="button"
-        className="self-start text-left  p-4 cursor-pointer flex justify-between gap-2 items-center text-seq-grey-300 font-body text-sm leading-5 tracking-wide font-medium"
+        className="self-start text-left  p-4 cursor-pointer flex justify-between gap-2 items-center  font-body text-sm leading-5 tracking-wide font-medium"
         aria-controls={`transaction-details-${transaction.txnHash}`}
         aria-expanded={showDetails}
       >
@@ -136,16 +136,14 @@ function Transfer({
   return (
     <div className="flex flex-col gap-2 w-full justify-between">
       <div className="flex flex-row justify-between">
-        <div className="flex flex-row gap-1 justify-center items-center text-gray-500">
+        <div className="flex flex-row gap-1 justify-center items-center ">
           <TransactionIconByType transferType={transfer.transferType} />
-          <Text variant="normal" fontWeight="medium" className="text-gray-900">
+          <Text variant="normal" fontWeight="medium" className="">
             {getTransactionLabelByType(transfer.transferType)}
           </Text>
           <NetworkImage chainId={transaction.chainId} size="xs" />
         </div>
-        {isFirstItem && (
-          <span className="font-body text-sm leading-5 tracking-wide font-medium text-gray-500">{date}</span>
-        )}
+        {isFirstItem && <span className="font-body text-sm leading-5 tracking-wide font-medium">{date}</span>}
       </div>
       {amounts.map((amount, index) => {
         const { symbol: nativeTokenSymbol = '???', decimals: nativeTokenDecimals = 18 } =
@@ -182,7 +180,7 @@ function Transfer({
             </div>
             {isPending && <Skeleton className="w-9 h-5" />}
             {fiatConversionRate && (
-              <Text variant="normal" fontWeight="medium" className="text-gray-500">
+              <Text variant="normal" fontWeight="medium" className="">
                 {`${fiatCurrency.sign}${(Number(amountValue) * fiatConversionRate * conversionRate).toFixed(
                   2
                 )}`}
@@ -214,7 +212,7 @@ function TransferAmountLabel({
   return (
     <span
       data-transfer-type={transferType}
-      className="data-[transfer-type='SEND']:text-red-500 text-black data-[transfer-type='RECEIVE']:text-green-700 font-body text-sm leading-5 tracking-wide font-medium"
+      className="data-[transfer-type='SEND']:text-red-500  data-[transfer-type='RECEIVE']:text-green-700 font-body text-sm leading-5 tracking-wide font-medium"
     >{`${sign}${amount} ${symbol}`}</span>
   )
 }

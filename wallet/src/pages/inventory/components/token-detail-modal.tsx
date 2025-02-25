@@ -5,7 +5,8 @@ import {
   TokenImage,
   Collapsible,
   nativeTokenImageUrl,
-  cn
+  cn,
+  Button
 } from '@0xsequence/design-system'
 import { SendIcon } from '../../../design-system-patch/icons'
 import { useInventory } from '../helpers/use-inventory'
@@ -53,8 +54,12 @@ function TokenDetails({ item }: { item: TokenTypeProps }) {
 }
 
 function CoinDetails(props: TokenTypeProps) {
+  const theme = import.meta.env.VITE_PROJECT_BASE_THEME
+
   const style = {
-    '--background': `url(${import.meta.env.VITE_PROJECT_BACKGROUND})`
+    ...(theme === 'light' && { '--background': `url(${import.meta.env.VITE_PROJECT_BACKGROUND})` })
+
+    // '--background': `url(${import.meta.env.VITE_PROJECT_BACKGROUND})`
   } as React.CSSProperties
 
   const { setShowSendModal } = useInventory()
@@ -89,9 +94,9 @@ function CoinDetails(props: TokenTypeProps) {
     : ''
 
   return (
-    <div className="w-full flex flex-col gap-6 p-6 text-black">
+    <div className="w-full flex flex-col gap-6 p-6 ">
       <div
-        className="py-8 h-[240px] [background-image:var(--background)] bg-cover bg-center rounded-sm"
+        className="py-8 h-[240px] [background-image:var(--background)] bg-background-secondary bg-cover bg-center rounded-sm"
         style={style}
       >
         <div className="grid gap-2 place-items-center">
@@ -117,14 +122,14 @@ function CoinDetails(props: TokenTypeProps) {
               </>
             )}
           </div>
-          <span className="inline-flex mx-auto items-center gap-2 font-bold text-[9px] bg-black/10 px-1.25 py-1 rounded-xs">
+          <span className="inline-flex mx-auto items-center gap-2 font-bold text-[9px] bg-button-glass px-1.25 py-1 rounded-xs">
             <NetworkImage chainId={chainId} size="xs" /> {chain?.title || props?.title}
           </span>
         </div>
       </div>
       <div className="flex flex-col gap-1 text-center justify-center">
         <div className="grid justify-items-start gap-2 ">
-          <span className="text-seq-grey-500 text-xs font-bold">Balance</span>
+          <span className=" text-xs font-bold">Balance</span>
           <div className="w-full flex items-center gap-2">
             <TokenImage className="h-7 w-7" src={logoURI} size="xl" withNetwork={chainId} />
             <p className="flex-1 text-start text-style-lg font-bold">
@@ -140,13 +145,14 @@ function CoinDetails(props: TokenTypeProps) {
         <span className="text-xl font-bold">{tokenMetadata?.name}</span>
       </div>
       <div className="w-full flex flex-col gap-2">
-        <button
-          className="bg-black text-white rounded-md flex items-center justify-center gap-2 text-sm font-bold p-4 cursor-pointer"
+        <Button
+          variant="primary"
+          className="rounded-md flex items-center justify-center gap-2 text-sm font-bold p-4 cursor-pointer"
           onClick={() => setShowSendModal(true)}
         >
           <SendIcon />
           Send
-        </button>
+        </Button>
         {contractInfo?.extensions?.description && (
           <WrappedCollapse>
             <Collapsible label="Details">
@@ -160,30 +166,32 @@ function CoinDetails(props: TokenTypeProps) {
 }
 
 function TokenDetailsCollectable(props: TokenTileProps) {
+  const theme = import.meta.env.VITE_PROJECT_BASE_THEME
+
   const style = {
-    '--background': `url(${import.meta.env.VITE_PROJECT_BACKGROUND})`
+    ...(theme === 'light' && { '--background': `url(${import.meta.env.VITE_PROJECT_BACKGROUND})` })
   } as React.CSSProperties
 
   const { setShowSendModal } = useInventory()
   const { tokenMetadata, chainId, chain } = props
 
   return (
-    <div className="w-full flex flex-col text-black p-6">
+    <div className="w-full flex flex-col  p-6">
       <div
-        className="flex items-center justify-center h-[300px] [background-image:var(--background)] bg-cover bg-center rounded-sm"
+        className="flex items-center justify-center h-[300px] [background-image:var(--background)] bg-background-secondary bg-cover bg-center rounded-sm"
         style={style}
       >
         <Image src={tokenMetadata?.image} className="max-w-[300px] aspect-square" />
       </div>
       <div className="p-6 flex flex-col gap-1 text-center justify-center">
         <span className="text-xl font-bold">{tokenMetadata?.name}</span>
-        <span className="inline-flex mx-auto items-center gap-2 font-bold text-[9px] bg-black/10 px-1.25 py-1 rounded-xs">
+        <span className="inline-flex mx-auto items-center gap-2 font-bold text-[9px] bg-background-secondary px-1.25 py-1 rounded-xs">
           <NetworkImage chainId={chainId} size="xs" /> {chain?.title}
         </span>
       </div>
       <div className="w-full flex flex-col gap-2">
         <button
-          className="bg-black text-white rounded-md flex items-center justify-center gap-2 text-sm font-bold p-4 cursor-pointer"
+          className="bg-button-glass rounded-md flex items-center justify-center gap-2 text-sm font-bold p-4 cursor-pointer"
           onClick={() => setShowSendModal(true)}
         >
           <SendIcon />

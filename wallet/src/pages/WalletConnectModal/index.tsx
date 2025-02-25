@@ -42,7 +42,7 @@ export function WalletConnectModal({ variant = 'default' }: { variant?: 'popup' 
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <span className="text-black">No pending confirmation</span>
+            <span className="">No pending confirmation</span>
           </motion.div>
         )}
       </AnimatePresence>

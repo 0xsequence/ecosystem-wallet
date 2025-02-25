@@ -63,7 +63,7 @@ const ActiveSessionCard: React.FC<ActiveSessionCardProps> = ({ session, onDiscon
       <div className="flex flex-row gap-3 items-center" style={{ flex: 1 }}>
         <div className="flex flex-col gap-1">
           <div className="flex flex-row items-center gap-2">
-            <Text className="font-bold text-black" variant="normal" color="text100">
+            <Text className="font-bold " variant="normal" color="text100">
               {session.peerMetadata.name}
             </Text>
           </div>
@@ -175,7 +175,7 @@ export const WalletConnect = () => {
                     <Spinner />
                   ) : (
                     <Button
-                      className="w-full bg-black text-white"
+                      className="w-full bg-button-glass"
                       onClick={() => handlePair(wcUri)}
                       disabled={!wcUri || isConnecting || !isReady}
                       label="Connect"

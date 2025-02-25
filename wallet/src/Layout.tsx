@@ -9,7 +9,13 @@ import { useEffect, useState } from 'react'
 import { WalletConnectModal } from './pages/WalletConnectModal'
 import { useWalletConnect } from './context/WalletConnectContext'
 
-const PROJECT_HEADER_LOGO = import.meta.env.VITE_PROJECT_HEADER_LOGO
+const THEME = import.meta.env.VITE_PROJECT_BASE_THEME
+const PROJECT_HEADER_LOGO_DARK = import.meta.env.VITE_PROJECT_HEADER_LOGO_DARK
+
+const PROJECT_HEADER_LOGO =
+  THEME === 'dark' && PROJECT_HEADER_LOGO_DARK
+    ? PROJECT_HEADER_LOGO_DARK
+    : import.meta.env.VITE_PROJECT_HEADER_LOGO
 
 const AppHeader = () => {
   return (
@@ -110,21 +116,21 @@ export const AppLayout = ({ showHeader = false }: { showHeader?: boolean }) => {
       >
         <NavLink
           to={ROUTES.INVENTORY}
-          className="flex flex-col items-center text-xs flex-1 gap-1 font-medium aria-[current='page']:font-semibold aria-[current='page']:bg-black/10 py-3 px-4 rounded-md self-stretch"
+          className="flex flex-col items-center text-xs flex-1 gap-1 font-medium aria-[current='page']:font-semibold aria-[current='page']:bg-background-secondary py-3 px-4 rounded-md self-stretch"
         >
           <InventoryIcon className="size-4" />
           Inventory
         </NavLink>
         <NavLink
           to={ROUTES.DISCOVER}
-          className="flex flex-col items-center text-xs gap-1  flex-1 font-medium aria-[current='page']:font-semibold aria-[current='page']:bg-black/10 py-3 px-4 rounded-md self-stretch "
+          className="flex flex-col items-center text-xs gap-1  flex-1 font-medium aria-[current='page']:font-semibold aria-[current='page']:bg-background-secondary py-3 px-4 rounded-md self-stretch "
         >
           <ExploreIcon className="size-4" />
           Discover
         </NavLink>
         <NavLink
           to={ROUTES.HISTORY}
-          className="flex flex-col items-center text-xs gap-1 flex-1 font-medium aria-[current='page']:font-semibold aria-[current='page']:bg-black/10 py-3 px-4 rounded-md self-stretch disabled:opacity-45"
+          className="flex flex-col items-center text-xs gap-1 flex-1 font-medium aria-[current='page']:font-semibold aria-[current='page']:bg-background-secondary py-3 px-4 rounded-md self-stretch disabled:opacity-45"
         >
           <TransactionIcon className="size-4" />
           Market

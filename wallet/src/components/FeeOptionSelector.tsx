@@ -62,7 +62,7 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
   return (
     <>
       {' '}
-      <span className="text-black text-sm font-bold">Select a fee option</span>
+      <span className=" text-sm font-bold">Select a fee option</span>
       {feeOptionAlert && (
         <Alert
           title={feeOptionAlert.title}
@@ -71,8 +71,8 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
           variant={feeOptionAlert.variant}
         />
       )}
-      <div className=" w-full flex flex-col text-black bg-black/10 rounded-md overflow-clip">
-        <div className="flex flex-col text-black">
+      <div className=" w-full flex flex-col bg-background-secondary rounded-md overflow-clip">
+        <div className="flex flex-col ">
           {sortedOptions.map((option, index) => {
             const isSelected = selectedFeeOptionAddress === (option.token.contractAddress ?? ZeroAddress)
             const balance = feeOptionBalances.find(b => b.tokenName === option.token.name)
@@ -87,7 +87,7 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
                 key={index}
                 data-selected={isSelected ? true : undefined}
                 data-nsf={!isSufficient ? true : undefined}
-                className="cursor-pointer opacity-100 data-nsf:cursor-default data-nsf:opacity-35 data-selected:bg-black px-4 py-2 data-selected:[&>*]:text-white!"
+                className="cursor-pointer opacity-100 data-nsf:cursor-default data-nsf:opacity-35 data-selected:text-inverse px-4 py-2 data-[selected]:bg-background-inverse "
                 onClick={() => {
                   if (isSufficient) {
                     setSelectedFeeOptionAddress(option.token.contractAddress ?? ZeroAddress)
@@ -113,10 +113,7 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
                     <div className="flex flex-col">
                       <span className="text-sm font-bold">{option.token.name}</span>
 
-                      <span
-                        className="text-style-xs text-seq-grey-600 data-selected:text-white"
-                        data-selected={isSelected ? true : undefined}
-                      >
+                      <span className="text-style-xs " data-selected={isSelected ? true : undefined}>
                         Fee:{' '}
                         {parseFloat(
                           formatUnits(BigInt(option.value), option.token.decimals || 0)

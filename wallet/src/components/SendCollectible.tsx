@@ -249,7 +249,7 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
     >
       {!showConfirmation && (
         <div className="p-4 gap-2 flex flex-col">
-          <Card className="bg-black/10 text-black rounded-md p-4 gap-2 flex flex-col">
+          <Card className="bg-background-secondary  rounded-md p-4 gap-2 flex flex-col">
             <SendItemInfo
               imageUrl={imageUrl}
               showSquareImage
@@ -262,7 +262,7 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
             <WrappedInput>
               <NumericInput
                 ref={amountInputRef}
-                className="text-xl font-bold text-black"
+                className="text-xl font-bold "
                 name="amount"
                 value={amount}
                 onChange={handleChangeAmount}
@@ -273,12 +273,12 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
                       <div className="flex gap-2">
                         <Button
                           size="xs"
-                          className="text-black flex-shrin-0 bg-black/20"
+                          className=" flex-shrin-0 bg-black/20"
                           onClick={handleSubtractOne}
                           leftIcon={SubtractIcon}
                         />
                         <Button
-                          className="text-black flex-shrin-0 bg-black/20"
+                          className=" flex-shrin-0 bg-black/20"
                           size="xs"
                           onClick={handleAddOne}
                           leftIcon={AddIcon}
@@ -289,7 +289,7 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
                           label="Max"
                           onClick={handleMax}
                           data-id="maxCoin"
-                          className="shrink-0 text-black bg-black/20"
+                          className="shrink-0  bg-black/20"
                         />
                       </div>
                     )}
@@ -299,12 +299,12 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
             </WrappedInput>
             {insufficientFunds && <span className="text-seq-red-700">Insufficient Balance</span>}
           </Card>
-          <div className="bg-black/10 rounded-md p-4 gap-2 flex flex-col">
-            <span className="text-black text-sm font-bold">To</span>
+          <div className="bg-background-secondary rounded-md p-4 gap-2 flex flex-col">
+            <span className=" text-sm font-bold">To</span>
 
             {isEthAddress(toAddress) ? (
               <Card
-                className="w-full flex flex-row items-center rounded-md min-h-[3rem] px-3 py-2 bg-black/10 justify-between"
+                className="w-full flex flex-row items-center rounded-md min-h-[3rem] px-3 py-2 bg-background-secondary justify-between"
                 clickable
                 width="full"
                 onClick={handleToAddressClear}
@@ -312,7 +312,7 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
               >
                 <div className="flex justify-center items-center gap-2">
                   <GradientAvatar address={toAddress} style={{ width: '20px' }} />
-                  <span className="text-black">{`0x${truncateAtMiddle(toAddress.substring(2), 10)}`}</span>
+                  <span className="">{`0x${truncateAtMiddle(toAddress.substring(2), 10)}`}</span>
                 </div>
                 <CloseIcon size="sm" color="black" />
               </Card>
@@ -321,7 +321,7 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
                 <TextInput
                   value={toAddress}
                   onChange={(ev: SyntheticEvent) => setToAddress((ev.target as HTMLInputElement).value)}
-                  className="text-black"
+                  className=""
                   placeholder="Ethereum Address (0x...)"
                   name="to-address"
                   data-1p-ignore
@@ -333,7 +333,7 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
                       onClick={handlePaste}
                       data-id="to-address"
                       leftIcon={CopyIcon}
-                      className="shrink-0 text-black bg-black/5"
+                      className="shrink-0  bg-black/5"
                     />
                   }
                 />
@@ -344,11 +344,11 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
           <div className="grid grid-cols-1 grid-rows-1 justify-center items-center min-h-[3rem]">
             {isCheckingFeeOptions ? (
               <div className="flex-shrink-0 rounded-md bg-black/50 flex items-center justify-center w-full col-start-1 row-start-1  min-h-[3rem]">
-                <Spinner className="text-white" />
+                <Spinner />
               </div>
             ) : (
               <Button
-                className="flex-shrink-0 rounded-md bg-black w-full text-white col-start-1 row-start-1  min-h-[3rem]"
+                className="flex-shrink-0 rounded-md w-full col-start-1 row-start-1  min-h-[3rem]"
                 width="full"
                 variant="primary"
                 type="submit"

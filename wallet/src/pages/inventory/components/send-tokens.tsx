@@ -58,7 +58,7 @@ export function SendTokens() {
       <div className="">
         <div className="border-b border-black/10 w-full z-20 flex flex-row items-center justify-between px-4">
           <ModalPrimitive.Title asChild>
-            <div className="text-black h-[3.75rem] text-sm font-bold flex items-center justify-center">
+            <div className=" h-[3.75rem] text-sm font-bold flex items-center justify-center">
               {collectibleBalanceToSend ? 'Send Collectible' : 'Send Coins'}
             </div>
           </ModalPrimitive.Title>
