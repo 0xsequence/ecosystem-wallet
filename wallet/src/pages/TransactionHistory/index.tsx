@@ -107,7 +107,6 @@ export const TransactionHistory = () => {
           </div>
         )}
       </div>
-      {selectedTransaction ? <TransactionDetails transaction={selectedTransaction} /> : null}
     </div>
   )
 }
