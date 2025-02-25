@@ -5,8 +5,8 @@ import { Auth } from './pages/Auth'
 import { InventoryPage } from './pages/inventory/InventoryPage'
 import { ROUTES } from './routes'
 import { DiscoverPage } from './pages/DiscoverPage'
-import { Home } from './pages/home/Home'
-
+import { WalletConnectModal } from './pages/WalletConnectModal'
+import { TransactionHistory as HistoryPage } from './pages/TransactionHistory/index'
 export const App: React.FC = () => {
   return (
     <Routes>
@@ -17,10 +17,11 @@ export const App: React.FC = () => {
 
       {/* Protected routes */}
       <Route element={<ProtectedLayout />}>
-        <Route index element={<Home />} />
+        <Route index element={<WalletConnectModal variant="popup" />} />
         <Route path={ROUTES.INVENTORY} element={<InventoryPage />} />
         <Route path={ROUTES.DISCOVER} element={<DiscoverPage />} />
         <Route path={ROUTES.MARKET} element={<></>} />
+        <Route path={ROUTES.HISTORY} element={<HistoryPage />} />
       </Route>
 
       {/* Redirect unknown routes to index */}

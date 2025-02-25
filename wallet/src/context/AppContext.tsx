@@ -5,6 +5,7 @@ import { PropsWithChildren } from 'react'
 import { ConfirmDialogProvider } from '../components/ConfirmDialogProvider'
 
 import { AuthProvider } from './AuthContext'
+import { WalletConnectProvider } from './WalletConnectContext'
 
 const queryClient = new QueryClient()
 
@@ -14,11 +15,13 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
   return (
     <ThemeProvider root="#app" scope="app" theme={theme}>
       <AuthProvider>
-        <ToastProvider swipeDirection='right'>
-          <ConfirmDialogProvider>
-            <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-          </ConfirmDialogProvider>
-        </ToastProvider>
+        <WalletConnectProvider>
+          <ToastProvider swipeDirection='right'>
+            <ConfirmDialogProvider>
+              <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+            </ConfirmDialogProvider>
+          </ToastProvider>
+        </WalletConnectProvider>
       </AuthProvider>
     </ThemeProvider>
   )

@@ -7,7 +7,8 @@ import {
   truncateAddress,
   ModalPrimitive,
   IconButton,
-  useMediaQuery
+  useMediaQuery,
+  WalletConnectIcon
 } from '@0xsequence/design-system'
 
 import * as PopoverPrimitive from '@radix-ui/react-popover'
@@ -26,31 +27,38 @@ import {
 import { CopyButton } from '../design-system-patch/copy-button/CopyButton'
 import { useConfirmDialog } from './ConfirmDialogProvider'
 import { Receive } from './Receive'
-import { useFetchInventory } from '../pages/inventory/helpers/use-fetch-inventory'
-import { TransactionHistory } from './TransactionHistory'
-import { ChainId } from '@0xsequence/network'
+// import { useFetchInventory } from '../pages/inventory/helpers/use-fetch-inventory'
+// import { TransactionHistory } from './TransactionHistory'
+// import { ChainId } from '@0xsequence/network'
 import { Transaction } from '@0xsequence/indexer'
+import { WalletConnect } from './WalletConnect'
 
 export const AccountMenu = () => {
   const isMobile = useMediaQuery('isMobile')
   const [isOpen, toggleOpen] = useState(false)
   const { address = '', signOut } = useAuth()
   const { confirmAction } = useConfirmDialog()
-  const [openModal, setOpenModal] = useState<{ type: 'receive' | 'history' } | false>(false)
+  const [openModal, setOpenModal] = useState<{ type: 'wallet' | 'receive' | 'history' } | false>(false)
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
 
-  const { inventory } = useFetchInventory()
-  const inventoryChainIds = [...new Set(inventory.filter(Boolean).map(item => item!.chainId))]
-  const chainIds: ChainId[] = [
-    ...new Set([
-      ...inventoryChainIds,
-      ChainId.SONEIUM,
-      ChainId.SONEIUM_MINATO,
-      ChainId.ARBITRUM,
-      ChainId.ARBITRUM_NOVA,
-      ChainId.ARBITRUM_SEPOLIA
-    ])
-  ]
+  // const { inventory } = useFetchInventory()
+  // const inventoryChainIds = [...new Set(inventory.filter(Boolean).map(item => item!.chainId))]
+  // const chainIds: ChainId[] = [
+  //   ...new Set([...inventoryChainIds, ChainId.ARBITRUM, ChainId.ARBITRUM_NOVA, ChainId.ARBITRUM_SEPOLIA])
+  // ]
+
+  const getModalTitle = () => {
+    if (!openModal) return ''
+
+    const modalType = openModal?.type
+    if (modalType === 'wallet') return 'WalletConnect'
+
+    if (modalType === 'receive') return 'Receive'
+
+    if (modalType === 'history') {
+      return selectedTransaction ? 'Transaction Details' : 'Transaction History'
+    }
+  }
 
   const handleSignOut = () => {
     confirmAction({
@@ -106,15 +114,23 @@ export const AccountMenu = () => {
                   </button>
                 </div>
                 <MenuButton
+                  label="WalletConnect"
+                  icon={WalletConnectIcon}
+                  onClick={() => setOpenModal({ type: 'wallet' })}
+                />
+                <MenuButton
                   label="Receive"
                   icon={ScanIcon}
                   onClick={() => setOpenModal({ type: 'receive' })}
                 />
-                <MenuButton
+
+                {/* <MenuLink
+                  href="/history"
                   label="History"
                   icon={TransactionIcon}
-                  onClick={() => setOpenModal({ type: 'history' })}
-                />
+                  onClick={handleClose}
+                  // onClick={() => setOpenModal({ type: 'history' })}
+                /> */}
                 {/* <MenuLink label="Settings" icon={SettingsIcon} href="/settings" /> */}
                 <MenuButton label="Sign out" icon={SignoutIcon} onClick={handleSignOut} />
               </Card>
@@ -152,22 +168,24 @@ export const AccountMenu = () => {
                       onClick={() => setSelectedTransaction(null)}
                     />
                   )}
-                  {openModal.type === 'history'
-                    ? `Transaction ${selectedTransaction ? 'Details' : 'History'}`
-                    : 'Receive'}
+                  {getModalTitle()}
                 </div>
               </ModalPrimitive.Title>
             </div>
 
-            {openModal.type === 'history' ? (
+            {openModal.type === 'wallet' && (
+              <div className="mx-4 my-6 rounded-md">
+                <WalletConnect />
+              </div>
+            )}
+            {/* {openModal.type === 'history' && (
               <TransactionHistory
                 chainIds={chainIds}
                 selectedTransaction={selectedTransaction}
                 setSelectedTransaction={setSelectedTransaction}
               />
-            ) : (
-              <Receive />
-            )}
+            )} */}
+            {openModal.type === 'receive' && <Receive />}
           </Modal>
         )}
       </AnimatePresence>
@@ -180,10 +198,10 @@ export const AccountMenu = () => {
 //   href: string
 //   icon?: typeof TransactionIcon
 // }
-//
-// function MenuLink(props: MenuLinkProps) {
-//   const { label, icon, href } = props
-//
+
+// export function MenuLink(props: MenuLinkProps & ComponentProps<'a'>) {
+//   const { label, icon, href, ...rest } = props
+
 //   return (
 //     <Button
 //       className="w-full bg-black/20 text-sm font-bold rounded-sm text-black"
@@ -191,7 +209,7 @@ export const AccountMenu = () => {
 //       label={label}
 //       asChild
 //     >
-//       <Link to={href}></Link>
+//       <Link to={href} {...rest}></Link>
 //     </Button>
 //   )
 // }

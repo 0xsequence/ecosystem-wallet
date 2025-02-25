@@ -1,11 +1,13 @@
-import { Image } from '@0xsequence/design-system'
+import { Image, Modal } from '@0xsequence/design-system'
 import { Link, NavLink, Outlet } from 'react-router'
 
 import { AccountMenu } from './components/AccountMenu'
-// import { PoweredBySequence } from './components/PoweredBySequence'
 import { PrivateRoute } from './components/PrivateRoute'
-import { ExploreIcon, InventoryIcon, MarketplaceIcon } from './design-system-patch/icons'
+import { ExploreIcon, InventoryIcon, TransactionIcon } from './design-system-patch/icons'
 import { isPublicRoute, ROUTES } from './routes'
+import { useEffect, useState } from 'react'
+import { WalletConnectModal } from './pages/WalletConnectModal'
+import { useWalletConnect } from './context/WalletConnectContext'
 
 const PROJECT_HEADER_LOGO = import.meta.env.VITE_PROJECT_HEADER_LOGO
 
@@ -33,15 +35,13 @@ const AppHeader = () => {
             <ExploreIcon className="size-4.5" />
             Discover
           </NavLink>
-          <button
-            type="button"
-            // to={ROUTES.MARKET}
-            className="flex items-center gap-2 border-b-3 border-b-transparent aria-[current='page']:border-b-black self-stretch opacity-50"
-            disabled={true}
+          <NavLink
+            to={ROUTES.HISTORY}
+            className="flex items-center gap-2 border-b-3 border-b-transparent aria-[current='page']:border-b-black self-stretch"
           >
-            <MarketplaceIcon className="size-4.5" />
-            Market
-          </button>
+            <TransactionIcon className="size-4.5" />
+            History
+          </NavLink>
         </nav>
         <AccountMenu />
       </header>
@@ -54,6 +54,21 @@ export const AppLayout = ({ showHeader = false }: { showHeader?: boolean }) => {
     '--background': `url(${import.meta.env.VITE_PROJECT_BACKGROUND})`
   } as React.CSSProperties
   const isPopup = window.opener !== null
+  const { connectionHandler, signMessageHandler, transactionHandler } = useWalletConnect()
+  const [walletConnectModalOpen, setWalletConnectModalOpen] = useState(false)
+  const { connectionRequest, isConnectionHandlerRegistered } = connectionHandler
+  const { transactionRequest, isSendingTxn, isTransactionHandlerRegistered } = transactionHandler
+  const { signRequest, isSigningMessage, isSignHandlerRegistered } = signMessageHandler
+  const allHandlersRegistered =
+    isConnectionHandlerRegistered && isTransactionHandlerRegistered && isSignHandlerRegistered
+
+  const sendInProgress = isSendingTxn || isSigningMessage
+
+  useEffect(() => {
+    if (isPopup) return
+
+    setWalletConnectModalOpen(!!connectionRequest || !!transactionRequest || !!signRequest)
+  }, [allHandlersRegistered, connectionRequest, isPopup, sendInProgress, signRequest, transactionRequest])
 
   return (
     <div
@@ -63,6 +78,28 @@ export const AppLayout = ({ showHeader = false }: { showHeader?: boolean }) => {
       {showHeader && <AppHeader />}
       <div className="flex flex-col flex-1">
         <Outlet />
+
+        {walletConnectModalOpen && (
+          <Modal
+            title
+            contentProps={{
+              style: {
+                maxWidth: '400px',
+                minHeight: '600px',
+                padding: 0,
+                height: 'fit-content',
+                scrollbarColor: 'gray white',
+                scrollbarWidth: 'thin'
+              }
+            }}
+            scroll={false}
+            onClose={() => {
+              setWalletConnectModalOpen(false)
+            }}
+          >
+            <WalletConnectModal />
+          </Modal>
+        )}
       </div>
       <nav
         data-is-popup={isPopup}
@@ -83,15 +120,13 @@ export const AppLayout = ({ showHeader = false }: { showHeader?: boolean }) => {
           <ExploreIcon className="size-4" />
           Discover
         </NavLink>
-        <button
-          type="button"
-          // to={ROUTES.MARKET}
+        <NavLink
+          to={ROUTES.HISTORY}
           className="flex flex-col items-center text-xs gap-1 flex-1 font-medium aria-[current='page']:font-semibold aria-[current='page']:bg-black/10 py-3 px-4 rounded-md self-stretch disabled:opacity-45"
-          disabled={true}
         >
-          <MarketplaceIcon className="size-4" />
+          <TransactionIcon className="size-4" />
           Market
-        </button>
+        </NavLink>
       </nav>
     </div>
   )
