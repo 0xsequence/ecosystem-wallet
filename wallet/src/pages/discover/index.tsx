@@ -14,10 +14,10 @@ export const DiscoverPage = () => {
       {DISCOVER_ITEMS.map(item => (
         <div
           data-href="inherit"
-          className="bg-black text-white  rounded-lg flex flex-col font-bold text-sm overflow-clip hover:scale-102 focus-within:scale-102 focus-within:ring-2 focus-within:ring-blue-600 transition-transform self-stretch"
+          className="bg-seq-grey-700 text-white  rounded-lg flex flex-col font-bold text-sm overflow-clip hover:scale-102 focus-within:scale-102 focus-within:ring-2 focus-within:ring-blue-600 transition-transform self-stretch"
           key={item.title}
         >
-          {item.img ? <Image src={item.img} className="object-cover w-full h-full aspect-square" /> : null}
+          {item.img ? <Image src={item.img} className="object-cover size-full aspect-square" /> : null}
 
           <div className="py-4 flex flex-col">
             {item.id ? (
