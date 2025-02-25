@@ -12,8 +12,10 @@
 :root {
   --seq-color-background-primary: var(--color-background-primary);
   --color-background-secondary: rgba(0, 0, 0, 0.2);
+  --color-primary: black;
   --color-secondary: black;
   --color-muted: rgba(0, 0, 0, 0.75);
+  --color-button-glass: rgba(0, 0, 0, 0.2);
 }
 
 .grid-template-collapse {

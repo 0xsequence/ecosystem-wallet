@@ -63,7 +63,7 @@ const ActiveSessionCard: React.FC<ActiveSessionCardProps> = ({ session, onDiscon
       <div className="flex flex-row gap-3 items-center" style={{ flex: 1 }}>
         <div className="flex flex-col gap-1">
           <div className="flex flex-row items-center gap-2">
-            <Text className='font-bold text-black' variant="normal" color="text100">
+            <Text className="font-bold text-black" variant="normal" color="text100">
               {session.peerMetadata.name}
             </Text>
           </div>
@@ -145,7 +145,7 @@ export const WalletConnect = () => {
     <div className="flex gap-2 flex-col w-full p-2">
       <div className="flex flex-col gap-2">
         <div className="flex flex-col gap-3">
-          <Text className='font-bold text-center text-black!' variant="medium" color="text80">
+          <Text className="font-bold text-center text-black!" variant="medium" color="text80">
             Connect to a dApp using WalletConnect
           </Text>
           <TabsRoot
@@ -175,7 +175,7 @@ export const WalletConnect = () => {
                     <Spinner />
                   ) : (
                     <Button
-                      className='w-full bg-black'
+                      className="w-full bg-black text-white"
                       onClick={() => handlePair(wcUri)}
                       disabled={!wcUri || isConnecting || !isReady}
                       label="Connect"
