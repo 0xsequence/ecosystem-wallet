@@ -32,6 +32,8 @@ export const TransactionHistoryItem = ({ transaction }: TransactionHistoryItemPr
 
   const tokenContractAddresses: string[] = []
 
+  console.log(transaction)
+
   transaction.transfers?.forEach(transfer => {
     const tokenContractAddress = transfer.contractAddress
     if (!tokenContractAddresses.includes(tokenContractAddress)) {
@@ -80,8 +82,8 @@ export const TransactionHistoryItem = ({ transaction }: TransactionHistoryItemPr
       <button
         onClick={toggleTransactionDetails}
         type="button"
-        className="self-start text-left text-sm font-bold p-4 cursor-pointer flex justify-between gap-2 items-center text-seq-grey-300 font-body text-sm leading-5 tracking-wide font-medium"
-        aria-controls="transaction-details"
+        className="self-start text-left  p-4 cursor-pointer flex justify-between gap-2 items-center text-seq-grey-300 font-body text-sm leading-5 tracking-wide font-medium"
+        aria-controls={`transaction-details-${transaction.txnHash}`}
         aria-expanded={showDetails}
       >
         <span>Details</span>
@@ -91,11 +93,12 @@ export const TransactionHistoryItem = ({ transaction }: TransactionHistoryItemPr
         />
       </button>
       <div
-        id={`transaction-details`}
+        id={`transaction-details-${transaction.txnHash}`}
         aria-hidden={!showDetails}
         className="grid aria-hidden:grid-rows-[0fr] grid-rows-[1fr] overflow-hidden transition-all duration-300"
+        data-inert={!showDetails}
         /** @ts-expect-error - inert unknown */
-        inert={!showDetails}
+        inert={showDetails ? undefined : ''}
       >
         <div className="min-h-0">
           <div
