@@ -13,7 +13,7 @@ import {
 
 import * as PopoverPrimitive from '@radix-ui/react-popover'
 import { AnimatePresence } from 'framer-motion'
-import { ComponentProps, useState } from 'react'
+import { useState } from 'react'
 
 import { useAuth } from '../context/AuthContext'
 
@@ -32,7 +32,6 @@ import { Receive } from './Receive'
 // import { ChainId } from '@0xsequence/network'
 import { Transaction } from '@0xsequence/indexer'
 import { WalletConnect } from './WalletConnect'
-import { Link } from 'react-router'
 
 export const AccountMenu = () => {
   const isMobile = useMediaQuery('isMobile')
@@ -194,26 +193,26 @@ export const AccountMenu = () => {
   )
 }
 
-interface MenuLinkProps {
-  label: string
-  href: string
-  icon?: typeof TransactionIcon
-}
+// interface MenuLinkProps {
+//   label: string
+//   href: string
+//   icon?: typeof TransactionIcon
+// }
 
-function MenuLink(props: MenuLinkProps & ComponentProps<'a'>) {
-  const { label, icon, href, ...rest } = props
+// export function MenuLink(props: MenuLinkProps & ComponentProps<'a'>) {
+//   const { label, icon, href, ...rest } = props
 
-  return (
-    <Button
-      className="w-full bg-black/20 text-sm font-bold rounded-sm text-black"
-      leftIcon={icon}
-      label={label}
-      asChild
-    >
-      <Link to={href} {...rest}></Link>
-    </Button>
-  )
-}
+//   return (
+//     <Button
+//       className="w-full bg-black/20 text-sm font-bold rounded-sm text-black"
+//       leftIcon={icon}
+//       label={label}
+//       asChild
+//     >
+//       <Link to={href} {...rest}></Link>
+//     </Button>
+//   )
+// }
 
 interface MenuButtonProps {
   label: string
