@@ -21,11 +21,12 @@ export function InventoryListEmpty() {
         </>
       ) : (
         <div className="col-span-4 py-12 sm:col-span-2 flex flex-col items-center justify-center px-8 sm:py-4 text-center gap-1">
-          <span className="font-bold text-style-normal text-black">You have no items</span>
+          <span className="font-bold text-style-normal ">You have no items</span>
           <p className="font-bold text-style-sm text-seq-grey-500">
-            Discover the apps and games of Soneium and grow your collection
+            {import.meta.env.VITE_PROJECT_EMPTY_INVENTORY_MESSAGE ||
+              'Discover the apps and games to grow your collection'}
           </p>
-          <Button asChild size="sm" className="mt-2 bg-black">
+          <Button asChild variant="glass" size="sm" className="mt-2">
             <Link to={ROUTES.DISCOVER}>Discover</Link>
           </Button>
         </div>

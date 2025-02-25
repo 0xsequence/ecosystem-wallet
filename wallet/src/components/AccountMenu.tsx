@@ -81,7 +81,7 @@ export const AccountMenu = () => {
         <PopoverPrimitive.Trigger asChild>
           <button
             type="button"
-            className="flex bg-black/20 text-black ~dark:bg-white/10 rounded-full pl-2 pr-3 sm:px-3 py-1 sm:py-2 cursor-pointer gap-2 items-center select-none"
+            className="flex bg-button-glass rounded-full pl-2 pr-3 sm:px-3 py-1 sm:py-2 cursor-pointer gap-2 items-center select-none"
           >
             <GradientAvatar address={String(address)} size="sm" />
             <span className="font-bold text-style-normal">{truncateAddress(String(address), 0, 3)}</span>
@@ -92,12 +92,12 @@ export const AccountMenu = () => {
         {isOpen && (
           <PopoverPrimitive.Portal>
             <PopoverPrimitive.Content side="bottom" sideOffset={8} align="end" asChild>
-              <Card className="z-20 flex flex-col gap-2 bg-[#F2F2F2] shadow-[0_0_12px_0_theme(colors.black/20%)] relative p-4 min-w-[320px]">
+              <Card className="z-20 flex flex-col gap-2 backdrop-blur-[12.5px] bg-background-raised relative p-4 min-w-[320px]">
                 <div className="flex items-center gap-3 justify-between">
                   {address ? (
                     <CopyButton
                       copyText={address}
-                      className="flex gap-2 text-sm font-bold items-center cursor-pointer text-black"
+                      className="flex gap-2 text-sm font-bold items-center cursor-pointer "
                     >
                       <GradientAvatar address={String(address)} size="md" />
                       {truncateAddress(address, 4, 4)}
@@ -107,7 +107,7 @@ export const AccountMenu = () => {
                   <button
                     type="button"
                     onClick={handleClose}
-                    className="bg-black/20 text-black rounded-full flex items-center justify-center size-7 cursor-pointer"
+                    className="bg-button-glass rounded-full flex items-center justify-center size-7 cursor-pointer"
                   >
                     <CloseIcon className="size-4" />
                     <span className="sr-only">Close</span>
@@ -159,10 +159,10 @@ export const AccountMenu = () => {
           >
             <div className="border-b border-black/10 w-full z-20 flex flex-row items-center justify-between px-4">
               <ModalPrimitive.Title asChild>
-                <div className="text-black h-[3.75rem] text-sm font-bold flex items-center justify-center">
+                <div className=" h-[3.75rem] text-sm font-bold flex items-center justify-center">
                   {selectedTransaction && (
                     <IconButton
-                      className="text-black"
+                      className=""
                       icon={ArrowLeftIcon}
                       size="sm"
                       onClick={() => setSelectedTransaction(null)}
@@ -204,7 +204,7 @@ export const AccountMenu = () => {
 
 //   return (
 //     <Button
-//       className="w-full bg-black/20 text-sm font-bold rounded-sm text-black"
+//       className="w-full bg-black/20 text-sm font-bold rounded-sm "
 //       leftIcon={icon}
 //       label={label}
 //       asChild
@@ -224,7 +224,7 @@ function MenuButton(props: MenuButtonProps) {
 
   return (
     <Button
-      className="w-full bg-black/20 text-sm font-bold rounded-sm text-black"
+      className="w-full bg-button-glass text-sm font-bold rounded-sm "
       leftIcon={icon}
       label={label}
       onClick={onClick}

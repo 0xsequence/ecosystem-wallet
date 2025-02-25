@@ -100,8 +100,8 @@
 }
 
 @layer base {
-  [data-theme='light'] {
+  /* [data-theme='light'] {
     --color-background-raised: rgba(255, 255, 255, 0.7);
     --color-background-primary: #ffffff;
-  }
+  } */
 }

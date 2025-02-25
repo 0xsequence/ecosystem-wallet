@@ -78,12 +78,12 @@ export const TransactionDetails = ({ transaction }: TransactionDetailProps) => {
 
   return (
     <div className="flex flex-col items-center justify-center gap-4">
-      <div className="w-full flex max-md:flex-col max-md:items-start justify-between text-start items-center bg-black/10 p-4 rounded-md">
+      <div className="w-full flex max-md:flex-col max-md:items-start justify-between text-start items-center bg-background-secondary p-4 rounded-md">
         <dt className="text-style-sm font-bold">Date</dt>
         <dd>{date}</dd>
       </div>
 
-      <div className="flex flex-col items-center justify-center gap-4 w-full p-4 bg-black/10 rounded-md">
+      <div className="flex flex-col items-center justify-center gap-4 w-full p-4 bg-background-secondary rounded-md">
         <div className="w-full flex gap-1 flex-row items-center justify-start">
           <NetworkImage chainId={transaction.chainId} className="size-5" />
           <span className="text-style-sm font-bold">
@@ -99,14 +99,14 @@ export const TransactionDetails = ({ transaction }: TransactionDetailProps) => {
       </div>
 
       <dl className="w-full flex gap-4 max-md:flex-col">
-        <div className="w-full flex flex-col items-start bg-black/10 p-4 rounded-md">
+        <div className="w-full flex flex-col items-start bg-background-secondary p-4 rounded-md">
           <dt className="text-style-sm font-bold">Status</dt>
           <dd>Complete</dd>
         </div>
 
-        <div className="w-full flex flex-col items-start bg-black/10 p-4 rounded-md">
+        <div className="w-full flex flex-col items-start bg-background-secondary p-4 rounded-md">
           <dt className="text-style-sm font-bold">Transaction Hash</dt>
-          <dd className="flex items-center gap-2 text-style-normal text-black font-medium break-words">
+          <dd className="flex items-center gap-2 text-style-normal  font-medium break-words">
             {`0x${truncateAtMiddle(transaction.txnHash.substring(2), 20)}`}
             <CopyButton buttonVariant="with-label" text={transaction.txnHash} />
           </dd>
@@ -114,7 +114,7 @@ export const TransactionDetails = ({ transaction }: TransactionDetailProps) => {
       </dl>
       <a
         href={`${nativeTokenInfo.blockExplorerUrl}/tx/${transaction.txnHash}`}
-        className="w-full rounded-md bg-black/10 text-black flex items-center justify-between p-4"
+        className="w-full rounded-md bg-background-secondary  flex items-center justify-between p-4"
         target="_blank"
         rel="noopener noreferrer"
       >
@@ -190,11 +190,11 @@ const Transfer = ({ transfer, transaction, nativeTokenInfo }: TransferProps) => 
     <>
       {amounts.map(({ balanceDisplayed, fiatValue, fiatPrice }, index) => (
         <div key={index} className="w-full flex max-md:flex-col gap-2 justify-between items-center">
-          <Card className="w-full flex flex-row items-center rounded-md min-h-[3rem] px-3 py-2 bg-black/10">
+          <Card className="w-full flex flex-row items-center rounded-md min-h-[3rem] px-3 py-2 bg-background-secondary">
             <div className="flex justify-center items-center gap-2">
               <TokenImage src={logoURI} symbol={symbol} className="size-5" />
               <div className="flex flex-col leading-tight items-start justify-center">
-                <span className="text-black">{`${balanceDisplayed} ${symbol}`}</span>
+                <span className="">{`${balanceDisplayed} ${symbol}`}</span>
 
                 {arePricesLoading ? (
                   '--'
@@ -205,11 +205,11 @@ const Transfer = ({ transfer, transaction, nativeTokenInfo }: TransferProps) => 
             </div>
           </Card>
           <ArrowRightIcon className="size-4 max-md:rotate-90" />
-          <Card className="w-full flex flex-row items-center rounded-md min-h-[3rem] px-3 py-2 bg-black/10">
+          <Card className="w-full flex flex-row items-center rounded-md min-h-[3rem] px-3 py-2 bg-background-secondary">
             <div className="flex justify-between gap-2 w-full">
               <div className="flex justify-center items-center gap-2 flex-1">
                 <GradientAvatar address={recipientAddress} className="size-5" />
-                <span className="text-black">{recipientAddressFormatted}</span>
+                <span className="">{recipientAddressFormatted}</span>
                 <CopyButton text={recipientAddress} className="ml-auto mr-0"></CopyButton>
               </div>
             </div>

@@ -22,7 +22,7 @@ export const Alert = ({
   return (
     <div className={`rounded-md ${alertBg}`}>
       <div className="rounded-md p-4 w-full flex flex-col gap-3" style={{ background: 'backgroundOverlay' }}>
-        <div className="w-full flex sm:flex-col md:flex-row gap-2 justify-between text-black">
+        <div className="w-full flex sm:flex-col md:flex-row gap-2 justify-between ">
           <div className="flex flex-col gap-1">
             <span className="font-medium ">{title}</span>
 

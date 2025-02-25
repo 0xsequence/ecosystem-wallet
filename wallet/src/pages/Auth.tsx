@@ -131,11 +131,11 @@ export const Auth: React.FC = () => {
   return (
     <div className="flex flex-col flex-1 items-center justify-center">
       <AuthCoverWrapper>
-        <Card className="w-full bg-black gap-6 flex flex-col px-6 py-[5rem] rounded-none">
+        <Card className="bg-transparent w-full gap-6 flex flex-col px-6 py-[5rem] rounded-none">
           {!emailAuthInProgress && (
             <>
               <div className="flex items-center gap-4 flex-col">
-                <Image src={import.meta.env.VITE_PROJECT_LOGO} className="size-16" />
+                <Image src={import.meta.env.VITE_PROJECT_LOGO} className="size-24" />
                 <span>
                   Sign in to <span className="font-bold">{PROJECT_NAME}</span>
                 </span>
@@ -145,11 +145,11 @@ export const Auth: React.FC = () => {
                   {GOOGLE_CLIENT_ID ? (
                     <GoogleOAuthProvider clientId={googleClientId}>
                       <div
-                        className="rounded-sm relative bg-white/10 gap-2 items-center text-style-normal font-bold inline-flex justify-center min-h-[3rem] py-2 px-3 data-[disabled=='true
+                        className="rounded-sm relative bg-button-glass gap-2 items-center text-style-normal font-bold inline-flex justify-center min-h-[3rem] py-2 px-3 data-[disabled=='true
                             :disabled:cursor-default cursor-pointer"
                       >
                         {isSocialLoginInProgress === 'google' ? (
-                          <Spinner className="text-white" size="md" />
+                          <Spinner size="md" />
                         ) : (
                           <>
                             {/* @ts-expect-error logo doesn't want className, but accepts it */}
@@ -183,12 +183,12 @@ export const Auth: React.FC = () => {
                   {APPLE_CLIENT_ID ? (
                     <button
                       type="button"
-                      className="rounded-sm relative bg-white/10 gap-2 items-center text-style-normal font-bold inline-flex justify-center min-h-[3rem] py-2 px-3 disabled:cursor-default cursor-pointer"
+                      className="rounded-sm relative bg-button-glass gap-2 items-center text-style-normal font-bold inline-flex justify-center min-h-[3rem] py-2 px-3 disabled:cursor-default cursor-pointer"
                       onClick={handleAppleLogin}
                       disabled={!!isSocialLoginInProgress}
                     >
                       {isSocialLoginInProgress === 'apple' ? (
-                        <Spinner className="text-white" size="md" />
+                        <Spinner size="md" />
                       ) : (
                         <>
                           <AppleLogo className="size-8 flex-shrink-0" />
@@ -201,17 +201,17 @@ export const Auth: React.FC = () => {
               </div>
 
               <div className="flex gap-4 items-center">
-                <Divider className="bg-white/10 flex-1" />
-                <span className="text-seq-grey-200 text-sm font-medium">or</span>
-                <Divider className="bg-white/10 flex-1" />
+                <Divider className="bg-background-raised flex-1" />
+                <span className="text-sm font-medium">or</span>
+                <Divider className="bg-background-raised flex-1" />
               </div>
             </>
           )}
 
           {sendChallengeAnswer ? (
-            <div className="flex flex-col  p-4 items-center justify-center">
+            <div className="flex flex-col p-4 items-center justify-center">
               <div>
-                <span className="text-white text-sm">Check your email for your access code</span>
+                <span className="text-sm">Check your email for your access code</span>
               </div>
               <div className="mt-4">
                 <PINCodeInput value={code} digits={6} onChange={setCode} />
@@ -234,7 +234,7 @@ export const Auth: React.FC = () => {
           ) : (
             <div className="mt-2">
               <div className="flex flex-col gap-2">
-                <div className="relative border border-seq-grey-500 rounded-md w-full min-h-[3.25rem] flex items-stretch justify-end focus-within:ring-1 focus-within:border-seq-purple-700 ring-seq-purple-700 overflow-clip">
+                <div className="relative border border-border-normal rounded-md w-full min-h-[3.25rem] flex items-stretch justify-end focus-within:ring-1 focus-within:border-border-focus ring-seq-purple-700 overflow-clip">
                   <input
                     name="email"
                     type="email"
@@ -254,7 +254,7 @@ export const Auth: React.FC = () => {
                     className="absolute w-full h-full p-4 outline-none placeholder:text-seq-grey-200 sm:text-style-normal font-medium"
                     data-id="loginEmail"
                   />
-                  <div className="flex items-center justify-center size-12 z-50 bg-gradient-to-r from-black/0 from-0% to-35% to-black pointer-events-none">
+                  <div className="flex items-center justify-center size-12 z-50  pointer-events-none">
                     {emailAuthLoading ? (
                       <Spinner />
                     ) : (
@@ -262,7 +262,7 @@ export const Auth: React.FC = () => {
                         type="button"
                         disabled={!isEmailValid}
                         onClick={() => initiateEmailAuth(email)}
-                        className="size-8 pointer-events-auto disabled:opacity-25 rounded-full bg-white/20  flex items-center justify-center"
+                        className="size-8 pointer-events-auto disabled:opacity-25 rounded-full flex items-center justify-center bg-button-glass"
                       >
                         <ArrowRightIcon />
                       </button>
@@ -316,7 +316,9 @@ function AuthCoverWrapper({ children }: { children: React.ReactNode }) {
   const message = import.meta.env.VITE_PROJECT_AUTH_MESSAGE
 
   if (!coverImage) {
-    return <div className="w-full max-w-[24rem] rounded-lg overflow-clip">{children}</div>
+    return (
+      <div className="w-full max-w-[24rem] rounded-lg overflow-clip bg-background-secondary">{children}</div>
+    )
   }
 
   const style = {
@@ -325,14 +327,14 @@ function AuthCoverWrapper({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex w-full md:w-auto px-4 pd:mx-0">
-      <div className="overflow-clip rounded-lg grid auth-grid-template bg-black max-w-screen-lg w-full min-h-[32rem] aspect-video">
-        <div className="flex flex-col items-center flex-1 place-self-center w-full">{children}</div>
+      <div className="overflow-clip rounded-lg grid auth-grid-template max-w-screen-lg w-full min-h-[32rem] aspect-video bg-background-secondary">
+        <div className="flex flex-col items-center flex-1 place-self-center w-full ">{children}</div>
         <div
           className="hidden sm:flex flex-col items-end justify-end p-8 flex-shrink [background-image:var(--background)] bg-cover bg-no-repeat"
           style={style}
         >
           {title || message ? (
-            <div className="flex-shrink text-black text-right">
+            <div className="flex-shrink text-right">
               {title ? <p className="font-bold mb-3">{title}</p> : null}
               {message ? <p className="text-style-sm">{message}</p> : null}
             </div>
