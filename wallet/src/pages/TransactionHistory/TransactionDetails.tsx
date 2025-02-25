@@ -1,6 +1,5 @@
 import { Token } from '@0xsequence/api'
 import {
-  ArrowRightIcon,
   Card,
   compareAddress,
   GradientAvatar,
@@ -17,6 +16,7 @@ import { networks, ChainId } from '@0xsequence/network'
 import { CopyButton } from '../../components/CopyButton'
 import { formatDisplay, truncateAtMiddle } from '../../utils/helpers'
 import { useCollectiblePrices } from '../../hooks/useCollectiblePrices'
+import { ArrowRightIcon } from '../../design-system-patch/icons'
 
 function useCoinsAndCollectables(transaction: Transaction) {
   const coins: Token[] = []
@@ -78,7 +78,7 @@ export const TransactionDetails = ({ transaction }: TransactionDetailProps) => {
 
   return (
     <div className="flex flex-col items-center justify-center gap-4">
-      <div className="w-full flex justify-between text-start items-center bg-black/10 p-4 rounded-md">
+      <div className="w-full flex max-md:flex-col max-md:items-start justify-between text-start items-center bg-black/10 p-4 rounded-md">
         <dt className="text-style-sm font-bold">Date</dt>
         <dd>{date}</dd>
       </div>
@@ -98,7 +98,7 @@ export const TransactionDetails = ({ transaction }: TransactionDetailProps) => {
         ))}
       </div>
 
-      <dl className="w-full flex gap-4">
+      <dl className="w-full flex gap-4 max-md:flex-col">
         <div className="w-full flex flex-col items-start bg-black/10 p-4 rounded-md">
           <dt className="text-style-sm font-bold">Status</dt>
           <dd>Complete</dd>
@@ -189,7 +189,7 @@ const Transfer = ({ transfer, transaction, nativeTokenInfo }: TransferProps) => 
   return (
     <>
       {amounts.map(({ balanceDisplayed, fiatValue, fiatPrice }, index) => (
-        <div key={index} className="w-full flex flex-row gap-2 justify-between items-center">
+        <div key={index} className="w-full flex max-md:flex-col gap-2 justify-between items-center">
           <Card className="w-full flex flex-row items-center rounded-md min-h-[3rem] px-3 py-2 bg-black/10">
             <div className="flex justify-center items-center gap-2">
               <TokenImage src={logoURI} symbol={symbol} className="size-5" />
@@ -204,7 +204,7 @@ const Transfer = ({ transfer, transaction, nativeTokenInfo }: TransferProps) => 
               </div>
             </div>
           </Card>
-          <ArrowRightIcon color="text50" style={{ width: '16px' }} />
+          <ArrowRightIcon className="size-4 max-md:rotate-90" />
           <Card className="w-full flex flex-row items-center rounded-md min-h-[3rem] px-3 py-2 bg-black/10">
             <div className="flex justify-center items-center gap-2">
               <GradientAvatar address={recipientAddress} className="size-5" />
