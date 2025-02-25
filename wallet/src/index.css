@@ -78,7 +78,7 @@ div[role='region'] ol li[role='status'] {
   position: relative;
 }
 [data-href='inherit'] a[href]:not(:first-of-type),
-button {
+[data-href='inherit'] button {
   position: relative;
   z-index: 200;
 }
