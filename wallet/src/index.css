@@ -16,6 +16,14 @@
   --color-muted: rgba(0, 0, 0, 0.75);
 }
 
+.grid-template-collapse {
+  grid-template-rows: 1fr 0fr 0fr;
+}
+
+.grid-template-collapse[inert] {
+  grid-template-rows: 0fr 0fr 0fr;
+}
+
 button[aria-label='Close'] {
   @apply bg-black text-white;
 }

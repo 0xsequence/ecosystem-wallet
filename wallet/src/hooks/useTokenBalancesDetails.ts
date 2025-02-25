@@ -13,6 +13,7 @@ export const useTokenBalancesDetails = ({ ...args }: GetTokenBalancesDetailsArgs
     staleTime: 30 * TIME.SECOND,
     enabled: !!args.filter.accountAddresses[0],
     refetchInterval: 30 * TIME.SECOND,
-    refetchOnWindowFocus: true
+    refetchOnWindowFocus: true,
+    refetchOnMount: true
   })
 }

@@ -12,7 +12,6 @@ import {
   useToast
 } from '@0xsequence/design-system'
 import { TokenBalance } from '@0xsequence/indexer'
-import { ChainId, networks } from '@0xsequence/network'
 import {
   MaySentTransactionResponse,
   SentTransactionResponse,
@@ -56,7 +55,6 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
   const [isCheckingFeeOptions, setIsCheckingFeeOptions] = useState(false)
   const [selectedFeeTokenAddress, setSelectedFeeTokenAddress] = useState<string | null>(null)
 
-  const { name: nativeTokenName = 'Native Token' } = networks[chainId as ChainId].nativeToken
   const { contractType } = tokenBalance
   const decimals = tokenBalance?.tokenMetadata?.decimals || 0
   const name = tokenBalance?.tokenMetadata?.name || 'Unknown'
@@ -219,7 +217,7 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
         toast({
           title: 'Transaction successful',
           variant: 'success',
-          duration: TIME.SECOND * 5,
+          duration: TIME.SECOND * 5
         })
       } else {
         toast({
@@ -324,7 +322,7 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
                   value={toAddress}
                   onChange={(ev: SyntheticEvent) => setToAddress((ev.target as HTMLInputElement).value)}
                   className="text-black"
-                  placeholder={`${nativeTokenName} Address (0x...)`}
+                  placeholder="Ethereum Address (0x...)"
                   name="to-address"
                   data-1p-ignore
                   controls={

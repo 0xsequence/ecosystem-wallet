@@ -6,7 +6,7 @@ import { InventoryPage } from './pages/inventory/InventoryPage'
 import { ROUTES } from './routes'
 import { DiscoverPage } from './pages/DiscoverPage'
 import { WalletConnectModal } from './pages/WalletConnectModal'
-import { TransactionHistory as HistoryPage } from './components/TransactionHistory/index'
+import { TransactionHistory as HistoryPage } from './pages/TransactionHistory/index'
 export const App: React.FC = () => {
   return (
     <Routes>

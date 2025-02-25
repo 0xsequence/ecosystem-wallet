@@ -146,7 +146,7 @@ export const AccountMenu = () => {
               style: {
                 maxWidth: '400px',
                 minHeight: '480px',
-                height: isMobile ? '90vh' : '60vh',
+                height: openModal.type === 'receive' ? 'auto' : isMobile ? '90vh' : '60vh',
                 overflowY: 'auto',
                 scrollbarColor: 'gray white',
                 scrollbarWidth: 'thin'

@@ -17,13 +17,17 @@ import { useConfig, FiatCurrency } from '../../hooks/useConfig'
 import { formatDisplay } from '../../utils/helpers'
 import { getTransactionLabelByType } from './helpers/getTransactionLabelByType'
 import { TransactionIconByType } from './TransactionIconByType'
+import { useState } from 'react'
+import { TransactionDetails } from './TransactionDetails'
+import { ChevronDownIcon } from '../../design-system-patch/icons'
 
 interface TransactionHistoryItemProps {
   transaction: Transaction
   onClickTransaction: (transaction: Transaction) => void
 }
 
-export const TransactionHistoryItem = ({ transaction, onClickTransaction }: TransactionHistoryItemProps) => {
+export const TransactionHistoryItem = ({ transaction }: TransactionHistoryItemProps) => {
+  const [showDetails, setShowDetails] = useState(false)
   const { fiatCurrency } = useConfig()
 
   const tokenContractAddresses: string[] = []
@@ -50,26 +54,58 @@ export const TransactionHistoryItem = ({ transaction, onClickTransaction }: Tran
 
   const { transfers } = transaction
 
+  function toggleTransactionDetails() {
+    setShowDetails(current => !current)
+  }
+
   return (
-    <div
-      className="bg-black/5 rounded-md p-4 gap-2 items-center justify-center flex flex-col cursor-pointer hover:opacity-80"
-      onClick={() => onClickTransaction(transaction)}
-    >
-      {transfers?.map((transfer, position) => {
-        return (
-          <div key={`${transaction.txnHash}-${position}`} className="w-full">
-            <Transfer
-              isPending={isPending}
-              fiatCurrency={fiatCurrency}
-              conversionRate={conversionRate}
-              coinPrices={coinPrices}
-              transaction={transaction}
-              transfer={transfer}
-              isFirstItem={position === 0}
-            />
+    <div className="bg-black/5 rounded-md justify-center grid grid-cols-1 focus-within:ring-2">
+      <div className="flex flex-col px-4 pt-4">
+        {transfers?.map((transfer, position) => {
+          return (
+            <div key={`${transaction.txnHash}-${position}`} className="w-full">
+              <Transfer
+                isPending={isPending}
+                fiatCurrency={fiatCurrency}
+                conversionRate={conversionRate}
+                coinPrices={coinPrices}
+                transaction={transaction}
+                transfer={transfer}
+                isFirstItem={position === 0}
+              />
+            </div>
+          )
+        })}
+      </div>
+      <button
+        onClick={toggleTransactionDetails}
+        type="button"
+        className="self-start text-left text-sm font-bold p-4 cursor-pointer flex justify-between gap-2 items-center text-seq-grey-300 font-body text-sm leading-5 tracking-wide font-medium"
+        aria-controls="transaction-details"
+        aria-expanded={showDetails}
+      >
+        <span>Details</span>
+        <ChevronDownIcon
+          className="size-4 transition-transform -rotate-90 data-[expanded='true']:rotate-0"
+          data-expanded={showDetails}
+        />
+      </button>
+      <div
+        id={`transaction-details`}
+        aria-hidden={!showDetails}
+        className="grid aria-hidden:grid-rows-[0fr] grid-rows-[1fr] overflow-hidden transition-all duration-300"
+        /** @ts-expect-error - inert unknown */
+        inert={!showDetails}
+      >
+        <div className="min-h-0">
+          <div
+            aria-hidden={!showDetails}
+            className="aria-hidden:scale-95 transition-all aria-hidden:blur-xl aria-hidden:translate-y-2 aria-hidden:opacity-00 duration-300 px-4 pb-4"
+          >
+            <TransactionDetails transaction={transaction} />
           </div>
-        )
-      })}
+        </div>
+      </div>
     </div>
   )
 }
@@ -105,11 +141,7 @@ function Transfer({
           <NetworkImage chainId={transaction.chainId} size="xs" />
         </div>
         {isFirstItem && (
-          <div>
-            <Text variant="normal" fontWeight="medium" className="text-gray-500">
-              {date}
-            </Text>
-          </div>
+          <span className="font-body text-sm leading-5 tracking-wide font-medium text-gray-500">{date}</span>
         )}
       </div>
       {amounts.map((amount, index) => {
@@ -177,11 +209,9 @@ function TransferAmountLabel({
   }
 
   return (
-    <Text
-      variant="normal"
-      fontWeight="bold"
+    <span
       data-transfer-type={transferType}
-      className="data-[transfer-type='SEND']:text-red-500 text-black data-[transfer-type='RECEIVE']:text-green-700"
-    >{`${sign}${amount} ${symbol}`}</Text>
+      className="data-[transfer-type='SEND']:text-red-500 text-black data-[transfer-type='RECEIVE']:text-green-700 font-body text-sm leading-5 tracking-wide font-medium"
+    >{`${sign}${amount} ${symbol}`}</span>
   )
 }

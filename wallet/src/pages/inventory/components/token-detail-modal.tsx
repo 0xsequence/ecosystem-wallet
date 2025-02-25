@@ -167,7 +167,7 @@ function TokenDetailsCollectable(props: TokenTileProps) {
   } as React.CSSProperties
 
   const { setShowSendModal } = useInventory()
-  const { tokenMetadata, chainId, chain, contractInfo } = props
+  const { tokenMetadata, chainId, chain } = props
 
   return (
     <div className="w-full flex flex-col text-black p-6">
@@ -192,12 +192,10 @@ function TokenDetailsCollectable(props: TokenTileProps) {
           Send
         </button>
 
-        {contractInfo?.extensions?.description && (
+        {tokenMetadata?.description && (
           <WrappedCollapse>
             <Collapsible label="Details">
-              <span className="text-seq-grey-500 text-xs font-bold">
-                {contractInfo?.extensions?.description}
-              </span>
+              <span className="text-seq-grey-500 text-xs font-bold">{tokenMetadata?.description}</span>
             </Collapsible>
           </WrappedCollapse>
         )}
