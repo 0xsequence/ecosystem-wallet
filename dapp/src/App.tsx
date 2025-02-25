@@ -1,4 +1,4 @@
-import { Card, Divider, Text } from '@0xsequence/design-system';
+import { Box, Card, Divider, Text } from '@0xsequence/design-system'
 import { allNetworks } from '@0xsequence/network'
 import { ethers } from 'ethers'
 import { useEffect, useState } from 'react'
@@ -172,30 +172,34 @@ function App() {
   const walletAppUrl = urlParams.get('walletAppUrl') ?? import.meta.env.VITE_WALLET_URL
 
   return (
-    (<div className="flex flex-col items-center" style={{ maxWidth: '540px' }}>
-      <Text className="mb-2" variant="xlarge">
+    <Box flexDirection="column" alignItems="center" style={{ maxWidth: '540px' }}>
+      <Text variant="xlarge" marginBottom="2">
         Demo Dapp
       </Text>
-      <Text className="mb-2" variant="normal" color="text80">
+      <Text variant="normal" color="text80" marginBottom="2">
         Using wagmi + cross app embedded wallet connector
       </Text>
-      <Text className="mb-10" variant="normal" color="text80">
+      <Text variant="normal" color="text80" marginBottom="10">
         Cross app embedded wallet url: {walletAppUrl} <br />
         use walletAppUrl url param to test with another wallet
       </Text>
-      <div className="flex flex-col items-center">
+      <Box flexDirection="column" alignItems="center">
         {!address && (
-          <div className="flex flex-col gap-2">
+          <Box flexDirection="column" gap="2">
             <Text variant="large" color="text100" fontWeight="bold">
               Connectors:
             </Text>
             <WalletOptions />
-          </div>
+          </Box>
         )}
         {address && (
-          <div
-            className="flex flex-col items-center justify-center gap-2"
-            style={{ maxWidth: '540px' }}>
+          <Box
+            flexDirection="column"
+            alignItems="center"
+            justifyContent="center"
+            gap="2"
+            style={{ maxWidth: '540px' }}
+          >
             <Text variant="medium" color="text50" fontWeight="bold">
               Connected wallet:
             </Text>
@@ -207,7 +211,7 @@ function App() {
               {networkForCurrentChainId.name}
             </Text>
 
-            <Divider className="w-full" />
+            <Divider width="full" />
 
             <CardButton
               title="Switch chain"
@@ -231,11 +235,18 @@ function App() {
               isPending={isPendingSendTxn}
             />
             {networkForCurrentChainId.blockExplorer && lastTxnHash && (
-              <Text className="mt-1 mb-3" variant="small" underline asChild><a
-                  href={`${networkForCurrentChainId.blockExplorer.rootUrl}/tx/${txnHash}`}
-                  target="_blank"
-                  rel="noreferrer">View on {networkForCurrentChainId.blockExplorer.name}
-                </a></Text>
+              <Text
+                as="a"
+                variant="small"
+                underline
+                href={`${networkForCurrentChainId.blockExplorer.rootUrl}/tx/${txnHash}`}
+                target="_blank"
+                rel="noreferrer"
+                marginTop="1"
+                marginBottom="3"
+              >
+                View on {networkForCurrentChainId.blockExplorer.name}
+              </Text>
             )}
 
             <CardButton
@@ -246,13 +257,13 @@ function App() {
             />
 
             {isMessageValid && (
-              <Card className="flex w-full text-text100 flex-col gap-2">
+              <Card width="full" color={'text100'} flexDirection={'column'} gap={'2'}>
                 <Text variant="medium">Signed message:</Text>
                 <Text>{messageToSign}</Text>
                 <Text variant="medium">Signature:</Text>
-                <Text variant="code" ellipsis asChild><p>
-                    {messageSig}
-                  </p></Text>
+                <Text variant="code" as="p" ellipsis>
+                  {messageSig}
+                </Text>
                 <Text variant="medium">
                   isValid:{' '}
                   <Text variant="code" ellipsis>
@@ -269,34 +280,35 @@ function App() {
               isPending={isSigningTypedData}
             />
             {typedDataSig && (
-              <Card className="flex text-text100 flex-col gap-2" style={{ width: '332px' }}>
+              <Card style={{ width: '332px' }} color={'text100'} flexDirection={'column'} gap={'2'}>
                 <Text variant="medium">Signed typed data:</Text>
-                <Text variant="code" asChild><p>
-                    {JSON.stringify(
-                      {
-                        domain,
-                        types,
-                        primaryType: 'Person',
-                        message: value
-                      },
-                      null,
-                      2
-                    )}
-                  </p></Text>
+                <Text variant="code" as="p">
+                  {JSON.stringify(
+                    {
+                      domain,
+                      types,
+                      primaryType: 'Person',
+                      message: value
+                    },
+                    null,
+                    2
+                  )}
+                </Text>
                 <Text variant="medium">Signature:</Text>
-                <Text variant="code" ellipsis asChild><p>
-                    {typedDataSig}
-                  </p></Text>
+                <Text variant="code" as="p" ellipsis>
+                  {typedDataSig}
+                </Text>
                 <Text variant="medium">
                   isValid: <Text variant="code">{isTypedDataValid?.toString()}</Text>
                 </Text>
               </Card>
             )}
-          </div>
+          </Box>
         )}
-      </div>
+      </Box>
+
       {address && (
-        <div className="mt-6">
+        <Box marginTop="6">
           <button
             onClick={() => {
               disconnect()
@@ -305,10 +317,10 @@ function App() {
           >
             Disconnect
           </button>
-        </div>
+        </Box>
       )}
-    </div>)
-  );
+    </Box>
+  )
 }
 
 function WalletOptions() {
