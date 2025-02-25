@@ -7,7 +7,6 @@ import { TransactionHistorySkeleton } from './TransactionHistorySkeleton'
 import { useAuth } from '../../context/AuthContext'
 import { useTransactionHistorySummary } from '../../hooks/useTransactionHistorySummary'
 import { ChainId } from '@0xsequence/network'
-import { TransactionDetails } from './TransactionDetails'
 import { useFetchInventory } from '../../pages/inventory/helpers/use-fetch-inventory'
 
 // interface TransactionHistoryListProps {
@@ -51,7 +50,7 @@ const transactionPeriods: TransactionPeriods[] = [
 ]
 
 export const TransactionHistory = () => {
-  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>()
+  const [, setSelectedTransaction] = useState<Transaction | null>()
 
   const { inventory } = useFetchInventory()
   const inventoryChainIds = [...new Set(inventory.filter(Boolean).map(item => item!.chainId))]
