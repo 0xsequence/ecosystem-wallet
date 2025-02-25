@@ -19,7 +19,7 @@ const PROJECT_HEADER_LOGO =
 
 const AppHeader = () => {
   return (
-    <div className="bg-[theme(colors.white/70%)] backdrop-blur-lg w-full border-b border-[var(--color-background-secondary)] ">
+    <div className="bg-[theme(colors.white/70%)] backdrop-blur-lg w-full border-b border-border-normal ">
       <header className="flex flex-row gap-4 px-6  items-center justify-between min-h-[4.5rem] text-style-normal font-bold w-full max-w-screen-xl mx-auto">
         {PROJECT_HEADER_LOGO && (
           <Link to={ROUTES.INVENTORY}>
@@ -80,7 +80,7 @@ export const AppLayout = ({ showHeader = false }: { showHeader?: boolean }) => {
 
   return (
     <div
-      className="flex flex-col flex-1 [background-image:var(--background)] bg-cover bg-no-repeat"
+      className="flex flex-col flex-1 [background-image:var(--background)] bg-cover bg-no-repeat bg-fixed"
       style={style}
     >
       {showHeader && <AppHeader />}
