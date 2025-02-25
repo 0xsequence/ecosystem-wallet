@@ -24,7 +24,7 @@ export const DISCOVER_ITEMS = [
       'Bringing liquidity to All IPs. Configurable pool system accepts not only ERC-20 tokens but all types of on-chain assets including but not limited to ERC-721&1155',
     img: 'https://sequence.tor1.digitaloceanspaces.com/dapp/sonex.png',
     href: 'https://app.sonex.so',
-    categories: ['DiFi']
+    categories: ['DeFi']
   },
   {
     id: 'tiltplay',
@@ -50,7 +50,7 @@ export const DISCOVER_ITEMS = [
       'Bringing liquidity to All IPs. Configurable pool system accepts not only ERC-20 tokens but all types of on-chain assets including but not limited to ERC-721&1155',
     img: 'https://sequence.tor1.digitaloceanspaces.com/dapp/kyo.png',
     href: 'https://testnet.kyo.finance',
-    categories: ['DiFi']
+    categories: ['DeFi']
   },
 
   {
