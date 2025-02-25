@@ -3,7 +3,7 @@ import { Link, NavLink, Outlet } from 'react-router'
 
 import { AccountMenu } from './components/AccountMenu'
 import { PrivateRoute } from './components/PrivateRoute'
-import { ExploreIcon, InventoryIcon, MarketplaceIcon } from './design-system-patch/icons'
+import { ExploreIcon, InventoryIcon, TransactionIcon } from './design-system-patch/icons'
 import { isPublicRoute, ROUTES } from './routes'
 import { useEffect, useState } from 'react'
 import { WalletConnectModal } from './pages/WalletConnectModal'
@@ -35,15 +35,13 @@ const AppHeader = () => {
             <ExploreIcon className="size-4.5" />
             Discover
           </NavLink>
-          <button
-            type="button"
-            // to={ROUTES.MARKET}
-            className="flex items-center gap-2 border-b-3 border-b-transparent aria-[current='page']:border-b-black self-stretch opacity-50"
-            disabled={true}
+          <NavLink
+            to={ROUTES.HISTORY}
+            className="flex items-center gap-2 border-b-3 border-b-transparent aria-[current='page']:border-b-black self-stretch"
           >
-            <MarketplaceIcon className="size-4.5" />
-            Market
-          </button>
+            <TransactionIcon className="size-4.5" />
+            History
+          </NavLink>
         </nav>
         <AccountMenu />
       </header>
@@ -122,15 +120,13 @@ export const AppLayout = ({ showHeader = false }: { showHeader?: boolean }) => {
           <ExploreIcon className="size-4" />
           Discover
         </NavLink>
-        <button
-          type="button"
-          // to={ROUTES.MARKET}
+        <NavLink
+          to={ROUTES.HISTORY}
           className="flex flex-col items-center text-xs gap-1 flex-1 font-medium aria-[current='page']:font-semibold aria-[current='page']:bg-black/10 py-3 px-4 rounded-md self-stretch disabled:opacity-45"
-          disabled={true}
         >
-          <MarketplaceIcon className="size-4" />
+          <TransactionIcon className="size-4" />
           Market
-        </button>
+        </NavLink>
       </nav>
     </div>
   )

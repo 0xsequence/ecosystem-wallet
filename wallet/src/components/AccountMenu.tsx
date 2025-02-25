@@ -125,13 +125,13 @@ export const AccountMenu = () => {
                   onClick={() => setOpenModal({ type: 'receive' })}
                 />
 
-                <MenuLink
+                {/* <MenuLink
                   href="/history"
                   label="History"
                   icon={TransactionIcon}
                   onClick={handleClose}
                   // onClick={() => setOpenModal({ type: 'history' })}
-                />
+                /> */}
                 {/* <MenuLink label="Settings" icon={SettingsIcon} href="/settings" /> */}
                 <MenuButton label="Sign out" icon={SignoutIcon} onClick={handleSignOut} />
               </Card>
