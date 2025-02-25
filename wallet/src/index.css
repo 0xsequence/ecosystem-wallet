@@ -10,6 +10,7 @@
 }
 [data-theme='light'] {
   --color-background-secondary: theme(colors.black/5%);
+  --background-image-gradient-primary: linear-gradient(to bottom, theme(colors.black), theme(colors.black));
 }
 
 :root {

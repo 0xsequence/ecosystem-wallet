@@ -190,13 +190,14 @@ function TokenDetailsCollectable(props: TokenTileProps) {
         </span>
       </div>
       <div className="w-full flex flex-col gap-2">
-        <button
-          className="bg-button-glass rounded-md flex items-center justify-center gap-2 text-sm font-bold p-4 cursor-pointer"
+        <Button
+          variant="primary"
+          className="rounded-md flex items-center justify-center gap-2 text-sm font-bold p-4 cursor-pointer"
           onClick={() => setShowSendModal(true)}
         >
           <SendIcon />
           Send
-        </button>
+        </Button>
 
         {tokenMetadata?.description && (
           <WrappedCollapse>
