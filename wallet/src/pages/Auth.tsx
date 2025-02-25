@@ -135,7 +135,7 @@ export const Auth: React.FC = () => {
           {!emailAuthInProgress && (
             <>
               <div className="flex items-center gap-4 flex-col">
-                <Image src={import.meta.env.VITE_PROJECT_LOGO} className="size-16" />
+                <Image src={import.meta.env.VITE_PROJECT_LOGO} className="size-24" />
                 <span>
                   Sign in to <span className="font-bold">{PROJECT_NAME}</span>
                 </span>

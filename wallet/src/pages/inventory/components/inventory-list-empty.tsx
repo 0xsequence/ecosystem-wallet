@@ -25,7 +25,7 @@ export function InventoryListEmpty() {
           <p className="font-bold text-style-sm text-seq-grey-500">
             Discover the apps and games of Soneium and grow your collection
           </p>
-          <Button asChild size="sm" className="mt-2 bg-black">
+          <Button asChild variant="glass" size="sm" className="mt-2">
             <Link to={ROUTES.DISCOVER}>Discover</Link>
           </Button>
         </div>

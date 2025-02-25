@@ -19,7 +19,7 @@ const PROJECT_HEADER_LOGO =
 
 const AppHeader = () => {
   return (
-    <div className="bg-background-raised backdrop-blur-md w-full border-b border-[var(--color-background-secondary)] ">
+    <div className="bg-[theme(colors.white/10)] backdrop-blur-lg w-full border-b border-[var(--color-background-secondary)] ">
       <header className="flex flex-row gap-4 px-6  items-center justify-between min-h-[4.5rem] text-style-normal font-bold w-full max-w-screen-xl mx-auto">
         {PROJECT_HEADER_LOGO && (
           <Link to={ROUTES.INVENTORY}>

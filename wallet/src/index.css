@@ -8,6 +8,9 @@
 *::after {
   box-sizing: border-box;
 }
+[data-theme='light'] {
+  --color-background-secondary: theme(colors.black/5%);
+}
 
 :root {
   /* --seq-color-background-primary: var(--color-background-primary);
