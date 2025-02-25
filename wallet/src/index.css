@@ -50,6 +50,28 @@ div[role='region'] ol li[role='status'] {
   @apply bg-black/20;
 }
 
+/* Inherit click area from nested link */
+/** Cover entire card with a clickable region
+  * https://adrianroselli.com/2020/02/block-links-cards-clickable-regions-etc.html
+  */
+[data-href='inherit'] {
+  position: relative;
+}
+[data-href='inherit'] a[href]:not(:first-of-type),
+button {
+  position: relative;
+  z-index: 200;
+}
+
+[data-href='inherit'] a:first-of-type[href]::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
 /* a {
   color: inherit;
   text-decoration: inherit;

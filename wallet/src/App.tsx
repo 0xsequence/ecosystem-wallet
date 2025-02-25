@@ -4,7 +4,8 @@ import { AppLayout, ProtectedLayout } from './Layout'
 import { Auth } from './pages/Auth'
 import { InventoryPage } from './pages/inventory/InventoryPage'
 import { ROUTES } from './routes'
-import { DiscoverPage } from './pages/DiscoverPage'
+import { DiscoverPage } from './pages/discover'
+import { DiscoverShowRoute } from './pages/discover/show'
 import { Home } from './pages/home/Home'
 
 export const App: React.FC = () => {
@@ -20,6 +21,7 @@ export const App: React.FC = () => {
         <Route index element={<Home />} />
         <Route path={ROUTES.INVENTORY} element={<InventoryPage />} />
         <Route path={ROUTES.DISCOVER} element={<DiscoverPage />} />
+        <Route path={`${ROUTES.DISCOVER}/:id`} element={<DiscoverShowRoute />} />
         <Route path={ROUTES.MARKET} element={<></>} />
       </Route>
 
