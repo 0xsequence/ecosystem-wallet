@@ -11,10 +11,10 @@ export function DiscoverShowRoute() {
   if (!item) return null
 
   return (
-    <div className="flex flex-col w-full lg:max-w-screen-lg max-w-screen-md mx-auto  text-black md:my-12 gap-12">
+    <div className="flex flex-col w-full lg:max-w-screen-lg max-w-screen-md mx-auto md:my-12 gap-12">
       <Link
         to={ROUTES.DISCOVER}
-        className="bg-black text-white font-bold inline-flex gap-1 self-start items-center rounded-full px-4 py-2"
+        className="bg-button-glass font-bold inline-flex gap-1 self-start items-center rounded-full px-4 py-2"
       >
         <ArrowLeftIcon /> Back
       </Link>
@@ -23,8 +23,8 @@ export function DiscoverShowRoute() {
         <div className="col-span-3">
           {item.img ? <img src={item.img} className="object-cover size-full" /> : null}
         </div>
-        <div className="col-span-2 flex flex-col gap-12 bg-white p-8 md:p-12">
-          <div className="flex flex-col gap-1">
+        <div className="col-span-2 flex flex-col gap-12 bg-background-secondary p-8 md:p-12">
+          <div className="flex flex-col gap-2">
             <h1 className="text-3xl font-bold">{item.title}</h1>
             <p>{item.description}</p>
           </div>
@@ -34,13 +34,13 @@ export function DiscoverShowRoute() {
                 href={item.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-black text-white font-bold inline-flex gap-1 self-start items-center rounded-full px-4 py-2"
+                className="bg-button-glass font-bold inline-flex gap-1 self-start items-center rounded-full px-4 py-2"
               >
                 <ExternalLinkIcon />
                 Launch
               </a>
             ) : (
-              <span className="bg-black/10 text-black font-bold inline-flex gap-1 self-start items-center rounded-full px-4 py-2">
+              <span className="bg-button-glass font-bold inline-flex gap-1 self-start items-center rounded-full px-4 py-2">
                 Coming Soon
               </span>
             )}

@@ -21,7 +21,7 @@ export function TokenTile(
       type="button"
       onClick={() => setShowInventoryItem({ chainId, contractAddress, tokenClass, tokenId })}
       className={cn(
-        'aspect-square rounded-md overflow-clip bg-black/20 text-black cursor-pointer hover:scale-102 hover:-translate-y-0.5 transition-transform',
+        'aspect-square rounded-md overflow-clip bg-background-secondary cursor-pointer hover:scale-102 hover:-translate-y-0.5 transition-transform',
         className
       )}
       {...rest}

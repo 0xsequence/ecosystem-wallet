@@ -149,10 +149,8 @@ function CoinDetails(props: TokenTypeProps) {
         </button>
         {contractInfo?.extensions?.description && (
           <WrappedCollapse>
-            <Collapsible label="Details" className="bg-gray-300">
-              <span className="text-seq-grey-500 text-xs font-bold">
-                {contractInfo?.extensions?.description}
-              </span>
+            <Collapsible label="Details">
+              <span>{contractInfo?.extensions?.description}</span>
             </Collapsible>
           </WrappedCollapse>
         )}

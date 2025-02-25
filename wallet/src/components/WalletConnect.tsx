@@ -145,7 +145,7 @@ export const WalletConnect = () => {
     <div className="flex gap-2 flex-col w-full p-2">
       <div className="flex flex-col gap-2">
         <div className="flex flex-col gap-3">
-          <Text className="font-bold text-center text-black!" variant="medium" color="text80">
+          <Text className="font-bold text-center" variant="medium" color="text80">
             Connect to a dApp using WalletConnect
           </Text>
           <TabsRoot

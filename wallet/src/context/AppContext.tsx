@@ -13,10 +13,10 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
   const theme = import.meta.env.VITE_PROJECT_BASE_THEME || 'dark'
 
   return (
-    <ThemeProvider root="#app" scope="app" theme={theme}>
+    <ThemeProvider theme={theme}>
       <AuthProvider>
         <WalletConnectProvider>
-          <ToastProvider swipeDirection='right'>
+          <ToastProvider swipeDirection="right">
             <ConfirmDialogProvider>
               <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
             </ConfirmDialogProvider>
