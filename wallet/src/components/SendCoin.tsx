@@ -99,8 +99,8 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
   const contractAddress = isNativeCoin
     ? ethers.ZeroAddress
     : 'contractAddress' in balance
-      ? balance.contractAddress
-      : ethers.ZeroAddress
+    ? balance.contractAddress
+    : ethers.ZeroAddress
   const { data: coinPrices = [], isPending: isPendingCoinPrices } = useCoinPrices([
     {
       chainId,
@@ -133,8 +133,8 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
   const imageUrl = isNativeCoin
     ? nativeTokenImageUrl(chainId)
     : 'contractInfo' in balance
-      ? balance.contractInfo?.logoURI
-      : undefined
+    ? balance.contractInfo?.logoURI
+    : undefined
   const symbol = isNativeCoin
     ? nativeTokenSymbol
     : ('contractInfo' in balance ? balance.contractInfo?.symbol : undefined) || ''
