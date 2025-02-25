@@ -240,7 +240,7 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
       if (isSentTransactionResponse(txResponse)) {
         onSuccess(txResponse)
         toast({
-          title: 'Transaction succesfull',
+          title: 'Transaction successful',
           variant: 'success',
           duration: TIME.SECOND * 5
         })
