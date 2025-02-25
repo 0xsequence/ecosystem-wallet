@@ -206,9 +206,12 @@ const Transfer = ({ transfer, transaction, nativeTokenInfo }: TransferProps) => 
           </Card>
           <ArrowRightIcon className="size-4 max-md:rotate-90" />
           <Card className="w-full flex flex-row items-center rounded-md min-h-[3rem] px-3 py-2 bg-black/10">
-            <div className="flex justify-center items-center gap-2">
-              <GradientAvatar address={recipientAddress} className="size-5" />
-              <span className="text-black">{recipientAddressFormatted}</span>
+            <div className="flex justify-between gap-2 w-full">
+              <div className="flex justify-center items-center gap-2 flex-1">
+                <GradientAvatar address={recipientAddress} className="size-5" />
+                <span className="text-black">{recipientAddressFormatted}</span>
+                <CopyButton text={recipientAddress} className="ml-auto mr-0"></CopyButton>
+              </div>
             </div>
           </Card>
         </div>
