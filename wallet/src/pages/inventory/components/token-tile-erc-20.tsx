@@ -13,19 +13,21 @@ export function TokenTileErc20(props: TokenBalance) {
       contractAddress={contractAddress}
       tokenId={tokenID}
       tokenClass="erc20"
-      className="p-4 flex flex-col items-start gap-3"
+      className="p-4 sm:p-8 flex flex-col items-start gap-3"
     >
       {contractInfo?.logoURI ? (
-        <TokenImage src={contractInfo.logoURI} size="lg" withNetwork={chainId} />
+        <div className="w-[50%] max-w-20">
+          <TokenImage src={contractInfo.logoURI} size="xl" className="size-full" withNetwork={chainId} />
+        </div>
       ) : null}
       <div className="flex flex-col flex-1 justify-end items-start">
         {contractInfo?.decimals && contractInfo?.symbol ? (
-          <div className="text-start leading-[0]">
-            <span className="text-style-lg font-bold ">
-              {limitDecimals(formatDisplay(formatUnits(balance, contractInfo.decimals)), 4)}
-            </span>{' '}
-            <span className="text-style-sm">{contractInfo.symbol}</span>
-          </div>
+          <span className="text-md sm:text-lg font-bold text-start leading-[0]">
+            {limitDecimals(formatDisplay(formatUnits(balance, contractInfo.decimals)), 4)}
+            {' '}
+
+            <span className="text-sm font-normal">{contractInfo.symbol}</span>
+          </span>
         ) : null}
       </div>
     </TokenTile>

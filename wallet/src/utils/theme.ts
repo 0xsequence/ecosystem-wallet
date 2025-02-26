@@ -1,8 +1,6 @@
 export type ThemeModeProps = {
-  authLogo?: string
   headerLogo?: string
   appBackground?: string
-  authCover?: string
 }
 
 export type ThemeProps = {
@@ -13,10 +11,17 @@ export type ThemeProps = {
     dark: ThemeModeProps
     light: ThemeModeProps
   }
-  messages: {
-    emptyInventory: string
-    authTitle?: string
-    authMessage?: string
+  backgroundMode: string
+  inventory: {
+    empty: string
+  }
+  auth: {
+    logo: string
+    size: { w: number; h: number }
+    cover?: string
+    color?: string
+    title?: string
+    message?: string
   }
 } & ThemeModeProps
 
@@ -27,26 +32,23 @@ function theme() {
 
   const modes = { dark: {}, light: {} }
   modes.dark = {
-    authLogo: import.meta.env.VITE_PROJECT_LOGO_DARK,
     headerLogo: import.meta.env.VITE_PROJECT_HEADER_LOGO_DARK,
-    appBackground: import.meta.env.VITE_PROJECT_BACKGROUND_DARK,
-    authCover: import.meta.env.VITE_PROJECT_AUTH_COVER_DARK
+    appBackground: import.meta.env.VITE_PROJECT_BACKGROUND_DARK
   }
 
   modes.light = {
-    authLogo: import.meta.env.VITE_PROJECT_LOGO,
     headerLogo: import.meta.env.VITE_PROJECT_HEADER_LOGO,
-    appBackground: import.meta.env.VITE_PROJECT_BACKGROUND,
-    authCover: import.meta.env.VITE_PROJECT_AUTH_COVER
+    appBackground: import.meta.env.VITE_PROJECT_BACKGROUND
+  }
+  const backgroundMode = import.meta.env.VITE_PROJECT_BACKGROUND_MODE || 'cover'
+
+  const inventory = {
+    empty:
+      import.meta.env.VITE_PROJECT_EMPTY_INVENTORY_MESSAGE ||
+      'Discover the apps and games to grow your collection'
   }
 
-  const messages = {
-    emptyInventory:
-      import.meta.env.VITE_PROJECT_EMPTY_INVENTORY_MESSAGE ||
-      'Discover the apps and games to grow your collection',
-    authTitle: import.meta.env.VITE_PROJECT_AUTH_TITLE,
-    authMessage: import.meta.env.VITE_PROJECT_AUTH_MESSAGE
-  }
+  const logoSize = import.meta.env.VITE_PROJECT_LOGO_SIZE?.split('x') || [80, 80]
 
   return {
     name,
@@ -54,8 +56,22 @@ function theme() {
     favicon,
     ...(mode === 'dark' ? modes.dark : modes.light),
     modes,
-    messages
+    inventory,
+    backgroundMode,
+    auth: {
+      logo: import.meta.env.VITE_PROJECT_LOGO,
+      size: {
+        w: logoSize[0] ?? undefined,
+        h: logoSize[1] ?? undefined
+      },
+      cover: import.meta.env.VITE_PROJECT_AUTH_COVER,
+      color: 'dark',
+      title: import.meta.env.VITE_PROJECT_AUTH_TITLE,
+      message: import.meta.env.VITE_PROJECT_AUTH_MESSAGE
+    }
   }
 }
+
+console.log(theme())
 
 export const THEME = theme() as ThemeProps

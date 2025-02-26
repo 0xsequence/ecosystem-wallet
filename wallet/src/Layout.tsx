@@ -13,10 +13,13 @@ import { THEME } from './utils/theme'
 const AppHeader = () => {
   return (
     <div className="bg-background-navigation backdrop-blur-lg w-full border-b border-border-normal">
-      <header className="flex flex-row gap-4 px-6 items-center justify-between min-h-[4.5rem] text-style-normal font-bold w-full max-w-screen-xl mx-auto">
+      <header className="flex flex-row gap-4 px-6 items-center justify-between min-h-[4.5rem] text-style-normal font-bold w-full max-w-screen-lg mx-auto">
         {THEME.headerLogo && (
           <Link to={ROUTES.INVENTORY}>
-            <Image src={THEME.headerLogo} className="max-w-[96px] sm:max-w-[128px]  transition-all" />
+            <Image
+              src={THEME.headerLogo}
+              className="max-w-[96px] sm:max-w-[128px] max-h-[3rem] transition-all"
+            />
           </Link>
         )}
         <nav className="flex-row gap-10 h-full justify-center md:flex hidden mx-auto flex-shrink-0 absolute left-[50%] translate-x-[-50%] -mb-[2px]">
@@ -71,7 +74,9 @@ export const AppLayout = ({ showHeader = false }: { showHeader?: boolean }) => {
 
   return (
     <div
-      className="flex flex-col flex-1 [background-image:var(--background)] bg-cover bg-no-repeat bg-fixed"
+      className={`flex flex-col flex-1 [background-image:var(--background)]  bg-fixed
+        ${THEME.backgroundMode === 'tile' ? 'bg-repeat' : 'bg-cover bg-no-repeat'}
+        `}
       style={style}
     >
       {showHeader && <AppHeader />}

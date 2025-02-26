@@ -25,9 +25,6 @@ const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
 const APPLE_CLIENT_ID = import.meta.env.VITE_APPLE_CLIENT_ID
 const APPLE_REDIRECT_URI = import.meta.env.VITE_APPLE_REDIRECT_URI
 
-console.log(THEME)
-// const BUTTON_SIZE = '14'
-
 interface AppleAuthResponse {
   authorization: {
     id_token: string
@@ -130,11 +127,11 @@ export const Auth: React.FC = () => {
   return (
     <div className="flex flex-col flex-1 items-center justify-center text-primary" data-theme="dark">
       <AuthCoverWrapper>
-        <Card className="bg-[theme(colors.white/10%)] w-full gap-6 flex flex-col px-6 py-[5rem] rounded-none">
+        <Card className="bg-transparent w-full gap-6 flex flex-col px-6 py-[5rem] rounded-none">
           {!emailAuthInProgress && (
             <>
               <div className="flex items-center gap-4 flex-col">
-                <Image src={THEME.modes.dark.authLogo} className="size-24" />
+                <Image src={THEME.auth.logo} width={THEME.auth.size.w} height={THEME.auth.size.h} />
                 <span>
                   Sign in to <span className="font-bold">{THEME.name}</span>
                 </span>
@@ -302,36 +299,26 @@ export const Auth: React.FC = () => {
   )
 }
 
-// {isPopup ? <Text className="text-center mt-4" variant="normal" color="text100">
-//   Sign in to your <Text fontWeight="bold">{PROJECT_NAME}</Text> wallet to give access to dapp
-//   with origin <Text fontWeight="bold">{pendingEventOrigin}</Text>
-// </Text>
-// : <span>Sign in to <span className="font-bold">{PROJECT_NAME}</span></span>
-// }
-
 function AuthCoverWrapper({ children }: { children: React.ReactNode }) {
-  if (!THEME.authCover) {
-    return <div className="w-full max-w-[24rem] rounded-lg overflow-clip">{children}</div>
+  if (!THEME.auth.cover) {
+    return <div className="w-full max-w-[24rem] rounded-lg overflow-clip bg-black">{children}</div>
   }
 
   const style = {
-    '--background': `url(${THEME.authCover})`
+    '--background': `url(${THEME.auth.cover})`
   } as React.CSSProperties
-
   return (
-    <div className="flex w-full md:w-auto px-4 pd:mx-0 ">
-      <div className="overflow-clip rounded-lg grid auth-grid-template max-w-screen-lg w-full min-h-[32rem] aspect-video  bg-inverse">
-        <div className="flex flex-col items-center flex-1 place-self-center w-full ">{children}</div>
+    <div className="flex w-[calc(100%-32px)] md:w-auto mx-4 min-h-[40rem] bg-black overflow-clip rounded-lg">
+      <div className="grid auth-grid-template max-w-screen-lg w-full bg-black">
+        <div className="flex flex-col items-center flex-1 place-self-center w-full">{children}</div>
         <div
           className="hidden sm:flex flex-col items-end justify-end p-8 flex-shrink [background-image:var(--background)] bg-cover bg-no-repeat"
           style={style}
         >
-          {THEME.messages.authTitle || THEME.messages.authMessage ? (
-            <div className="flex-shrink text-right max-w-[60%] text-inverse">
-              {THEME.messages.authTitle ? <p className="font-bold mb-3">{THEME.messages.authTitle}</p> : null}
-              {THEME.messages.authMessage ? (
-                <p className="text-style-sm">{THEME.messages.authMessage}</p>
-              ) : null}
+          {THEME.auth.title || THEME.auth.message ? (
+            <div className="flex-shrink text-right max-w-[60%] text-white">
+              {THEME.auth.title ? <p className="font-bold text-lg mb-3">{THEME.auth.title}</p> : null}
+              {THEME.auth.message ? <p className="text-sm">{THEME.auth.message}</p> : null}
             </div>
           ) : null}
         </div>

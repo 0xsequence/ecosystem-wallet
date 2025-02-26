@@ -60,7 +60,7 @@
 }
 
 .auth-grid-template {
-  grid-template-columns: minmax(24rem, auto) 1fr;
+  grid-template-columns: minmax(24rem, auto) minmax(0, 48rem);
 }
 
 @media (max-width: 640px) {

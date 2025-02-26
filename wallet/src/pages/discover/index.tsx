@@ -14,7 +14,7 @@ export const DiscoverPage = () => {
       {DISCOVER_ITEMS.map(item => (
         <div
           data-href="inherit"
-          className="bg-background-secondary text-primary rounded-lg flex flex-col font-bold text-sm overflow-clip hover:scale-102 focus-within:scale-102 focus-within:ring-2 focus-within:ring-blue-600 transition-transform self-stretch"
+          className="bg-background-secondary backdrop-blur-2xl text-primary rounded-lg flex flex-col font-bold text-sm overflow-clip hover:scale-102 focus-within:scale-102 focus-within:ring-2 focus-within:ring-blue-600 transition-transform self-stretch"
           key={item.title}
         >
           {item.img ? <Image src={item.img} className="object-cover size-full aspect-square" /> : null}

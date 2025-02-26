@@ -61,7 +61,7 @@ export const TransactionHistoryItem = ({ transaction }: TransactionHistoryItemPr
   }
 
   return (
-    <div className="bg-background-secondary rounded-md justify-center grid grid-cols-1 focus-within:ring-2">
+    <div className="bg-background-secondary backdrop-blur-2xl rounded-md justify-center grid grid-cols-1 focus-within:ring-2">
       <div className="flex flex-col px-4 pt-4 cursor-pointer" onClick={toggleTransactionDetails}>
         {transfers?.map((transfer, position) => {
           return (
