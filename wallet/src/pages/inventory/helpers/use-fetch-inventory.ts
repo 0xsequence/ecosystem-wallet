@@ -27,7 +27,6 @@ export function useFetchInventory() {
   })
 
   // Refetch inventory if route changes to /inventory and last fetch was >10s ago
-
   useEffect(() => {
     if (isLoading) {
       return
