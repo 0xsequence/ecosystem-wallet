@@ -128,10 +128,7 @@ export const Auth: React.FC = () => {
   // const isPopup = window.opener !== null
 
   return (
-    <div
-      className="flex flex-col flex-1 items-center justify-center text-primary bg-inverse"
-      data-theme="dark"
-    >
+    <div className="flex flex-col flex-1 items-center justify-center text-primary" data-theme="dark">
       <AuthCoverWrapper>
         <Card className="bg-[theme(colors.white/10%)] w-full gap-6 flex flex-col px-6 py-[5rem] rounded-none">
           {!emailAuthInProgress && (
@@ -314,11 +311,7 @@ export const Auth: React.FC = () => {
 
 function AuthCoverWrapper({ children }: { children: React.ReactNode }) {
   if (!THEME.authCover) {
-    return (
-      <div className="w-full max-w-[24rem] rounded-lg overflow-clip bg-black" data-theme="dark">
-        {children}
-      </div>
-    )
+    return <div className="w-full max-w-[24rem] rounded-lg overflow-clip">{children}</div>
   }
 
   const style = {
@@ -326,8 +319,8 @@ function AuthCoverWrapper({ children }: { children: React.ReactNode }) {
   } as React.CSSProperties
 
   return (
-    <div className="flex w-full md:w-auto px-4 pd:mx-0" data-theme="dark">
-      <div className="overflow-clip rounded-lg grid auth-grid-template max-w-screen-lg w-full min-h-[32rem] aspect-video bg-background-secondary">
+    <div className="flex w-full md:w-auto px-4 pd:mx-0 ">
+      <div className="overflow-clip rounded-lg grid auth-grid-template max-w-screen-lg w-full min-h-[32rem] aspect-video  bg-inverse">
         <div className="flex flex-col items-center flex-1 place-self-center w-full ">{children}</div>
         <div
           className="hidden sm:flex flex-col items-end justify-end p-8 flex-shrink [background-image:var(--background)] bg-cover bg-no-repeat"
