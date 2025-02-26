@@ -1,3 +1,6 @@
+import { useEffect } from 'react'
+import { useLocation } from 'react-router'
+
 import { ContractVerificationStatus } from '@0xsequence/indexer'
 import { useAuth } from '../../../context/AuthContext'
 import { useConfig } from '../../../hooks/useConfig'
@@ -9,7 +12,8 @@ import { TokenTypeProps } from '../types'
 export function useFetchInventory() {
   const { hideUnlistedTokens } = useConfig()
   const { address = '' } = useAuth()
-  const { data, isLoading, refetch } = useTokenBalancesDetails({
+  const location = useLocation()
+  const { data, dataUpdatedAt, isLoading, refetch } = useTokenBalancesDetails({
     omitMetadata: false,
     filter: {
       omitNativeBalances: false,
@@ -21,6 +25,19 @@ export function useFetchInventory() {
       contractBlacklist: []
     }
   })
+
+  // Refetch inventory if route changes to /inventory and last fetch was >10s ago
+  useEffect(() => {
+    if (isLoading) {
+      return
+    }
+
+    const timeSinceLastFetch = Date.now() - dataUpdatedAt
+
+    if (location.pathname === '/inventory' && timeSinceLastFetch > 10000) {
+      refetch()
+    }
+  }, [location])
 
   const erc20Inventory = getErc20Inventory(data)
   const collectibleInventory = getCollectibleInventory(data)

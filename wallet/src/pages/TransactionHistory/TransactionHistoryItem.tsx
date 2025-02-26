@@ -32,8 +32,6 @@ export const TransactionHistoryItem = ({ transaction }: TransactionHistoryItemPr
 
   const tokenContractAddresses: string[] = []
 
-  console.log(transaction)
-
   transaction.transfers?.forEach(transfer => {
     const tokenContractAddress = transfer.contractAddress
     if (!tokenContractAddresses.includes(tokenContractAddress)) {
