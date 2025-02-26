@@ -29,9 +29,9 @@ export const DiscoverPage = () => {
             )}
 
             {item?.categories ? (
-              <div className="px-4">
+              <div className="px-4 flex gap-1 mt-2">
                 {item.categories.map(category => (
-                  <span key={category} className="text-style-sm">
+                  <span key={category} className="text-style-sm bg-button-glass px-1 py-0.25 rounded-xs">
                     {category}
                   </span>
                 ))}
