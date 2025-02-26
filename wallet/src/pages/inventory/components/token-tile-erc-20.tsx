@@ -13,7 +13,7 @@ export function TokenTileErc20(props: TokenBalance) {
       contractAddress={contractAddress}
       tokenId={tokenID}
       tokenClass="erc20"
-      className="p-4 sm:p-8 flex flex-col items-start gap-3"
+      className="p-4 sm:p-6 flex flex-col items-start gap-3"
     >
       {contractInfo?.logoURI ? (
         <div className="w-[50%] max-w-20">
