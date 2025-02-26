@@ -23,7 +23,7 @@ export function TokenTileNativeBalance(props: TokenTileProps) {
         <TokenImage
           src={nativeTokenImageUrl(chainId, 'lg')}
           size="xl"
-          className="w-full h-full  bg-button-glass rounded-full"
+          className="size-full bg-button-glass rounded-full"
           withNetwork={chainId}
         />
       </div>
