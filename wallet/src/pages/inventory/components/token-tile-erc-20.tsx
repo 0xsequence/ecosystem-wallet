@@ -17,7 +17,12 @@ export function TokenTileErc20(props: TokenBalance) {
     >
       {contractInfo?.logoURI ? (
         <div className="w-[50%] max-w-20">
-          <TokenImage src={contractInfo.logoURI} size="xl" className="size-full" withNetwork={chainId} />
+          <TokenImage
+            src={contractInfo.logoURI}
+            size="xl"
+            className="size-full bg-button-glass rounded-full"
+            withNetwork={chainId}
+          />
         </div>
       ) : null}
       <div className="flex flex-col flex-1 justify-end items-start">
