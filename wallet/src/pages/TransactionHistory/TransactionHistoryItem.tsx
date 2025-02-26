@@ -61,7 +61,7 @@ export const TransactionHistoryItem = ({ transaction }: TransactionHistoryItemPr
   }
 
   return (
-    <div className="bg-background-secondary rounded-md justify-center grid grid-cols-1 focus-within:ring-2">
+    <div className="bg-background-secondary backdrop-blur-2xl rounded-md justify-center grid grid-cols-1 focus-within:ring-2">
       <div className="flex flex-col px-4 pt-4 cursor-pointer" onClick={toggleTransactionDetails}>
         {transfers?.map((transfer, position) => {
           return (
@@ -103,7 +103,7 @@ export const TransactionHistoryItem = ({ transaction }: TransactionHistoryItemPr
         <div className="min-h-0">
           <div
             aria-hidden={!showDetails}
-            className="aria-hidden:scale-y-90 transition-all aria-hidden:blur-lg aria-hidden:translate-y-2 aria-hidden:opacity-00 duration-300 px-4 pb-4"
+            className="aria-hidden:scale-90 transition-all aria-hidden:translate-y-2 aria-hidden:opacity-0 duration-300 px-4 pb-4"
           >
             <TransactionDetails transaction={transaction} />
           </div>

@@ -19,11 +19,11 @@ export function DiscoverShowRoute() {
         <ArrowLeftIcon /> Back
       </Link>
 
-      <div className="w-full mx-auto flex flex-col lg:grid grid-cols-5 md:rounded-xl overflow-clip">
+      <div className="w-full mx-auto flex flex-col lg:grid grid-cols-5 md:rounded-xl overflow-clip   md:aspect-video">
         <div className="col-span-3">
           {item.img ? <img src={item.img} className="object-cover size-full" /> : null}
         </div>
-        <div className="col-span-2 flex flex-col gap-12 bg-background-secondary p-8 md:p-12">
+        <div className="col-span-2 flex flex-col gap-12 bg-background-secondary backdrop-blur-2xl p-8 md:p-12">
           <div className="flex flex-col gap-2">
             <h1 className="text-3xl font-bold">{item.title}</h1>
             <p>{item.description}</p>

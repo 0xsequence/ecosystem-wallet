@@ -17,17 +17,25 @@ export function TokenTileNativeBalance(props: TokenTileProps) {
       contractAddress={contractAddress}
       tokenId={tokenID}
       tokenClass="nativeBalance"
-      className="p-4 flex flex-col items-start gap-3"
+      className="p-4 sm:p-6 flex flex-col items-start gap-3"
     >
-      <TokenImage src={nativeTokenImageUrl(chainId, 'lg')} size="lg" withNetwork={chainId} />
-      <div className="flex flex-col flex-1 justify-end items-start">
-        <span className="text-style-sm  font-bold text-seq-grey-500 leading-tight text-start">{title}</span>
-        <div>
-          <span className="text-style-lg font-bold">
-            {limitDecimals(formatDisplay(formatUnits(balance, decimals)), 5)}
-          </span>{' '}
-          <span className="text-style-sm">{symbol}</span>
-        </div>
+      <div className="w-[50%] max-w-20">
+        <TokenImage
+          src={nativeTokenImageUrl(chainId, 'lg')}
+          size="xl"
+          className="w-full h-full"
+          withNetwork={chainId}
+        />
+      </div>
+      <div className="flex flex-col flex-1 justify-end items-start text-start">
+        <span className="text-xs sm:text-sm font-bold text-seq-grey-500 leading-tight text-start">
+          {title}
+        </span>
+        <span className="leading-tight text-md sm:text-lg font-bold ">
+          {limitDecimals(formatDisplay(formatUnits(balance, decimals)), 5)}
+          {' '}
+          <span className="text-sm font-normal">{symbol}</span>
+        </span>
       </div>
     </TokenTile>
   )

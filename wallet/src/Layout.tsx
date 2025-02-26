@@ -8,22 +8,18 @@ import { isPublicRoute, ROUTES } from './routes'
 import { useEffect, useState } from 'react'
 import { WalletConnectModal } from './pages/WalletConnectModal'
 import { useWalletConnect } from './context/WalletConnectContext'
-
-const THEME = import.meta.env.VITE_PROJECT_BASE_THEME
-const PROJECT_HEADER_LOGO_DARK = import.meta.env.VITE_PROJECT_HEADER_LOGO_DARK
-
-const PROJECT_HEADER_LOGO =
-  THEME === 'dark' && PROJECT_HEADER_LOGO_DARK
-    ? PROJECT_HEADER_LOGO_DARK
-    : import.meta.env.VITE_PROJECT_HEADER_LOGO
+import { THEME } from './utils/theme'
 
 const AppHeader = () => {
   return (
-    <div className="bg-[theme(colors.white/70%)] backdrop-blur-lg w-full border-b border-border-normal ">
-      <header className="flex flex-row gap-4 px-6  items-center justify-between min-h-[4.5rem] text-style-normal font-bold w-full max-w-screen-xl mx-auto">
-        {PROJECT_HEADER_LOGO && (
+    <div className="bg-background-navigation backdrop-blur-lg w-full border-b border-border-normal">
+      <header className="flex flex-row gap-4 px-6 items-center justify-between min-h-[4.5rem] text-style-normal font-bold w-full max-w-screen-lg mx-auto">
+        {THEME.headerLogo && (
           <Link to={ROUTES.INVENTORY}>
-            <Image src={PROJECT_HEADER_LOGO} className="max-w-[96px] sm:max-w-[128px] transition-all" />
+            <Image
+              src={THEME.headerLogo}
+              className="max-w-[96px] sm:max-w-[128px] max-h-[3rem] transition-all"
+            />
           </Link>
         )}
         <nav className="flex-row gap-10 h-full justify-center md:flex hidden mx-auto flex-shrink-0 absolute left-[50%] translate-x-[-50%] -mb-[2px]">
@@ -56,10 +52,8 @@ const AppHeader = () => {
 }
 
 export const AppLayout = ({ showHeader = false }: { showHeader?: boolean }) => {
-  const theme = import.meta.env.VITE_PROJECT_BASE_THEME
-
   const style = {
-    ...(theme === 'light' && { '--background': `url(${import.meta.env.VITE_PROJECT_BACKGROUND})` })
+    ...(THEME.appBackground && { '--background': `url(${THEME.appBackground})` })
   } as React.CSSProperties
   const isPopup = window.opener !== null
   const { connectionHandler, signMessageHandler, transactionHandler } = useWalletConnect()
@@ -80,7 +74,9 @@ export const AppLayout = ({ showHeader = false }: { showHeader?: boolean }) => {
 
   return (
     <div
-      className="flex flex-col flex-1 [background-image:var(--background)] bg-cover bg-no-repeat bg-fixed"
+      className={`flex flex-col flex-1 [background-image:var(--background)]  bg-fixed
+        ${THEME.backgroundMode === 'tile' ? 'bg-repeat' : 'bg-cover bg-no-repeat'}
+        `}
       style={style}
     >
       {showHeader && <AppHeader />}
@@ -111,7 +107,7 @@ export const AppLayout = ({ showHeader = false }: { showHeader?: boolean }) => {
       </div>
       <nav
         data-is-popup={isPopup}
-        className="flex data-[is-popup='true']:hidden md:hidden mt-auto mb-0 gap-2 justify-around w-full sticky bottom-0 bg-white/80 backdrop-blur-xl p-1 shadow-[0_-1px_3px_-1.5px_theme(color.black/10%)]"
+        className="flex data-[is-popup='true']:hidden md:hidden mt-auto mb-0 gap-2 justify-around w-full sticky bottom-0 backdrop-blur-2xl bg-background-navigation p-1 border-t border-border-normal"
         style={{ display: isPublicRoute(window.location.pathname) ? 'none' : undefined }}
       >
         <NavLink
@@ -133,7 +129,7 @@ export const AppLayout = ({ showHeader = false }: { showHeader?: boolean }) => {
           className="flex flex-col items-center text-xs gap-1 flex-1 font-medium aria-[current='page']:font-semibold aria-[current='page']:bg-background-secondary py-3 px-4 rounded-md self-stretch disabled:opacity-45"
         >
           <TransactionIcon className="size-4" />
-          Market
+          History
         </NavLink>
       </nav>
     </div>
