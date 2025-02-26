@@ -30,11 +30,36 @@ export function SendTokens() {
 
   const onSendSuccess = () => {
     setShowSendModal(false)
-    // delay a second to give indexer some time
+    setShowInventoryItem(false)
+
+    // Store initial balance state
+    const initialBalance = isCoin ? coinBalanceToSend : collectibleBalanceToSend
+
+    // First refetch after 1 second
     setTimeout(() => {
       refetchInventory()
+
+      // Check if balance updated after a brief delay
+      setTimeout(() => {
+        const currentBalance = isCoin
+          ? (contractAddress
+              ? inventoryByTokenClass.erc20Inventory
+              : inventoryByTokenClass.nativeBalances
+            ).find(
+              balance =>
+                balance.chainId === chainId &&
+                (contractAddress ? balance.contractAddress === contractAddress : true)
+            )
+          : inventoryByTokenClass.collectibleInventory.find(collectible => collectible.tokenID === tokenId)
+
+        // If balance hasn't changed, refetch again in 500ms
+        if (JSON.stringify(initialBalance) === JSON.stringify(currentBalance)) {
+          setTimeout(() => {
+            refetchInventory()
+          }, 500)
+        }
+      }, 500) // Check balance 500ms after first refetch
     }, 1000)
-    setShowInventoryItem(false)
   }
 
   return (
