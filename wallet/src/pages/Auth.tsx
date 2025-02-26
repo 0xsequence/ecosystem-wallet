@@ -128,7 +128,10 @@ export const Auth: React.FC = () => {
   // const isPopup = window.opener !== null
 
   return (
-    <div className="flex flex-col flex-1 items-center justify-center text-primary" data-theme="dark">
+    <div
+      className="flex flex-col flex-1 items-center justify-center text-primary bg-inverse"
+      data-theme="dark"
+    >
       <AuthCoverWrapper>
         <Card className="bg-[theme(colors.white/10%)] w-full gap-6 flex flex-col px-6 py-[5rem] rounded-none">
           {!emailAuthInProgress && (
@@ -331,7 +334,7 @@ function AuthCoverWrapper({ children }: { children: React.ReactNode }) {
           style={style}
         >
           {THEME.messages.authTitle || THEME.messages.authMessage ? (
-            <div className="flex-shrink text-right bg-pink-500">
+            <div className="flex-shrink text-right max-w-[60%] text-inverse">
               {THEME.messages.authTitle ? <p className="font-bold mb-3">{THEME.messages.authTitle}</p> : null}
               {THEME.messages.authMessage ? (
                 <p className="text-style-sm">{THEME.messages.authMessage}</p>
