@@ -18,15 +18,14 @@ import { GoogleLogo } from '../components/GoogleLogo'
 import { ROUTES } from '../routes'
 import { googleClientId, sequenceWaas } from '../waasSetup'
 import { ArrowRightIcon } from '../design-system-patch/icons'
-
-const PROJECT_NAME = import.meta.env.VITE_PROJECT_NAME
-// const PROJECT_LOGO = import.meta.env.VITE_PROJECT_LOGO
+import { THEME } from '../utils/theme'
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
 
 const APPLE_CLIENT_ID = import.meta.env.VITE_APPLE_CLIENT_ID
 const APPLE_REDIRECT_URI = import.meta.env.VITE_APPLE_REDIRECT_URI
 
+console.log(THEME)
 // const BUTTON_SIZE = '14'
 
 interface AppleAuthResponse {
@@ -129,15 +128,15 @@ export const Auth: React.FC = () => {
   // const isPopup = window.opener !== null
 
   return (
-    <div className="flex flex-col flex-1 items-center justify-center">
+    <div className="flex flex-col flex-1 items-center justify-center text-primary" data-theme="dark">
       <AuthCoverWrapper>
-        <Card className="bg-transparent w-full gap-6 flex flex-col px-6 py-[5rem] rounded-none">
+        <Card className="bg-[theme(colors.white/10%)] w-full gap-6 flex flex-col px-6 py-[5rem] rounded-none">
           {!emailAuthInProgress && (
             <>
               <div className="flex items-center gap-4 flex-col">
-                <Image src={import.meta.env.VITE_PROJECT_LOGO} className="size-24" />
+                <Image src={THEME.modes.dark.authLogo} className="size-24" />
                 <span>
-                  Sign in to <span className="font-bold">{PROJECT_NAME}</span>
+                  Sign in to <span className="font-bold">{THEME.name}</span>
                 </span>
               </div>
               <div className="flex flex-col">
@@ -234,7 +233,7 @@ export const Auth: React.FC = () => {
           ) : (
             <div className="mt-2">
               <div className="flex flex-col gap-2">
-                <div className="relative border border-border-normal rounded-md w-full min-h-[3.25rem] flex items-stretch justify-end focus-within:ring-1 focus-within:border-border-focus ring-seq-purple-700 overflow-clip">
+                <div className="relative border border-border-normal rounded-md w-full min-h-[3.25rem] flex items-stretch justify-end focus-within:ring-1 focus-within:border-border-focus ring-border-focus overflow-clip">
                   <input
                     name="email"
                     type="email"
@@ -311,32 +310,32 @@ export const Auth: React.FC = () => {
 // }
 
 function AuthCoverWrapper({ children }: { children: React.ReactNode }) {
-  const coverImage = import.meta.env.VITE_PROJECT_AUTH_COVER
-  const title = import.meta.env.VITE_PROJECT_AUTH_TITLE
-  const message = import.meta.env.VITE_PROJECT_AUTH_MESSAGE
-
-  if (!coverImage) {
+  if (!THEME.authCover) {
     return (
-      <div className="w-full max-w-[24rem] rounded-lg overflow-clip bg-background-secondary">{children}</div>
+      <div className="w-full max-w-[24rem] rounded-lg overflow-clip bg-black" data-theme="dark">
+        {children}
+      </div>
     )
   }
 
   const style = {
-    '--background': `url(${coverImage})`
+    '--background': `url(${THEME.authCover})`
   } as React.CSSProperties
 
   return (
-    <div className="flex w-full md:w-auto px-4 pd:mx-0">
+    <div className="flex w-full md:w-auto px-4 pd:mx-0" data-theme="dark">
       <div className="overflow-clip rounded-lg grid auth-grid-template max-w-screen-lg w-full min-h-[32rem] aspect-video bg-background-secondary">
         <div className="flex flex-col items-center flex-1 place-self-center w-full ">{children}</div>
         <div
           className="hidden sm:flex flex-col items-end justify-end p-8 flex-shrink [background-image:var(--background)] bg-cover bg-no-repeat"
           style={style}
         >
-          {title || message ? (
-            <div className="flex-shrink text-right">
-              {title ? <p className="font-bold mb-3">{title}</p> : null}
-              {message ? <p className="text-style-sm">{message}</p> : null}
+          {THEME.messages.authTitle || THEME.messages.authMessage ? (
+            <div className="flex-shrink text-right bg-pink-500">
+              {THEME.messages.authTitle ? <p className="font-bold mb-3">{THEME.messages.authTitle}</p> : null}
+              {THEME.messages.authMessage ? (
+                <p className="text-style-sm">{THEME.messages.authMessage}</p>
+              ) : null}
             </div>
           ) : null}
         </div>

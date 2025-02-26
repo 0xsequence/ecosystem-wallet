@@ -6,14 +6,13 @@ import { ConfirmDialogProvider } from '../components/ConfirmDialogProvider'
 
 import { AuthProvider } from './AuthContext'
 import { WalletConnectProvider } from './WalletConnectContext'
+import { THEME } from '../utils/theme'
 
 const queryClient = new QueryClient()
 
 export const AppContextProvider = ({ children }: PropsWithChildren) => {
-  const theme = import.meta.env.VITE_PROJECT_BASE_THEME || 'dark'
-
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={THEME.mode}>
       <AuthProvider>
         <WalletConnectProvider>
           <ToastProvider swipeDirection="right">

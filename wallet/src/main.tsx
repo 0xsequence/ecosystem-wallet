@@ -5,16 +5,16 @@ import { BrowserRouter } from 'react-router'
 import { App as Router } from './App.tsx'
 import { AppContextProvider } from './context/AppContext.tsx'
 import './index.css'
+import { THEME } from './utils/theme'
 
 const favicon = document.getElementById('favicon')
 const appTitle = document.getElementById('app-title')
-const projectName = import.meta.env.VITE_PROJECT_NAME
-const smallLogo = import.meta.env.VITE_PROJECT_SMALL_LOGO
-if (favicon instanceof HTMLLinkElement && smallLogo) {
-  favicon.href = smallLogo
+
+if (favicon instanceof HTMLLinkElement && THEME.favicon) {
+  favicon.href = THEME.favicon
 }
-if (appTitle && projectName) {
-  appTitle.textContent = projectName + ' ' + 'Wallet'
+if (appTitle && THEME.name) {
+  appTitle.textContent = THEME.name + ' ' + 'Wallet'
 }
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

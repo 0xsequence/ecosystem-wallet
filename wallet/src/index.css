@@ -8,9 +8,46 @@
 *::after {
   box-sizing: border-box;
 }
+
+@theme {
+  --color-background-navigation: var(--seq-color-background-navigation);
+}
+
+[data-theme='dark'] {
+  --seq-color-background-navigation: var(--seq-color-background-secondary);
+
+  --color-primary: var(--seq-color-primary);
+  --color-secondary: var(--seq-color-secondary);
+  --color-muted: var(--seq-color-muted);
+  --color-inverse: var(--seq-color-inverse);
+  --color-positive: var(--seq-color-positive);
+  --color-negative: var(--seq-color-negative);
+  --color-info: var(--seq-color-info);
+  --color-warning: var(--seq-color-warning);
+  --color-background-primary: var(--seq-color-background-primary);
+  --color-background-secondary: var(--seq-color-background-secondary);
+  --color-background-contrast: var(--seq-color-background-contrast);
+  --color-background-muted: var(--seq-color-background-muted);
+  --color-background-control: var(--seq-color-background-control);
+  --color-background-inverse: var(--seq-color-background-inverse);
+  --color-background-backdrop: var(--seq-color-background-backdrop);
+  --color-background-overlay: var(--seq-color-background-overlay);
+  --color-background-raised: var(--seq-color-background-raised);
+  --color-border-normal: var(--seq-color-border-normal);
+  --color-border-focus: var(--seq-color-border-focus);
+  --color-button-glass: var(--seq-color-button-glass);
+  --color-button-emphasis: var(--seq-color-button-emphasis);
+  --color-button-inverse: var(--seq-color-button-inverse);
+  --background-image-gradient-backdrop: var(--seq-color-gradient-backdrop);
+  --background-image-gradient-primary: var(--seq-color-gradient-primary);
+  --background-image-gradient-secondary: var(--seq-color-gradient-secondary);
+  --background-image-gradient-skeleton: var(--seq-color-gradient-skeleton);
+}
+
 [data-theme='light'] {
-  --color-background-secondary: theme(colors.black/5%);
-  --background-image-gradient-primary: linear-gradient(to bottom, theme(colors.black), theme(colors.black));
+  --seq-color-background-secondary: theme(colors.black/5%);
+  --seq-color-background-navigation: theme(colors.white/70%);
+  --seq-color-gradient-primary: linear-gradient(to bottom, theme(colors.black), theme(colors.black));
 }
 
 :root {

@@ -15,6 +15,7 @@ import { formatDisplay } from '../../../utils/helpers'
 import { formatUnits } from 'ethers'
 import { useCoinPrices } from '../../../hooks/useCoinPrices'
 import { WrappedCollapse } from '../../../components/wrapped-collapse'
+import { THEME } from '../../../utils/theme'
 
 export function TokenDetailModal() {
   const { showInventoryItem, setShowInventoryItem, contractInfo } = useInventory()
@@ -54,12 +55,8 @@ function TokenDetails({ item }: { item: TokenTypeProps }) {
 }
 
 function CoinDetails(props: TokenTypeProps) {
-  const theme = import.meta.env.VITE_PROJECT_BASE_THEME
-
   const style = {
-    ...(theme === 'light' && { '--background': `url(${import.meta.env.VITE_PROJECT_BACKGROUND})` })
-
-    // '--background': `url(${import.meta.env.VITE_PROJECT_BACKGROUND})`
+    ...(THEME.appBackground && { '--background': `url(${THEME.appBackground})` })
   } as React.CSSProperties
 
   const { setShowSendModal } = useInventory()
@@ -166,10 +163,8 @@ function CoinDetails(props: TokenTypeProps) {
 }
 
 function TokenDetailsCollectable(props: TokenTileProps) {
-  const theme = import.meta.env.VITE_PROJECT_BASE_THEME
-
   const style = {
-    ...(theme === 'light' && { '--background': `url(${import.meta.env.VITE_PROJECT_BACKGROUND})` })
+    ...(THEME.appBackground && { '--background': `url(${THEME.appBackground})` })
   } as React.CSSProperties
 
   const { setShowSendModal } = useInventory()
