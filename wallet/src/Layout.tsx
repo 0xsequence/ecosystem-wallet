@@ -16,7 +16,7 @@ const AppHeader = () => {
       <header className="flex flex-row gap-4 px-6 items-center justify-between min-h-[4.5rem] text-style-normal font-bold w-full max-w-screen-xl mx-auto">
         {THEME.headerLogo && (
           <Link to={ROUTES.INVENTORY}>
-            <Image src={THEME.headerLogo} className="max-w-[96px] sm:max-w-[128px] h-[32px] transition-all" />
+            <Image src={THEME.headerLogo} className="max-w-[96px] sm:max-w-[128px]  transition-all" />
           </Link>
         )}
         <nav className="flex-row gap-10 h-full justify-center md:flex hidden mx-auto flex-shrink-0 absolute left-[50%] translate-x-[-50%] -mb-[2px]">
