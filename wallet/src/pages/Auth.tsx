@@ -298,14 +298,14 @@ export const Auth: React.FC = () => {
 
 function AuthCoverWrapper({ children }: { children: React.ReactNode }) {
   if (!THEME.auth.cover) {
-    return <div className="w-full max-w-[24rem] rounded-lg overflow-clip bg-black">{children}</div>
+    return <div className="w-full max-w-[24rem] rounded-lg overflow-clip bg-[#272322]">{children}</div>
   }
 
   const style = {
     '--background': `url(${THEME.auth.cover})`
   } as React.CSSProperties
   return (
-    <div className="flex w-[calc(100%-32px)] md:w-auto mx-4 min-h-[40rem] bg-black overflow-clip rounded-lg">
+    <div className="flex w-[calc(100%-32px)] md:w-auto mx-4 min-h-[40rem] bg-[#272322] overflow-clip rounded-lg">
       <div className="grid auth-grid-template max-w-screen-lg w-full bg-black">
         <div className="flex flex-col items-center flex-1 place-self-center w-full">{children}</div>
         <div
@@ -313,7 +313,11 @@ function AuthCoverWrapper({ children }: { children: React.ReactNode }) {
           style={style}
         >
           {THEME.auth.title || THEME.auth.message ? (
-            <div className="flex-shrink text-right max-w-[60%] text-white">
+            <div
+              className={`flex-shrink text-right max-w-[60%] ${
+                THEME.auth.color === 'black' ? 'text-black' : 'text-white'
+              }`}
+            >
               {THEME.auth.title ? <p className="font-bold text-lg mb-3">{THEME.auth.title}</p> : null}
               {THEME.auth.message ? <p className="text-sm">{THEME.auth.message}</p> : null}
             </div>
