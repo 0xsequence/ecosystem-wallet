@@ -16,7 +16,7 @@ import { formatUnits } from 'ethers'
 import { useCoinPrices } from '../../../hooks/useCoinPrices'
 import { WrappedCollapse } from '../../../components/wrapped-collapse'
 import { THEME } from '../../../utils/theme'
-
+//
 export function TokenDetailModal() {
   const { showInventoryItem, setShowInventoryItem, contractInfo } = useInventory()
 

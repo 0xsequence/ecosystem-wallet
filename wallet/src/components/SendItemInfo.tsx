@@ -1,10 +1,7 @@
 import { NetworkImage, Skeleton, TokenImage } from '@0xsequence/design-system'
 import { ethers } from 'ethers'
-
 import { formatDisplay } from '../utils/helpers'
-
 import { useConfig } from '../hooks/useConfig'
-
 import { CollectibleTileImage } from './CollectibleTileImage'
 
 interface SendItemInfoProps {
