@@ -18,7 +18,7 @@ import { GoogleLogo } from '../components/GoogleLogo'
 import { ROUTES } from '../routes'
 import { googleClientId, sequenceWaas } from '../waasSetup'
 import { ArrowRightIcon } from '../design-system-patch/icons'
-import { THEME } from '../utils/theme'
+import { useEnvironment } from '../utils/theme'
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
 
@@ -32,6 +32,8 @@ interface AppleAuthResponse {
 }
 
 export const Auth: React.FC = () => {
+  const { environment } = useEnvironment()
+
   useScript(appleAuthHelpers.APPLE_SCRIPT_SRC)
   const navigate = useNavigate()
 
@@ -131,19 +133,20 @@ export const Auth: React.FC = () => {
           {!emailAuthInProgress && (
             <>
               <div className="flex items-center gap-4 flex-col">
-                <Image src={THEME.auth.logo} width={THEME.auth.size.w} height={THEME.auth.size.h} />
+                <Image
+                  src={environment.auth.logo}
+                  width={environment.auth.size.w}
+                  height={environment.auth.size.h}
+                />
                 <span>
-                  Sign in to <span className="font-bold">{THEME.name}</span>
+                  Sign in to <span className="font-bold">{environment.name}</span>
                 </span>
               </div>
               <div className="flex flex-col">
                 <div className="flex flex-col gap-2">
                   {GOOGLE_CLIENT_ID ? (
                     <GoogleOAuthProvider clientId={googleClientId}>
-                      <div
-                        className="rounded-sm relative bg-button-glass gap-2 items-center text-style-normal font-bold inline-flex justify-center min-h-[3rem] py-2 px-3 data-[disabled=='true
-                            :disabled:cursor-default cursor-pointer"
-                      >
+                      <div className="rounded-sm relative bg-button-glass gap-2 items-center text-style-normal font-bold inline-flex justify-center min-h-[3rem] py-2 px-3 disabled:cursor-default cursor-pointer hover:opacity-80">
                         {isSocialLoginInProgress === 'google' ? (
                           <Spinner size="md" />
                         ) : (
@@ -179,7 +182,7 @@ export const Auth: React.FC = () => {
                   {APPLE_CLIENT_ID ? (
                     <button
                       type="button"
-                      className="rounded-sm relative bg-button-glass gap-2 items-center text-style-normal font-bold inline-flex justify-center min-h-[3rem] py-2 px-3 disabled:cursor-default cursor-pointer"
+                      className="rounded-sm relative bg-button-glass gap-2 items-center text-style-normal font-bold inline-flex justify-center min-h-[3rem] py-2 px-3 disabled:cursor-default cursor-pointer hover:opacity-80"
                       onClick={handleAppleLogin}
                       disabled={!!isSocialLoginInProgress}
                     >
@@ -300,12 +303,14 @@ export const Auth: React.FC = () => {
 }
 
 function AuthCoverWrapper({ children }: { children: React.ReactNode }) {
-  if (!THEME.auth.cover) {
+  const { environment } = useEnvironment()
+
+  if (!environment.auth.cover) {
     return <div className="w-full max-w-[24rem] rounded-lg overflow-clip bg-black">{children}</div>
   }
 
   const style = {
-    '--background': `url(${THEME.auth.cover})`
+    '--background': `url(${environment.auth.cover})`
   } as React.CSSProperties
   return (
     <div className="flex w-[calc(100%-32px)] md:w-auto mx-4 min-h-[40rem] bg-black overflow-clip rounded-lg">
@@ -315,10 +320,12 @@ function AuthCoverWrapper({ children }: { children: React.ReactNode }) {
           className="hidden sm:flex flex-col items-end justify-end p-8 flex-shrink [background-image:var(--background)] bg-cover bg-no-repeat"
           style={style}
         >
-          {THEME.auth.title || THEME.auth.message ? (
+          {environment.auth.title || environment.auth.message ? (
             <div className="flex-shrink text-right max-w-[60%] text-white">
-              {THEME.auth.title ? <p className="font-bold text-lg mb-3">{THEME.auth.title}</p> : null}
-              {THEME.auth.message ? <p className="text-sm">{THEME.auth.message}</p> : null}
+              {environment.auth.title ? (
+                <p className="font-bold text-lg mb-3">{environment.auth.title}</p>
+              ) : null}
+              {environment.auth.message ? <p className="text-sm">{environment.auth.message}</p> : null}
             </div>
           ) : null}
         </div>
