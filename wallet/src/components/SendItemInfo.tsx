@@ -1,7 +1,10 @@
 import { NetworkImage, Skeleton, TokenImage } from '@0xsequence/design-system'
 import { ethers } from 'ethers'
+
 import { formatDisplay } from '../utils/helpers'
+
 import { useConfig } from '../hooks/useConfig'
+
 import { CollectibleTileImage } from './CollectibleTileImage'
 
 interface SendItemInfoProps {
@@ -49,9 +52,9 @@ export const SendItemInfo = ({
 
   return (
     <div className="flex items-end justify-between">
-      <div className="flex items-start justify-between gap-2">
+      <div className="flex items-start justify-between gap-3">
         {showSquareImage ? (
-          <div className="w-10 flex-shrink-0">
+          <div className="w-12 flex-shrink-0">
             <CollectibleTileImage imageUrl={imageUrl} />
           </div>
         ) : (
