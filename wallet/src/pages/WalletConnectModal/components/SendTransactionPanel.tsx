@@ -25,7 +25,7 @@ export function SendTransactionPanel({ handler }: { handler: TransactionHandler 
       <div className="flex flex-col flex-1 items-start px-4 py-6 gap-2 ">
         <div className="flex flex-col gap-1 mb-4 px-4">
           <h2 className="text-xl font-bold">Transaction Request</h2>
-          <p className="text-sm font-medium text-seq-grey-500">
+          <p className="text-sm font-medium">
             Transaction request from origin <span className="font-bold">{requestOrigin}</span>
           </p>
         </div>
@@ -38,14 +38,13 @@ export function SendTransactionPanel({ handler }: { handler: TransactionHandler 
               <div
                 style={
                   {
-                    '--theme-rounded-xl': '1rem',
-                    '--color-background-secondary': 'rgba(0, 0, 0, 0.1)'
+                    '--theme-rounded-xl': '1rem'
                   } as React.CSSProperties
                 }
                 className="w-full"
               >
-                <Collapsible label="Transaction data">
-                  <pre className=" text-start text-xs overflow-x-scroll p-4 rounded-lg bg-background-secondary">
+                <Collapsible label="Transaction data" className="backdrop-blur-2xl">
+                  <pre className=" text-start text-xs overflow-x-scroll p-4 rounded-lg bg-background-secondary backdrop-blur-2xl">
                     {JSON.stringify(txn, null, 2)}
                   </pre>
                 </Collapsible>
@@ -64,7 +63,7 @@ export function SendTransactionPanel({ handler }: { handler: TransactionHandler 
         )}
       </div>
 
-      <div className="flex mt-auto mb-0 gap-2 w-full sticky bottom-0 bg-background-primary p-4">
+      <div className="flex mt-auto mb-0 gap-2 w-full sticky bottom-0 bg-background-primary  p-4">
         <Button
           label="Reject"
           onClick={handleRejectTxn}
