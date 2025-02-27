@@ -11,15 +11,15 @@ export function DiscoverShowRoute() {
   if (!item) return null
 
   return (
-    <div className="flex flex-col w-full lg:max-w-screen-lg max-w-screen-md mx-auto md:my-12 gap-12">
+    <div className="flex flex-col w-full lg:max-w-screen-lg max-w-screen-md mx-auto md:my-12 gap-12 px-4 pt-12">
       <Link
         to={ROUTES.DISCOVER}
-        className="bg-button-glass font-bold inline-flex gap-1 self-start items-center rounded-full px-4 py-2"
+        className="bg-button-glass backdrop-blur-2xl font-bold inline-flex gap-1 self-start items-center rounded-full px-4 py-2"
       >
         <ArrowLeftIcon /> Back
       </Link>
 
-      <div className="w-full mx-auto flex flex-col lg:grid grid-cols-5 md:rounded-xl overflow-clip   md:aspect-video">
+      <div className="w-full mx-auto flex flex-col lg:grid grid-cols-5 rounded-xl overflow-clip md:aspect-video">
         <div className="col-span-3">
           {item.img ? <img src={item.img} className="object-cover size-full" /> : null}
         </div>
