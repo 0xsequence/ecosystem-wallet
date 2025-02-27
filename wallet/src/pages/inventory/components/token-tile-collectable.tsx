@@ -7,7 +7,7 @@ export function TokenTileCollectable(props: TokenBalance) {
 
   return (
     <TokenTile chainId={chainId} contractAddress={contractAddress} tokenClass="collectable" tokenId={tokenID}>
-      <Image src={tokenMetadata?.image} />
+      <Image src={tokenMetadata?.image} className="object-contain size-full" />
     </TokenTile>
   )
 }
