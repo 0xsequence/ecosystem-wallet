@@ -306,7 +306,7 @@ function AuthCoverWrapper({ children }: { children: React.ReactNode }) {
   } as React.CSSProperties
   return (
     <div className="flex w-[calc(100%-32px)] md:w-auto mx-4 min-h-[40rem] bg-[#272322] overflow-clip rounded-lg">
-      <div className="grid auth-grid-template max-w-screen-lg w-full bg-black">
+      <div className="grid auth-grid-template max-w-screen-lg w-full bg-[#272322]">
         <div className="flex flex-col items-center flex-1 place-self-center w-full">{children}</div>
         <div
           className="hidden sm:flex flex-col items-end justify-end p-8 flex-shrink [background-image:var(--background)] bg-cover bg-no-repeat"
