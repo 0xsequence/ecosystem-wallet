@@ -65,7 +65,7 @@ function theme() {
         h: logoSize[1] ?? undefined
       },
       cover: import.meta.env.VITE_PROJECT_AUTH_COVER,
-      color: 'dark',
+      color: import.meta.env.VITE_PROJECT_AUTH_MESSAGE_COLOR || 'white',
       title: import.meta.env.VITE_PROJECT_AUTH_TITLE,
       message: import.meta.env.VITE_PROJECT_AUTH_MESSAGE
     }
