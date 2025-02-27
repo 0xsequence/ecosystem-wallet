@@ -84,7 +84,7 @@ export const AccountMenu = () => {
             className="flex bg-button-glass rounded-full pl-2 pr-3 sm:px-3 py-1 sm:py-2 cursor-pointer gap-2 items-center select-none"
           >
             <GradientAvatar address={String(address)} size="sm" />
-            <span className="font-bold text-style-normal">{truncateAddress(String(address), 0, 3)}</span>
+            <span className="font-bold text-style-normal">{truncateAddress(String(address), 2, 3)}</span>
 
             <ChevronDownIcon className="size-4" />
           </button>
