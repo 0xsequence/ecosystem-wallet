@@ -93,7 +93,9 @@ function CoinDetails(props: TokenTypeProps) {
   return (
     <div className="w-full flex flex-col gap-6 p-6 ">
       <div
-        className="py-8 h-[240px] [background-image:var(--background)] bg-background-secondary bg-cover bg-center rounded-sm"
+        className={`py-8 h-[240px] [background-image:var(--background)] bg-background-secondary bg-center rounded-sm  ${
+          THEME.backgroundMode === 'tile' ? 'bg-repeat' : 'bg-cover bg-no-repeat'
+        }`}
         style={style}
       >
         <div className="grid gap-2 place-items-center">
@@ -171,12 +173,14 @@ function TokenDetailsCollectable(props: TokenTileProps) {
   const { tokenMetadata, chainId, chain } = props
 
   return (
-    <div className="w-full flex flex-col  p-6">
+    <div className="w-full flex flex-col p-6">
       <div
-        className="flex items-center justify-center h-[300px] [background-image:var(--background)] bg-background-secondary bg-cover bg-center rounded-sm"
+        className={`flex items-center justify-center h-[300px] [background-image:var(--background)] bg-background-secondary bg-center rounded-sm ${
+          THEME.backgroundMode === 'tile' ? 'bg-repeat' : 'bg-cover bg-no-repeat'
+        }`}
         style={style}
       >
-        <Image src={tokenMetadata?.image} className="max-w-[300px] aspect-square" />
+        <Image src={tokenMetadata?.image} className="size-full object-contain" />
       </div>
       <div className="p-6 flex flex-col gap-1 text-center justify-center">
         <span className="text-xl font-bold">{tokenMetadata?.name}</span>
