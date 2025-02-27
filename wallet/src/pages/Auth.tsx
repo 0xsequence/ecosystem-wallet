@@ -18,7 +18,7 @@ import { GoogleLogo } from '../components/GoogleLogo'
 import { ROUTES } from '../routes'
 import { googleClientId, sequenceWaas } from '../waasSetup'
 import { ArrowRightIcon } from '../design-system-patch/icons'
-import { useEnvironment } from '../utils/theme'
+import { THEME } from '../utils/theme'
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
 
@@ -32,8 +32,6 @@ interface AppleAuthResponse {
 }
 
 export const Auth: React.FC = () => {
-  const { environment } = useEnvironment()
-
   useScript(appleAuthHelpers.APPLE_SCRIPT_SRC)
   const navigate = useNavigate()
 
@@ -133,13 +131,9 @@ export const Auth: React.FC = () => {
           {!emailAuthInProgress && (
             <>
               <div className="flex items-center gap-4 flex-col">
-                <Image
-                  src={environment.auth.logo}
-                  width={environment.auth.size.w}
-                  height={environment.auth.size.h}
-                />
+                <Image src={THEME.auth.logo} width={THEME.auth.size.w} height={THEME.auth.size.h} />
                 <span>
-                  Sign in to <span className="font-bold">{environment.name}</span>
+                  Sign in to <span className="font-bold">{THEME.name}</span>
                 </span>
               </div>
               <div className="flex flex-col">
@@ -303,14 +297,12 @@ export const Auth: React.FC = () => {
 }
 
 function AuthCoverWrapper({ children }: { children: React.ReactNode }) {
-  const { environment } = useEnvironment()
-
-  if (!environment.auth.cover) {
+  if (!THEME.auth.cover) {
     return <div className="w-full max-w-[24rem] rounded-lg overflow-clip bg-black">{children}</div>
   }
 
   const style = {
-    '--background': `url(${environment.auth.cover})`
+    '--background': `url(${THEME.auth.cover})`
   } as React.CSSProperties
   return (
     <div className="flex w-[calc(100%-32px)] md:w-auto mx-4 min-h-[40rem] bg-black overflow-clip rounded-lg">
@@ -320,12 +312,10 @@ function AuthCoverWrapper({ children }: { children: React.ReactNode }) {
           className="hidden sm:flex flex-col items-end justify-end p-8 flex-shrink [background-image:var(--background)] bg-cover bg-no-repeat"
           style={style}
         >
-          {environment.auth.title || environment.auth.message ? (
+          {THEME.auth.title || THEME.auth.message ? (
             <div className="flex-shrink text-right max-w-[60%] text-white">
-              {environment.auth.title ? (
-                <p className="font-bold text-lg mb-3">{environment.auth.title}</p>
-              ) : null}
-              {environment.auth.message ? <p className="text-sm">{environment.auth.message}</p> : null}
+              {THEME.auth.title ? <p className="font-bold text-lg mb-3">{THEME.auth.title}</p> : null}
+              {THEME.auth.message ? <p className="text-sm">{THEME.auth.message}</p> : null}
             </div>
           ) : null}
         </div>
