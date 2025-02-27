@@ -140,10 +140,7 @@ export const Auth: React.FC = () => {
                 <div className="flex flex-col gap-2">
                   {GOOGLE_CLIENT_ID ? (
                     <GoogleOAuthProvider clientId={googleClientId}>
-                      <div
-                        className="rounded-sm relative bg-button-glass gap-2 items-center text-style-normal font-bold inline-flex justify-center min-h-[3rem] py-2 px-3 data-[disabled=='true
-                            :disabled:cursor-default cursor-pointer"
-                      >
+                      <div className="rounded-sm relative bg-button-glass gap-2 items-center text-style-normal font-bold inline-flex justify-center min-h-[3rem] py-2 px-3 disabled:cursor-default cursor-pointer hover:opacity-80">
                         {isSocialLoginInProgress === 'google' ? (
                           <Spinner size="md" />
                         ) : (
@@ -179,7 +176,7 @@ export const Auth: React.FC = () => {
                   {APPLE_CLIENT_ID ? (
                     <button
                       type="button"
-                      className="rounded-sm relative bg-button-glass gap-2 items-center text-style-normal font-bold inline-flex justify-center min-h-[3rem] py-2 px-3 disabled:cursor-default cursor-pointer"
+                      className="rounded-sm relative bg-button-glass gap-2 items-center text-style-normal font-bold inline-flex justify-center min-h-[3rem] py-2 px-3 disabled:cursor-default cursor-pointer hover:opacity-80"
                       onClick={handleAppleLogin}
                       disabled={!!isSocialLoginInProgress}
                     >

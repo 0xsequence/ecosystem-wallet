@@ -31,7 +31,7 @@ export function SignMessagePanel({ handler }: { handler: ReturnType<typeof useSi
           <dl className="flex mt-2 flex-col gap-2 w-full">
             {requestChainId && <NetworkInfo chainId={requestChainId} />}
 
-            <div className="flex flex-col gap-1  text-start overflow-x-scroll p-4 rounded-lg bg-background-secondary">
+            <div className="flex flex-col gap-1 text-start overflow-x-scroll p-4 rounded-lg bg-background-secondary backdrop-blur-2xl">
               <dt className="text-sm font-medium text-seq-grey-700">Message to sign</dt>
               {isJson ? (
                 <dd>

@@ -12,7 +12,7 @@ import { THEME } from './utils/theme'
 
 const AppHeader = () => {
   return (
-    <div className="bg-background-navigation backdrop-blur-lg w-full border-b border-border-normal">
+    <div className="bg-background-navigation backdrop-blur-lg w-full top-0 sticky isolate z-1">
       <header className="flex flex-row gap-4 px-6 items-center justify-between min-h-[4.5rem] text-style-normal font-bold w-full max-w-screen-lg mx-auto">
         {THEME.headerLogo && (
           <Link to={ROUTES.INVENTORY}>
@@ -74,7 +74,7 @@ export const AppLayout = ({ showHeader = false }: { showHeader?: boolean }) => {
 
   return (
     <div
-      className={`flex flex-col flex-1 [background-image:var(--background)]  bg-fixed
+      className={`flex flex-col flex-1 [background-image:var(--background)] bg-fixed
         ${THEME.backgroundMode === 'tile' ? 'bg-repeat' : 'bg-cover bg-no-repeat'}
         `}
       style={style}
@@ -107,7 +107,7 @@ export const AppLayout = ({ showHeader = false }: { showHeader?: boolean }) => {
       </div>
       <nav
         data-is-popup={isPopup}
-        className="flex data-[is-popup='true']:hidden md:hidden mt-auto mb-0 gap-2 justify-around w-full sticky bottom-0 backdrop-blur-2xl bg-background-navigation p-1 border-t border-border-normal"
+        className="flex data-[is-popup='true']:hidden md:hidden mt-auto mb-0 gap-2 justify-around w-full sticky bottom-0 backdrop-blur-2xl bg-background-navigation p-1"
         style={{ display: isPublicRoute(window.location.pathname) ? 'none' : undefined }}
       >
         <NavLink

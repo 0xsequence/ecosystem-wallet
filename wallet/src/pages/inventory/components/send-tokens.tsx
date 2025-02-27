@@ -29,7 +29,6 @@ export function SendTokens() {
   if (!showSendModal) return null
 
   const onSendSuccess = () => {
-    setShowSendModal(false)
     setShowInventoryItem(false)
 
     // Store initial balance state
@@ -76,7 +75,6 @@ export function SendTokens() {
       }}
       scroll={false}
       onClose={() => {
-        setShowInventoryItem(false)
         setShowSendModal(false)
       }}
     >
