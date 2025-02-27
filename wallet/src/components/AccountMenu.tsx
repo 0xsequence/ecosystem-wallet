@@ -27,9 +27,6 @@ import {
 import { CopyButton } from '../design-system-patch/copy-button/CopyButton'
 import { useConfirmDialog } from './ConfirmDialogProvider'
 import { Receive } from './Receive'
-// import { useFetchInventory } from '../pages/inventory/helpers/use-fetch-inventory'
-// import { TransactionHistory } from './TransactionHistory'
-// import { ChainId } from '@0xsequence/network'
 import { Transaction } from '@0xsequence/indexer'
 import { WalletConnect } from './WalletConnect'
 
@@ -40,12 +37,6 @@ export const AccountMenu = () => {
   const { confirmAction } = useConfirmDialog()
   const [openModal, setOpenModal] = useState<{ type: 'wallet' | 'receive' | 'history' } | false>(false)
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
-
-  // const { inventory } = useFetchInventory()
-  // const inventoryChainIds = [...new Set(inventory.filter(Boolean).map(item => item!.chainId))]
-  // const chainIds: ChainId[] = [
-  //   ...new Set([...inventoryChainIds, ChainId.ARBITRUM, ChainId.ARBITRUM_NOVA, ChainId.ARBITRUM_SEPOLIA])
-  // ]
 
   const getModalTitle = () => {
     if (!openModal) return ''
@@ -84,7 +75,7 @@ export const AccountMenu = () => {
             className="flex bg-button-glass rounded-full pl-2 pr-3 sm:px-3 py-1 sm:py-2 cursor-pointer gap-2 items-center select-none"
           >
             <GradientAvatar address={String(address)} size="sm" />
-            <span className="font-bold text-style-normal">{truncateAddress(String(address), 0, 3)}</span>
+            <span className="font-bold text-style-normal">{truncateAddress(String(address), 2, 5)}</span>
 
             <ChevronDownIcon className="size-4" />
           </button>
@@ -100,7 +91,7 @@ export const AccountMenu = () => {
                       className="flex gap-2 text-sm font-bold items-center cursor-pointer "
                     >
                       <GradientAvatar address={String(address)} size="md" />
-                      {truncateAddress(address, 4, 4)}
+                      {truncateAddress(address, 4, 8)}
                       <CopyButton.Status />
                     </CopyButton>
                   ) : null}
@@ -124,14 +115,6 @@ export const AccountMenu = () => {
                   onClick={() => setOpenModal({ type: 'receive' })}
                 />
 
-                {/* <MenuLink
-                  href="/history"
-                  label="History"
-                  icon={TransactionIcon}
-                  onClick={handleClose}
-                  // onClick={() => setOpenModal({ type: 'history' })}
-                /> */}
-                {/* <MenuLink label="Settings" icon={SettingsIcon} href="/settings" /> */}
                 <MenuButton label="Sign out" icon={SignoutIcon} onClick={handleSignOut} />
               </Card>
             </PopoverPrimitive.Content>
@@ -192,27 +175,6 @@ export const AccountMenu = () => {
     </>
   )
 }
-
-// interface MenuLinkProps {
-//   label: string
-//   href: string
-//   icon?: typeof TransactionIcon
-// }
-
-// export function MenuLink(props: MenuLinkProps & ComponentProps<'a'>) {
-//   const { label, icon, href, ...rest } = props
-
-//   return (
-//     <Button
-//       className="w-full bg-black/20 text-sm font-bold rounded-sm "
-//       leftIcon={icon}
-//       label={label}
-//       asChild
-//     >
-//       <Link to={href} {...rest}></Link>
-//     </Button>
-//   )
-// }
 
 interface MenuButtonProps {
   label: string
