@@ -1,22 +1,29 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { BrowserRouter } from 'react-router'
 
-import { App } from './App.tsx'
+import { App as Router } from './App.tsx'
+import { AppContextProvider } from './context/AppContext.tsx'
 import './index.css'
+import { THEME } from './utils/theme'
 
 const favicon = document.getElementById('favicon')
 const appTitle = document.getElementById('app-title')
-const projectName = import.meta.env.VITE_PROJECT_NAME
-const smallLogo = import.meta.env.VITE_PROJECT_SMALL_LOGO
-if (favicon instanceof HTMLLinkElement && smallLogo) {
-  favicon.href = smallLogo
-}
-if (appTitle && projectName) {
-  appTitle.textContent = projectName + ' ' + 'Wallet'
-}
 
+if (favicon instanceof HTMLLinkElement && THEME.favicon) {
+  favicon.href = THEME.favicon
+}
+if (appTitle && THEME.name) {
+  appTitle.textContent = THEME.name + ' ' + 'Wallet'
+}
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <BrowserRouter>
+      <div id="app" className="flex flex-col flex-1">
+        <AppContextProvider>
+          <Router />
+        </AppContextProvider>
+      </div>
+    </BrowserRouter>
   </StrictMode>
 )

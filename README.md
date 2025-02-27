@@ -38,3 +38,11 @@ The wallet application requires the following environment variables to be set:
 - `VITE_PROJECT_SMALL_LOGO`: URL to a smaller version of the logo, also used for favicon
 
 Create a `.env` file in the `./wallet` directory and copy these variables from `.env.example`, replacing the values as needed for your configuration.
+
+### Discover Section Items
+
+The discover items (apps/games) are configured via the `VITE_DISCOVER_ITEMS` environment variable. To update the items:
+
+1. Add `discover-items.json` with your items under /wallet
+2. Run `node stringify-discover-items.cjs`
+3. Copy the output into your `.env` file as `VITE_DISCOVER_ITEMS`

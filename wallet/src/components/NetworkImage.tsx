@@ -1,4 +1,4 @@
-import { Box, NetworkImage as DesignSystemNetworkImage, Tooltip } from '@0xsequence/design-system'
+import { NetworkImage as DesignSystemNetworkImage, Tooltip } from '@0xsequence/design-system'
 import { NetworkType, allNetworks } from '@0xsequence/network'
 
 export const NetworkImage = ({
@@ -17,19 +17,14 @@ export const NetworkImage = ({
   return (
     <NetworkImageWrapper chainId={chainId} shouldShowTooltip={shouldShowTooltip}>
       <DesignSystemNetworkImage chainId={chainId} disableAnimation={disableAnimation} size={size} />
-
       {chain?.type === NetworkType.TESTNET && (
-        <Box
-          position="absolute"
-          background="warning"
-          width="2"
-          height="2"
+        <div
+          className="absolute bg-warning w-2 h-2 rounded-full"
           style={{
             border: '2px solid #1a1a1a',
             left: '-2px',
             top: '-2px'
           }}
-          borderRadius="circle"
         />
       )}
     </NetworkImageWrapper>
@@ -51,15 +46,9 @@ export const NetworkImageWrapper = ({
   if (shouldShowTooltip) {
     return (
       <Tooltip message={`${networkTitle}${network?.testnet ? ' (Testnet)' : ''}`} vOffset={2}>
-        <Box position="relative" width="fit" height="fit" background="transparent">
-          {children}
-        </Box>
+        <div className="relative w-fit h-fit bg-transparent">{children}</div>
       </Tooltip>
     )
   }
-  return (
-    <Box position="relative" width="fit" height="fit" background="transparent">
-      {children}
-    </Box>
-  )
+  return <div className="relative w-fit h-fit bg-transparent">{children}</div>
 }

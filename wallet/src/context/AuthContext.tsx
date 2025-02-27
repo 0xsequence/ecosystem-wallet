@@ -1,6 +1,8 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import { PropsWithChildren, createContext, useContext, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router'
 import { useSnapshot } from 'valtio'
 
+import { ROUTES } from '../routes'
 import { sequenceWaas } from '../waasSetup'
 import { WalletTransport } from '../walletTransport'
 
@@ -10,6 +12,7 @@ type AuthState = { status: 'loading' } | { status: 'signedOut' } | { status: 'si
 
 interface AuthContextType {
   authState: AuthState
+  address?: string
   pendingEventOrigin: string | undefined
   setWalletAddress: (address: string) => void
   signOut: () => void
@@ -17,7 +20,8 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider = ({ children }: PropsWithChildren) => {
+  const navigate = useNavigate()
   const [authState, setAuthState] = useState<AuthState>({ status: 'loading' })
   const walletTransportSnapshot = useSnapshot(walletTransport.state)
 
@@ -40,16 +44,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   const signOut = async () => {
-    await sequenceWaas.dropSession()
-    setAuthState({ status: 'signedOut' })
-    walletTransport.setSignedInState(null)
-    localStorage.clear()
+    try {
+      setAuthState({ status: 'signedOut' })
+      await sequenceWaas.dropSession()
+      walletTransport.setSignedInState(null)
+      localStorage.clear()
+      navigate(ROUTES.AUTH)
+    } catch {
+      setAuthState(authState)
+    }
   }
 
   return (
     <AuthContext.Provider
       value={{
         authState,
+        address: authState.status === 'signedIn' ? authState.address : undefined,
         pendingEventOrigin: walletTransportSnapshot.pendingEventOrigin,
         setWalletAddress,
         signOut

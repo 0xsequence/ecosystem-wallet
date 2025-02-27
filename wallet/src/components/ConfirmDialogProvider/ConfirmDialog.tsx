@@ -1,4 +1,4 @@
-import { Box, Button, Spinner, Text } from '@0xsequence/design-system'
+import { Button, Spinner } from '@0xsequence/design-system'
 
 import { ContentModal } from '../ContentModal'
 
@@ -24,37 +24,31 @@ export const ConfirmDialog = ({
   warningMessage
 }: ConfirmDialogProps) => (
   <ContentModal isDismissible={false} onClose={onCancel}>
-    <Box flexDirection="column" gap="4" padding="6">
-      <Box flexDirection="column" gap="1">
-        <Text as="h1" variant="medium" color="text100" marginY="0">
-          {title}
-        </Text>
-        {warningMessage ? (
-          <Text as="p" variant="normal" color="negative" marginY="2">
-            {warningMessage}
-          </Text>
-        ) : null}
-      </Box>
+    <div className="flex flex-col gap-4 p-6 ">
+      <div className="flex flex-col gap-1">
+        <h1 className="text-xl font-bold">{title}</h1>
+        {warningMessage ? <p>{warningMessage}</p> : null}
+      </div>
 
-      <Box flexDirection="row-reverse" gap="2">
+      <div className="flex flex-row-reverse gap-2">
         <Button
           label={
             isProcessing ? (
-              <Box alignItems="center" gap="2">
+              <div className="flex items-center gap-2">
                 <Spinner /> {processingLabel}
-              </Box>
+              </div>
             ) : (
               confirmLabel
             )
           }
           shape="square"
-          variant="glass"
+          className="bg-button-glass"
           disabled={isProcessing}
           onClick={onConfirm}
         />
 
         <Button label={cancelLabel} shape="square" variant="emphasis" onClick={onCancel} />
-      </Box>
-    </Box>
+      </div>
+    </div>
   </ContentModal>
 )

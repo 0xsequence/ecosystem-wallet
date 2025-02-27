@@ -1,8 +1,85 @@
+@import 'tailwindcss';
+@import '@0xsequence/design-system/preset';
+@import './design-system-placeholder.css';
+/* @import './colors.css'; */
+
 *,
 *::before,
 *::after {
   box-sizing: border-box;
 }
+
+@theme {
+  --color-background-navigation: var(--seq-color-background-navigation);
+}
+
+[data-theme='dark'] {
+  --seq-color-background-navigation: var(--seq-color-background-secondary);
+
+  --color-primary: var(--seq-color-primary);
+  --color-secondary: var(--seq-color-secondary);
+  --color-muted: var(--seq-color-muted);
+  --color-inverse: var(--seq-color-inverse);
+  --color-positive: var(--seq-color-positive);
+  --color-negative: var(--seq-color-negative);
+  --color-info: var(--seq-color-info);
+  --color-warning: var(--seq-color-warning);
+  --color-background-primary: var(--seq-color-background-primary);
+  --color-background-secondary: var(--seq-color-background-secondary);
+  --color-background-contrast: var(--seq-color-background-contrast);
+  --color-background-muted: var(--seq-color-background-muted);
+  --color-background-control: var(--seq-color-background-control);
+  --color-background-inverse: var(--seq-color-background-inverse);
+  --color-background-backdrop: var(--seq-color-background-backdrop);
+  --color-background-overlay: var(--seq-color-background-overlay);
+  --color-background-raised: var(--seq-color-background-raised);
+  --color-border-normal: var(--seq-color-border-normal);
+  --color-border-focus: var(--seq-color-border-focus);
+  --color-button-glass: var(--seq-color-button-glass);
+  --color-button-emphasis: var(--seq-color-button-emphasis);
+  --color-button-inverse: var(--seq-color-button-inverse);
+  --background-image-gradient-backdrop: var(--seq-color-gradient-backdrop);
+  --background-image-gradient-primary: var(--seq-color-gradient-primary);
+  --background-image-gradient-secondary: var(--seq-color-gradient-secondary);
+  --background-image-gradient-skeleton: var(--seq-color-gradient-skeleton);
+}
+
+[data-theme='light'] {
+  --seq-color-background-secondary: theme(colors.black/5%);
+  --seq-color-background-navigation: theme(colors.white/70%);
+  --seq-color-gradient-primary: linear-gradient(to bottom, theme(colors.black), theme(colors.black));
+}
+
+:root {
+  /* --seq-color-background-primary: var(--color-background-primary);
+  --color-background-secondary: rgba(0, 0, 0, 0.2);
+  --color-primary: black;
+  --color-secondary: black;
+  --color-muted: rgba(0, 0, 0, 0.75);
+  --color-button-glass: rgba(0, 0, 0, 0.2); */
+}
+
+.auth-grid-template {
+  grid-template-columns: minmax(24rem, auto) minmax(0, 48rem);
+}
+
+@media (max-width: 640px) {
+  .auth-grid-template {
+    grid-template-columns: 1fr;
+  }
+}
+
+.grid-template-collapse {
+  grid-template-rows: 1fr 0fr 0fr;
+}
+
+.grid-template-collapse[inert] {
+  grid-template-rows: 0fr 0fr 0fr;
+}
+/*
+button[aria-label='Close'] {
+  @apply bg-black text-white;
+} */
 
 body {
   margin: 0;
@@ -10,9 +87,53 @@ body {
     'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: var(--seq-colors-background-primary);
+  background: var(--seq-color-background-primary);
+  color: var(--seq-color-primary);
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
+
+[data-id='googleAuth'] {
+}
+[data-id='googleAuth'] iframe {
+  width: 100% !important;
+  height: 100% !important;
+  top: 0 !important;
+  left: 0 !important;
+  background: red;
+  margin: 0 !important;
+}
+
+/** Toast adjustments */
+div[role='region'] ol li[role='status'] {
+  @apply bg-black/20;
+}
+
+/* Inherit click area from nested link */
+/** Cover entire card with a clickable region
+  * https://adrianroselli.com/2020/02/block-links-cards-clickable-regions-etc.html
+  */
+[data-href='inherit'] {
+  position: relative;
+}
+[data-href='inherit'] a[href]:not(:first-of-type),
+[data-href='inherit'] button {
+  position: relative;
+  z-index: 200;
+}
+
+[data-href='inherit'] a:first-of-type[href]::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+/* a {
+  color: inherit;
+  text-decoration: inherit;
+} */

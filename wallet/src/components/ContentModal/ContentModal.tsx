@@ -19,12 +19,12 @@ export const ContentModal = ({
 }) => (
   <Modal
     className={className}
-    backdropColor="backgroundBackdrop"
     disableAnimation
     scroll={false}
     size={size}
     contentProps={{
       style: {
+        /* @ts-expect-error Framer motion issue with the style property */
         overflowY: 'scroll',
         ...contentProps?.style
       },

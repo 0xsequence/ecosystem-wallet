@@ -3,6 +3,7 @@ import { SessionTypes, SignClientTypes } from '@walletconnect/types'
 import { proxy, subscribe } from 'valtio'
 
 import { walletTransport } from '../context/AuthContext'
+import { THEME } from '../utils/theme'
 
 if (!import.meta.env.VITE_WALLETCONNECT_PROJECT_ID) {
   throw new Error('VITE_WALLETCONNECT_PROJECT_ID is required')
@@ -31,10 +32,10 @@ class WalletConnectStore {
     this.signClient = await SignClient.init({
       projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID as string,
       metadata: {
-        name: import.meta.env.VITE_PROJECT_NAME || 'Sequence Wallet',
+        name: THEME.name || 'Sequence Wallet',
         description: 'Sequence Cross-App Embedded Wallet',
         url: window.location.origin,
-        icons: [import.meta.env.VITE_PROJECT_LOGO || '']
+        icons: [THEME.favicon || '']
       }
     })
 
@@ -86,9 +87,9 @@ class WalletConnectStore {
       }
 
       const chainsInRequiredNamespaces =
-        Object.keys(requiredNamespaces).length === 0 ? [] : (requiredNamespaces.eip155?.chains ?? [])
+        Object.keys(requiredNamespaces).length === 0 ? [] : requiredNamespaces.eip155?.chains ?? []
       const chainsInOptionalNamespaces =
-        Object.keys(optionalNamespaces || {}).length === 0 ? [] : (optionalNamespaces.eip155?.chains ?? [])
+        Object.keys(optionalNamespaces || {}).length === 0 ? [] : optionalNamespaces.eip155?.chains ?? []
       const allChains = [...new Set([...chainsInRequiredNamespaces, ...chainsInOptionalNamespaces])]
 
       // Use existing connection handler to get user approval

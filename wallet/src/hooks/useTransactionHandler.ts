@@ -4,7 +4,6 @@ import { ZeroAddress } from 'ethers'
 import { useEffect, useRef, useState } from 'react'
 import { UserRejectedRequestError } from 'viem'
 
-import { getIndexerClient } from '../utils/indexer'
 import { Deferred } from '../utils/promise'
 
 import { walletTransport } from '../context/AuthContext'
@@ -12,8 +11,9 @@ import { useAuth } from '../context/AuthContext'
 
 import { sequenceWaas } from '../waasSetup'
 import { HandlerType } from '../walletTransport'
+import { INDEXER_CLIENT_GATEWAY } from '../utils/indexer'
 
-const checkTransactionFeeOptions = async ({
+export const checkTransactionFeeOptions = async ({
   transactions,
   chainId
 }: {
@@ -140,15 +140,11 @@ export const useTransactionHandler = () => {
       throw new Error('User not signed in')
     }
 
-    const indexerClient = getIndexerClient(requestChainId)
 
-    const nativeTokenBalance = await indexerClient.getEtherBalance({
+    const nativeTokenBalance = await INDEXER_CLIENT_GATEWAY.getNativeTokenBalance({
       accountAddress: authState.address
     })
-
-    const tokenBalances = await indexerClient.getTokenBalances({
-      accountAddress: authState.address
-    })
+    const tokenBalances = await INDEXER_CLIENT_GATEWAY.getTokenBalances({ accountAddress: authState.address })
 
     const balances =
       txnFeeOptions?.map(option => {
@@ -156,16 +152,20 @@ export const useTransactionHandler = () => {
           return {
             tokenName: option.token.name,
             decimals: option.token.decimals || 0,
-            balance: nativeTokenBalance.balance.balanceWei
+            balance:
+              nativeTokenBalance.balances.find(balance => balance.chainId === requestChainId)?.result
+                .balance || '0'
           }
         } else {
           return {
             tokenName: option.token.name,
             decimals: option.token.decimals || 0,
             balance:
-              tokenBalances.balances.find(
-                b => b.contractAddress.toLowerCase() === option.token.contractAddress?.toLowerCase()
-              )?.balance || '0'
+              tokenBalances.balances
+                .find(balance => balance.chainId === requestChainId)
+                ?.results.find(
+                  b => b.contractAddress.toLowerCase() === option.token.contractAddress?.toLowerCase()
+                )?.balance || '0'
           }
         }
       }) || []

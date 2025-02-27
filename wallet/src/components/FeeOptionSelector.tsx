@@ -1,15 +1,36 @@
-import { Box, Button, Text } from '@0xsequence/design-system'
-import { FeeOption } from '@0xsequence/waas'
+import { TokenImage } from '@0xsequence/design-system'
 import { ZeroAddress, formatUnits, parseUnits } from 'ethers'
-import React, { ComponentProps } from 'react'
+import React from 'react'
 
-interface FeeOptionSelectorProps {
+import { Alert, AlertProps } from './Alert'
+
+export interface FeeOption {
+  token: FeeToken
+  to: string
+  value: string
+  gasLimit: number
+}
+export interface FeeToken {
+  chainId: number
+  name: string
+  symbol: string
+  decimals?: number
+  logoURL: string
+  contractAddress?: string
+  tokenID?: string
+}
+
+export interface FeeOptionBalance {
+  tokenName: string
+  decimals: number
+  balance: string
+}
+
+export interface FeeOptionSelectorProps {
   txnFeeOptions: FeeOption[]
-  feeOptionBalances: { tokenName: string; decimals: number; balance: string }[]
+  feeOptionBalances: FeeOptionBalance[]
   selectedFeeOptionAddress: string | undefined
   setSelectedFeeOptionAddress: (address: string) => void
-  checkTokenBalancesForFeeOptions: () => void
-  isRefreshingBalance: boolean
 }
 
 const isBalanceSufficient = (balance: string, fee: string, decimals: number) => {
@@ -22,9 +43,7 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
   txnFeeOptions,
   feeOptionBalances,
   selectedFeeOptionAddress,
-  setSelectedFeeOptionAddress,
-  checkTokenBalancesForFeeOptions,
-  isRefreshingBalance
+  setSelectedFeeOptionAddress
 }) => {
   const [feeOptionAlert, setFeeOptionAlert] = React.useState<AlertProps | undefined>()
 
@@ -41,148 +60,84 @@ export const FeeOptionSelector: React.FC<FeeOptionSelectorProps> = ({
   })
 
   return (
-    <Box marginY="3" width="full">
-      <Text variant="medium" color="text100" fontWeight="bold">
-        Select a fee option
-      </Text>
-      <Box flexDirection="column" marginTop="2" gap="2">
-        {sortedOptions.map((option, index) => {
-          const balance = feeOptionBalances.find(b => b.tokenName === option.token.name)
-          const isSufficient = isBalanceSufficient(
-            balance?.balance || '0',
-            option.value,
-            option.token.decimals || 0
-          )
-          return (
-            <Box
-              key={index}
-              padding="3"
-              borderRadius="md"
-              background={
-                selectedFeeOptionAddress === (option.token.contractAddress ?? ZeroAddress)
-                  ? 'gradientBackdrop'
-                  : 'backgroundRaised'
-              }
-              onClick={() => {
-                if (isSufficient) {
-                  setSelectedFeeOptionAddress(option.token.contractAddress ?? ZeroAddress)
-                  setFeeOptionAlert(undefined)
-                } else {
-                  setFeeOptionAlert({
-                    title: 'Insufficient balance',
-                    description: `You do not have enough balance to pay the fee with ${option.token.name}.`,
-                    secondaryDescription: 'Please select another fee option or add funds to your wallet.',
-                    variant: 'warning'
-                  })
-                }
-              }}
-              cursor={isSufficient ? 'pointer' : 'default'}
-              opacity={isSufficient ? '100' : '50'}
-            >
-              <Box flexDirection="row" justifyContent="space-between" alignItems="center">
-                <Box flexDirection="column">
-                  <Text variant="small" color="text100" fontWeight="bold">
-                    {option.token.name}
-                  </Text>
-                  <Text variant="xsmall" color="text80">
-                    Fee:{' '}
-                    {parseFloat(formatUnits(BigInt(option.value), option.token.decimals || 0)).toLocaleString(
-                      undefined,
-                      { maximumFractionDigits: 6 }
-                    )}
-                  </Text>
-                </Box>
-                <Box flexDirection="column" alignItems="flex-end">
-                  <Text variant="xsmall" color="text80">
-                    Balance:
-                  </Text>
-                  <Text variant="xsmall" color="text100">
-                    {parseFloat(
-                      formatUnits(BigInt(balance?.balance || '0'), option.token.decimals || 0)
-                    ).toLocaleString(undefined, { maximumFractionDigits: 6 })}
-                  </Text>
-                </Box>
-              </Box>
-            </Box>
-          )
-        })}
-      </Box>
-      <Box marginY="2" alignItems="flex-end" justifyContent="center" flexDirection="column">
-        <Button
-          size="sm"
-          onClick={checkTokenBalancesForFeeOptions}
-          label={isRefreshingBalance ? 'Refreshing...' : 'Refresh Balance'}
-          disabled={isRefreshingBalance}
+    <>
+      {' '}
+      <span className=" text-sm font-bold">Select a fee option</span>
+      {feeOptionAlert && (
+        <Alert
+          title={feeOptionAlert.title}
+          description={feeOptionAlert.description}
+          secondaryDescription={feeOptionAlert.secondaryDescription}
+          variant={feeOptionAlert.variant}
         />
-        {feeOptionAlert && (
-          <Box marginTop="3">
-            <Alert
-              title={feeOptionAlert.title}
-              description={feeOptionAlert.description}
-              secondaryDescription={feeOptionAlert.secondaryDescription}
-              variant={feeOptionAlert.variant}
-            />
-          </Box>
-        )}
-      </Box>
-    </Box>
-  )
-}
+      )}
+      <div className=" w-full flex flex-col bg-background-secondary rounded-md overflow-clip">
+        <div className="flex flex-col ">
+          {sortedOptions.map((option, index) => {
+            const isSelected = selectedFeeOptionAddress === (option.token.contractAddress ?? ZeroAddress)
+            const balance = feeOptionBalances.find(b => b.tokenName === option.token.name)
+            const isSufficient = isBalanceSufficient(
+              balance?.balance || '0',
+              option.value,
+              option.token.decimals || 0
+            )
 
-export type AlertProps = {
-  title: string
-  description: string
-  secondaryDescription?: string
-  variant: 'negative' | 'warning' | 'positive'
-  buttonProps?: ComponentProps<typeof Button>
-  children?: React.ReactNode
-}
+            return (
+              <div
+                key={index}
+                data-selected={isSelected ? true : undefined}
+                data-nsf={!isSufficient ? true : undefined}
+                className="cursor-pointer opacity-100 data-nsf:cursor-default data-nsf:opacity-35 data-selected:text-inverse px-4 py-2 data-[selected]:bg-background-inverse "
+                onClick={() => {
+                  if (isSufficient) {
+                    setSelectedFeeOptionAddress(option.token.contractAddress ?? ZeroAddress)
+                    setFeeOptionAlert(undefined)
+                  } else {
+                    setSelectedFeeOptionAddress('')
+                    setFeeOptionAlert({
+                      title: `Insufficient ${option.token.name} balance`,
+                      description: `Please select another fee option or add funds to your wallet.`,
+                      variant: 'warning'
+                    })
+                  }
+                }}
+              >
+                <div className="flex flex-row justify-between items-center">
+                  <div className="flex flex-row items-center gap-3">
+                    <TokenImage
+                      src={option.token.logoURL}
+                      symbol={option.token.name}
+                      className="size-7 data-nsf:[&>img]:grayscale"
+                      data-nsf={!isSufficient ? true : undefined}
+                    />
+                    <div className="flex flex-col">
+                      <span className="text-sm font-bold">{option.token.name}</span>
 
-export const Alert = ({
-  title,
-  description,
-  secondaryDescription,
-  variant,
-  buttonProps,
-  children
-}: AlertProps) => {
-  return (
-    <Box borderRadius="md" background={variant}>
-      <Box
-        background="backgroundOverlay"
-        borderRadius="md"
-        paddingX={{ sm: '4', md: '5' }}
-        paddingY="4"
-        width="full"
-        flexDirection="column"
-        gap="3"
-      >
-        <Box width="full" flexDirection={{ sm: 'column', md: 'row' }} gap="2" justifyContent="space-between">
-          <Box flexDirection="column" gap="1">
-            <Text variant="normal" color="text100" fontWeight="medium">
-              {title}
-            </Text>
+                      <span className="text-style-xs " data-selected={isSelected ? true : undefined}>
+                        Fee:{' '}
+                        {parseFloat(
+                          formatUnits(BigInt(option.value), option.token.decimals || 0)
+                        ).toLocaleString(undefined, {
+                          maximumFractionDigits: 6
+                        })}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <span className="text-style-xs">Balance</span>
 
-            <Text variant="normal" color="text50" fontWeight="medium">
-              {description}
-            </Text>
-
-            {secondaryDescription && (
-              <Text variant="normal" color="text80" fontWeight="medium">
-                {secondaryDescription}
-              </Text>
-            )}
-          </Box>
-
-          {buttonProps ? (
-            <Box background={variant} borderRadius="sm" width={'min'} height={'min'}>
-              <Button variant="emphasis" shape="square" flexShrink="0" {...buttonProps} />
-            </Box>
-          ) : null}
-        </Box>
-
-        {children}
-      </Box>
-    </Box>
+                    <span>
+                      {parseFloat(
+                        formatUnits(BigInt(balance?.balance || '0'), option.token.decimals || 0)
+                      ).toLocaleString(undefined, { maximumFractionDigits: 6 })}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </>
   )
 }
