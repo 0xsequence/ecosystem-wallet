@@ -133,7 +133,7 @@ function CoinDetails(props: TokenTypeProps) {
         </div>
       </div>
       <div className="flex flex-col gap-1 text-center justify-center">
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-3">
           <div className="grid justify-items-start gap-2">
             <span className="text-xs font-bold">Balance</span>
             <div className="w-full flex items-center gap-2">
@@ -204,9 +204,9 @@ function TokenDetailsCollectable(props: TokenTileProps) {
       >
         <Image src={tokenMetadata?.image} className="size-full object-contain" />
       </div>
-      <div className="py-6 w-full flex flex-col gap-1 items-center">
+      <div className="pt-4 pb-6 w-full flex flex-col gap-1 items-center">
         <span className="text-xl font-bold">{tokenMetadata?.name}</span>
-        <div className="flex flex-col w-full gap-6">
+        <div className="flex flex-col w-full gap-3">
           <span className="inline-flex mx-auto items-center gap-2 font-bold text-[9px] bg-background-secondary px-1.25 py-1 rounded-xs">
             <NetworkImage chainId={chainId} size="xs" /> {chain?.title}
           </span>
