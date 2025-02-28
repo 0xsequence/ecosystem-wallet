@@ -29,7 +29,7 @@ export function TokenDetailModal() {
   return (
     <>
       {item && (
-        <Modal scroll={false} autoHeight onClose={() => setShowInventoryItem(false)}>
+        <Modal scroll={true} autoHeight onClose={() => setShowInventoryItem(false)}>
           <TokenDetails item={item} />
         </Modal>
       )}
