@@ -30,6 +30,7 @@ export function SendTokens() {
 
   const onSendSuccess = () => {
     setShowInventoryItem(false)
+    setShowSendModal(false)
 
     // Store initial balance state
     const initialBalance = isCoin ? coinBalanceToSend : collectibleBalanceToSend
