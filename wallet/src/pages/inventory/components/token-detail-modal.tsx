@@ -6,16 +6,20 @@ import {
   Collapsible,
   nativeTokenImageUrl,
   cn,
-  Button
+  Button,
+  useMediaQuery
 } from '@0xsequence/design-system'
+import { formatUnits } from 'ethers'
+import { zeroAddress } from 'viem'
+
 import { SendIcon } from '../../../design-system-patch/icons'
 import { useInventory } from '../helpers/use-inventory'
 import { TokenTileProps, TokenTypeProps } from '../types'
-import { formatDisplay } from '../../../utils/helpers'
-import { formatUnits } from 'ethers'
+import { formatDisplay, truncateAtMiddle } from '../../../utils/helpers'
 import { useCoinPrices } from '../../../hooks/useCoinPrices'
 import { WrappedCollapse } from '../../../components/wrapped-collapse'
 import { THEME } from '../../../utils/theme'
+import { CopyButton } from '../../../components/CopyButton'
 
 export function TokenDetailModal() {
   const { showInventoryItem, setShowInventoryItem, contractInfo } = useInventory()
@@ -58,6 +62,8 @@ function CoinDetails(props: TokenTypeProps) {
   const style = {
     ...(THEME.appBackground && { '--background': `url(${THEME.appBackground})` })
   } as React.CSSProperties
+
+  const isMobile = useMediaQuery('isMobile')
 
   const { setShowSendModal } = useInventory()
   const { balance, contractAddress, tokenMetadata, chainId, chain, contractInfo } = props
@@ -127,19 +133,32 @@ function CoinDetails(props: TokenTypeProps) {
         </div>
       </div>
       <div className="flex flex-col gap-1 text-center justify-center">
-        <div className="grid justify-items-start gap-2 ">
-          <span className=" text-xs font-bold">Balance</span>
-          <div className="w-full flex items-center gap-2">
-            <TokenImage className="h-7 w-7" src={logoURI} size="xl" withNetwork={chainId} />
-            <p className="flex-1 text-start text-style-lg font-bold">
-              {diplayedBalance} {symbol}
-            </p>
-            {isPending ? (
-              <div className="h-6 w-24 bg-black/5 rounded animate-pulse" />
-            ) : (
-              priceText && <p className="text-style-sm font-bold text-seq-grey-500">{priceText}</p>
-            )}
+        <div className="flex flex-col gap-6">
+          <div className="grid justify-items-start gap-2">
+            <span className="text-xs font-bold">Balance</span>
+            <div className="w-full flex items-center gap-2">
+              <TokenImage className="h-7 w-7" src={logoURI} size="xl" withNetwork={chainId} />
+              <p className="flex-1 text-start text-style-lg font-bold">
+                {diplayedBalance} {symbol}
+              </p>
+              {isPending ? (
+                <div className="h-6 w-24 bg-black/5 rounded animate-pulse" />
+              ) : (
+                priceText && <p className="text-style-sm font-bold text-seq-grey-500">{priceText}</p>
+              )}
+            </div>
           </div>
+          {contractAddress !== zeroAddress && (
+            <div className="flex flex-col gap-2">
+              <span className="text-xs font-bold text-left">Contract Address</span>
+              <div className="flex gap-2 text-left">
+                <p className="font-mono text-sm text-seq-grey-500">
+                  {isMobile ? truncateAtMiddle(contractAddress, 25) : contractAddress}
+                </p>
+                <CopyButton text={contractAddress} />
+              </div>
+            </div>
+          )}
         </div>
         <span className="text-xl font-bold">{tokenMetadata?.name}</span>
       </div>
@@ -169,8 +188,11 @@ function TokenDetailsCollectable(props: TokenTileProps) {
     ...(THEME.appBackground && { '--background': `url(${THEME.appBackground})` })
   } as React.CSSProperties
 
+  const isMobile = useMediaQuery('isMobile')
+
   const { setShowSendModal } = useInventory()
-  const { tokenMetadata, chainId, chain } = props
+  const { tokenMetadata, chainId, chain, balance, contractType, contractAddress } = props
+  const isERC1155 = contractType === 'ERC1155'
 
   return (
     <div className="w-full flex flex-col p-6">
@@ -182,11 +204,32 @@ function TokenDetailsCollectable(props: TokenTileProps) {
       >
         <Image src={tokenMetadata?.image} className="size-full object-contain" />
       </div>
-      <div className="p-6 flex flex-col gap-1 text-center justify-center">
+      <div className="py-6 w-full flex flex-col gap-1 items-center">
         <span className="text-xl font-bold">{tokenMetadata?.name}</span>
-        <span className="inline-flex mx-auto items-center gap-2 font-bold text-[9px] bg-background-secondary px-1.25 py-1 rounded-xs">
-          <NetworkImage chainId={chainId} size="xs" /> {chain?.title}
-        </span>
+        <div className="flex flex-col w-full gap-6">
+          <span className="inline-flex mx-auto items-center gap-2 font-bold text-[9px] bg-background-secondary px-1.25 py-1 rounded-xs">
+            <NetworkImage chainId={chainId} size="xs" /> {chain?.title}
+          </span>
+          {isERC1155 && balance && (
+            <div className="grid justify-items-start gap-2">
+              <span className="text-xs font-bold">Balance</span>
+              <div className="w-full flex items-center gap-2">
+                <p className="flex-1 text-start text-style-lg font-bold">{balance?.toString() || '0'}</p>
+              </div>
+            </div>
+          )}
+          {contractAddress && (
+            <div className="flex flex-col gap-2">
+              <span className="text-xs font-bold text-left">Contract Address</span>
+              <div className="flex gap-2 text-left">
+                <p className="font-mono text-sm text-seq-grey-500">
+                  {isMobile ? truncateAtMiddle(contractAddress, 25) : contractAddress}
+                </p>
+                <CopyButton text={contractAddress} />
+              </div>
+            </div>
+          )}
+        </div>
       </div>
       <div className="w-full flex flex-col gap-2">
         <Button
