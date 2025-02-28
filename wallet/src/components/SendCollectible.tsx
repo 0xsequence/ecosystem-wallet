@@ -217,20 +217,20 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
         toast({
           title: 'Transaction successful',
           variant: 'success',
-          duration: TIME.SECOND * 5
+          duration: TIME.SECOND * 1.5
         })
       } else {
         toast({
           title: 'Transaction failed',
           variant: 'error',
-          duration: TIME.SECOND * 5
+          duration: TIME.SECOND * 1.5
         })
       }
     } catch {
       toast({
         title: 'Transaction failed',
         variant: 'error',
-        duration: TIME.SECOND * 5
+        duration: TIME.SECOND * 1.5
       })
     } finally {
       setIsSendTxnPending(false)
