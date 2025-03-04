@@ -11,7 +11,7 @@ export function DiscoverShowRoute() {
   if (!item) return null
 
   return (
-    <div className="flex flex-col w-full lg:max-w-screen-lg max-w-screen-md mx-auto md:my-12 gap-12 px-4 py-12">
+    <div className="flex flex-col w-full lg:max-w-screen-lg max-w-screen-md mx-auto gap-12 px-4 py-12">
       <Link
         to={ROUTES.DISCOVER}
         className="bg-button-glass backdrop-blur-2xl font-bold inline-flex gap-1 self-start items-center rounded-full px-4 py-2"

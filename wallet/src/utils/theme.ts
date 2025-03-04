@@ -1,16 +1,9 @@
-export type ThemeModeProps = {
-  headerLogo?: string
-  appBackground?: string
-}
-
 export type ThemeProps = {
   name: string
   mode: 'dark' | 'light'
   favicon?: string
-  modes: {
-    dark: ThemeModeProps
-    light: ThemeModeProps
-  }
+  appBackground?: string
+  headerLogo?: string
   backgroundMode: string
   inventory: {
     empty: string
@@ -23,23 +16,16 @@ export type ThemeProps = {
     title?: string
     message?: string
   }
-} & ThemeModeProps
+}
 
 function theme() {
   const name = import.meta.env.VITE_PROJECT_NAME
   const mode = import.meta.env.VITE_PROJECT_BASE_THEME || 'dark'
-  const favicon = import.meta.env.VITE_PROJECT_SMALL_LOGO
+  const favicon = import.meta.env.VITE_PROJECT_FAVICON || import.meta.env.VITE_PROJECT_SMALL_LOGO
 
-  const modes = { dark: {}, light: {} }
-  modes.dark = {
-    headerLogo: import.meta.env.VITE_PROJECT_HEADER_LOGO_DARK,
-    appBackground: import.meta.env.VITE_PROJECT_BACKGROUND_DARK
-  }
-
-  modes.light = {
-    headerLogo: import.meta.env.VITE_PROJECT_HEADER_LOGO,
-    appBackground: import.meta.env.VITE_PROJECT_BACKGROUND
-  }
+  const headerLogo = import.meta.env.VITE_PROJECT_HEADER_LOGO || import.meta.env.VITE_PROJECT_HEADER_LOGO_DARK
+  const appBackground =
+    import.meta.env.VITE_PROJECT_BACKGROUND || import.meta.env.VITE_PROJECT_BACKGROUND_DARK
   const backgroundMode = import.meta.env.VITE_PROJECT_BACKGROUND_MODE || 'cover'
 
   const inventory = {
@@ -48,18 +34,19 @@ function theme() {
       'Discover the apps and games to grow your collection'
   }
 
-  const logoSize = import.meta.env.VITE_PROJECT_LOGO_SIZE?.split('x') || [80, 80]
+  const logoSize = import.meta.env.VITE_PROJECT_AUTH_LOGO_SIZE?.split('x') ||
+    import.meta.env.VITE_PROJECT_LOGO_SIZE?.split('x') || [80, 80]
 
   return {
     name,
     mode,
     favicon,
-    ...(mode === 'dark' ? modes.dark : modes.light),
-    modes,
     inventory,
+    headerLogo,
+    appBackground,
     backgroundMode,
     auth: {
-      logo: import.meta.env.VITE_PROJECT_LOGO,
+      logo: import.meta.env.VITE_PROJECT_AUTH_LOGO || import.meta.env.VITE_PROJECT_LOGO,
       size: {
         w: logoSize[0] ?? undefined,
         h: logoSize[1] ?? undefined
@@ -71,7 +58,5 @@ function theme() {
     }
   }
 }
-
-console.log(theme())
 
 export const THEME = theme() as ThemeProps
