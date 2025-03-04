@@ -12,7 +12,12 @@ import { THEME } from './utils/theme'
 
 const AppHeader = () => {
   return (
-    <div className="bg-background-navigation backdrop-blur-lg w-full top-0 sticky isolate z-1">
+    <div
+      className={
+        'bg-background-navigation backdrop-blur-lg w-full top-0 sticky isolate z-1' +
+        (THEME.mode === 'light' ? ' border-b border-border-normal' : '')
+      }
+    >
       <header className="flex flex-row gap-4 px-6 items-center justify-between min-h-[4.5rem] text-style-normal font-bold w-full max-w-screen-lg mx-auto">
         {THEME.headerLogo && (
           <Link to={ROUTES.INVENTORY}>
