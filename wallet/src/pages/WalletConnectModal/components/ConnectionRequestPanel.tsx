@@ -19,13 +19,13 @@ export function ConnectionRequestPanel({ handler }: { handler: ReturnType<typeof
         </div>
         <ul className="flex flex-col gap-4 mt-6 text-md px-4">
           <li className="flex gap-3">
-            <span className="flex-shrink-0 bg-seq-green-600 size-6 flex items-center justify-center rounded-full text-white bg-[#d66020]">
+            <span className="flex-shrink-0 size-6 flex items-center justify-center rounded-full text-white bg-[#14a554]">
               <CheckmarkIcon className="size-4" />
             </span>{' '}
             This will share your wallet address with the dapp
           </li>
           <li className="flex gap-3">
-            <span className="flex-shrink-0 bg-seq-red-600 size-6 flex items-center justify-center rounded-full text-white bg-[#14a554]">
+            <span className="flex-shrink-0 size-6 flex items-center justify-center rounded-full text-white bg-[#d66020]">
               <CloseIcon className="size-4" />
             </span>
             This will NOT allow the dapp to do any operations without your confirmation
