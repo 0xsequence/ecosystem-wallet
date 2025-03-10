@@ -17,11 +17,20 @@ const HandlerMethods = {
   [HandlerType.SIGN]: ['eth_sign', 'eth_signTypedData', 'eth_signTypedData_v4', 'personal_sign']
 }
 
+export interface ConnectionRequestData {
+  type: 'connection'
+  id: string
+  auxData?: {
+    email?: unknown
+  }
+}
+
 interface WalletTransportState {
   connectedOrigins: ConnectedOrigin[]
   signedInState: SignedInState
   areHandlersReady: boolean
   pendingEventOrigin: string | undefined
+  pendingConnectionEvent: ConnectionRequestData | undefined
 }
 
 export class WalletTransport {
@@ -38,7 +47,8 @@ export class WalletTransport {
         : [],
       signedInState: null,
       areHandlersReady: false,
-      pendingEventOrigin: undefined
+      pendingEventOrigin: undefined,
+      pendingConnectionEvent: undefined
     })
 
     window.addEventListener('message', this.handleMessage)
@@ -73,9 +83,13 @@ export class WalletTransport {
       return
     }
 
+    // Connection and request handling flow
     if (!this.state.signedInState || !this.state.areHandlersReady) {
       this.pendingEvent = event
       this.state.pendingEventOrigin = event.origin
+      if (event.data.type === 'connection') {
+        this.state.pendingConnectionEvent = event.data as ConnectionRequestData
+      }
     } else {
       if (data.type === 'connection') {
         this.handleConnectionRequest(event)
@@ -102,14 +116,16 @@ export class WalletTransport {
   }
 
   private async handleConnectionRequest(event: MessageEvent) {
-    const { id } = event.data
+    const { id } = event.data as ConnectionRequestData
     const origin = event.origin
 
+    // If already connected, accept immediately
     if (this.isConnectedToOrigin(origin)) {
       this.sendConnectionResponse(event, id, 'accepted')
       return
     }
 
+    // Normal connection flow
     if (!this.connectionPromptCallback) {
       this.sendConnectionResponse(event, id, 'rejected', 'Connection prompt callback not set')
       return

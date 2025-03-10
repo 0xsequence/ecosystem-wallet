@@ -1,4 +1,4 @@
-import { Button, Card, Divider, Image, Modal, PINCodeInput, Spinner } from '@0xsequence/design-system'
+import { Button, Card, Divider, Image, Modal, PINCodeInput, Spinner, Text } from '@0xsequence/design-system'
 import { EmailConflictInfo } from '@0xsequence/waas'
 import { CredentialResponse, GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google'
 import React, { SetStateAction, useEffect, useRef, useState } from 'react'
@@ -6,9 +6,9 @@ import { appleAuthHelpers, useScript } from 'react-apple-signin-auth'
 import { useNavigate } from 'react-router'
 
 import { randomName } from '../utils/string'
+import { isValidEmail } from '../utils/validation'
 
 import { useAuth } from '../context/AuthContext'
-
 import { useEmailAuth } from '../hooks/useEmailAuth'
 
 import { AppleLogo } from '../components/AppleLogo'
@@ -35,7 +35,7 @@ export const Auth: React.FC = () => {
   useScript(appleAuthHelpers.APPLE_SCRIPT_SRC)
   const navigate = useNavigate()
 
-  const { setWalletAddress, authState } = useAuth()
+  const { setWalletAddress, authState, pendingEventOrigin, pendingConnectionEvent } = useAuth()
   const [isSocialLoginInProgress, setIsSocialLoginInProgress] = useState<false | string>(false)
 
   useEffect(() => {
@@ -103,12 +103,13 @@ export const Auth: React.FC = () => {
     sessionName: randomName(),
     onSuccess: async ({ wallet }) => {
       setWalletAddress(wallet)
+      console.log('pending', pendingEventOrigin)
     }
   })
 
   const [email, setEmail] = useState('')
   const inputRef = useRef<HTMLInputElement | null>(null)
-  const isEmailValid = inputRef.current?.validity.valid && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)
+  const isEmailInputValid = inputRef.current?.validity.valid && isValidEmail(email)
   const [showEmailWarning, setEmailWarning] = useState(false)
   const [code, setCode] = useState<string[]>([])
 
@@ -122,12 +123,32 @@ export const Auth: React.FC = () => {
     setIsEmailConflictModalOpen(true)
   })
 
-  // const isPopup = window.opener !== null
+  const isPopup = window.opener !== null
+
+  const emailHandled = useRef(false)
+
+  useEffect(() => {
+    if (!emailHandled.current && pendingConnectionEvent?.auxData?.email) {
+      emailHandled.current = true
+      const email = pendingConnectionEvent.auxData.email as string
+      setEmail(email)
+      if (isValidEmail(email)) {
+        initiateEmailAuth(email)
+      }
+    }
+  }, [pendingConnectionEvent])
 
   return (
     <div className="flex flex-col flex-1 items-center justify-center text-primary" data-theme="dark">
       <AuthCoverWrapper>
         <Card className="bg-transparent w-full gap-6 flex flex-col px-6 py-[5rem] rounded-none">
+          {isPopup && pendingEventOrigin && (
+            <Text className="text-center" variant="normal" color="text100">
+              Sign in to your <Text fontWeight="bold">{THEME.name}</Text> wallet to give access to dapp with
+              origin <Text fontWeight="bold">{pendingEventOrigin}</Text>
+            </Text>
+          )}
+
           {!emailAuthInProgress && (
             <>
               <div className="flex items-center gap-4 flex-col">
@@ -204,7 +225,9 @@ export const Auth: React.FC = () => {
           {sendChallengeAnswer ? (
             <div className="flex flex-col p-4 items-center justify-center">
               <div>
-                <span className="text-sm">Check your email for your access code</span>
+                <span className="text-sm">
+                  Check your email <Text fontWeight="bold">{email}</Text> for your access code
+                </span>
               </div>
               <div className="mt-4">
                 <PINCodeInput value={code} digits={6} onChange={setCode} />
@@ -240,7 +263,7 @@ export const Auth: React.FC = () => {
                         initiateEmailAuth(email)
                       }
                     }}
-                    onBlur={() => setEmailWarning(!!email && !isEmailValid)}
+                    onBlur={() => setEmailWarning(!!email && !isEmailInputValid)}
                     value={email}
                     placeholder="Email address"
                     required
@@ -253,7 +276,7 @@ export const Auth: React.FC = () => {
                     ) : (
                       <button
                         type="button"
-                        disabled={!isEmailValid}
+                        disabled={!isEmailInputValid}
                         onClick={() => initiateEmailAuth(email)}
                         className="size-8 pointer-events-auto disabled:opacity-25 rounded-full flex items-center justify-center bg-button-glass"
                       >
@@ -327,10 +350,3 @@ function AuthCoverWrapper({ children }: { children: React.ReactNode }) {
     </div>
   )
 }
-
-// {isPopup && (
-//   <Text className="text-center mt-4" variant="normal" color="text100">
-//     Sign in to your <Text fontWeight="bold">{PROJECT_NAME}</Text> wallet to give access to dapp
-//     with origin <Text fontWeight="bold">{pendingEventOrigin}</Text>
-//   </Text>
-// )}
