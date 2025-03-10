@@ -60,7 +60,7 @@ export const EmailConflictWarning = (props: EmailConflictWarningProps) => {
         </Text>
       </div>
       <div className="flex flex-row gap-3 mt-2 mb-2">
-        <Button className="bg-black" label="OK" onClick={onCancel} />
+        <Button className="bg-button-glass" label="OK" onClick={onCancel} />
       </div>
     </div>
   )
