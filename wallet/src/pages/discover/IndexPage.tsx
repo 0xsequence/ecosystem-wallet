@@ -172,6 +172,7 @@ export const DiscoverPage = () => {
 
 function DiscoverItem({ item, direct = false }: { item?: (typeof DISCOVER_ITEMS)[0]; direct?: boolean }) {
   const watchlist = useWatchlist()
+  const favorites = useFavorites()
   if (!item) {
     return null
   }
@@ -203,15 +204,19 @@ function DiscoverItem({ item, direct = false }: { item?: (typeof DISCOVER_ITEMS)
           <span className="px-4">{item.title}</span>
         )}
 
-        {item?.categories ? (
-          <div className="px-4 flex gap-1 mt-2">
-            {item.categories.map(category => (
-              <span key={category} className="text-style-sm bg-button-glass px-1 py-0.25 rounded-xs">
-                {category}
-              </span>
-            ))}
-          </div>
-        ) : null}
+        <span className="flex items-center mt-2 justify-between px-4 ">
+          {item?.categories ? (
+            <div className="flex gap-1">
+              {item.categories.map(category => (
+                <span key={category} className="text-style-sm bg-button-glass px-1 py-0.25 rounded-xs">
+                  {category}
+                </span>
+              ))}
+            </div>
+          ) : null}
+
+          {favorites.has(item.id) ? <HeartIcon className="size-4" /> : null}
+        </span>
       </div>
     </div>
   )
