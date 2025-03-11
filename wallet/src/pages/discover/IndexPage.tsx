@@ -13,7 +13,6 @@ import { useState } from 'react'
 import { useFavorites } from '../../hooks/useFavorites'
 import { useWatchlist } from '../../hooks/useWatchlist'
 import { walletConnectStore } from '../../store/WalletConnectStore'
-import { validateSession } from '@0xsequence/waas/dist/declarations/src/intents'
 
 const DISCOVER_CATEGORIES = [
   {
@@ -222,7 +221,7 @@ function DiscoverItem({ item, direct = false }: { item?: (typeof DISCOVER_ITEMS)
   )
 }
 
-function WalletConnect({ item, direct = false }: { item?: (typeof validateSession)[0]; direct?: boolean }) {
+function WalletConnect({ item }: { item?: SessionViewProps['peerMetadata'] }) {
   if (!item) {
     return null
   }
