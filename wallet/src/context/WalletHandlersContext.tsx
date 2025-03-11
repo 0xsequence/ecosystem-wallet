@@ -1,18 +1,17 @@
-
 import { PropsWithChildren, createContext, useContext } from 'react'
 import { useConnectionHandler } from '../hooks/useConnectionHandler'
 import { useSignMessageHandler } from '../hooks/useSignMessageHandler'
 import { useTransactionHandler } from '../hooks/useTransactionHandler'
 
-interface WalletConnectContextType {
+interface WalletHandlersContext {
   connectionHandler: ReturnType<typeof useConnectionHandler>
   transactionHandler: ReturnType<typeof useTransactionHandler>
   signMessageHandler: ReturnType<typeof useSignMessageHandler>
 }
 
-const WalletConnectContext = createContext<WalletConnectContextType | undefined>(undefined)
+const WalletConnectContext = createContext<WalletHandlersContext | undefined>(undefined)
 
-export const WalletConnectProvider = ({ children }: PropsWithChildren) => {
+export const WalletHandlersProvider = ({ children }: PropsWithChildren) => {
   const connectionHandler = useConnectionHandler()
   const transactionHandler = useTransactionHandler()
   const signMessageHandler = useSignMessageHandler()
@@ -30,10 +29,10 @@ export const WalletConnectProvider = ({ children }: PropsWithChildren) => {
   )
 }
 
-export const useWalletConnect = () => {
+export const useWalletHandlersContext = () => {
   const context = useContext(WalletConnectContext)
   if (context === undefined) {
-    throw new Error('useWalletConnect must be used within an WalletConnectProvider')
+    throw new Error('useWalletHandlersContext must be used within an WalletHandlersProvider')
   }
   return context
 }

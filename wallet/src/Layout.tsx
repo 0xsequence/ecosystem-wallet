@@ -7,7 +7,7 @@ import { ExploreIcon, InventoryIcon, TransactionIcon } from './design-system-pat
 import { isPublicRoute, ROUTES } from './routes'
 import { useEffect, useState } from 'react'
 import { WalletConnectModal } from './pages/WalletConnectModal'
-import { useWalletConnect } from './context/WalletConnectContext'
+import { useWalletHandlersContext } from './context/WalletHandlersContext'
 import { THEME } from './utils/theme'
 
 const AppHeader = () => {
@@ -61,7 +61,7 @@ export const AppLayout = ({ showHeader = false }: { showHeader?: boolean }) => {
     ...(THEME.appBackground && { '--background': `url(${THEME.appBackground})` })
   } as React.CSSProperties
   const isPopup = window.opener !== null
-  const { connectionHandler, signMessageHandler, transactionHandler } = useWalletConnect()
+  const { connectionHandler, signMessageHandler, transactionHandler } = useWalletHandlersContext()
   const [walletConnectModalOpen, setWalletConnectModalOpen] = useState(false)
   const { connectionRequest, isConnectionHandlerRegistered } = connectionHandler
   const { transactionRequest, isSendingTxn, isTransactionHandlerRegistered } = transactionHandler

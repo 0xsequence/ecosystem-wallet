@@ -8,10 +8,10 @@ import { ConnectionRequestPanel } from './components/ConnectionRequestPanel'
 
 import { useNavigate } from 'react-router'
 import { ROUTES } from '../../routes'
-import { useWalletConnect } from '../../context/WalletConnectContext'
+import { useWalletHandlersContext } from '../../context/WalletHandlersContext'
 
 export function WalletConnectModal({ variant = 'default' }: { variant?: 'popup' | 'default' }) {
-  const { connectionHandler, transactionHandler, signMessageHandler } = useWalletConnect()
+  const { connectionHandler, transactionHandler, signMessageHandler } = useWalletHandlersContext()
 
   const { connectionRequest, isConnectionHandlerRegistered } = connectionHandler
   const { transactionRequest, isSendingTxn, isTransactionHandlerRegistered } = transactionHandler

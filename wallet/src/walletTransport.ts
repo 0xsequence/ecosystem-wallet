@@ -17,11 +17,25 @@ const HandlerMethods = {
   [HandlerType.SIGN]: ['eth_sign', 'eth_signTypedData', 'eth_signTypedData_v4', 'personal_sign']
 }
 
+export interface PendingEvent {
+  origin: string
+  data: unknown
+  isInitialSignIn: boolean
+}
+
+export interface PendingConnectionEventData {
+  type: 'connection'
+  id: string
+  auxData?: {
+    email?: unknown
+  }
+}
+
 interface WalletTransportState {
   connectedOrigins: ConnectedOrigin[]
   signedInState: SignedInState
   areHandlersReady: boolean
-  pendingEventOrigin: string | undefined
+  pendingEvent?: PendingEvent
 }
 
 export class WalletTransport {
@@ -29,7 +43,9 @@ export class WalletTransport {
   private connectionPromptCallback: ((origin: string) => Promise<boolean>) | undefined
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private handlers: Map<HandlerType, (request: any) => Promise<any>> = new Map()
-  private pendingEvent: MessageEvent | undefined
+
+  // We need to keep a copy of original to be able to respond
+  private originalPendingEvent: MessageEvent | undefined
 
   constructor() {
     this.state = proxy<WalletTransportState>({
@@ -38,49 +54,44 @@ export class WalletTransport {
         : [],
       signedInState: null,
       areHandlersReady: false,
-      pendingEventOrigin: undefined
+      pendingEvent: undefined
     })
 
-    window.addEventListener('message', this.handleMessage)
+    window.addEventListener('message', this.handleEvent)
 
     this.sendReadyMessage()
 
     const unsubscribe = subscribe(this.state, () => {
-      if (this.state.signedInState && this.state.areHandlersReady && this.pendingEvent) {
+      if (this.state.signedInState && this.state.areHandlersReady && this.originalPendingEvent) {
         unsubscribe()
 
-        // If the pending event is not a connection request, we can continue because user has already signed in to come to this point
-        // and saw connection prompt on sign in screen
-        if (this.pendingEvent.data.type !== 'connection') {
-          this.state.connectedOrigins = [
-            {
-              origin: this.pendingEvent.origin,
-              walletAddress: this.state.signedInState.address
-            }
-          ]
-        }
-        this.handleMessage(this.pendingEvent as MessageEvent)
-        this.pendingEvent = undefined
-        this.state.pendingEventOrigin = undefined
+        this.handleEvent(this.originalPendingEvent, this.state.pendingEvent)
+        this.originalPendingEvent = undefined
+        this.state.pendingEvent = undefined
       }
     })
   }
 
-  private handleMessage = (event: MessageEvent) => {
+  private handleEvent = (event: MessageEvent, pending?: PendingEvent) => {
     const data = event.data
 
     if (data.type !== 'connection' && data.type !== 'request') {
       return
     }
 
+    // Connection and request handling flow
     if (!this.state.signedInState || !this.state.areHandlersReady) {
-      this.pendingEvent = event
-      this.state.pendingEventOrigin = event.origin
+      this.originalPendingEvent = event
+      this.state.pendingEvent = {
+        data: event.data,
+        origin: event.origin?.toString(),
+        isInitialSignIn: this.state.signedInState === null
+      } as PendingEvent
     } else {
       if (data.type === 'connection') {
-        this.handleConnectionRequest(event)
+        this.handleConnectionRequest(event, pending?.isInitialSignIn || false)
       } else {
-        this.handleRequest(event)
+        this.handleRequest(event, false, pending?.isInitialSignIn || false)
       }
     }
   }
@@ -101,17 +112,26 @@ export class WalletTransport {
     }
   }
 
-  private async handleConnectionRequest(event: MessageEvent) {
-    const { id } = event.data
+  private async handleConnectionRequest(event: MessageEvent, isInitialSignIn: boolean) {
+    const { id } = event.data as PendingConnectionEventData
     const origin = event.origin
 
+    // If already connected, accept immediately
     if (this.isConnectedToOrigin(origin)) {
       this.sendConnectionResponse(event, id, 'accepted')
       return
     }
 
+    // Normal connection flow
     if (!this.connectionPromptCallback) {
       this.sendConnectionResponse(event, id, 'rejected', 'Connection prompt callback not set')
+      return
+    }
+
+    // If we have a PendingEvent with isInitialSignIn, we can add directly since user signed in which means they have already accepted the connection
+    if (isInitialSignIn) {
+      this.addConnectedOrigin(origin)
+      this.sendConnectionResponse(event, id, 'accepted')
       return
     }
 
@@ -128,12 +148,21 @@ export class WalletTransport {
     }
   }
 
-  private async handleRequest(event: MessageEvent, isWalletConnectRequest: boolean = false) {
+  private async handleRequest(
+    event: MessageEvent,
+    isWalletConnectRequest: boolean,
+    isInitialSignIn: boolean
+  ) {
     const request = event.data
 
     if (request.type !== 'request') {
       this.sendErrorResponse(event, request.id, 'Wrong type, expected "request"')
       return
+    }
+
+    // If we have a PendingEvent with isInitialSignIn, we can add directly since user signed in which means they have already accepted the connection
+    if (isInitialSignIn) {
+      this.addConnectedOrigin(event.origin)
     }
 
     if (!this.isConnectedToOrigin(event.origin) && !isWalletConnectRequest) {
@@ -155,6 +184,11 @@ export class WalletTransport {
         if (isWalletConnectRequest) {
           return result
         } else {
+          // We need wallet address to make sure we keep it in sync.
+          // This is to handle the case where connector thinks it is still connected
+          // to a previous wallet address but then user signs in with a different one
+          result.walletAddress = this.state.signedInState?.address
+
           this.sendResponse(event, request.id, result)
         }
       }
@@ -168,7 +202,7 @@ export class WalletTransport {
   }
 
   handleWalletConnectRequest(event: MessageEvent) {
-    return this.handleRequest(event, true)
+    return this.handleRequest(event, true, false)
   }
 
   private getHandlerTypeForMethod(method: string): HandlerType | undefined {
