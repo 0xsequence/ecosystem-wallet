@@ -1,7 +1,7 @@
 import { SendCollectible } from '../../../components/SendCollectible'
 import { SendCoin } from '../../../components/SendCoin'
 import { Modal, ModalPrimitive } from '@0xsequence/design-system'
-import { useInventory } from '../helpers/use-inventory'
+import { useInventory } from '../helpers/useInventory'
 
 export function SendTokens() {
   const {

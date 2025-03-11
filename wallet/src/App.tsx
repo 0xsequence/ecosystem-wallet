@@ -4,11 +4,12 @@ import { AppLayout, ProtectedLayout } from './Layout'
 import { Auth } from './pages/Auth'
 import { InventoryPage } from './pages/inventory/InventoryPage'
 import { ROUTES } from './routes'
-import { DiscoverPage } from './pages/discover'
-import { DiscoverShowRoute } from './pages/discover/show'
+import { DiscoverPage } from './pages/discover/IndexPage'
+import { DiscoverShowRoute } from './pages/discover/ShowPage'
 import { WalletHandlerRequestModal } from './pages/WalletHandlerRequestModal'
-import { TransactionHistory as HistoryPage } from './pages/TransactionHistory/index'
+import { TransactionHistory as HistoryPage } from './pages/TransactionHistory/IndexPage'
 import { useEffect } from 'react'
+
 export const App: React.FC = () => {
   const location = useLocation()
 

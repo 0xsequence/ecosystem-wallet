@@ -8,6 +8,7 @@ import { useTokenBalancesDetails } from '../../../hooks/useTokenBalancesDetails'
 import { getErc20Inventory, getCollectibleInventory, getNativeInventory } from './get-inventory'
 import { padArray } from '../../../utils/pad-array'
 import { TokenTypeProps } from '../types'
+import { useCoinPrices } from '../../../hooks/useCoinPrices'
 
 export function useFetchInventory() {
   const { hideUnlistedTokens } = useConfig()
@@ -44,7 +45,6 @@ export function useFetchInventory() {
   const nativeBalances = getNativeInventory(address, data)
 
   const inventoryIsEmpty = !nativeBalances?.length && !erc20Inventory?.length && !collectibleInventory?.length
-
   // Merge & Pad to 12 items
   const inventory = padArray(
     [...nativeBalances, ...erc20Inventory, ...collectibleInventory],

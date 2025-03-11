@@ -1,8 +1,6 @@
 @import 'tailwindcss';
 @import '@0xsequence/design-system/preset';
 @import './design-system-placeholder.css';
-/* @import './colors.css'; */
-
 *,
 *::before,
 *::after {

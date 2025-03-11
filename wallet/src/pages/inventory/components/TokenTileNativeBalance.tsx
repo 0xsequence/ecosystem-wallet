@@ -1,4 +1,4 @@
-import { TokenTile } from './token-tile'
+import { TokenTile } from './TokenTile'
 import { nativeTokenImageUrl, TokenImage } from '@0xsequence/design-system'
 import { formatUnits } from 'ethers'
 
