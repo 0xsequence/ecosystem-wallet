@@ -1,8 +1,8 @@
 import { Link } from 'react-router'
-import { TokenTileEmpty } from './token-tile-empty'
+import { TokenTileEmpty } from './TokenTileEmpty'
 import { Button } from '@0xsequence/design-system'
 import { ROUTES } from '../../../routes'
-import { useInventory } from '../helpers/use-inventory'
+import { useInventory } from '../helpers/useInventory'
 import { THEME } from '../../../utils/theme'
 
 export function InventoryListEmpty() {

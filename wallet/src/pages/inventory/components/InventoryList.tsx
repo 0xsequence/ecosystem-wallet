@@ -1,5 +1,5 @@
-import { useInventory } from '../helpers/use-inventory'
-import { TokenType } from './token-type'
+import { useInventory } from '../helpers/useInventory'
+import { TokenType } from './TokenType'
 
 export function InventoryList() {
   const { inventory } = useInventory()

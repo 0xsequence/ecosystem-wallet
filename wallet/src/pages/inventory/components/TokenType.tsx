@@ -1,8 +1,8 @@
-import { TokenTileErc20 } from './token-tile-erc-20'
-import { TokenTileNativeBalance } from './token-tile-native-balance.tsx'
-import { TokenTileCollectable } from './token-tile-collectable'
-import { TokenTileEmpty } from './token-tile-empty.tsx'
-import type { TokenTypeProps } from '../types'
+import { TokenTileErc20 } from './TokenTileERC20.tsx'
+import { TokenTileNativeBalance } from './TokenTileNativeBalance.tsx'
+import { TokenTileCollectable } from './TokenTileCollectable.tsx'
+import { TokenTileEmpty } from './TokenTileEmpty.tsx'
+import type { TokenTypeProps } from '../types.ts'
 
 // Implementation
 export function TokenType({ item }: { item: TokenTypeProps | null }) {

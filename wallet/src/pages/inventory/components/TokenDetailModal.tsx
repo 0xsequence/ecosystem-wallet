@@ -13,7 +13,7 @@ import { formatUnits } from 'ethers'
 import { zeroAddress } from 'viem'
 
 import { SendIcon } from '../../../design-system-patch/icons'
-import { useInventory } from '../helpers/use-inventory'
+import { useInventory } from '../helpers/useInventory'
 import { TokenTileProps, TokenTypeProps } from '../types'
 import { formatDisplay, truncateAtMiddle } from '../../../utils/helpers'
 import { useCoinPrices } from '../../../hooks/useCoinPrices'
@@ -81,6 +81,9 @@ function CoinDetails(props: TokenTypeProps) {
       contractAddress
     }
   ])
+
+  console.log(data)
+
   const { price, price24hChange } = data[0] || {}
   const priceText = price
     ? `$${formatDisplay(price.value * Number(units), {

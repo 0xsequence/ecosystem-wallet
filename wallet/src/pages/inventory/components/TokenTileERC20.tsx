@@ -1,5 +1,5 @@
 import { TokenImage } from '@0xsequence/design-system'
-import { TokenTile } from './token-tile'
+import { TokenTile } from './TokenTile'
 import { TokenBalance } from '@0xsequence/indexer'
 import { formatUnits } from 'ethers'
 import { formatDisplay, limitDecimals } from '../../../utils/helpers'

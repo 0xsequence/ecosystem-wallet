@@ -1,7 +1,7 @@
 import { createContext, useState } from 'react'
 import { type TokenTypeProps } from '../types'
 
-import { useFetchInventory } from './use-fetch-inventory'
+import { useFetchInventory } from './useFetchInventory'
 import { ZeroAddress } from 'ethers'
 import { ChainId } from '@0xsequence/network'
 import { TokenBalance } from '@0xsequence/indexer'

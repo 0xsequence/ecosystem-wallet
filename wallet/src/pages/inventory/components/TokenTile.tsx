@@ -1,5 +1,5 @@
 import { cn } from '@0xsequence/design-system'
-import { useInventory } from '../helpers/use-inventory'
+import { useInventory } from '../helpers/useInventory'
 import { ComponentProps } from 'react'
 import { ChainId } from '@0xsequence/network'
 

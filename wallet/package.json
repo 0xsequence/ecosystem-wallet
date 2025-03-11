@@ -16,6 +16,7 @@
     "@0xsequence/indexer": "^2.2.13",
     "@0xsequence/network": "^2.2.13",
     "@0xsequence/waas": "^2.2.13",
+    "@headlessui/react": "^2.2.0",
     "@radix-ui/react-popover": "^1.1.6",
     "@react-oauth/google": "^0.12.1",
     "@tailwindcss/vite": "^4.0.6",
