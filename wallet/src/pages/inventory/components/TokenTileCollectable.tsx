@@ -75,12 +75,15 @@ export function TokenListItemCollectable(props: TokenBalance) {
       contractAddress={contractAddress}
       tokenClass="collectable"
       tokenId={tokenID}
-      className="flex"
+      className="flex gap-2"
     >
       <div className="size-16 m-2 rounded-sm overflow-clip">
         <ImageWithFallback srcList={[tokenMetadata?.image, contractInfo?.logoURI]} />
       </div>
-      123
+      <div className="flex flex-col items-start gap-0.25 my-auto">
+        {tokenMetadata?.name ? <span className="font-semibold">{tokenMetadata.name}</span> : null}
+        {contractInfo?.name ? <span className="text-sm opacity-80">{contractInfo.name}</span> : null}
+      </div>
     </TokenListItem>
   )
 }

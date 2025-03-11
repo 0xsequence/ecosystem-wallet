@@ -6,10 +6,19 @@ export type TokenTileEmptyProps = ComponentProps<'div'>
 
 export type TokenTileProps = TokenBalance & {
   title?: string
-  chain: NetworkMetadata
+  name?: string
+  chain?: NetworkMetadata
   nativeToken?: { symbol: string; name: string; decimals: number }
 }
 
 export type TokenTypeProps = TokenTileProps & {
   tokenClass: 'erc20' | 'collectable' | 'nativeBalance'
 }
+
+export type UserPreferenceLocalStore =
+  | {
+      hideBalance: boolean | undefined
+      inventoryDisplayMode: 'grid' | 'list' | undefined
+      currency: string
+    }
+  | undefined

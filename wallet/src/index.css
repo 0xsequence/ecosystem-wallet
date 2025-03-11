@@ -1,9 +1,9 @@
 @import 'tailwindcss';
+@import url('https://sequence.tor1.digitaloceanspaces.com/acme/thirdparty.css');
 @import '@0xsequence/design-system/preset';
 @import './design-system-placeholder.css';
-*,
-*::before,
-*::after {
+
+*, *: : before, *: : after {
   box-sizing: border-box;
 }
 

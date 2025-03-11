@@ -70,7 +70,7 @@ export const TransactionHistory = () => {
   if (isLoading) {
     return (
       <div className="isolate flex flex-col w-full max-w-screen-lg grid-cols-2 sm:grid-cols-4 gap-2 mx-auto mt-2 sm:mt-18 sm:px-2 p-8 sm:py-0  mb-16">
-        <h1 className="text-style-xl font-bold mb-12">Transaction History</h1>
+        {/* <h1 className="text-style-xl font-bold mb-12">Transaction History</h1> */}
         <div className="flex flex-col gap-3">
           <TimeLabel label=" " />
           <TransactionHistorySkeleton />
@@ -81,7 +81,7 @@ export const TransactionHistory = () => {
 
   return (
     <div className="isolate flex flex-col w-full max-w-screen-lg grid-cols-2 sm:grid-cols-4 gap-2 mx-auto mt-2 sm:mt-18 sm:px-2 p-4 sm:py-0  mb-16">
-      <h1 className="text-style-xl font-bold mb-12">Transaction History</h1>
+      {/* <h1 className="text-style-xl font-bold mb-12">Transaction History</h1> */}
       <div className="grid gap-5">
         {transactionPeriods.map(period => {
           const txs = transactionsByTime[period.id]
@@ -128,7 +128,6 @@ interface TransactionsListProps {
   setSelectedTransaction: React.Dispatch<React.SetStateAction<Transaction | null | undefined>>
 }
 function TransactionsList({ transactions, setSelectedTransaction }: TransactionsListProps) {
-  console.log(transactions)
   return (
     <>
       {transactions.map((transaction, index) => {

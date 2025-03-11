@@ -82,8 +82,6 @@ function CoinDetails(props: TokenTypeProps) {
     }
   ])
 
-  console.log(data)
-
   const { price, price24hChange } = data[0] || {}
   const priceText = price
     ? `$${formatDisplay(price.value * Number(units), {
