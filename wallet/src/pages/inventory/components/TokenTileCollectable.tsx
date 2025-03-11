@@ -1,5 +1,5 @@
 import { TokenBalance } from '@0xsequence/indexer'
-import { TokenTile } from './TokenTile'
+import { TokenListItem, TokenTile } from './TokenTile'
 import { Image as SeqImage } from '@0xsequence/design-system'
 import { useState, useEffect } from 'react'
 
@@ -14,13 +14,13 @@ const getImageSize = (url: string): Promise<string> => {
 }
 
 interface ImageWithFallbackProps extends React.ImgHTMLAttributes<HTMLImageElement> {
-  srcList: string[] // Array of image sources to try
-  fallback: string // Final fallback image
+  srcList: (string | undefined)[] // Array of image sources to try
+  fallback?: string // Final fallback image
   alt?: string
 }
 
 const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({ srcList, fallback, alt = '' }) => {
-  const [imageSrc, setImageSrc] = useState<string>(fallback)
+  const [imageSrc, setImageSrc] = useState<string | undefined>(fallback)
 
   useEffect(() => {
     let isMounted = true // Avoid state updates on unmounted components
@@ -28,10 +28,12 @@ const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({ srcList, fallback
     const findValidImage = async () => {
       for (const src of srcList) {
         try {
-          const validSrc = await getImageSize(src)
-          if (isMounted) {
-            setImageSrc(validSrc)
-            return // Stop after finding the first valid image
+          if (src) {
+            const validSrc = await getImageSize(src)
+            if (isMounted) {
+              setImageSrc(validSrc)
+              return // Stop after finding the first valid image
+            }
           }
         } catch {
           // console.warn(error)
@@ -39,7 +41,7 @@ const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({ srcList, fallback
       }
 
       // If no images load, fallback to the final placeholder
-      if (isMounted) setImageSrc(fallback)
+      if (isMounted && fallback) setImageSrc(fallback)
     }
 
     findValidImage()
@@ -59,15 +61,26 @@ export function TokenTileCollectable(props: TokenBalance) {
 
   return (
     <TokenTile chainId={chainId} contractAddress={contractAddress} tokenClass="collectable" tokenId={tokenID}>
-      <ImageWithFallback
-        srcList={[tokenMetadata?.image, contractInfo?.logoURI]}
-
-        // alt="Example Image"
-        // width={150}
-        // height={150}
-      />
-
-      {/* <SeqImage src={tokenMetadata?.image || contractInfo?.logoURI} className="object-contain size-full" /> */}
+      <ImageWithFallback srcList={[tokenMetadata?.image, contractInfo?.logoURI]} width={100} />
     </TokenTile>
+  )
+}
+
+export function TokenListItemCollectable(props: TokenBalance) {
+  const { chainId, contractInfo, tokenMetadata, contractAddress, tokenID } = props
+
+  return (
+    <TokenListItem
+      chainId={chainId}
+      contractAddress={contractAddress}
+      tokenClass="collectable"
+      tokenId={tokenID}
+      className="flex"
+    >
+      <div className="size-16 m-2 rounded-sm overflow-clip">
+        <ImageWithFallback srcList={[tokenMetadata?.image, contractInfo?.logoURI]} />
+      </div>
+      123
+    </TokenListItem>
   )
 }

@@ -8,14 +8,23 @@ import { DiscoverPage } from './pages/discover/IndexPage'
 import { DiscoverShowRoute } from './pages/discover/ShowPage'
 import { WalletHandlerRequestModal } from './pages/WalletHandlerRequestModal'
 import { TransactionHistory as HistoryPage } from './pages/TransactionHistory/IndexPage'
+import { THEME } from './utils/theme'
 import { useEffect } from 'react'
 
 export const App: React.FC = () => {
-  const location = useLocation()
-
   useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [location])
+    if (typeof window !== 'undefined' && THEME.css) {
+      if (!document.getElementById('theme-styles')) {
+        const $head = document.querySelector('head')
+        const $style = document.createElement('style')
+        $style.setAttribute('type', 'text/css')
+        $style.setAttribute('id', 'theme-styles')
+        $style.textContent = THEME.css
+
+        $head?.appendChild($style)
+      }
+    }
+  }, [])
 
   return (
     <>

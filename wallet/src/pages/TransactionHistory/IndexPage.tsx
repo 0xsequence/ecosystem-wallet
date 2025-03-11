@@ -126,6 +126,7 @@ interface TransactionsListProps {
   setSelectedTransaction: React.Dispatch<React.SetStateAction<Transaction | null | undefined>>
 }
 function TransactionsList({ transactions, setSelectedTransaction }: TransactionsListProps) {
+  console.log(transactions)
   return (
     <>
       {transactions.map((transaction, index) => {

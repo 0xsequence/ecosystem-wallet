@@ -1,5 +1,5 @@
 import { TokenImage } from '@0xsequence/design-system'
-import { TokenTile } from './TokenTile'
+import { TokenListItem, TokenTile } from './TokenTile'
 import { TokenBalance } from '@0xsequence/indexer'
 import { formatUnits } from 'ethers'
 import { formatDisplay, limitDecimals } from '../../../utils/helpers'
@@ -36,5 +36,40 @@ export function TokenTileErc20(props: TokenBalance) {
         ) : null}
       </div>
     </TokenTile>
+  )
+}
+
+export function TokenListItemErc20(props: TokenBalance) {
+  const { chainId, balance, contractInfo, contractAddress, tokenID } = props
+
+  return (
+    <TokenListItem
+      chainId={chainId}
+      contractAddress={contractAddress}
+      tokenId={tokenID}
+      tokenClass="erc20"
+      className="p-4 sm:p-6 flex items-center gap-3"
+    >
+      {contractInfo?.logoURI ? (
+        <div className="size-10">
+          <TokenImage
+            src={contractInfo.logoURI}
+            size="xl"
+            className="size-full bg-button-glass rounded-full"
+            withNetwork={chainId}
+          />
+        </div>
+      ) : null}
+      <div className="flex flex-col flex-1 justify-end items-start">
+        {contractInfo?.decimals && contractInfo?.symbol ? (
+          <span className="text-md sm:text-lg font-bold text-start leading-[0]">
+            {limitDecimals(formatDisplay(formatUnits(balance, contractInfo.decimals)), 4)}
+            {' '}
+
+            <span className="text-sm font-normal">{contractInfo.symbol}</span>
+          </span>
+        ) : null}
+      </div>
+    </TokenListItem>
   )
 }
