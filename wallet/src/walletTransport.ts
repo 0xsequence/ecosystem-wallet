@@ -1,4 +1,5 @@
 import { proxy, subscribe } from 'valtio'
+import { sanitize } from './utils/sanitize'
 
 type SignedInState = { address: string } | null
 
@@ -73,7 +74,7 @@ export class WalletTransport {
   }
 
   private handleEvent = (event: MessageEvent, pending?: PendingEvent) => {
-    const data = event.data
+    const data = sanitize(event.data)
 
     if (data.type !== 'connection' && data.type !== 'request') {
       return
@@ -83,7 +84,7 @@ export class WalletTransport {
     if (!this.state.signedInState || !this.state.areHandlersReady) {
       this.originalPendingEvent = event
       this.state.pendingEvent = {
-        data: event.data,
+        data: sanitize(event.data),
         origin: event.origin?.toString(),
         isInitialSignIn: this.state.signedInState === null
       } as PendingEvent
@@ -113,7 +114,7 @@ export class WalletTransport {
   }
 
   private async handleConnectionRequest(event: MessageEvent, isInitialSignIn: boolean) {
-    const { id } = event.data as PendingConnectionEventData
+    const { id } = sanitize(event.data)
     const origin = event.origin
 
     // If already connected, accept immediately
@@ -153,7 +154,7 @@ export class WalletTransport {
     isWalletConnectRequest: boolean,
     isInitialSignIn: boolean
   ) {
-    const request = event.data
+    const request = sanitize(event.data)
 
     if (request.type !== 'request') {
       this.sendErrorResponse(event, request.id, 'Wrong type, expected "request"')
