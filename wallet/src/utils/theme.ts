@@ -5,6 +5,9 @@ export type ThemeProps = {
   favicon?: string
   appBackground?: string
   headerLogo?: string
+  header: {
+    size: { w: number; h: number }
+  }
   backgroundMode: string
   inventory: {
     empty: string
