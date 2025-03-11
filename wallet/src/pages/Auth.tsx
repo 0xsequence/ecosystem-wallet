@@ -156,7 +156,6 @@ export const Auth: React.FC = () => {
                     <span>
                       Sign in to your <Text fontWeight="bold">{THEME.name}</Text> wallet to give access to
                       dapp with origin <Text fontWeight="bold">{pendingEventOrigin}</Text>
-                      {pendingConnectionEventData?.auxData?.email as string}
                     </span>
                   ) : (
                     <span>
