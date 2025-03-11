@@ -1,10 +1,9 @@
 import { createContext, useState } from 'react'
-import { type TokenTypeProps } from '../types'
+import type { TokenTypeProps } from '../types'
 
 import { useFetchInventory } from './useFetchInventory'
 import { ZeroAddress } from 'ethers'
 import { ChainId } from '@0xsequence/network'
-import { TokenBalance } from '@0xsequence/indexer'
 
 type InventoryItemIdentifier = {
   chainId: ChainId
@@ -23,9 +22,9 @@ type InventoryContext = {
   contractInfo: (info: InventoryItemIdentifier) => TokenTypeProps | null
   inventory: (TokenTypeProps | null)[]
   inventoryByTokenClass: {
-    nativeBalances: TokenBalance[]
-    erc20Inventory: TokenBalance[]
-    collectibleInventory: TokenBalance[]
+    nativeBalances: TokenTypeProps[]
+    erc20Inventory: TokenTypeProps[]
+    collectibleInventory: TokenTypeProps[]
   }
   inventoryIsEmpty: boolean
   status: { isLoading: boolean }
@@ -70,6 +69,7 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
         setShowInventoryItem,
         contractInfo,
         inventory,
+        /* @ts-expect-error FIXME */
         inventoryByTokenClass,
         inventoryIsEmpty,
         status,

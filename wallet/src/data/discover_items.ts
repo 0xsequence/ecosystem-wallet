@@ -1,10 +1,11 @@
-type DiscoverItem = {
-  id?: string
+export type DiscoverItem = {
+  id: string
   title: string
   img: string
   href?: string | null
   description: string
   categories?: string[]
+  contracts?: string[]
 }
 
 function parseDiscoverItems(envVar: string | undefined): DiscoverItem[] {

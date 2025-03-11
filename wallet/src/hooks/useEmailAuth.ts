@@ -81,7 +81,6 @@ export function useEmailAuth({
       try {
         await respondWithCode(answer)
       } catch (error) {
-        console.log(JSON.stringify(error, null, 2))
         toast({
           title: 'Challange code error',
           description: (error as Error).message,

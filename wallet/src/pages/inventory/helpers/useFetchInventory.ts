@@ -8,7 +8,6 @@ import { useTokenBalancesDetails } from '../../../hooks/useTokenBalancesDetails'
 import { getErc20Inventory, getCollectibleInventory, getNativeInventory } from './get-inventory'
 import { padArray } from '../../../utils/pad-array'
 import { TokenTypeProps } from '../types'
-import { useCoinPrices } from '../../../hooks/useCoinPrices'
 
 export function useFetchInventory() {
   const { hideUnlistedTokens } = useConfig()
