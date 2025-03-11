@@ -108,7 +108,7 @@ export const TransactionDetails = ({ transaction }: TransactionDetailProps) => {
           <dt className="text-style-sm font-bold">Transaction Hash</dt>
           <dd className="flex items-center gap-2 text-style-normal  font-medium break-words">
             {`0x${truncateAtMiddle(transaction.txnHash.substring(2), 20)}`}
-            <CopyButton buttonVariant="with-label" text={transaction.txnHash} />
+            <CopyButton text={transaction.txnHash} />
           </dd>
         </div>
       </dl>

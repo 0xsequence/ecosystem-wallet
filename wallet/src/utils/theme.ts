@@ -1,4 +1,5 @@
 export type ThemeProps = {
+  css?: string
   name: string
   mode: 'dark' | 'light'
   favicon?: string
@@ -19,6 +20,7 @@ export type ThemeProps = {
 }
 
 function theme() {
+  const css = import.meta.env.VITE_PROJECT_THEME_CSS_VARIABLES
   const name = import.meta.env.VITE_PROJECT_NAME
   const mode = import.meta.env.VITE_PROJECT_BASE_THEME || 'dark'
   const favicon = import.meta.env.VITE_PROJECT_FAVICON || import.meta.env.VITE_PROJECT_SMALL_LOGO
@@ -38,6 +40,7 @@ function theme() {
     import.meta.env.VITE_PROJECT_LOGO_SIZE?.split('x') || [80, 80]
 
   return {
+    css,
     name,
     mode,
     favicon,
