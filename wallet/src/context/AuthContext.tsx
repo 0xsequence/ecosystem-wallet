@@ -4,7 +4,7 @@ import { useSnapshot } from 'valtio'
 
 import { ROUTES } from '../routes'
 import { sequenceWaas } from '../waasSetup'
-import { WalletTransport, type ConnectionRequestData } from '../walletTransport'
+import { PendingEvent, WalletTransport } from '../walletTransport'
 
 export const walletTransport = new WalletTransport()
 
@@ -13,8 +13,7 @@ type AuthState = { status: 'loading' } | { status: 'signedOut' } | { status: 'si
 interface AuthContextType {
   authState: AuthState
   address?: string
-  pendingEventOrigin: string | undefined
-  pendingConnectionEvent: ConnectionRequestData | undefined
+  pendingEvent?: PendingEvent
   setWalletAddress: (address: string) => void
   signOut: () => void
 }
@@ -61,8 +60,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       value={{
         authState,
         address: authState.status === 'signedIn' ? authState.address : undefined,
-        pendingEventOrigin: walletTransportSnapshot.pendingEventOrigin,
-        pendingConnectionEvent: walletTransportSnapshot.pendingConnectionEvent,
+        pendingEvent: walletTransportSnapshot.pendingEvent as PendingEvent | undefined,
         setWalletAddress,
         signOut
       }}

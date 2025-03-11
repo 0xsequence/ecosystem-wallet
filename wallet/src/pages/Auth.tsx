@@ -19,6 +19,7 @@ import { ROUTES } from '../routes'
 import { googleClientId, sequenceWaas } from '../waasSetup'
 import { ArrowRightIcon } from '../design-system-patch/icons'
 import { THEME } from '../utils/theme'
+import { PendingConnectionEventData } from '../walletTransport'
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
 
@@ -35,8 +36,12 @@ export const Auth: React.FC = () => {
   useScript(appleAuthHelpers.APPLE_SCRIPT_SRC)
   const navigate = useNavigate()
 
-  const { setWalletAddress, authState, pendingEventOrigin, pendingConnectionEvent } = useAuth()
+  const { setWalletAddress, authState, pendingEvent } = useAuth()
   const [isSocialLoginInProgress, setIsSocialLoginInProgress] = useState<false | string>(false)
+
+  const pendingEventOrigin = pendingEvent?.origin
+  const pendingConnectionEventData: PendingConnectionEventData =
+    pendingEvent?.data as PendingConnectionEventData
 
   useEffect(() => {
     if (authState.status === 'signedIn') {
@@ -103,7 +108,6 @@ export const Auth: React.FC = () => {
     sessionName: randomName(),
     onSuccess: async ({ wallet }) => {
       setWalletAddress(wallet)
-      console.log('pending', pendingEventOrigin)
     }
   })
 
@@ -128,33 +132,37 @@ export const Auth: React.FC = () => {
   const emailHandled = useRef(false)
 
   useEffect(() => {
-    if (!emailHandled.current && pendingConnectionEvent?.auxData?.email) {
+    if (!emailHandled.current && pendingConnectionEventData?.auxData?.email) {
       emailHandled.current = true
-      const email = pendingConnectionEvent.auxData.email as string
-      setEmail(email)
+      const email = pendingConnectionEventData.auxData.email as string
+
       if (isValidEmail(email)) {
+        setEmail(email)
         initiateEmailAuth(email)
       }
     }
-  }, [pendingConnectionEvent])
+  }, [pendingConnectionEventData])
 
   return (
     <div className="flex flex-col flex-1 items-center justify-center text-primary" data-theme="dark">
       <AuthCoverWrapper>
         <Card className="bg-transparent w-full gap-6 flex flex-col px-6 py-[5rem] rounded-none">
-          {isPopup && pendingEventOrigin && (
-            <Text className="text-center" variant="normal" color="text100">
-              Sign in to your <Text fontWeight="bold">{THEME.name}</Text> wallet to give access to dapp with
-              origin <Text fontWeight="bold">{pendingEventOrigin}</Text>
-            </Text>
-          )}
-
           {!emailAuthInProgress && (
             <>
               <div className="flex items-center gap-4 flex-col">
                 <Image src={THEME.auth.logo} width={THEME.auth.size.w} height={THEME.auth.size.h} />
                 <span>
-                  Sign in to <span className="font-bold">{THEME.name}</span>
+                  {isPopup && pendingEventOrigin ? (
+                    <span>
+                      Sign in to your <Text fontWeight="bold">{THEME.name}</Text> wallet to give access to
+                      dapp with origin <Text fontWeight="bold">{pendingEventOrigin}</Text>
+                      {pendingConnectionEventData?.auxData?.email as string}
+                    </span>
+                  ) : (
+                    <span>
+                      Sign in to <span className="font-bold">{THEME.name}</span>
+                    </span>
+                  )}
                 </span>
               </div>
               <div className="flex flex-col">
@@ -224,6 +232,9 @@ export const Auth: React.FC = () => {
 
           {sendChallengeAnswer ? (
             <div className="flex flex-col p-4 items-center justify-center">
+              <div className="mb-4">
+                <Image src={THEME.auth.logo} width={THEME.auth.size.w} height={THEME.auth.size.h} />
+              </div>
               <div>
                 <span className="text-sm">
                   Check your email <Text fontWeight="bold">{email}</Text> for your access code
@@ -233,7 +244,7 @@ export const Auth: React.FC = () => {
                 <PINCodeInput value={code} digits={6} onChange={setCode} />
               </div>
 
-              <div className="flex gap-2 mt-4 items-center justify-center">
+              <div className="flex gap-2 mt-4 items-center justify-center min-h-[50px]">
                 {emailAuthLoading ? (
                   <Spinner />
                 ) : (
