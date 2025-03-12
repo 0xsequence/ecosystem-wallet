@@ -75,6 +75,21 @@ export function WalletsTotalBalance() {
           onClick={() => setPrefs({ hideBalance: !prefs?.hideBalance })}
           className="flex items-center gap-2 justify-between cursor-pointer group"
         >
+          <span className="grid grid-cols-1 grid-rows-1 bg-button-glass rounded-sm px-1 py-0.5 flex-shrink-0 overflow-clip group-hover:bg-button-glass/80 [&>span]:col-start-1 [&>span]:row-start-1">
+            <span
+              className="self-center data-[inert]:scale-90 data-[inert]:translate-y-4 data-[inert]:opacity-0 transition-all"
+              {...inert(prefs?.hideBalance)}
+            >
+              <HiddenIcon className="size-5 transition-all" />
+            </span>
+
+            <span
+              className="self-center data-[inert]:scale-90 data-[inert]:-translate-y-4 data-[inert]:opacity-0 transition-all"
+              {...inert(!prefs?.hideBalance)}
+            >
+              <EyeIcon className="size-5 transition-all" />
+            </span>
+          </span>
           <span className="grid grid-cols-1 grid-rows-1 transition-all overflow-clip items-start justify-content-start text-left [&>span]:col-start-1 [&>span]:row-start-1">
             <span
               className="transition-all data-[inert]:translate-y-4 data-[inert]:scale-90 data-[inert]:opacity-0 opacity-24"
@@ -94,21 +109,6 @@ export function WalletsTotalBalance() {
               {...inert(totalCoinBalancePending || !prefs?.hideBalance)}
             >
               $••••••••
-            </span>
-          </span>
-          <span className="grid grid-cols-1 grid-rows-1 bg-button-glass rounded-sm px-1 py-0.5 flex-shrink-0 overflow-clip group-hover:bg-button-glass/80 [&>span]:col-start-1 [&>span]:row-start-1">
-            <span
-              className="self-center data-[inert]:scale-90 data-[inert]:translate-y-4 data-[inert]:opacity-0 transition-all"
-              {...inert(prefs?.hideBalance)}
-            >
-              <HiddenIcon className="size-5 transition-all" />
-            </span>
-
-            <span
-              className="self-center data-[inert]:scale-90 data-[inert]:-translate-y-4 data-[inert]:opacity-0 transition-all"
-              {...inert(!prefs?.hideBalance)}
-            >
-              <EyeIcon className="size-5 transition-all" />
             </span>
           </span>
         </button>
