@@ -19,8 +19,8 @@ export function SignMessagePanel({ handler }: { handler: ReturnType<typeof useSi
 
   return (
     <>
-      <div className="flex flex-col flex-1 items-start px-4  py-6 gap-2 ">
-        <div className="flex flex-col gap-1 mb-4 px-4">
+      <div className="flex flex-col flex-1 items-start px-6 py-6 gap-2 ">
+        <div className="flex flex-col gap-1 mb-4">
           <h2 className="text-xl font-bold">Signature Request</h2>
           <p className="text-sm font-medium text-seq-grey-500">
             Signature request from origin <span className="font-bold">{requestOrigin}</span>
@@ -31,13 +31,11 @@ export function SignMessagePanel({ handler }: { handler: ReturnType<typeof useSi
           <dl className="flex mt-2 flex-col gap-2 w-full">
             {requestChainId && <NetworkInfo chainId={requestChainId} />}
 
-            <div className="flex flex-col gap-1 text-start overflow-x-scroll p-4 rounded-lg bg-background-secondary backdrop-blur-2xl">
+            <div className="flex flex-col gap-1 text-start p-4 rounded-lg bg-background-secondary backdrop-blur-2xl">
               <dt className="text-sm font-medium text-seq-grey-700">Message to sign</dt>
               {isJson ? (
                 <dd>
-                  <pre className=" text-start text-xs overflow-x-scroll">
-                    {JSON.stringify(isJson, null, 2)}
-                  </pre>
+                  <pre className=" text-start text-xs">{JSON.stringify(isJson, null, 2)}</pre>
                 </dd>
               ) : (
                 <dd className="break-words text-start">{message}</dd>

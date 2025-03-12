@@ -8,8 +8,7 @@ interface NetworkInfoProps {
 }
 
 export const NetworkInfo: React.FC<NetworkInfoProps> = ({ chainId }) => (
-  // <div className="flex gap-[0.5ex] items-center justify-between  text-sm font-medium w-full">
-  <div className="flex flex-col gap-1  text-start overflow-x-scroll p-4 rounded-lg bg-background-secondary backdrop-blur-2xl">
+  <div className="flex flex-col gap-1 text-start p-4 rounded-lg bg-background-secondary backdrop-blur-2xl">
     <dt className="text-sm font-medium text-seq-grey-700">Network</dt>
 
     <dd className="flex gap-2 items-center">

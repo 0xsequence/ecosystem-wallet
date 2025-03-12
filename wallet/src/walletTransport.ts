@@ -41,7 +41,9 @@ interface WalletTransportState {
 
 export class WalletTransport {
   state: WalletTransportState
-  private connectionPromptCallback: ((origin: string) => Promise<boolean>) | undefined
+  private connectionPromptCallback:
+    | ((origin: string, emailFromAuxData?: string) => Promise<boolean>)
+    | undefined
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private handlers: Map<HandlerType, (request: any) => Promise<any>> = new Map()
 
@@ -114,7 +116,7 @@ export class WalletTransport {
   }
 
   private async handleConnectionRequest(event: MessageEvent, isInitialSignIn: boolean) {
-    const { id } = sanitize(event.data)
+    const { id, auxData } = sanitize(event.data)
     const origin = event.origin
 
     // If already connected, accept immediately
@@ -137,7 +139,7 @@ export class WalletTransport {
     }
 
     try {
-      const userAccepted = await this.connectionPromptCallback(origin)
+      const userAccepted = await this.connectionPromptCallback(origin, auxData?.email)
       if (userAccepted) {
         this.addConnectedOrigin(origin)
         this.sendConnectionResponse(event, id, 'accepted')
