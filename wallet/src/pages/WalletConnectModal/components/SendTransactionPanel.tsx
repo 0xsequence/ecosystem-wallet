@@ -22,8 +22,8 @@ export function SendTransactionPanel({ handler }: { handler: TransactionHandler 
 
   return (
     <>
-      <div className="flex flex-col flex-1 items-start px-4 py-6 gap-2 ">
-        <div className="flex flex-col gap-1 mb-4 px-4">
+      <div className="flex flex-col flex-1 items-start px-6 py-6 gap-2 ">
+        <div className="flex flex-col gap-1 mb-4">
           <h2 className="text-xl font-bold">Transaction Request</h2>
           <p className="text-sm font-medium">
             Transaction request from origin <span className="font-bold">{requestOrigin}</span>
@@ -32,9 +32,9 @@ export function SendTransactionPanel({ handler }: { handler: TransactionHandler 
         <div className="flex flex-col gap-2 w-full">
           {transactionRequest?.map((txn, index) => (
             <div className="flex flex-col gap-2 w-full" key={index}>
-              <dl className="flex mt-2 flex-col gap-2 w-full">
+              <div className="flex mt-2 flex-col gap-2 w-full">
                 {requestChainId && <NetworkInfo chainId={requestChainId} />}
-              </dl>
+              </div>
               <div
                 style={
                   {
