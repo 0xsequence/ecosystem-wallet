@@ -143,7 +143,7 @@ export const AccountMenu = () => {
               setSelectedTransaction(null)
             }}
           >
-            <div className="border-b border-black/10 w-full z-20 flex flex-row items-center justify-between px-4">
+            <div className="border-b border-border-normal w-full z-20 flex flex-row items-center justify-between px-4">
               <ModalPrimitive.Title asChild>
                 <div className=" h-[3.75rem] text-sm font-bold flex items-center justify-center">
                   {selectedTransaction && (
