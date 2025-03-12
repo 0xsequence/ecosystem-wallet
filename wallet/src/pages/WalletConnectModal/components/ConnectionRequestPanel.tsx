@@ -38,7 +38,7 @@ export function ConnectionRequestPanel({ handler }: { handler: ReturnType<typeof
 
         {authInfo && emailFromAuxData && authInfo.email !== emailFromAuxData && (
           <div className="mt-6 p-4 bg-warning rounded-lg">
-            <p className="text-sm font-medium">
+            <p className="text-sm font-medium text-black">
               You are logged in with <span className="capitalize font-bold">{authInfo.method}</span> -{' '}
               <span className="font-bold">{authInfo.email}</span> but requested to connect with{' '}
               <span className="font-bold">{emailFromAuxData}</span>, approve this connection request to
