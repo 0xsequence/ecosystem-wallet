@@ -18,6 +18,7 @@ import { GoogleLogo } from '../components/GoogleLogo'
 import { ROUTES } from '../routes'
 import { googleClientId, sequenceWaas } from '../waasSetup'
 import { ArrowRightIcon } from '../design-system-patch/icons'
+import { saveAuthInfo } from '../utils/auth'
 import { THEME } from '../utils/theme'
 import { PendingConnectionEventData } from '../walletTransport'
 
@@ -58,6 +59,8 @@ export const Auth: React.FC = () => {
         },
         randomName()
       )
+
+      saveAuthInfo('google', res.email)
       setWalletAddress(res.wallet)
     } catch (error) {
       console.error(error)
@@ -84,6 +87,8 @@ export const Auth: React.FC = () => {
               },
               randomName()
             )
+
+            saveAuthInfo('apple', res.email)
             setWalletAddress(res.wallet)
           } catch (error) {
             console.error(error)

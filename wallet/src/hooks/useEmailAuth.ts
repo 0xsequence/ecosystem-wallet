@@ -3,6 +3,7 @@ import { Challenge } from '@0xsequence/waas'
 import { useEffect, useState } from 'react'
 
 import { sequenceWaas } from '../waasSetup'
+import { saveAuthInfo } from '../utils/auth'
 
 export const isAccountAlreadyLinkedError = (e: unknown): boolean => {
   return typeof e === 'object' && e !== null && 'name' in e && e.name === 'AccountAlreadyLinked'
@@ -43,6 +44,8 @@ export function useEmailAuth({
         setLoading(false)
       } else {
         const res = await sequenceWaas.signIn({ email }, sessionName)
+
+        saveAuthInfo('email', email)
         onSuccess(res)
       }
     } catch (e: unknown) {
