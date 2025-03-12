@@ -10,7 +10,7 @@ function discoverRouteById(id: string) {
 
 export const DiscoverPage = () => {
   return (
-    <div className="grid w-full max-w-screen-lg grid-cols-1 sm:grid-cols-3 gap-8 mx-auto mt-2 sm:mt-18 sm:px-2 p-8 sm:py-0 mb-16">
+    <div className="grid w-full max-w-screen-lg grid-cols-1 sm:grid-cols-3 gap-8 mx-auto mt-2 sm:my-18 sm:px-2 p-8 sm:py-0 mb-16">
       {DISCOVER_ITEMS.map(item => (
         <div
           data-href="inherit"
