@@ -85,21 +85,22 @@ export function SendTransactionPanel({ handler }: { handler: TransactionHandler 
       <div className="flex flex-col mt-auto mb-0 gap-2 w-full sticky bottom-0 bg-background-primary p-4">
         <button
           type="button"
-          className="flex-1 rounded-md min-h-[3rem] bg-gradient-primary font-semibold text-[15px] cursor-pointer hover:opacity-80 focus:opacity-80"
-          onClick={handleRejectTxn}
-          disabled={!hasCheckedFeeOptions}
-        >
-          Send Transaction
-        </button>
-        <button
-          type="button"
           className="flex-1 rounded-md min-h-[3rem] bg-button-glass font-semibold text-[15px] cursor-pointer hover:opacity-80 focus:opacity-80"
           onClick={handleApproveTxn}
           disabled={
             !hasCheckedFeeOptions || (txnFeeOptions && txnFeeOptions.length > 0 && !selectedFeeOptionAddress)
           }
         >
-          UserRejectedRequestError
+          Send Transaction
+        </button>
+
+        <button
+          type="button"
+          className="flex-1 rounded-md min-h-[3rem] bg-gradient-primary font-semibold text-[15px] cursor-pointer hover:opacity-80 focus:opacity-80"
+          onClick={handleRejectTxn}
+          disabled={!hasCheckedFeeOptions}
+        >
+          Reject
         </button>
       </div>
     </>
