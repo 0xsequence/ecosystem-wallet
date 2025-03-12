@@ -30,21 +30,21 @@ const AppHeader = () => {
         <nav className="flex-row gap-10 h-full justify-center md:flex hidden mx-auto flex-shrink-0 absolute left-[50%] translate-x-[-50%] -mb-[2px]">
           <NavLink
             to={ROUTES.INVENTORY}
-            className="flex items-center gap-2 border-b-3 border-b-transparent aria-[current='page']:border-b-[var(--color-primary)] self-stretch "
+            className="flex items-center gap-2 border-b-3 border-b-transparent aria-[current='page']:border-b-[var(--color-primary)] opacity-70 aria-[current='page']:opacity-100 self-stretch hover:opacity-100 focus:opacity-100"
           >
             <InventoryIcon className="size-4.5" />
             Inventory
           </NavLink>
           <NavLink
             to={ROUTES.DISCOVER}
-            className="flex items-center gap-2 border-b-3 border-b-transparent aria-[current='page']:border-b-[var(--color-primary)] self-stretch "
+            className="flex items-center gap-2 border-b-3 border-b-transparent aria-[current='page']:border-b-[var(--color-primary)] opacity-70 aria-[current='page']:opacity-100 self-stretch hover:opacity-100 focus:opacity-100"
           >
             <ExploreIcon className="size-4.5" />
             Discover
           </NavLink>
           <NavLink
             to={ROUTES.HISTORY}
-            className="flex items-center gap-2 border-b-3 border-b-transparent aria-[current='page']:border-b-[var(--color-primary)] self-stretch "
+            className="flex items-center gap-2 border-b-3 border-b-transparent aria-[current='page']:border-b-[var(--color-primary)] opacity-70 aria-[current='page']:opacity-100 self-stretch hover:opacity-100 focus:opacity-100"
           >
             <TransactionIcon className="size-4.5" />
             History
