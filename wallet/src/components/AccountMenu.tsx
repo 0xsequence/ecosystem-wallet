@@ -77,49 +77,52 @@ export const AccountMenu = () => {
             <GradientAvatar address={String(address)} size="sm" />
             <span className="font-bold text-style-normal">{truncateAddress(String(address), 2, 5)}</span>
 
-            <ChevronDownIcon className="size-4" />
+            <ChevronDownIcon
+              className="size-4 data-[open='true']:-rotate-180 transition-transform"
+              data-open={isOpen}
+            />
           </button>
         </PopoverPrimitive.Trigger>
-        {isOpen && (
-          <PopoverPrimitive.Portal>
-            <PopoverPrimitive.Content side="bottom" sideOffset={8} align="end" asChild>
-              <Card className="z-20 flex flex-col gap-2 backdrop-blur-[12.5px] bg-background-raised relative p-4 min-w-[320px]">
-                <div className="flex items-center gap-3 justify-between">
-                  {address ? (
-                    <CopyButton
-                      copyText={address}
-                      className="flex gap-2 text-sm font-bold items-center cursor-pointer "
-                    >
-                      <GradientAvatar address={String(address)} size="md" />
-                      {truncateAddress(address, 4, 8)}
-                      <CopyButton.Status />
-                    </CopyButton>
-                  ) : null}
-                  <button
-                    type="button"
-                    onClick={handleClose}
-                    className="bg-button-glass rounded-full flex items-center justify-center size-7 cursor-pointer"
-                  >
-                    <CloseIcon className="size-4" />
-                    <span className="sr-only">Close</span>
-                  </button>
-                </div>
-                <MenuButton
-                  label="WalletConnect"
-                  icon={WalletConnectIcon}
-                  onClick={() => setOpenModal({ type: 'wallet' })}
-                />
-                <MenuButton
-                  label="Receive"
-                  icon={ScanIcon}
-                  onClick={() => setOpenModal({ type: 'receive' })}
-                />
 
-                <MenuButton label="Sign out" icon={SignoutIcon} onClick={handleSignOut} />
-              </Card>
-            </PopoverPrimitive.Content>
-          </PopoverPrimitive.Portal>
-        )}
+        <PopoverPrimitive.Portal>
+          <PopoverPrimitive.Content
+            side="bottom"
+            sideOffset={8}
+            align="end"
+            className="data-[state='open']:animate-in"
+          >
+            <Card className="z-20 flex flex-col gap-2 backdrop-blur-[12.5px] bg-background-raised relative p-4 min-w-[320px]">
+              <div className="flex items-center gap-3 justify-between">
+                {address ? (
+                  <CopyButton
+                    copyText={address}
+                    className="flex gap-2 text-sm font-bold items-center cursor-pointer "
+                  >
+                    <GradientAvatar address={String(address)} size="md" />
+                    {truncateAddress(address, 4, 8)}
+                    <CopyButton.Status />
+                  </CopyButton>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  className="bg-button-glass rounded-full flex items-center justify-center size-7 cursor-pointer"
+                >
+                  <CloseIcon className="size-4" />
+                  <span className="sr-only">Close</span>
+                </button>
+              </div>
+              <MenuButton
+                label="WalletConnect"
+                icon={WalletConnectIcon}
+                onClick={() => setOpenModal({ type: 'wallet' })}
+              />
+              <MenuButton label="Receive" icon={ScanIcon} onClick={() => setOpenModal({ type: 'receive' })} />
+
+              <MenuButton label="Sign out" icon={SignoutIcon} onClick={handleSignOut} />
+            </Card>
+          </PopoverPrimitive.Content>
+        </PopoverPrimitive.Portal>
       </PopoverPrimitive.Root>
       <AnimatePresence>
         {openModal && (
