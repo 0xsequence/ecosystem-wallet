@@ -1,5 +1,3 @@
-import { Button } from '@0xsequence/design-system'
-
 import { useConnectionHandler } from '../../../hooks/useConnectionHandler'
 import { getAuthInfo } from '../../../utils/auth'
 
@@ -14,12 +12,19 @@ export function ConnectionRequestPanel({ handler }: { handler: ReturnType<typeof
   return (
     <>
       <div className="flex flex-col flex-1 items-start px-6 py-6 gap-2">
-        <div className="flex flex-col gap-1 mb-4">
-          <h2 className="text-xl font-bold">Connection Request</h2>
+        <div className="flex">
+          <img
+            src={`https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${connectionRequest}&size=128&type=png`}
+            width={48}
+            height={48}
+            className="flex-shrink-0 size-10 mr-4"
+          />
 
-          <p className="text-sm font-medium text-seq-grey-500">
-            Connection request from dapp with origin {connectionRequest}
-          </p>
+          <div className="flex flex-col gap-0.5 mb-4">
+            <h2 className="text-xl font-bold">Connection Request</h2>
+
+            <span className="text-sm font-medium">{connectionRequest}</span>
+          </div>
         </div>
         <ul className="flex flex-col gap-4 mt-6 text-md">
           <li className="flex gap-3">
@@ -47,19 +52,21 @@ export function ConnectionRequestPanel({ handler }: { handler: ReturnType<typeof
           </div>
         )}
       </div>
-      <div className="flex mt-auto mb-0 gap-2 w-full sticky bottom-0 bg-background-primary p-4">
-        <Button
-          label="Reject"
-          onClick={handleRejectConnection}
-          className="flex-1   rounded-md"
-          variant="glass"
-        />
-        <Button
-          label="Connect"
+      <div className="flex flex-col mt-auto mb-0 gap-2 w-full sticky bottom-0 bg-background-primary p-4">
+        <button
+          type="button"
+          className="flex-1 rounded-md min-h-[3rem] bg-gradient-primary font-semibold text-[15px] cursor-pointer hover:opacity-80 focus:opacity-80"
           onClick={handleApproveConnection}
-          className="flex-1  rounded-md"
-          variant="primary"
-        />
+        >
+          Connect
+        </button>
+        <button
+          type="button"
+          className="flex-1 rounded-md min-h-[3rem] bg-button-glass font-semibold text-[15px] cursor-pointer hover:opacity-80 focus:opacity-80"
+          onClick={handleRejectConnection}
+        >
+          Reject
+        </button>
       </div>
     </>
   )

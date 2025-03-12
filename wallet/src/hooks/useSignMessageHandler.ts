@@ -16,6 +16,8 @@ export const useSignMessageHandler = () => {
   const [isSigningMessage, setIsSigningMessage] = useState(false)
   const [isSignHandlerRegistered, setIsSignHandlerRegistered] = useState(false)
 
+  console.log(signRequest, requestOrigin, requestChainId, isSigningMessage, isSignHandlerRegistered)
+
   const signConfirmationPromiseRef = useRef<Deferred<boolean> | null>(null)
 
   useEffect(() => {
