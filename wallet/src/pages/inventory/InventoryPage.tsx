@@ -19,7 +19,7 @@ function Inventory() {
   const { inventoryIsEmpty } = useInventory()
 
   return (
-    <div className="isolate grid w-full max-w-screen-lg grid-cols-2 sm:grid-cols-4 gap-2 mx-auto mt-2 sm:mt-18 sm:px-2 p-8 sm:py-0">
+    <div className="isolate grid w-full max-w-screen-lg grid-cols-2 sm:grid-cols-4 gap-2 mx-auto mt-2 sm:my-18 sm:px-2 p-8 sm:py-0">
       {!inventoryIsEmpty ? <InventoryList /> : <InventoryListEmpty />}
     </div>
   )
