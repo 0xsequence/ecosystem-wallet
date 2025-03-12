@@ -44,7 +44,7 @@ export function useEmailAuth({
         setLoading(false)
       } else {
         const res = await sequenceWaas.signIn({ email }, sessionName)
-        // Save login method and email to local storage
+
         saveAuthInfo('email', email)
         onSuccess(res)
       }
