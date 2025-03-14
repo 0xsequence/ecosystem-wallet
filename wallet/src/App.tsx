@@ -6,7 +6,7 @@ import { InventoryPage } from './pages/inventory/InventoryPage'
 import { ROUTES } from './routes'
 import { DiscoverPage } from './pages/discover'
 import { DiscoverShowRoute } from './pages/discover/show'
-import { WalletConnectModal } from './pages/WalletConnectModal'
+import { WalletHandlerRequestModal } from './pages/WalletHandlerRequestModal'
 import { TransactionHistory as HistoryPage } from './pages/TransactionHistory/index'
 import { useEffect } from 'react'
 export const App: React.FC = () => {
@@ -26,7 +26,7 @@ export const App: React.FC = () => {
 
         {/* Protected routes */}
         <Route element={<ProtectedLayout />}>
-          <Route index element={<WalletConnectModal variant="popup" />} />
+          <Route index element={<WalletHandlerRequestModal variant="popup" />} />
           <Route path={ROUTES.INVENTORY} element={<InventoryPage />} />
           <Route path={ROUTES.DISCOVER} element={<DiscoverPage />} />
           <Route path={`${ROUTES.DISCOVER}/:id`} element={<DiscoverShowRoute />} />

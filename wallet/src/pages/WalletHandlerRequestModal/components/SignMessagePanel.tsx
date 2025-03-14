@@ -35,7 +35,7 @@ export function SignMessagePanel({ handler }: { handler: ReturnType<typeof useSi
               <dt className="text-sm font-medium text-seq-grey-700">Message to sign</dt>
               {isJson ? (
                 <dd>
-                  <pre className=" text-start text-xs">{JSON.stringify(isJson, null, 2)}</pre>
+                  <pre className=" text-start text-xs overflow-x-auto">{JSON.stringify(isJson, null, 2)}</pre>
                 </dd>
               ) : (
                 <dd className="break-words text-start">{message}</dd>

@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router'
 import { ROUTES } from '../../routes'
 import { useWalletHandlersContext } from '../../context/WalletHandlersContext'
 
-export function WalletConnectModal({ variant = 'default' }: { variant?: 'popup' | 'default' }) {
+export function WalletHandlerRequestModal({ variant = 'default' }: { variant?: 'popup' | 'default' }) {
   const { connectionHandler, transactionHandler, signMessageHandler } = useWalletHandlersContext()
 
   const { connectionRequest, isConnectionHandlerRegistered } = connectionHandler
