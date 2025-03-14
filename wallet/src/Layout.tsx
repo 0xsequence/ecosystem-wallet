@@ -6,7 +6,7 @@ import { PrivateRoute } from './components/PrivateRoute'
 import { ExploreIcon, InventoryIcon, TransactionIcon } from './design-system-patch/icons'
 import { isPublicRoute, ROUTES } from './routes'
 import { useEffect, useState } from 'react'
-import { WalletConnectModal } from './pages/WalletConnectModal'
+import { WalletHandlerRequestModal } from './pages/WalletHandlerRequestModal'
 import { useWalletHandlersContext } from './context/WalletHandlersContext'
 import { THEME } from './utils/theme'
 
@@ -62,7 +62,7 @@ export const AppLayout = ({ showHeader = false }: { showHeader?: boolean }) => {
   } as React.CSSProperties
   const isPopup = window.opener !== null
   const { connectionHandler, signMessageHandler, transactionHandler } = useWalletHandlersContext()
-  const [walletConnectModalOpen, setWalletConnectModalOpen] = useState(false)
+  const [walletRequestHandlerModalOpen, setWalletRequestHandlerModalOpen] = useState(false)
   const { connectionRequest, isConnectionHandlerRegistered } = connectionHandler
   const { transactionRequest, isSendingTxn, isTransactionHandlerRegistered } = transactionHandler
   const { signRequest, isSigningMessage, isSignHandlerRegistered } = signMessageHandler
@@ -74,7 +74,7 @@ export const AppLayout = ({ showHeader = false }: { showHeader?: boolean }) => {
   useEffect(() => {
     if (isPopup) return
 
-    setWalletConnectModalOpen(!!connectionRequest || !!transactionRequest || !!signRequest)
+    setWalletRequestHandlerModalOpen(!!connectionRequest || !!transactionRequest || !!signRequest)
   }, [allHandlersRegistered, connectionRequest, isPopup, sendInProgress, signRequest, transactionRequest])
 
   return (
@@ -88,7 +88,7 @@ export const AppLayout = ({ showHeader = false }: { showHeader?: boolean }) => {
       <div className="flex flex-col flex-1">
         <Outlet />
 
-        {walletConnectModalOpen && (
+        {walletRequestHandlerModalOpen && (
           <Modal
             title
             contentProps={{
@@ -103,10 +103,10 @@ export const AppLayout = ({ showHeader = false }: { showHeader?: boolean }) => {
             }}
             scroll={false}
             onClose={() => {
-              setWalletConnectModalOpen(false)
+              setWalletRequestHandlerModalOpen(false)
             }}
           >
-            <WalletConnectModal />
+            <WalletHandlerRequestModal />
           </Modal>
         )}
       </div>
