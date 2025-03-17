@@ -9,7 +9,22 @@ import { DiscoverShowRoute } from './pages/discover/show'
 import { WalletHandlerRequestModal } from './pages/WalletHandlerRequestModal'
 import { TransactionHistory as HistoryPage } from './pages/TransactionHistory/index'
 import { useEffect } from 'react'
+import { THEME } from './utils/theme'
 export const App: React.FC = () => {
+  useEffect(() => {
+    if (typeof window !== 'undefined' && THEME.css) {
+      if (!document.getElementById('theme-styles')) {
+        const $head = document.querySelector('head')
+        const $style = document.createElement('style')
+        $style.setAttribute('type', 'text/css')
+        $style.setAttribute('id', 'theme-styles')
+        $style.textContent = THEME.css
+
+        $head?.appendChild($style)
+      }
+    }
+  }, [])
+
   const location = useLocation()
 
   useEffect(() => {
