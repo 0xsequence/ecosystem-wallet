@@ -22,6 +22,10 @@ import { saveAuthInfo } from '../utils/auth'
 import { THEME } from '../utils/theme'
 import { PendingConnectionEventData } from '../walletTransport'
 
+const getCSSVariable = (variable: string) => {
+  return getComputedStyle(document.documentElement).getPropertyValue(variable)
+}
+
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
 
 const APPLE_CLIENT_ID = import.meta.env.VITE_APPLE_CLIENT_ID
@@ -346,12 +350,18 @@ function AuthCoverWrapper({ children }: { children: React.ReactNode }) {
   const style = {
     '--background': `url(${THEME.auth.cover})`
   } as React.CSSProperties
+
+  const hasBorder = !!getCSSVariable('--color-auth-border')
+
   return (
-    <div className="flex w-[calc(100%-32px)] md:w-auto mx-4 min-h-[40rem] bg-[var(--color-auth-bg,black)] overflow-clip rounded-lg border border-[var(--color-auth-border,transparent)]">
-      <div className="grid auth-grid-template max-w-screen-lg w-full ">
+    <div
+      className="flex w-[calc(100%-32px)] md:w-auto mx-4 min-h-[40rem] bg-[var(--color-auth-bg,black)] overflow-clip rounded-lg data-[border='true']:border data-[border='true']:border-[var(--color-auth-border,transparent)] group"
+      data-border={hasBorder}
+    >
+      <div className="grid auth-grid-template max-w-screen-lg w-full">
         <div className="flex flex-col items-center flex-1 place-self-center w-full">{children}</div>
         <div
-          className="hidden sm:flex flex-col items-end justify-end p-8 flex-shrink [background-image:var(--background)] bg-cover bg-no-repeat border-l border-[var(--color-auth-border,transparent)]"
+          className="hidden sm:flex flex-col items-end justify-end p-8 flex-shrink [background-image:var(--background)] bg-cover bg-no-repeat group-data-[border='true']:border-l group-data-[border='true']:border-[var(--color-auth-border,transparent)]"
           style={style}
         >
           {THEME.auth.title || THEME.auth.message ? (
