@@ -12,7 +12,7 @@ import { ChainId, networks } from '@0xsequence/network'
 import dayjs from 'dayjs'
 import { ethers } from 'ethers'
 
-import { useCoinPrices, useExchangeRate } from '../../hooks/useCoinPrices'
+import { useCoinPrices } from '../../hooks/useCoinPrices'
 import { useConfig, FiatCurrency } from '../../hooks/useConfig'
 import { formatDisplay } from '../../utils/helpers'
 import { getTransactionLabelByType } from './helpers/getTransactionLabelByType'
@@ -20,6 +20,7 @@ import { TransactionIconByType } from './TransactionIconByType'
 import { useState } from 'react'
 import { TransactionDetails } from './TransactionDetails'
 import { ChevronDownIcon } from '../../design-system-patch/icons'
+import { useExchangeRate } from '../../hooks/useExchangeRate'
 
 interface TransactionHistoryItemProps {
   transaction: Transaction

@@ -7,7 +7,7 @@ import { TransactionHistorySkeleton } from './TransactionHistorySkeleton'
 import { useAuth } from '../../context/AuthContext'
 import { useTransactionHistorySummary } from '../../hooks/useTransactionHistorySummary'
 import { ChainId } from '@0xsequence/network'
-import { useFetchInventory } from '../inventory/helpers/useFetchInventory'
+import { useFetchInventory } from '../InventoryRoutes/helpers/useFetchInventory'
 
 // interface TransactionHistoryListProps {
 //   chainIds: ChainId[]

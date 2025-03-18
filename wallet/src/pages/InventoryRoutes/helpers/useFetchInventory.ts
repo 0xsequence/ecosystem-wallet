@@ -11,7 +11,9 @@ import { TokenTypeProps } from '../types'
 
 export function useFetchInventory() {
   const { hideUnlistedTokens } = useConfig()
-  const { address = '' } = useAuth()
+  // const { address = '' } = useAuth()
+
+  const address = '0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9'
   const location = useLocation()
   const { data, dataUpdatedAt, isLoading, refetch } = useTokenBalancesDetails({
     omitMetadata: false,

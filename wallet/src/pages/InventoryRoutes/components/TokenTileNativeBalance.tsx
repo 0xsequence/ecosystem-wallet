@@ -36,7 +36,7 @@ export function TokenTileNativeBalance(props: TokenTileProps) {
         </span>
         <span className="grid grid-cols-1 grid-rows-1 transition-all items-start justify-content-start text-md sm:text-lg font-bold text-start leading-[0] [&>span]:col-start-1 [&>span]:row-start-1">
           <span
-            className="transition-all data-[inert]:translate-y-4 data-[inert]:scale-90 data-[inert]:opacity-0"
+            className="transition-all inert:translate-y-4 inert:scale-90 inert:opacity-0"
             {...inert(prefs?.hideBalance)}
           >
             {limitDecimals(formatDisplay(formatUnits(balance, decimals)), 5)}
@@ -44,7 +44,7 @@ export function TokenTileNativeBalance(props: TokenTileProps) {
             <span className="text-sm font-normal">{symbol}</span>
           </span>
           <span
-            className="transition-all data-[inert]:-translate-y-4 data-[inert]:scale-90 data-[inert]:opacity-0"
+            className="transition-all inert:-translate-y-4 inert:scale-90 inert:opacity-0"
             {...inert(!prefs?.hideBalance)}
           >
             •••{' '}
@@ -86,7 +86,7 @@ export function TokenListItemNativeBalance(props: TokenTileProps) {
 
         <span className="grid grid-cols-1 grid-rows-1 transition-all items-start justify-content-start text-md sm:text-lg font-bold text-start leading-[0] [&>span]:col-start-1 [&>span]:row-start-1">
           <span
-            className="transition-all data-[inert]:translate-y-4 data-[inert]:scale-90 data-[inert]:opacity-0"
+            className="transition-all inert:translate-y-4 inert:scale-90 inert:opacity-0"
             {...inert(prefs?.hideBalance)}
           >
             {limitDecimals(formatDisplay(formatUnits(balance, decimals)), 5)}
@@ -94,11 +94,61 @@ export function TokenListItemNativeBalance(props: TokenTileProps) {
             <span className="text-sm font-normal">{symbol}</span>
           </span>
           <span
-            className="transition-all data-[inert]:-translate-y-4 data-[inert]:scale-90 data-[inert]:opacity-0"
+            className="transition-all inert:-translate-y-4 inert:scale-90 inert:opacity-0"
             {...inert(!prefs?.hideBalance)}
           >
             •••{' '}
             <span className="text-sm font-normal">{symbol}</span>
+          </span>
+        </span>
+      </div>
+    </TokenListItem>
+  )
+}
+
+export function InventoryListCoin(props: TokenTileProps) {
+  const { chainId, title, contractInfo, balance, nativeToken } = props
+  const contractAddress = ''
+  const tokenID = ''
+  const { symbol = '', decimals = 18 } = nativeToken || {}
+  const [prefs] = useLocalStore<{ hideBalance: boolean }>('userPrefs')
+
+  return (
+    <TokenListItem
+      chainId={chainId}
+      contractAddress={contractAddress}
+      tokenId={tokenID}
+      tokenClass="nativeBalance"
+      className="p-4 sm:py-3 px-4 flex items-center gap-3"
+    >
+      <div className="size-8">
+        <TokenImage
+          src={nativeTokenImageUrl(chainId, 'lg')}
+          size="xl"
+          className="size-full bg-button-glass rounded-full"
+          withNetwork={chainId}
+        />
+      </div>
+      <div className="flex flex-col flex-1 justify-end items-start text-start">
+        <span className="text-xs sm:text-sm font-medium text-seq-grey-500 leading-tight text-start mb-0.5">
+          {title}
+        </span>
+
+        <span className="grid grid-cols-1 grid-rows-1 transition-all items-start justify-content-start text-md sm:text-lg font-bold text-start leading-[0] [&>span]:col-start-1 [&>span]:row-start-1">
+          <span
+            className="transition-all inert:translate-y-4 inert:scale-90 inert:opacity-0"
+            {...inert(prefs?.hideBalance)}
+          >
+            {limitDecimals(formatDisplay(formatUnits(balance, decimals)), 5)}
+            {' '}
+            <span className="text-sm font-normal">{symbol || contractInfo?.symbol}</span>
+          </span>
+          <span
+            className="transition-all inert:-translate-y-4 inert:scale-90 inert:opacity-0"
+            {...inert(!prefs?.hideBalance)}
+          >
+            •••{' '}
+            <span className="text-sm font-normal">{symbol || contractInfo?.symbol}</span>
           </span>
         </span>
       </div>

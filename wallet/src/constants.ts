@@ -1,3 +1,19 @@
+import { UserPreferenceLocalStore } from './pages/InventoryRoutes/types'
+
+export const localStoreDefaults: {
+  favorites: string[]
+  watchlist: string[]
+  userPrefs: UserPreferenceLocalStore
+} = {
+  userPrefs: {
+    hideBalance: false,
+    inventoryDisplayMode: 'grid',
+    currency: 'USD'
+  },
+  watchlist: [],
+  favorites: []
+}
+
 export const ERC_1155_ABI = [
   {
     inputs: [

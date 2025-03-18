@@ -6,9 +6,9 @@ import { ZeroAddress } from 'ethers'
 import { ChainId } from '@0xsequence/network'
 
 type InventoryItemIdentifier = {
-  chainId: ChainId
+  chainId: string | ChainId
   contractAddress: string
-  tokenClass: 'erc20' | 'collectable' | 'nativeBalance'
+  tokenClass?: 'erc20' | 'collectable' | 'nativeBalance'
   tokenId?: string
 }
 
@@ -26,6 +26,8 @@ type InventoryContext = {
     erc20Inventory: TokenTypeProps[]
     collectibleInventory: TokenTypeProps[]
   }
+  coinInventory: TokenTypeProps[]
+  collectibleInventory: TokenTypeProps[]
   inventoryIsEmpty: boolean
   status: { isLoading: boolean }
   refetchInventory: () => void
@@ -38,6 +40,9 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
   const [showInventoryItem, setShowInventoryItem] = useState<ShowInventoryItem>(false)
 
   const { inventory, inventoryByTokenClass, inventoryIsEmpty, status, refetchInventory } = useFetchInventory()
+
+  const coinInventory = [...inventoryByTokenClass.nativeBalances, ...inventoryByTokenClass.erc20Inventory]
+  const collectibleInventory = inventoryByTokenClass.collectibleInventory
 
   function contractInfo({ chainId, contractAddress, tokenId }: InventoryItemIdentifier) {
     const result = inventory.find(item => {
@@ -71,6 +76,8 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
         inventory,
         /* @ts-expect-error FIXME */
         inventoryByTokenClass,
+        coinInventory,
+        collectibleInventory,
         inventoryIsEmpty,
         status,
         refetchInventory

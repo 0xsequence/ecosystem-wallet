@@ -1,5 +1,9 @@
 import { TokenTileErc20, TokenListItemErc20 } from './TokenTileERC20.tsx'
-import { TokenTileNativeBalance, TokenListItemNativeBalance } from './TokenTileNativeBalance.tsx'
+import {
+  TokenTileNativeBalance,
+  TokenListItemNativeBalance,
+  InventoryListCoin
+} from './TokenTileNativeBalance.tsx'
 import { TokenTileCollectable, TokenListItemCollectable } from './TokenTileCollectable.tsx'
 import { TokenTileEmpty, TokenListItemEmpty } from './TokenTileEmpty.tsx'
 import type { TokenTypeProps } from '../types.ts'
@@ -27,11 +31,11 @@ export function TokenType({
   if (displayMode === 'list') {
     switch (item?.tokenClass) {
       case 'nativeBalance':
-        return <TokenListItemNativeBalance {...item} />
+      case 'erc20':
+        return <InventoryListCoin {...item} />
       case 'collectable':
         return <TokenListItemCollectable {...item} />
-      case 'erc20':
-        return <TokenListItemErc20 {...item} />
+
       default:
         return <TokenListItemEmpty />
     }

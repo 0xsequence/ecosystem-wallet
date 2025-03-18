@@ -25,7 +25,8 @@ import { computeBalanceFiat, createNativeTokenBalance, isNativeCoinBalance } fro
 import { isEthAddress, limitDecimals, truncateAtMiddle } from '../utils/helpers'
 import { TransactionFeeOptionsResult } from '../utils/txn'
 
-import { useCoinPrices, useExchangeRate } from '../hooks/useCoinPrices'
+import { useCoinPrices } from '../hooks/useCoinPrices'
+import { useExchangeRate } from '../hooks/useExchangeRate'
 import { useConfig } from '../hooks/useConfig'
 import { checkTransactionFeeOptions } from '../hooks/useTransactionHandler'
 

@@ -1,21 +1,20 @@
 import { TokenDetailModal } from './components/TokenDetailModal.tsx'
 import { InventoryGrid, InventoryList } from './components/InventoryList.tsx'
-import { InventoryProvider } from './helpers/inventory-provider.tsx'
 import { SendTokens } from './components/SendTokens.tsx'
 
-import { useLocalStore } from '../../utils/local-store'
+import { useLocalStore } from '../../utils/local-store.ts'
 
-import { InventoryDisplayModeSwitch } from './components/InventoryDisplayModeSwitch'
-import { UserPreferenceLocalStore } from './types'
-import { WalletsTotalBalance } from '../../components/WalletsTotalBalance'
+import { InventoryDisplayModeSwitch } from './components/InventoryDisplayModeSwitch.tsx'
+import { UserPreferenceLocalStore } from './types.ts'
+import { SearchInput } from '@0xsequence/design-system'
 
 export const InventoryPage = () => {
   return (
-    <InventoryProvider>
+    <>
       <Inventory />
       <TokenDetailModal />
       <SendTokens />
-    </InventoryProvider>
+    </>
   )
 }
 
@@ -25,7 +24,7 @@ function Inventory() {
   return (
     <div className="flex flex-col w-full max-w-screen-lg mx-auto mt-2 sm:mt-18 sm:px-2 p-8 sm:py-0">
       <div className="flex justify-between">
-        <WalletsTotalBalance />
+        <SearchInput name="search" />
         <InventoryDisplayModeSwitch />
       </div>
 

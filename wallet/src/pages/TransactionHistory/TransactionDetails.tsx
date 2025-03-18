@@ -11,12 +11,14 @@ import { Transaction, TxnTransfer } from '@0xsequence/indexer'
 import dayjs from 'dayjs'
 import { ethers } from 'ethers'
 import { useConfig } from '../../hooks/useConfig'
-import { useCoinPrices, useExchangeRate } from '../../hooks/useCoinPrices'
+import { useCoinPrices } from '../../hooks/useCoinPrices'
+
 import { networks, ChainId } from '@0xsequence/network'
 import { CopyButton } from '../../components/CopyButton'
 import { formatDisplay, truncateAtMiddle } from '../../utils/helpers'
 import { useCollectiblePrices } from '../../hooks/useCollectiblePrices'
 import { ArrowRightIcon } from '../../design-system-patch/icons'
+import { useExchangeRate } from '../../hooks/useExchangeRate'
 
 function useCoinsAndCollectables(transaction: Transaction) {
   const coins: Token[] = []

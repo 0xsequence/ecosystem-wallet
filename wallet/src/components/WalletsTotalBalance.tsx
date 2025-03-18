@@ -1,33 +1,48 @@
-import { useCoinPrices, useExchangeRate } from '../hooks/useCoinPrices'
+import { useCoinPrices } from '../hooks/useCoinPrices'
+
 import { formatUnits } from 'ethers'
 import { EyeIcon, HiddenIcon } from '../design-system-patch/icons'
 
 import { useLocalStore } from '../utils/local-store'
 import { inert } from '../utils/inert'
-import { CurrencySelector } from './CurrencySelector'
 import { TokenPrice } from '@0xsequence/api'
-import { useInventory } from '../pages/inventory/helpers/useInventory'
-import { UserPreferenceLocalStore } from '../pages/inventory/types'
+import { useInventory } from '../pages/InventoryRoutes/helpers/useInventory'
+import { UserPreferenceLocalStore } from '../pages/InventoryRoutes/types'
+import { useExchangeRate } from '../hooks/useExchangeRate'
 
 function useTotalCoinBalance() {
-  const { inventoryByTokenClass } = useInventory()
-  const coins = [...inventoryByTokenClass.nativeBalances, ...inventoryByTokenClass.erc20Inventory].map(
-    chain => {
-      const chainId = chain.chainId || chain?.chain?.chainId
-      const contractAddress = chain.contractAddress
-      const decimals = chain?.nativeToken?.decimals || chain?.contractInfo?.decimals
-      const balance = chain?.balance
-      const name = chain?.name || chain?.contractInfo?.name
-      const units = formatUnits(balance, decimals)
+  // const address = '0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9'
 
-      return {
-        units,
-        name,
-        chainId,
-        contractAddress
-      }
+  // const data = useTokenBalancesSummary({
+  //   filter: {
+  //     accountAddresses: [address],
+  //     contractStatus: ContractVerificationStatus.VERIFIED,
+  //     omitNativeBalances: false
+  //   },
+  //   omitMetadata: true
+  // })
+
+  // console.log(data?.data)
+
+  // return <>{data?.data}</>
+
+  const { coinInventory } = useInventory()
+
+  const coins = coinInventory.map(chain => {
+    const chainId = chain.chainId || chain?.chain?.chainId
+    const contractAddress = chain.contractAddress
+    const decimals = chain?.nativeToken?.decimals || chain?.contractInfo?.decimals
+    const balance = chain?.balance
+    const name = chain?.name || chain?.contractInfo?.name
+    const units = formatUnits(balance, decimals)
+
+    return {
+      units,
+      name,
+      chainId,
+      contractAddress
     }
-  )
+  })
   /* @ts-expect-error FIXME */
   const { data: coinPriceData = [], isPending } = useCoinPrices(coins)
 
@@ -65,50 +80,48 @@ export function WalletsTotalBalance() {
   const { totalCoinBalance, totalCoinBalancePending, prefs, setPrefs } = useTotalCoinBalance()
 
   return (
-    <dl className="max-w-[256px] w-full pb-16 flex flex-col gap-0.25">
-      <dt className="text-style-sm font-semibold text-white/80">
-        Total Balance <CurrencySelector />
-      </dt>
-      <dd className="text-2xl font-bold flex gap-2">
+    <dl className="w-full flex flex-col gap-0.25 px-3 py-2.5 border border-border-normal rounded-sm">
+      <dt className="text-style-sm font-semibold text-white/80">Total Balance (USD)</dt>
+      <dd className="text-xl font-bold flex gap-2">
         <button
           type="button"
           onClick={() => setPrefs({ hideBalance: !prefs?.hideBalance })}
-          className="flex items-center gap-2 justify-between cursor-pointer group"
+          className="flex items-center gap-2 justify-between w-full cursor-pointer group"
         >
-          <span className="grid grid-cols-1 grid-rows-1 bg-button-glass rounded-sm px-1 py-0.5 flex-shrink-0 overflow-clip group-hover:bg-button-glass/80 [&>span]:col-start-1 [&>span]:row-start-1">
-            <span
-              className="self-center data-[inert]:scale-90 data-[inert]:translate-y-4 data-[inert]:opacity-0 transition-all"
-              {...inert(prefs?.hideBalance)}
-            >
-              <HiddenIcon className="size-5 transition-all" />
-            </span>
-
-            <span
-              className="self-center data-[inert]:scale-90 data-[inert]:-translate-y-4 data-[inert]:opacity-0 transition-all"
-              {...inert(!prefs?.hideBalance)}
-            >
-              <EyeIcon className="size-5 transition-all" />
-            </span>
-          </span>
           <span className="grid grid-cols-1 grid-rows-1 transition-all overflow-clip items-start justify-content-start text-left [&>span]:col-start-1 [&>span]:row-start-1">
             <span
-              className="transition-all data-[inert]:translate-y-4 data-[inert]:scale-90 data-[inert]:opacity-0 opacity-24"
+              className="transition-all inert:translate-y-4 inert:scale-90 inert:opacity-0 opacity-24"
               {...inert(!totalCoinBalancePending)}
             >
               $
             </span>
 
             <span
-              className="transition-all data-[inert]:translate-y-4 data-[inert]:scale-90 data-[inert]:opacity-0"
+              className="transition-all inert:translate-y-4 inert:scale-90 inert:opacity-0"
               {...inert(totalCoinBalancePending || prefs?.hideBalance)}
             >
               {totalCoinBalance}
             </span>
             <span
-              className="transition-all data-[inert]:-translate-y-4 data-[inert]:scale-90 data-[inert]:opacity-0"
+              className="transition-all inert:-translate-y-4 inert:scale-90 inert:opacity-0"
               {...inert(totalCoinBalancePending || !prefs?.hideBalance)}
             >
               $••••••••
+            </span>
+          </span>
+          <span className="grid grid-cols-1 grid-rows-1 bg-button-glass rounded-sm px-1 py-0.5 flex-shrink-0 overflow-clip group-hover:bg-button-glass/80 [&>span]:col-start-1 [&>span]:row-start-1">
+            <span
+              className="self-center inert:scale-90 inert:translate-y-4 inert:opacity-0 transition-all"
+              {...inert(prefs?.hideBalance)}
+            >
+              <HiddenIcon className="size-5 transition-all" />
+            </span>
+
+            <span
+              className="self-center inert:scale-90 inert:-translate-y-4 inert:opacity-0 transition-all"
+              {...inert(!prefs?.hideBalance)}
+            >
+              <EyeIcon className="size-5 transition-all" />
             </span>
           </span>
         </button>

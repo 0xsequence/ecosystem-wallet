@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from 'react'
+import { localStoreDefaults } from '../constants'
 
 export const getValue = (key: string): string | null => {
   return localStorage.getItem(key)
@@ -61,7 +62,13 @@ export function useLocalStore<T>(
   }
 
   try {
-    return [JSON.parse(value), set] as const
+    let data = JSON.parse(value)
+
+    if (!data) {
+      data = localStoreDefaults?.[key] || {}
+    }
+
+    return [data, set] as const
   } catch {
     return [null, set]
   }

@@ -36,7 +36,7 @@ export function TokenTileErc20(props: TokenBalance & { chain: { title: string } 
         {contractInfo?.decimals && contractInfo?.symbol ? (
           <span className="grid grid-cols-1 grid-rows-1 transition-all items-start justify-content-start text-md sm:text-lg font-bold text-start leading-[0] [&>span]:col-start-1 [&>span]:row-start-1">
             <span
-              className="transition-all data-[inert]:translate-y-4 data-[inert]:scale-90 data-[inert]:opacity-0"
+              className="transition-all inert:translate-y-4 inert:scale-90 inert:opacity-0"
               {...inert(prefs?.hideBalance)}
             >
               {limitDecimals(formatDisplay(formatUnits(balance, contractInfo.decimals)), 4)}
@@ -44,7 +44,7 @@ export function TokenTileErc20(props: TokenBalance & { chain: { title: string } 
               <span className="text-sm font-normal">{contractInfo.symbol}</span>
             </span>
             <span
-              className="transition-all data-[inert]:-translate-y-4 data-[inert]:scale-90 data-[inert]:opacity-0"
+              className="transition-all inert:-translate-y-4 inert:scale-90 inert:opacity-0"
               {...inert(!prefs?.hideBalance)}
             >
               •••{' '}
@@ -70,7 +70,7 @@ export function TokenListItemErc20(props: TokenBalance & { chain: { title: strin
       className="p-4 sm:p-6 flex items-center gap-3"
     >
       {contractInfo?.logoURI ? (
-        <div className="size-10">
+        <div className="size-8">
           <TokenImage
             src={contractInfo.logoURI}
             size="xl"
@@ -86,7 +86,7 @@ export function TokenListItemErc20(props: TokenBalance & { chain: { title: strin
         {contractInfo?.decimals && contractInfo?.symbol ? (
           <span className="grid grid-cols-1 grid-rows-1 transition-all items-start justify-content-start text-md sm:text-lg font-bold text-start leading-[0] [&>span]:col-start-1 [&>span]:row-start-1">
             <span
-              className="transition-all data-[inert]:translate-y-4 data-[inert]:scale-90 data-[inert]:opacity-0"
+              className="transition-all inert:translate-y-4 inert:scale-90 inert:opacity-0"
               {...inert(prefs?.hideBalance)}
             >
               {limitDecimals(formatDisplay(formatUnits(balance, contractInfo.decimals)), 4)}
@@ -94,7 +94,7 @@ export function TokenListItemErc20(props: TokenBalance & { chain: { title: strin
               <span className="text-sm font-normal">{contractInfo.symbol}</span>
             </span>
             <span
-              className="transition-all data-[inert]:-translate-y-4 data-[inert]:scale-90 data-[inert]:opacity-0"
+              className="transition-all inert:-translate-y-4 inert:scale-90 inert:opacity-0"
               {...inert(!prefs?.hideBalance)}
             >
               •••{' '}

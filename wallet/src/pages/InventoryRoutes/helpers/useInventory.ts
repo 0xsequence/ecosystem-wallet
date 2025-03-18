@@ -1,5 +1,5 @@
 import { useContext } from 'react'
-import { Inventory } from './inventory-provider'
+import { Inventory } from './InventoryProvider'
 
 export function useInventory() {
   const context = useContext(Inventory)

@@ -17,9 +17,15 @@ importers:
       '@0xsequence/indexer':
         specifier: ^2.2.13
         version: 2.2.13
+      '@0xsequence/metadata':
+        specifier: ^2.2.15
+        version: 2.2.15
       '@0xsequence/network':
         specifier: ^2.2.13
         version: 2.2.13(ethers@6.13.0)
+      '@0xsequence/react-hooks':
+        specifier: 0.0.0-20250314205219
+        version: 0.0.0-20250314205219(@0xsequence/api@2.2.13)(@0xsequence/indexer@2.2.13)(@0xsequence/metadata@2.2.15)(@0xsequence/network@2.2.13(ethers@6.13.0))(@tanstack/react-query@5.66.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@0xsequence/waas':
         specifier: ^2.2.13
         version: 2.2.13(ethers@6.13.0)
@@ -162,10 +168,24 @@ packages:
   '@0xsequence/indexer@2.2.13':
     resolution: {integrity: sha512-RFjjjckuAhM0vgYFO1RgYyBqsUrU54l2N/Isr5DPSLCCczp+qcopNuFMB0e0FuvzUP1buunxTjHRVjFH75kQEA==}
 
+  '@0xsequence/metadata@2.2.15':
+    resolution: {integrity: sha512-1tQPwFCFwYvBWtssfIiKQmvBad5o4+gnH2xGkW31l+wxO0vd1TlJLPBJ4ZAPCG+nX2bBQoU89oipeTAZqtxApQ==}
+
   '@0xsequence/network@2.2.13':
     resolution: {integrity: sha512-U8sVC2nWokPtQzIXwNKOP/mgkkuvjxYmQrgITkc8YDTAQOYPu6n/4lIqQ2//jjSfloniMK00tDpfUd5fCFbsUA==}
     peerDependencies:
       ethers: '>=6'
+
+  '@0xsequence/react-hooks@0.0.0-20250314205219':
+    resolution: {integrity: sha512-1LiBgSILVD3ZVX99qWpCp8OxWOAIEFFW6DDfZk2y2Ceag8zpxdByrrfHpZ5fgPHztsL+4ybS73k8jMrvcyEMvA==}
+    peerDependencies:
+      '@0xsequence/api': '>=2.2.13'
+      '@0xsequence/indexer': '>=2.2.13'
+      '@0xsequence/metadata': '>=2.2.13'
+      '@0xsequence/network': '>=2.2.13'
+      '@tanstack/react-query': '>= 5'
+      react: '>= 17'
+      react-dom: '>= 17'
 
   '@0xsequence/relayer@2.2.13':
     resolution: {integrity: sha512-fnt4AJ1u9CPwx7JJwpZ7UbJ3eN2LOG0Wuwe4FS9OSfxCOhbokELRSWegToEyH6ew6FRPvsuRMN/im3Bu3Og0QQ==}
@@ -3081,6 +3101,8 @@ snapshots:
 
   '@0xsequence/indexer@2.2.13': {}
 
+  '@0xsequence/metadata@2.2.15': {}
+
   '@0xsequence/network@2.2.13(ethers@6.13.0)':
     dependencies:
       '@0xsequence/core': 2.2.13(ethers@6.13.0)
@@ -3088,6 +3110,16 @@ snapshots:
       '@0xsequence/relayer': 2.2.13(ethers@6.13.0)
       '@0xsequence/utils': 2.2.13(ethers@6.13.0)
       ethers: 6.13.0
+
+  '@0xsequence/react-hooks@0.0.0-20250314205219(@0xsequence/api@2.2.13)(@0xsequence/indexer@2.2.13)(@0xsequence/metadata@2.2.15)(@0xsequence/network@2.2.13(ethers@6.13.0))(@tanstack/react-query@5.66.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@0xsequence/api': 2.2.13
+      '@0xsequence/indexer': 2.2.13
+      '@0xsequence/metadata': 2.2.15
+      '@0xsequence/network': 2.2.13(ethers@6.13.0)
+      '@tanstack/react-query': 5.66.0(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
 
   '@0xsequence/relayer@2.2.13(ethers@6.13.0)':
     dependencies:

@@ -2,11 +2,11 @@ import { Link, useParams } from 'react-router'
 import { DISCOVER_ITEMS, DiscoverItem } from '../../data/discover_items'
 import { ArrowLeftIcon, ExternalLinkIcon, HeartIcon } from '../../design-system-patch/icons'
 import { ROUTES } from '../../routes'
-import { useInventory } from '../inventory/helpers/useInventory'
-import { InventoryProvider } from '../inventory/helpers/inventory-provider'
-import { TokenType } from '../inventory/components/TokenType'
-import { TokenDetailModal } from '../inventory/components/TokenDetailModal'
-import { SendTokens } from '../inventory/components/SendTokens'
+import { useInventory } from '../InventoryRoutes/helpers/useInventory'
+import { InventoryProvider } from '../InventoryRoutes/helpers/InventoryProvider'
+import { TokenType } from '../InventoryRoutes/components/TokenType'
+import { TokenDetailModal } from '../InventoryRoutes/components/TokenDetailModal'
+import { SendTokens } from '../InventoryRoutes/components/SendTokens'
 import { useFavorites } from '../../hooks/useFavorites'
 import { inert } from '../../utils/inert'
 import { useWatchlist } from '../../hooks/useWatchlist'
@@ -65,13 +65,13 @@ export function DiscoverShowRoute() {
                 onClick={() => (favorites.has(item.id) ? favorites.remove(item.id) : favorites.add(item.id))}
               >
                 <span
-                  className="data-[inert]:opacity-0 data-[inert]:-translate-y-2 transition-all flex gap-1 items-center"
+                  className="inert:opacity-0 inert:-translate-y-2 transition-all flex gap-1 items-center"
                   {...inert(!favorites.has(item.id))}
                 >
                   <HeartIcon /> Remove
                 </span>
                 <span
-                  className="data-[inert]:opacity-0 data-[inert]:translate-y-2 transition-all flex gap-1 items-center"
+                  className="inert:opacity-0 inert:translate-y-2 transition-all flex gap-1 items-center"
                   {...inert(favorites.has(item.id))}
                 >
                   <HeartIcon />

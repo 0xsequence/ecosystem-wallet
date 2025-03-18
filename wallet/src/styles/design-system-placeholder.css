@@ -3,7 +3,7 @@
   --theme-rounded-sm: 0.5rem;
   --theme-rounded-md: 0.75rem;
   --theme-rounded-lg: 1rem;
-  --theme-rounded-xl: 1.5rem;
+  /* --theme-rounded-xl: 1.5rem; */
 }
 
 @utility rounded-* {
