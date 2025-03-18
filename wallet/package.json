@@ -26,6 +26,7 @@
     "@walletconnect/sign-client": "^2.18.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "colorthief": "^2.6.0",
     "dayjs": "^1.11.13",
     "ethers": "6.13.0",
     "framer-motion": "^11.5.2",

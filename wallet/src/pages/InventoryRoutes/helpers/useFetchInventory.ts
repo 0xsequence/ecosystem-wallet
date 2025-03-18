@@ -2,12 +2,13 @@ import { useEffect } from 'react'
 import { useLocation } from 'react-router'
 
 import { ContractVerificationStatus } from '@0xsequence/indexer'
-import { useAuth } from '../../../context/AuthContext'
+// import { useAuth } from '../../../context/AuthContext'
 import { useConfig } from '../../../hooks/useConfig'
 import { useTokenBalancesDetails } from '../../../hooks/useTokenBalancesDetails'
-import { getErc20Inventory, getCollectibleInventory, getNativeInventory } from './get-inventory'
+import { useErc20Inventory, useCollectibleInventory, useNativeInventory } from './get-inventory'
 import { padArray } from '../../../utils/pad-array'
 import { TokenTypeProps } from '../types'
+import { useSortByFavorites } from './useSortByFavorites'
 
 export function useFetchInventory() {
   const { hideUnlistedTokens } = useConfig()
@@ -30,20 +31,19 @@ export function useFetchInventory() {
 
   // Refetch inventory if route changes to /inventory and last fetch was >10s ago
   useEffect(() => {
-    if (isLoading) {
-      return
-    }
-
-    const timeSinceLastFetch = Date.now() - dataUpdatedAt
-
-    if (location.pathname === '/inventory' && timeSinceLastFetch > 10000) {
-      refetch()
+    if (!isLoading) {
+      const timeSinceLastFetch = Date.now() - dataUpdatedAt
+      if (location.pathname === '/inventory' && timeSinceLastFetch > 10000) {
+        refetch()
+      }
     }
   }, [location])
 
-  const erc20Inventory = getErc20Inventory(data)
-  const collectibleInventory = getCollectibleInventory(data)
-  const nativeBalances = getNativeInventory(address, data)
+  const erc20Inventory = useErc20Inventory(data)
+  const collectibleInventory = useCollectibleInventory(data)
+  const nativeBalances = useNativeInventory(address, data)
+
+  const coinInventory = useSortByFavorites([...nativeBalances, ...erc20Inventory] as TokenTypeProps[])
 
   const inventoryIsEmpty = !nativeBalances?.length && !erc20Inventory?.length && !collectibleInventory?.length
   // Merge & Pad to 12 items
@@ -59,6 +59,8 @@ export function useFetchInventory() {
     inventoryIsEmpty,
     raw: { data },
     status: { isLoading },
+    coinInventory,
+    collectibleInventory,
     inventoryByTokenClass: { nativeBalances, erc20Inventory, collectibleInventory }
   }
 }

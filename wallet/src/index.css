@@ -22,6 +22,40 @@
   }
 }
 
+.mask-horizontal {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    theme(colors.black/0%) 0%,
+    theme(colors.black/100%) 10%,
+    theme(colors.black/100%) 90%,
+    theme(colors.black/0%) 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    theme(colors.black/0%) 0%,
+    theme(colors.black/100%) 10%,
+    theme(colors.black/100%) 90%,
+    theme(colors.black/0%) 100%
+  );
+}
+
+.mask-vertical {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    theme(colors.black/0%) 0%,
+    theme(colors.black/100%) 10%,
+    theme(colors.black/100%) 90%,
+    theme(colors.black/0%) 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    theme(colors.black/0%) 0%,
+    theme(colors.black/100%) 10%,
+    theme(colors.black/100%) 90%,
+    theme(colors.black/0%) 100%
+  );
+}
+
 [data-theme='dark'] {
   --seq-color-background-navigation: var(--seq-color-background-secondary);
 

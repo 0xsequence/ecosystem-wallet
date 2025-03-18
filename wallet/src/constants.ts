@@ -3,6 +3,7 @@ import { UserPreferenceLocalStore } from './pages/InventoryRoutes/types'
 export const localStoreDefaults: {
   favorites: string[]
   watchlist: string[]
+  favoriteTokens: string[]
   userPrefs: UserPreferenceLocalStore
 } = {
   userPrefs: {
@@ -11,7 +12,8 @@ export const localStoreDefaults: {
     currency: 'USD'
   },
   watchlist: [],
-  favorites: []
+  favorites: [],
+  favoriteTokens: []
 }
 
 export const ERC_1155_ABI = [

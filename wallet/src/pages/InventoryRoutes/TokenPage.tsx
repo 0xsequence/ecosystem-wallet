@@ -1,7 +1,6 @@
 import { useParams } from 'react-router'
-import { useContractInfo, useTokenMetadata } from '../../hooks/useMetadata'
 
-import { SendIcon } from '../../design-system-patch/icons'
+import { HeartIcon, SendIcon } from '../../design-system-patch/icons'
 import { useInventory } from './helpers/useInventory'
 import { TokenTileProps, TokenTypeProps } from './types'
 import { formatDisplay, truncateAtMiddle } from '../../utils/helpers'
@@ -10,31 +9,19 @@ import { WrappedCollapse } from '../../components/wrapped-collapse'
 import { THEME } from '../../utils/theme'
 import { CopyButton } from '../../components/CopyButton'
 
-// export function InventoryTokenRoute() {
-//   const { chainId: chainID, contractAddress, tokenId } = useParams()
-
-//   const info = useTokenMetadata({ chainID, contractAddress, tokenIDs: [tokenId] })
-
-//   return (
-//     <>
-//       <pre>{JSON.stringify(info, null, 2)}</pre>
-//     </>
-//   )
-// }
-
 import {
   NetworkImage,
-  Modal,
   Image,
   TokenImage,
   Collapsible,
   nativeTokenImageUrl,
   cn,
-  Button,
   useMediaQuery
 } from '@0xsequence/design-system'
 import { formatUnits } from 'ethers'
 import { zeroAddress } from 'viem'
+import { useFavoriteTokens } from '../../hooks/useFavoriteTokens'
+import { inert } from '../../utils/inert'
 
 export function InventoryTokenRoute() {
   const { contractInfo } = useInventory()
@@ -44,7 +31,11 @@ export function InventoryTokenRoute() {
     return null
   }
 
-  const item = contractInfo({ chainId, contractAddress, tokenId })
+  const item = contractInfo({ chainId }) //, contractAddress, tokenId })
+
+  console.log(item)
+
+  if (!item) return null
 
   return (
     <div className="w-full max-w-screen-lg mx-auto">
@@ -78,7 +69,7 @@ function CoinDetails(props: TokenTypeProps) {
   const isMobile = useMediaQuery('isMobile')
 
   const { setShowSendModal } = useInventory()
-  const { balance, contractAddress, tokenMetadata, chainId, chain, contractInfo } = props
+  const { balance, contractAddress, tokenMetadata, chainId, chain, contractInfo, uuid } = props
   const logoURI = contractInfo?.logoURI || nativeTokenImageUrl(props.chainId)
   const { symbol = chain?.nativeToken?.symbol || '', decimals = chain?.nativeToken?.decimals || 18 } = {
     symbol: contractInfo?.symbol,
@@ -176,14 +167,18 @@ function CoinDetails(props: TokenTypeProps) {
         <span className="text-xl font-bold">{tokenMetadata?.name}</span>
       </div>
       <div className="w-full flex flex-col gap-2">
-        <Button
-          variant="primary"
-          className="rounded-md flex items-center justify-center gap-2 text-sm font-bold p-4 cursor-pointer"
-          onClick={() => setShowSendModal(true)}
-        >
-          <SendIcon />
-          Send
-        </Button>
+        <div className="flex gap-2 w-full">
+          <button
+            type="button"
+            className="bg-gradient-primary rounded-md flex items-center justify-center gap-2 text-sm font-bold p-4 cursor-pointer flex-1"
+            onClick={() => setShowSendModal(true)}
+          >
+            <SendIcon />
+            Send
+          </button>
+          <Favorite id={uuid} />
+        </div>
+
         {contractInfo?.extensions?.description && (
           <WrappedCollapse>
             <Collapsible label="Details">
@@ -204,7 +199,7 @@ function TokenDetailsCollectable(props: TokenTileProps) {
   const isMobile = useMediaQuery('isMobile')
 
   const { setShowSendModal } = useInventory()
-  const { tokenMetadata, chainId, chain, balance, contractType, contractAddress } = props
+  const { tokenMetadata, chainId, chain, balance, contractType, contractAddress, uuid } = props
   const isERC1155 = contractType === 'ERC1155'
 
   return (
@@ -245,14 +240,17 @@ function TokenDetailsCollectable(props: TokenTileProps) {
         </div>
       </div>
       <div className="w-full flex flex-col gap-2">
-        <Button
-          variant="primary"
-          className="rounded-md flex items-center justify-center gap-2 text-sm font-bold p-4 cursor-pointer"
-          onClick={() => setShowSendModal(true)}
-        >
-          <SendIcon />
-          Send
-        </Button>
+        <div className="flex gap-2 w-full">
+          <button
+            type="button"
+            className="bg-gradient-primary rounded-md flex items-center justify-center gap-2 text-sm font-bold p-4 cursor-pointer flex-1"
+            onClick={() => setShowSendModal(true)}
+          >
+            <SendIcon />
+            Send
+          </button>
+          <Favorite id={uuid} />
+        </div>
 
         {tokenMetadata?.description && (
           <WrappedCollapse>
@@ -263,5 +261,32 @@ function TokenDetailsCollectable(props: TokenTileProps) {
         )}
       </div>
     </div>
+  )
+}
+
+function Favorite({ id }: { id: string }) {
+  const { has, toggle } = useFavoriteTokens()
+
+  return (
+    <button
+      type="button"
+      onClick={() => toggle(id)}
+      className="bg-button-glass rounded-md items-center justify-center gap-2 text-sm font-bold p-4 cursor-pointer grid grid-cols-1 grid-rows-1 [&>span]:col-start-1 [&>span]:row-start-1"
+    >
+      <span
+        className="flex gap-2 inert:-translate-y-4 inert:opacity-0 transition-all items-center justify-center"
+        {...inert(has(id))}
+      >
+        <HeartIcon />
+        Add
+      </span>
+      <span
+        className="flex gap-2 inert:translate-y-4 inert:opacity-0 transition-all items-center justify-center"
+        {...inert(!has(id))}
+      >
+        <HeartIcon />
+        Remove
+      </span>
+    </button>
   )
 }

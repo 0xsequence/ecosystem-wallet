@@ -2,6 +2,8 @@ import { TokenBalance } from '@0xsequence/indexer'
 import { TokenListItem, TokenTile } from './TokenTile'
 import { Image as SeqImage } from '@0xsequence/design-system'
 import { useState, useEffect } from 'react'
+import { useFavoriteTokens } from '../../../hooks/useFavoriteTokens'
+import SvgHeartIcon from '../../../design-system-patch/icons/HeartIcon'
 
 const getImageSize = (url: string): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -56,17 +58,25 @@ const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({ srcList, fallback
 
 export default ImageWithFallback
 
-export function TokenTileCollectable(props: TokenBalance) {
+export function InventoryCollectibleTile(props: TokenBalance) {
   const { chainId, contractInfo, tokenMetadata, contractAddress, tokenID } = props
+
+  const uuid = `${chainId}::${contractAddress}::${tokenID}`
+  const { has } = useFavoriteTokens()
 
   return (
     <TokenTile chainId={chainId} contractAddress={contractAddress} tokenClass="collectable" tokenId={tokenID}>
+      {has(uuid) ? (
+        <div className="flex items-center justify-center bottom-4 right-4 absolute bg-button-glass p-2 rounded-full backdrop-blur-2xl">
+          <SvgHeartIcon />
+        </div>
+      ) : null}
       <ImageWithFallback srcList={[tokenMetadata?.image, contractInfo?.logoURI]} width={100} />
     </TokenTile>
   )
 }
 
-export function TokenListItemCollectable(props: TokenBalance) {
+export function InventoryCollectibleList(props: TokenBalance) {
   const { chainId, contractInfo, tokenMetadata, contractAddress, tokenID } = props
 
   return (

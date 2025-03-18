@@ -6,9 +6,14 @@ import { TokenType } from './TokenType'
 import { Transition } from '@headlessui/react'
 import { ChevronRightIcon } from '@0xsequence/design-system'
 import { Link } from 'react-router'
-import { TokenTileEmpty } from './TokenTileEmpty'
+import { TokenTypeProps } from '../types'
+import { InventoryCoinList } from './InventoryCoin'
+import { useSortByFavorites } from '../helpers/useSortByFavorites'
+
 export function InventoryGrid({ isActive }: { isActive: boolean }) {
   const { inventory, inventoryIsEmpty } = useInventory()
+
+  const favorites = useSortByFavorites(inventory)
 
   return (
     <Transition show={isActive}>
@@ -20,7 +25,7 @@ export function InventoryGrid({ isActive }: { isActive: boolean }) {
           <InventoryListEmpty />
         ) : (
           <>
-            {inventory.map((item, index) => (
+            {favorites.map((item, index) => (
               <TokenType key={index} item={item} />
             ))}
           </>
@@ -30,7 +35,7 @@ export function InventoryGrid({ isActive }: { isActive: boolean }) {
   )
 }
 
-function useCollectiblesByContract(inventory) {
+function useCollectiblesByContract(inventory: TokenTypeProps[]) {
   return inventory.reduce((acc, item) => {
     if (item.tokenClass === 'collectable') {
       if (!acc[item.contractAddress]) {
@@ -39,7 +44,7 @@ function useCollectiblesByContract(inventory) {
       acc[item.contractAddress].push(item)
     }
     return acc
-  }, {})
+  }, {} as Record<string, TokenTypeProps[]>)
 }
 
 export function InventoryList({ isActive }: { isActive: boolean }) {
@@ -61,7 +66,7 @@ export function InventoryList({ isActive }: { isActive: boolean }) {
       <div className="isolate flex flex-col gap-2 data-[closed]:opacity-0 data-[closed]:scale-95 data-[closed]:translate-y-2 transition-all">
         <div className="isolate flex flex-col gap-2">
           {coinInventory.slice(0, 6).map((item, index) => (
-            <TokenType key={index} item={item} displayMode="list" />
+            <InventoryCoinList {...item} key={index} />
           ))}
           <button
             type="button"
@@ -87,7 +92,7 @@ export function InventoryList({ isActive }: { isActive: boolean }) {
           </div>
         </div>
         <div className="isolate flex flex-col sm:grid-cols-4 gap-2  ">
-          {Object.values(inventoryByContract).map((item, index) => (
+          {Object.values(inventoryByContract).map(item => (
             <ContractCollectibles items={item} key={item?.[0]?.contractInfo?.address} />
           ))}
         </div>
@@ -96,14 +101,29 @@ export function InventoryList({ isActive }: { isActive: boolean }) {
   )
 }
 
-function ContractCollectibles({ items }) {
+function ContractCollectibles({ items }: { items: TokenTypeProps[] }) {
   const contract = items?.[0]?.contractInfo
+  if (!contract) return null
+
   const collectibles = items.length <= 7 ? items : items?.slice(0, 7)
 
   return (
-    <div>
+    <div className="mt-6">
       <Link to={`${contract.chainId}/${contract.address}`} className="flex justify-between items-center py-4">
-        <span className=" textfit-title text-xl font-bold">{contract?.name}</span>
+        <span className="flex items-center gap-2">
+          {contract?.logoURI ? (
+            <span className="size-10">
+              <img
+                src={contract.logoURI}
+                alt=""
+                width="32"
+                height="32"
+                className="size-full object-cover rounded-sm"
+              />
+            </span>
+          ) : null}
+          <span className=" textfit-title text-xl font-bold">{contract?.name}</span>
+        </span>
         <span className="text-sm font-bold flex gap-1 items-center">
           All ({items.length}) <ChevronRightIcon />
         </span>
@@ -117,7 +137,7 @@ function ContractCollectibles({ items }) {
             to={`${contract.chainId}/${contract.address}`}
             className="flex justify-center items-center py-4 aspect-square bg-background-secondary backdrop-blur-2xl rounded-md focus:opacity-80 hover:opacity-80"
           >
-            View all ({collectibles.length})
+            + {items.length - collectibles.length} more
           </Link>
         ) : null}
       </div>

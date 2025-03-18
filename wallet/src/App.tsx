@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router'
+import { Navigate, Route, Routes, useLocation } from 'react-router'
 
 import { AppLayout, ProtectedLayout } from './Layout'
 import { Auth } from './pages/Auth'
@@ -12,7 +12,6 @@ import { WalletHandlerRequestModal } from './pages/WalletHandlerRequestModal'
 import { TransactionHistory as HistoryPage } from './pages/TransactionHistory/IndexPage'
 import { THEME } from './utils/theme'
 import { useEffect } from 'react'
-import { InventoryLayout } from './pages/InventoryRoutes/InventoryLayout'
 
 export const App: React.FC = () => {
   useEffect(() => {
@@ -29,6 +28,16 @@ export const App: React.FC = () => {
     }
   }, [])
 
+  const location = useLocation()
+  useEffect(() => {
+    if (location.state && location.state.modal) {
+      //
+    }
+    if (location.state && location.state.top) {
+      window.scrollTo(0, 0)
+    }
+  }, [location.state])
+
   return (
     <Routes>
       {/* Public routes */}
@@ -38,24 +47,23 @@ export const App: React.FC = () => {
 
       {/* Protected routes */}
       <Route element={<ProtectedLayout />}>
-        <Route element={<InventoryLayout />}>
-          <Route index element={<WalletHandlerRequestModal variant="popup" />} />
+        <Route index element={<WalletHandlerRequestModal variant="popup" />} />
 
-          <Route path={ROUTES.INVENTORY} element={<InventoryPage />} />
-          <Route
-            path={`${ROUTES.INVENTORY}/:chainId/:contractAddress`}
-            element={<InventoryContractRoute />}
-          />
+        <Route path={ROUTES.INVENTORY} element={<InventoryPage />}>
           <Route
             path={`${ROUTES.INVENTORY}/:chainId/:contractAddress/:tokenId`}
             element={<InventoryTokenRoute />}
           />
+          <Route
+            path={`${ROUTES.INVENTORY}/:chainId/:contractAddress`}
+            element={<InventoryContractRoute />}
+          />
         </Route>
-        <Route path={ROUTES.DISCOVER} element={<DiscoverPage />} />
-        <Route path={`${ROUTES.DISCOVER}/:id`} element={<DiscoverShowRoute />} />
-        <Route path={ROUTES.MARKET} element={<></>} />
-        <Route path={ROUTES.HISTORY} element={<HistoryPage />} />
       </Route>
+      <Route path={ROUTES.DISCOVER} element={<DiscoverPage />} />
+      <Route path={`${ROUTES.DISCOVER}/:id`} element={<DiscoverShowRoute />} />
+      <Route path={ROUTES.MARKET} element={<></>} />
+      <Route path={ROUTES.HISTORY} element={<HistoryPage />} />
 
       {/* Redirect unknown routes to index */}
       <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />

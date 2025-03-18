@@ -1,10 +1,5 @@
-import { TokenTileErc20, TokenListItemErc20 } from './TokenTileERC20.tsx'
-import {
-  TokenTileNativeBalance,
-  TokenListItemNativeBalance,
-  InventoryListCoin
-} from './TokenTileNativeBalance.tsx'
-import { TokenTileCollectable, TokenListItemCollectable } from './TokenTileCollectable.tsx'
+import { InventoryCoinTile, InventoryCoinList } from './InventoryCoin.tsx'
+import { InventoryCollectibleTile, InventoryCollectibleList } from './InventoryCollectible.tsx'
 import { TokenTileEmpty, TokenListItemEmpty } from './TokenTileEmpty.tsx'
 import type { TokenTypeProps } from '../types.ts'
 
@@ -19,11 +14,10 @@ export function TokenType({
   if (displayMode === 'grid') {
     switch (item?.tokenClass) {
       case 'nativeBalance':
-        return <TokenTileNativeBalance {...item} />
-      case 'collectable':
-        return <TokenTileCollectable {...item} />
       case 'erc20':
-        return <TokenTileErc20 {...item} />
+        return <InventoryCoinTile {...item} />
+      case 'collectable':
+        return <InventoryCollectibleTile {...item} />
       default:
         return <TokenTileEmpty />
     }
@@ -32,9 +26,9 @@ export function TokenType({
     switch (item?.tokenClass) {
       case 'nativeBalance':
       case 'erc20':
-        return <InventoryListCoin {...item} />
+        return <InventoryCoinList {...item} />
       case 'collectable':
-        return <TokenListItemCollectable {...item} />
+        return <InventoryCollectibleList {...item} />
 
       default:
         return <TokenListItemEmpty />

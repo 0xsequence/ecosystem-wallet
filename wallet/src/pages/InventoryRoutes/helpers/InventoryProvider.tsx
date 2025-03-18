@@ -39,10 +39,15 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
   const [showSendModal, setShowSendModal] = useState<boolean>(false)
   const [showInventoryItem, setShowInventoryItem] = useState<ShowInventoryItem>(false)
 
-  const { inventory, inventoryByTokenClass, inventoryIsEmpty, status, refetchInventory } = useFetchInventory()
-
-  const coinInventory = [...inventoryByTokenClass.nativeBalances, ...inventoryByTokenClass.erc20Inventory]
-  const collectibleInventory = inventoryByTokenClass.collectibleInventory
+  const {
+    inventory,
+    coinInventory,
+    collectibleInventory,
+    inventoryByTokenClass,
+    inventoryIsEmpty,
+    status,
+    refetchInventory
+  } = useFetchInventory()
 
   function contractInfo({ chainId, contractAddress, tokenId }: InventoryItemIdentifier) {
     const result = inventory.find(item => {
@@ -76,7 +81,9 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
         inventory,
         /* @ts-expect-error FIXME */
         inventoryByTokenClass,
+        /* @ts-expect-error FIXME */
         coinInventory,
+        /* @ts-expect-error FIXME */
         collectibleInventory,
         inventoryIsEmpty,
         status,
