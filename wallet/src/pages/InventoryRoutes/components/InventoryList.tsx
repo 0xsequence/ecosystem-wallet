@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { inert } from '../../../utils/inert'
 import { useInventory } from '../helpers/useInventory'
-import { InventoryListEmpty } from './InventoryListEmpty'
+import { InventoryListEmpty, InventoryGridEmpty } from './InventoryListEmpty'
 import { TokenType } from './TokenType'
 import { Transition } from '@headlessui/react'
 import { ChevronRightIcon } from '@0xsequence/design-system'
@@ -9,11 +9,14 @@ import { Link } from 'react-router'
 import { TokenTypeProps } from '../types'
 import { InventoryCoinList } from './InventoryCoin'
 import { useSortByFavorites } from '../helpers/useSortByFavorites'
+import { useCollectiblesByContract } from '../../../hooks/useCollectiblesByContract'
+import { useSearchFilter } from '../../../hooks/useSearch'
 
 export function InventoryGrid({ isActive }: { isActive: boolean }) {
   const { inventory, inventoryIsEmpty } = useInventory()
+  const { hasNoResults, filterResults } = useSearchFilter()
 
-  const favorites = useSortByFavorites(inventory)
+  const favorites = useSortByFavorites(filterResults(inventory))
 
   return (
     <Transition show={isActive}>
@@ -22,7 +25,7 @@ export function InventoryGrid({ isActive }: { isActive: boolean }) {
         {...inert(!isActive)}
       >
         {inventoryIsEmpty ? (
-          <InventoryListEmpty />
+          <InventoryGridEmpty />
         ) : (
           <>
             {favorites.map((item, index) => (
@@ -30,27 +33,20 @@ export function InventoryGrid({ isActive }: { isActive: boolean }) {
             ))}
           </>
         )}
+        {hasNoResults ? <div className="text-center text-primary">No results found</div> : null}
       </div>
     </Transition>
   )
 }
 
-function useCollectiblesByContract(inventory: TokenTypeProps[]) {
-  return inventory.reduce((acc, item) => {
-    if (item.tokenClass === 'collectable') {
-      if (!acc[item.contractAddress]) {
-        acc[item.contractAddress] = []
-      }
-      acc[item.contractAddress].push(item)
-    }
-    return acc
-  }, {} as Record<string, TokenTypeProps[]>)
-}
-
 export function InventoryList({ isActive }: { isActive: boolean }) {
   const { coinInventory, collectibleInventory, inventoryIsEmpty } = useInventory()
+  const { isSearching, filterResults } = useSearchFilter()
 
-  const inventoryByContract = useCollectiblesByContract(collectibleInventory)
+  const filteredCoins = filterResults(coinInventory)
+  const filteredCollectibles = filterResults(collectibleInventory)
+
+  const inventoryByContract = useCollectiblesByContract(filteredCollectibles)
 
   const [showAllCoins, setShowAllCoins] = useState(false)
 
@@ -58,44 +54,53 @@ export function InventoryList({ isActive }: { isActive: boolean }) {
     setShowAllCoins(!showAllCoins)
   }
 
-  if (inventoryIsEmpty) {
-    return <InventoryListEmpty />
-  }
   return (
     <Transition show={isActive}>
       <div className="isolate flex flex-col gap-2 data-[closed]:opacity-0 data-[closed]:scale-95 data-[closed]:translate-y-2 transition-all">
-        <div className="isolate flex flex-col gap-2">
-          {coinInventory.slice(0, 6).map((item, index) => (
-            <InventoryCoinList {...item} key={index} />
-          ))}
-          <button
-            type="button"
-            onClick={toggleShowAllCoins}
-            className="rounded-md overflow-clip bg-background-secondary/50 backdrop-blur-2xl cursor-pointer p-4 sm:py-3 px-4  gap-3 text-sm text-primary focus:opactiy-80 hover:opacity-80 textfit-body flex items-center justify-between"
-          >
-            {showAllCoins ? 'Show Fewer Coins' : 'Show All Coins'}
-            <ChevronRightIcon
-              className="data-[open='true']:rotate-90 transition-transform"
-              data-open={showAllCoins}
-            />
-          </button>
+        {inventoryIsEmpty ? (
+          <InventoryListEmpty />
+        ) : (
+          <>
+            <div className="isolate flex flex-col gap-2">
+              {isSearching && filteredCoins.length === 0 ? <>None</> : null}
 
-          <div
-            className="grid grid-rows-[1fr] inert:grid-rows-[0fr] transition-all group/card inert:overflow-clip"
-            {...inert(!showAllCoins)}
-          >
-            <div className="isolate flex flex-col gap-2 min-h-0">
-              {coinInventory.slice(6, coinInventory.length).map((item, index) => (
-                <TokenType key={index} item={item} displayMode="list" />
+              {filteredCoins
+                .slice(0, 6)
+                .map((item, index) => (!item ? null : <InventoryCoinList {...item} key={index} />))}
+              {filteredCoins.length > 6 ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={toggleShowAllCoins}
+                    className="rounded-md overflow-clip bg-background-secondary/50 backdrop-blur-2xl cursor-pointer p-4 sm:py-3 px-4  gap-3 text-sm text-primary focus:opactiy-80 hover:opacity-80 textfit-body flex items-center justify-between"
+                  >
+                    {showAllCoins ? 'Show Fewer Coins' : 'Show All Coins'}
+                    <ChevronRightIcon
+                      className="data-[open='true']:rotate-90 transition-transform"
+                      data-open={showAllCoins}
+                    />
+                  </button>
+
+                  <div
+                    className="grid grid-rows-[1fr] inert:grid-rows-[0fr] transition-all group/card inert:overflow-clip"
+                    {...inert(!showAllCoins)}
+                  >
+                    <div className="isolate flex flex-col gap-2 min-h-0">
+                      {coinInventory.slice(6, coinInventory.length).map((item, index) => (
+                        <TokenType key={index} item={item} displayMode="list" />
+                      ))}
+                    </div>
+                  </div>
+                </>
+              ) : null}
+            </div>
+            <div className="isolate flex flex-col sm:grid-cols-4 gap-2  ">
+              {Object.values(inventoryByContract).map(item => (
+                <ContractCollectibles items={item} key={item?.[0]?.contractInfo?.address} />
               ))}
             </div>
-          </div>
-        </div>
-        <div className="isolate flex flex-col sm:grid-cols-4 gap-2  ">
-          {Object.values(inventoryByContract).map(item => (
-            <ContractCollectibles items={item} key={item?.[0]?.contractInfo?.address} />
-          ))}
-        </div>
+          </>
+        )}
       </div>
     </Transition>
   )

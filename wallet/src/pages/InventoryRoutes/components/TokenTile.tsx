@@ -16,7 +16,7 @@ export function TokenTile(
 
   return (
     <Link
-      to={`/inventory/${chainId}/${contractAddress}/${tokenId}`}
+      to={`/inventory/${chainId}/${contractAddress}/${tokenId || '0'}`}
       state={{ modal: true }}
       className={cn(
         'aspect-square rounded-md overflow-clip bg-background-secondary backdrop-blur-2xl cursor-pointer hover:scale-102 hover:-translate-y-0.5 transition-transform relative',
@@ -42,7 +42,7 @@ export function TokenListItem(
 
   return (
     <Link
-      to={`/inventory/${chainId}/${contractAddress}/${tokenId || 0}`}
+      to={`/inventory/${chainId}/${contractAddress}/${tokenId || '0'}`}
       state={{ modal: true }}
       className={cn(
         'rounded-md overflow-clip bg-background-secondary backdrop-blur-2xl cursor-pointer hover:scale-102 hover:-translate-y-0.5 transition-transform',

@@ -50,14 +50,24 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
   } = useFetchInventory()
 
   function contractInfo({ chainId, contractAddress, tokenId }: InventoryItemIdentifier) {
+    // console.log(chainId, contractAddress, tokenId)
+
+    const chain = parseInt(chainId as string)
+
     const result = inventory.find(item => {
-      if (contractAddress && tokenId && item?.tokenClass !== 'nativeBalance') {
+      if (contractAddress === ZeroAddress && tokenId === '0') {
+        if (item?.chainId === chain && item?.contractAddress === ZeroAddress) {
+          return item
+        }
+      }
+
+      if (contractAddress && tokenId) {
         if (item?.contractAddress === contractAddress && item?.tokenID === tokenId) {
           return item
         }
       }
 
-      if (!tokenId) {
+      if (tokenId === '0') {
         if (
           chainId === item?.chainId &&
           (item?.contractAddress === contractAddress || item?.contractAddress === ZeroAddress)

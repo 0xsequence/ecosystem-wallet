@@ -30,6 +30,7 @@
     "dayjs": "^1.11.13",
     "ethers": "6.13.0",
     "framer-motion": "^11.5.2",
+    "fuse.js": "^7.1.0",
     "qr-scanner": "^1.4.2",
     "qrcode.react": "^4.2.0",
     "react": "^18.3.1",

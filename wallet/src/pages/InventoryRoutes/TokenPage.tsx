@@ -31,7 +31,7 @@ export function InventoryTokenRoute() {
     return null
   }
 
-  const item = contractInfo({ chainId }) //, contractAddress, tokenId })
+  const item = contractInfo({ chainId, contractAddress, tokenId })
 
   console.log(item)
 

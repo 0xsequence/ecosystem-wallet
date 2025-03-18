@@ -59,14 +59,14 @@ export const App: React.FC = () => {
             element={<InventoryContractRoute />}
           />
         </Route>
-      </Route>
-      <Route path={ROUTES.DISCOVER} element={<DiscoverPage />} />
-      <Route path={`${ROUTES.DISCOVER}/:id`} element={<DiscoverShowRoute />} />
-      <Route path={ROUTES.MARKET} element={<></>} />
-      <Route path={ROUTES.HISTORY} element={<HistoryPage />} />
+        <Route path={ROUTES.DISCOVER} element={<DiscoverPage />} />
+        <Route path={`${ROUTES.DISCOVER}/:id`} element={<DiscoverShowRoute />} />
+        <Route path={ROUTES.MARKET} element={<></>} />
+        <Route path={ROUTES.HISTORY} element={<HistoryPage />} />
 
-      {/* Redirect unknown routes to index */}
-      <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
+        {/* Redirect unknown routes to index */}
+        <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
+      </Route>
     </Routes>
   )
 }
