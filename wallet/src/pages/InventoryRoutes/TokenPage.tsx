@@ -1,6 +1,6 @@
 import { Link, useLocation, useParams } from 'react-router'
 
-import { ArrowUpIcon, HeartIcon, SendIcon } from '../../design-system-patch/icons'
+import { HeartIcon, SendIcon } from '../../design-system-patch/icons'
 import { useInventory } from './helpers/useInventory'
 import { TokenTileProps, TokenTypeProps } from './types'
 import { formatDisplay, truncateAtMiddle } from '../../utils/helpers'

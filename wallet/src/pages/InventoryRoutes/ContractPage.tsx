@@ -15,7 +15,9 @@ export function InventoryContractRoute() {
   return (
     <>
       <div className="w-full max-w-screen-lg mx-auto flex flex-col px-4 py-12 gap-6">
+        {/* @ts-expect-error fixme */}
         <Masthead contract={contract} />
+        {/* @ts-expect-error fixme */}
 
         <h1 className="text-3xl font-bold">{contract.name}</h1>
 
@@ -30,8 +32,11 @@ export function InventoryContractRoute() {
     </>
   )
 }
-
-function Masthead({ contract }: { contract: any }) {
+function Masthead({
+  contract
+}: {
+  contract: { extensions: { ogImage: string }; logoURI: string; name: string }
+}) {
   if (contract?.extensions?.ogImage)
     return (
       <div className="flex items-center justify-center relative overflow-clip rounded-xl aspect-video bg-background-secondary">

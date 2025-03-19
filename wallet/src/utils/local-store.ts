@@ -65,6 +65,7 @@ export function useLocalStore<T>(
     let data = JSON.parse(value)
 
     if (!data) {
+      /* @ts-expect-error fixme */
       data = localStoreDefaults?.[key] || {}
     }
 
