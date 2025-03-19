@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useLocation } from 'react-router'
 
 import { ContractVerificationStatus } from '@0xsequence/indexer'
-// import { useAuth } from '../../../context/AuthContext'
+import { useAuth } from '../../../context/AuthContext'
 import { useConfig } from '../../../hooks/useConfig'
 import { useTokenBalancesDetails } from '../../../hooks/useTokenBalancesDetails'
 import { useErc20Inventory, useCollectibleInventory, useNativeInventory } from './get-inventory'
@@ -12,9 +12,8 @@ import { useSortByFavorites } from './useSortByFavorites'
 
 export function useFetchInventory() {
   const { hideUnlistedTokens } = useConfig()
-  // const { address = '' } = useAuth()
+  const { address = '' } = useAuth()
 
-  const address = '0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9'
   const location = useLocation()
   const { data, dataUpdatedAt, isLoading, refetch } = useTokenBalancesDetails({
     omitMetadata: false,

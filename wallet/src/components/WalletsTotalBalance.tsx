@@ -11,21 +11,6 @@ import { UserPreferenceLocalStore } from '../pages/InventoryRoutes/types'
 import { useExchangeRate } from '../hooks/useExchangeRate'
 
 function useTotalCoinBalance() {
-  // const address = '0x8e3E38fe7367dd3b52D1e281E4e8400447C8d8B9'
-
-  // const data = useTokenBalancesSummary({
-  //   filter: {
-  //     accountAddresses: [address],
-  //     contractStatus: ContractVerificationStatus.VERIFIED,
-  //     omitNativeBalances: false
-  //   },
-  //   omitMetadata: true
-  // })
-
-  // console.log(data?.data)
-
-  // return <>{data?.data}</>
-
   const { coinInventory } = useInventory()
 
   const coins = coinInventory.map(chain => {
