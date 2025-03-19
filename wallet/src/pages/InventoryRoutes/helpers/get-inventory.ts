@@ -30,9 +30,7 @@ function tidyBalances(data?: GatewayTokenBalance[]) {
 
         contract = { token, contractType, extensions }
       }
-      if (item.contractType === 'ERC20') {
-        console.log(item, { ...item, isNative: false, ...chain, ...contract })
-      }
+
       return { ...item, isNative: false, ...chain, ...contract }
     })
 }

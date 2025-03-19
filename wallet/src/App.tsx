@@ -50,14 +50,12 @@ export const App: React.FC = () => {
         <Route index element={<WalletHandlerRequestModal variant="popup" />} />
 
         <Route path={ROUTES.INVENTORY} element={<InventoryPage />}>
-          <Route
-            path={`${ROUTES.INVENTORY}/:chainId/:contractAddress`}
-            element={<InventoryContractRoute />}
-          ></Route>
-          <Route
-            path={`${ROUTES.INVENTORY}/:chainId/:contractAddress/:tokenId`}
-            element={<InventoryTokenRoute />}
-          />
+          <Route path={`${ROUTES.INVENTORY}/:chainId/:contractAddress`} element={<InventoryContractRoute />}>
+            <Route
+              path={`${ROUTES.INVENTORY}/:chainId/:contractAddress/:tokenId`}
+              element={<InventoryTokenRoute />}
+            />
+          </Route>
         </Route>
         <Route path={ROUTES.DISCOVER} element={<DiscoverPage />} />
         <Route path={`${ROUTES.DISCOVER}/:id`} element={<DiscoverShowRoute />} />

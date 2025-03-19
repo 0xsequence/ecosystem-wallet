@@ -60,6 +60,35 @@ function TokenDetails({ item }: { item: TokenTypeProps }) {
   }
 }
 
+function useCoinFiatPrice(chainId: number, contractAddress: string, balance: string, decimals?: number) {
+  const units = formatUnits(balance, decimals)
+
+  const { data = [], isPending } = useCoinPrices([
+    {
+      chainId,
+      contractAddress
+    }
+  ])
+
+  const { price, price24hChange } = data[0] || {}
+  const value = price
+    ? `${formatDisplay(price.value * Number(units), {
+        disableScientificNotation: true,
+        significantDigits: 2,
+        maximumFractionDigits: 3,
+        currency: 'USD'
+      })}`
+    : ''
+  const change = price24hChange
+    ? `${price24hChange.value > 0 ? '+' : ''}${formatDisplay(price24hChange.value, {
+        disableScientificNotation: true,
+        significantDigits: 2
+      })}%`
+    : ''
+
+  return { isPending, value, change }
+}
+
 function CoinDetails(props: TokenTypeProps) {
   const style = {
     ...(THEME.appBackground && { '--background': `url(${THEME.appBackground})` })
@@ -77,30 +106,16 @@ function CoinDetails(props: TokenTypeProps) {
   const units = formatUnits(balance, decimals)
   const diplayedBalance = formatDisplay(units)
 
-  const { data = [], isPending } = useCoinPrices([
-    {
-      chainId,
-      contractAddress
-    }
-  ])
+  const price = useCoinFiatPrice(chainId, contractAddress, balance, decimals)
 
-  const { price, price24hChange } = data[0] || {}
-  const priceText = price
-    ? `$${formatDisplay(price.value * Number(units), {
-        disableScientificNotation: true,
-        significantDigits: 2,
-        maximumFractionDigits: 3
-      })}`
-    : ''
-  const priceChangeText = price24hChange
-    ? `${price24hChange.value > 0 ? '+' : ''}${formatDisplay(price24hChange.value, {
-        disableScientificNotation: true,
-        significantDigits: 2
-      })}%`
-    : ''
-
+  const location = useLocation()
   return (
     <div className="w-full flex flex-col gap-6 p-6 ">
+      {location.state && location.state.modal ? (
+        <Link to={location.pathname}>
+          <ExpandIcon />
+        </Link>
+      ) : null}
       <div
         className={`py-8 h-[240px] [background-image:var(--background)] bg-background-secondary bg-center rounded-sm  ${
           THEME.backgroundMode === 'tile' ? 'bg-repeat' : 'bg-cover bg-no-repeat'
@@ -110,21 +125,21 @@ function CoinDetails(props: TokenTypeProps) {
         <div className="grid gap-2 place-items-center">
           <TokenImage src={logoURI} size="xl" withNetwork={chainId} />
           <div className="flex-1 grid place-items-center">
-            {isPending ? (
+            {price.isPending ? (
               <div className="h-[52px] grid place-items-center gap-2">
                 <div className="h-7 w-24 bg-black/5 rounded animate-pulse" />
                 <div className="h-5 w-16 bg-black/5 rounded animate-pulse" />
               </div>
             ) : (
               <>
-                {priceText && <p className="text-style-md font-bold">{priceText}</p>}
-                {priceChangeText && (
+                {price.value && <p className="text-style-md font-bold">{price.value}</p>}
+                {price.change && (
                   <p
                     className={cn('text-style-sm', [
-                      priceChangeText.startsWith('-') ? 'text-red-400' : 'text-green-400'
+                      price.change.startsWith('-') ? 'text-red-400' : 'text-green-400'
                     ])}
                   >
-                    {priceChangeText}
+                    {price.change}
                   </p>
                 )}
               </>
@@ -144,10 +159,10 @@ function CoinDetails(props: TokenTypeProps) {
               <p className="flex-1 text-start text-style-lg font-bold">
                 {diplayedBalance} {symbol}
               </p>
-              {isPending ? (
+              {price.isPending ? (
                 <div className="h-6 w-24 bg-black/5 rounded animate-pulse" />
               ) : (
-                priceText && <p className="text-style-sm font-bold text-seq-grey-500">{priceText}</p>
+                price.value && <p className="text-style-sm font-bold text-seq-grey-500">{price.value}</p>
               )}
             </div>
           </div>
@@ -355,7 +370,7 @@ function Favorite({ id }: { id: string }) {
     <button
       type="button"
       onClick={() => toggle(id)}
-      className="bg-button-glass rounded-md items-center justify-center gap-2 text-sm font-bold p-4 cursor-pointer grid grid-cols-1 grid-rows-1 [&>span]:col-start-1 [&>span]:row-start-1"
+      className="bg-button-glass rounded-md items-center justify-center gap-2 text-sm font-bold p-4 cursor-pointer grid grid-cols-1 grid-rows-1 [&>span]:col-start-1 [&>span]:row-start-1 hover:opacity-80 focus-visible:opacity-80 transition-all"
     >
       <span
         className="flex gap-2 inert:-translate-y-4 inert:opacity-0 transition-all items-center justify-center"

@@ -1,6 +1,4 @@
-import { TokenDetailModal } from './components/TokenDetailModal.tsx'
 import { InventoryGrid, InventoryList } from './components/InventoryList.tsx'
-import { SendTokens } from './components/SendTokens.tsx'
 
 import { useLocalStore } from '../../utils/local-store.ts'
 
@@ -34,7 +32,11 @@ export const InventoryPage = () => {
 
   const value = useSearchValues({ items: inventory, keys: searchKeys })
 
-  if ((contractAddress && !tokenId) || (tokenId && location.state === null)) {
+  if (
+    (contractAddress && !tokenId) ||
+    (tokenId && location.state === null) ||
+    (tokenId && location.state && location.state.referer !== '/inventory')
+  ) {
     return <Outlet />
   }
 
@@ -55,8 +57,7 @@ export const InventoryPage = () => {
           <InventoryList isActive={prefs?.inventoryDisplayMode === 'list'} />
         </div>
       </div>
-      <TokenDetailModal />
-      <SendTokens />
+      <Outlet />
     </SearchContext.Provider>
   )
 }

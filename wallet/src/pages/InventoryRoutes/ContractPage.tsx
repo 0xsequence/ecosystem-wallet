@@ -1,14 +1,14 @@
 import { Outlet, useLocation, useParams } from 'react-router'
 import { TokenType } from './components/TokenType'
 import { useContractCollection } from './helpers/useContractCollection'
+import { TokenDetailModal } from './components/TokenDetailModal'
 // import { useAuth } from '../../context/AuthContext'
 
 export function InventoryContractRoute() {
   const { chainId, contractAddress, tokenId } = useParams()
-  const location = useLocation()
   const { contract, collectibles } = useContractCollection(chainId, contractAddress)
-
-  if (tokenId && location.state.modal) {
+  const location = useLocation()
+  if (tokenId && location.state === null) {
     return <Outlet />
   }
 
@@ -25,12 +25,13 @@ export function InventoryContractRoute() {
           ))}
         </div>
       </div>
-      {/* <TokenDetailModal /> */}
+
+      <TokenDetailModal />
     </>
   )
 }
 
-function Masthead({ contract }) {
+function Masthead({ contract }: { contract: any }) {
   if (contract?.extensions?.ogImage)
     return (
       <div className="flex items-center justify-center relative overflow-clip rounded-xl aspect-video bg-background-secondary">

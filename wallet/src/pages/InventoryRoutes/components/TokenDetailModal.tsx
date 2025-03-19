@@ -1,5 +1,6 @@
 import { Modal } from '@0xsequence/design-system'
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router'
+import { SendTokens } from './SendTokens'
 
 export function TokenDetailModal() {
   const { tokenId } = useParams()
@@ -7,18 +8,26 @@ export function TokenDetailModal() {
   const location = useLocation()
 
   function close() {
-    navigate('/inventory')
+    navigate(location?.state?.referer || '/inventory')
   }
 
   if (!tokenId) return null
 
   if (location.state && location.state.modal) {
     return (
-      <Modal scroll={true} autoHeight onClose={() => close()}>
-        <Outlet />
-      </Modal>
+      <>
+        <Modal scroll={true} autoHeight onClose={() => close()}>
+          <Outlet />
+        </Modal>
+        <SendTokens />
+      </>
     )
   }
 
-  return <Outlet />
+  return (
+    <>
+      <Outlet />
+      <SendTokens />
+    </>
+  )
 }

@@ -114,12 +114,12 @@ export function InventoryCoinList(props: TokenTileProps) {
 
         <span className="grid grid-cols-1 grid-rows-1 transition-all items-start justify-content-start text-md sm:text-lg font-bold text-start leading-[0] [&>span]:col-start-1 [&>span]:row-start-1">
           <span
-            className="transition-all inert:translate-y-4 inert:scale-90 inert:opacity-0"
+            className="transition-all inert:translate-y-4 inert:scale-90 inert:opacity-0 whitespace-nowrap"
             {...inert(prefs?.hideBalance)}
           >
             {limitDecimals(formatDisplay(formatUnits(balance, decimals)), 5)}
             {' '}
-            <span className="text-sm font-normal">{symbol}</span>
+            <span className="text-xs sm:text-sm font-normal">{symbol}</span>
           </span>
           <span
             className="transition-all inert:-translate-y-4 inert:scale-90 inert:opacity-0"
@@ -133,15 +133,15 @@ export function InventoryCoinList(props: TokenTileProps) {
 
       <CoinValue {...props} />
       {has(uuid) ? (
-        <div className="flex items-center justify-center bg-button-glass p-2 rounded-full backdrop-blur-2xl">
-          <SvgHeartIcon />
+        <div className="flex items-center justify-center bg-button-glass p-1.25 rounded-full backdrop-blur-2xl">
+          <SvgHeartIcon className="size-4" />
         </div>
       ) : null}
     </TokenListItem>
   )
 }
 
-function CoinValue(props: any) {
+function CoinValue(props: TokenTileProps) {
   const { chainId, balance, contractAddress, token } = props
 
   const { data = [], isPending } = useCoinPrices([
@@ -176,14 +176,17 @@ function CoinValue(props: any) {
 
   return (
     <div
-      className="grid grid-rows-[1fr_1fr] inert:grid-rows-[0fr_1fr] text-end overflow-clip transition-all items-center"
+      className="grid grid-rows-[1fr_1fr] group inert:grid-rows-[0fr_1fr] text-end overflow-clip transition-all items-center"
       {...inert(prefs?.hideBalance)}
     >
-      <span className="min-h-0 overflow-hidden inert:opacity-0 transition-all" {...inert(prefs?.hideBalance)}>
+      <span className="min-h-0 overflow-hidden group-inert:opacity-0 transition-all leading-[1.1] self-end">
         {priceText}
       </span>
 
-      <span className="data-[trending='down']:text-red-400 text-green-400 text-xs" data-trending={trending}>
+      <span
+        className="data-[trending='down']:text-red-400 text-green-400 text-xs leading-[1.1]"
+        data-trending={trending}
+      >
         {priceChangeText}
       </span>
     </div>

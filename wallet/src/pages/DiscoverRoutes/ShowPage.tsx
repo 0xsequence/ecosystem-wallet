@@ -6,7 +6,6 @@ import { useInventory } from '../InventoryRoutes/helpers/useInventory'
 import { InventoryProvider } from '../InventoryRoutes/helpers/InventoryProvider'
 import { TokenType } from '../InventoryRoutes/components/TokenType'
 import { TokenDetailModal } from '../InventoryRoutes/components/TokenDetailModal'
-import { SendTokens } from '../InventoryRoutes/components/SendTokens'
 import { useFavorites } from '../../hooks/useFavorites'
 import { inert } from '../../utils/inert'
 import { useWatchlist } from '../../hooks/useWatchlist'
@@ -103,7 +102,6 @@ function Collectables({ contracts }: { contracts: string[] }) {
         ))}
       </div>
       <TokenDetailModal />
-      <SendTokens />
     </div>
   )
 }
