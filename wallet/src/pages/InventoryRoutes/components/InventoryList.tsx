@@ -20,28 +20,31 @@ export function InventoryGrid({ isActive }: { isActive: boolean }) {
 
   return (
     <Transition show={isActive}>
-      <div
-        className="isolate grid grid-cols-2 sm:grid-cols-4 gap-2  data-[closed]:opacity-0  data-[closed]:scale-95 data-[closed]:translate-y-2 transition-all"
-        {...inert(!isActive)}
-      >
-        {inventoryIsEmpty ? (
-          <InventoryGridEmpty />
-        ) : (
-          <>
-            {favorites.map((item, index) => (
-              <TokenType key={index} item={item} />
-            ))}
-          </>
-        )}
-        {hasNoResults ? <div className="text-center text-primary">No results found</div> : null}
-      </div>
+      {hasNoResults ? (
+        <NoResults />
+      ) : (
+        <div
+          className="isolate grid grid-cols-2 sm:grid-cols-4 gap-2  data-[closed]:opacity-0  data-[closed]:scale-95 data-[closed]:translate-y-2 transition-all"
+          {...inert(!isActive)}
+        >
+          {inventoryIsEmpty ? (
+            <InventoryGridEmpty />
+          ) : (
+            <>
+              {favorites.map((item, index) => (
+                <TokenType key={index} item={item} />
+              ))}
+            </>
+          )}
+        </div>
+      )}
     </Transition>
   )
 }
 
 export function InventoryList({ isActive }: { isActive: boolean }) {
   const { coinInventory, collectibleInventory, inventoryIsEmpty } = useInventory()
-  const { isSearching, filterResults } = useSearchFilter()
+  const { hasNoResults, filterResults } = useSearchFilter()
 
   const filteredCoins = filterResults(coinInventory)
   const filteredCollectibles = filterResults(collectibleInventory)
@@ -56,52 +59,54 @@ export function InventoryList({ isActive }: { isActive: boolean }) {
 
   return (
     <Transition show={isActive}>
-      <div className="isolate flex flex-col gap-2 data-[closed]:opacity-0 data-[closed]:scale-95 data-[closed]:translate-y-2 transition-all">
-        {inventoryIsEmpty ? (
-          <InventoryListEmpty />
-        ) : (
-          <>
-            <div className="isolate flex flex-col gap-2">
-              {isSearching && filteredCoins.length === 0 ? <>None</> : null}
+      {hasNoResults ? (
+        <NoResults />
+      ) : (
+        <div className="isolate flex flex-col gap-2 data-[closed]:opacity-0 data-[closed]:scale-95 data-[closed]:translate-y-2 transition-all">
+          {inventoryIsEmpty ? (
+            <InventoryListEmpty />
+          ) : (
+            <>
+              <div className="isolate flex flex-col gap-2">
+                {filteredCoins
+                  .slice(0, 6)
+                  .map((item, index) => (!item ? null : <InventoryCoinList {...item} key={index} />))}
+                {filteredCoins.length > 6 ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={toggleShowAllCoins}
+                      className="rounded-md overflow-clip bg-background-secondary/50 backdrop-blur-2xl cursor-pointer p-4 sm:py-3 px-4  gap-3 text-sm text-primary focus:opactiy-80 hover:opacity-80 textfit-body flex items-center justify-between"
+                    >
+                      {showAllCoins ? 'Show Fewer Coins' : 'Show All Coins'}
+                      <ChevronRightIcon
+                        className="data-[open='true']:rotate-90 transition-transform"
+                        data-open={showAllCoins}
+                      />
+                    </button>
 
-              {filteredCoins
-                .slice(0, 6)
-                .map((item, index) => (!item ? null : <InventoryCoinList {...item} key={index} />))}
-              {filteredCoins.length > 6 ? (
-                <>
-                  <button
-                    type="button"
-                    onClick={toggleShowAllCoins}
-                    className="rounded-md overflow-clip bg-background-secondary/50 backdrop-blur-2xl cursor-pointer p-4 sm:py-3 px-4  gap-3 text-sm text-primary focus:opactiy-80 hover:opacity-80 textfit-body flex items-center justify-between"
-                  >
-                    {showAllCoins ? 'Show Fewer Coins' : 'Show All Coins'}
-                    <ChevronRightIcon
-                      className="data-[open='true']:rotate-90 transition-transform"
-                      data-open={showAllCoins}
-                    />
-                  </button>
-
-                  <div
-                    className="grid grid-rows-[1fr] inert:grid-rows-[0fr] transition-all group/card inert:overflow-clip"
-                    {...inert(!showAllCoins)}
-                  >
-                    <div className="isolate flex flex-col gap-2 min-h-0">
-                      {coinInventory.slice(6, coinInventory.length).map((item, index) => (
-                        <TokenType key={index} item={item} displayMode="list" />
-                      ))}
+                    <div
+                      className="grid grid-rows-[1fr] inert:grid-rows-[0fr] transition-all group/card inert:overflow-clip"
+                      {...inert(!showAllCoins)}
+                    >
+                      <div className="isolate flex flex-col gap-2 min-h-0">
+                        {coinInventory.slice(6, coinInventory.length).map((item, index) => (
+                          <TokenType key={index} item={item} displayMode="list" />
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                </>
-              ) : null}
-            </div>
-            <div className="isolate flex flex-col sm:grid-cols-4 gap-2  ">
-              {Object.values(inventoryByContract).map(item => (
-                <ContractCollectibles items={item} key={item?.[0]?.contractInfo?.address} />
-              ))}
-            </div>
-          </>
-        )}
-      </div>
+                  </>
+                ) : null}
+              </div>
+              <div className="isolate flex flex-col sm:grid-cols-4 gap-2  ">
+                {Object.values(inventoryByContract).map(item => (
+                  <ContractCollectibles items={item} key={item?.[0]?.contractInfo?.address} />
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
     </Transition>
   )
 }
@@ -117,7 +122,7 @@ function ContractCollectibles({ items }: { items: TokenTypeProps[] }) {
       <Link to={`${contract.chainId}/${contract.address}`} className="flex justify-between items-center py-4">
         <span className="flex items-center gap-2">
           {contract?.logoURI ? (
-            <span className="size-10">
+            <span className="size-6 md:size-10">
               <img
                 src={contract.logoURI}
                 alt=""
@@ -127,13 +132,13 @@ function ContractCollectibles({ items }: { items: TokenTypeProps[] }) {
               />
             </span>
           ) : null}
-          <span className=" textfit-title text-xl font-bold">{contract?.name}</span>
+          <span className="textfit-title leading-tight md:text-xl font-bold">{contract?.name}</span>
         </span>
-        <span className="text-sm font-bold flex gap-1 items-center">
+        <span className="text-xs md:text-sm font-bold flex gap-1 items-center whitespace-nowrap">
           All ({items.length}) <ChevronRightIcon />
         </span>
       </Link>
-      <div className={`isolate grid grid-cols-4 gap-2`}>
+      <div className={`isolate grid grid-cols-2 sm:grid-cols-4 gap-2`}>
         {collectibles.slice(0, 7).map((item, index) => (
           <TokenType key={index} item={item} />
         ))}
@@ -146,6 +151,23 @@ function ContractCollectibles({ items }: { items: TokenTypeProps[] }) {
           </Link>
         ) : null}
       </div>
+    </div>
+  )
+}
+
+function NoResults() {
+  const { query, setQuery } = useSearchFilter()
+
+  return (
+    <div className="text-center text-primary bg-background-muted w-full px-4 max-sm:py-12 sm:aspect-video rounded-lg flex items-center justify-center flex-col pointer-events-auto gap-4">
+      <span>No results found for "{query}"</span>
+      <button
+        type="button"
+        className="cursor-pointer hover:opacity-80 focus:opacity-80 bg-button-glass px-3 py-1 rounded-sm text-sm font-medium textfit-body"
+        onClick={() => setQuery('')}
+      >
+        Clear
+      </button>
     </div>
   )
 }

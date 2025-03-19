@@ -6,8 +6,13 @@
   /* --theme-rounded-xl: 1.5rem; */
 }
 
+@utility text-* {
+  font-size: calc(--value(integer) / var(--base-unit) * 1rem);
+}
+
 @utility rounded-* {
-  border-radius: --value(--theme-rounded- *);
+  border-radius: --value(--border-radius- *);
+  border-radius: calc(--value(integer) / var(--base-unit) * 1rem);
 }
 
 /** Text style utilities */
@@ -22,6 +27,14 @@
   letter-spacing: inherit;
   line-height: inherit;
   font-family: inherit;
+}
+
+@utility textfit-body {
+  @apply tracking-[3%];
+}
+
+@utility textfit-title {
+  @apply tracking-[1%];
 }
 
 @utility text-style-lg {

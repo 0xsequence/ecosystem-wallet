@@ -10,6 +10,7 @@ interface FormatDisplayOptions {
   disableCompactNotation?: boolean
   significantDigits?: number
   maximumFractionDigits?: number
+  currency?: string
 }
 
 export const formatDisplay = (_val: number | string, options?: FormatDisplayOptions): string => {
@@ -48,6 +49,13 @@ export const formatDisplay = (_val: number | string, options?: FormatDisplayOpti
   let config: Pick<Intl.NumberFormatOptions, 'maximumFractionDigits' | 'maximumSignificantDigits'>
 
   const maximumSignificantDigits = options?.significantDigits ?? 4
+
+  if (options?.currency) {
+    return Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: options.currency
+    }).format(val)
+  }
 
   switch (valMode) {
     case ValueType.VERY_LARGE:

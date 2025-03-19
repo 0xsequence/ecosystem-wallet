@@ -8,6 +8,7 @@ import { inert } from '../../../utils/inert'
 import { useLocalStore } from '../../../utils/local-store'
 import { useFavoriteTokens } from '../../../hooks/useFavoriteTokens'
 import SvgHeartIcon from '../../../design-system-patch/icons/HeartIcon'
+import { useCoinPrices } from '../../../hooks/useCoinPrices'
 
 export function InventoryCoinTile(props: TokenTileProps) {
   const { chainId, contractAddress, tokenID, title, contractType, balance, token, uuid } = props
@@ -87,7 +88,7 @@ export function InventoryCoinList(props: TokenTileProps) {
       contractAddress={contractAddress}
       tokenId={tokenID}
       tokenClass="nativeBalance"
-      className="p-4 sm:py-3 px-4 flex items-center gap-3 relative"
+      className="p-4 sm:py-3 px-4 flex items-center gap-3 relative trasition-all"
     >
       <div className="size-8">
         {contractType === 'ERC20' ? (
@@ -129,11 +130,62 @@ export function InventoryCoinList(props: TokenTileProps) {
           </span>
         </span>
       </div>
+
+      <CoinValue {...props} />
       {has(uuid) ? (
         <div className="flex items-center justify-center bg-button-glass p-2 rounded-full backdrop-blur-2xl">
           <SvgHeartIcon />
         </div>
       ) : null}
     </TokenListItem>
+  )
+}
+
+function CoinValue(props: any) {
+  const { chainId, balance, contractAddress, token } = props
+
+  const { data = [], isPending } = useCoinPrices([
+    {
+      chainId,
+      contractAddress
+    }
+  ])
+  const units = formatUnits(balance, token.decimals)
+  // const diplayedBalance = formatDisplay(units)
+  const { price, price24hChange } = data[0] || {}
+  const priceText = price
+    ? `${formatDisplay(price.value * Number(units), {
+        disableScientificNotation: true,
+        significantDigits: 2,
+        maximumFractionDigits: 3,
+        currency: 'USD'
+      })}`
+    : ''
+  const priceChangeText = price24hChange
+    ? `${price24hChange.value > 0 ? '+' : ''}${formatDisplay(price24hChange.value, {
+        disableScientificNotation: true,
+        significantDigits: 2
+      })}%`
+    : ''
+
+  const trending = priceChangeText.startsWith('-') ? 'down' : 'up'
+  const [prefs] = useLocalStore<{ hideBalance: boolean }>('userPrefs')
+  if (isPending) {
+    return <>...</>
+  }
+
+  return (
+    <div
+      className="grid grid-rows-[1fr_1fr] inert:grid-rows-[0fr_1fr] text-end overflow-clip transition-all items-center"
+      {...inert(prefs?.hideBalance)}
+    >
+      <span className="min-h-0 overflow-hidden inert:opacity-0 transition-all" {...inert(prefs?.hideBalance)}>
+        {priceText}
+      </span>
+
+      <span className="data-[trending='down']:text-red-400 text-green-400 text-xs" data-trending={trending}>
+        {priceChangeText}
+      </span>
+    </div>
   )
 }

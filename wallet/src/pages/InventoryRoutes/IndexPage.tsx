@@ -41,8 +41,13 @@ export const InventoryPage = () => {
   return (
     <SearchContext.Provider value={value}>
       <div className="flex flex-col w-full max-w-screen-lg mx-auto mt-2 sm:my-8 sm:px-2 p-8 sm:py-0 gap-6">
-        <div className="flex justify-between items-center">
-          <SearchInput name="search" onChange={e => value.setQuery(e.target.value)} />
+        <div className="flex justify-between items-center gap-4">
+          <SearchInput
+            id="search"
+            name="search"
+            value={value.query}
+            onChange={e => value.setQuery(e.target.value)}
+          />
           <InventoryDisplayModeSwitch />
         </div>
         <div className="grid grid-cols-1 grid-rows-1 [&>*]:col-start-1 [&>*]:row-start-1">

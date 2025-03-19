@@ -1,6 +1,6 @@
-import { useParams } from 'react-router'
+import { Link, useLocation, useParams } from 'react-router'
 
-import { HeartIcon, SendIcon } from '../../design-system-patch/icons'
+import { ArrowUpIcon, HeartIcon, SendIcon } from '../../design-system-patch/icons'
 import { useInventory } from './helpers/useInventory'
 import { TokenTileProps, TokenTypeProps } from './types'
 import { formatDisplay, truncateAtMiddle } from '../../utils/helpers'
@@ -16,7 +16,8 @@ import {
   Collapsible,
   nativeTokenImageUrl,
   cn,
-  useMediaQuery
+  useMediaQuery,
+  ExpandIcon
 } from '@0xsequence/design-system'
 import { formatUnits } from 'ethers'
 import { zeroAddress } from 'viem'
@@ -32,8 +33,6 @@ export function InventoryTokenRoute() {
   }
 
   const item = contractInfo({ chainId, contractAddress, tokenId })
-
-  console.log(item)
 
   if (!item) return null
 
@@ -192,6 +191,16 @@ function CoinDetails(props: TokenTypeProps) {
 }
 
 function TokenDetailsCollectable(props: TokenTileProps) {
+  const location = useLocation()
+
+  if (location.state && location.state.modal) {
+    return <CollectibleModal {...props} />
+  }
+
+  return <CollectibleRoute {...props} />
+}
+
+function CollectibleRoute(props: TokenTileProps) {
   const style = {
     ...(THEME.appBackground && { '--background': `url(${THEME.appBackground})` })
   } as React.CSSProperties
@@ -201,9 +210,84 @@ function TokenDetailsCollectable(props: TokenTileProps) {
   const { setShowSendModal } = useInventory()
   const { tokenMetadata, chainId, chain, balance, contractType, contractAddress, uuid } = props
   const isERC1155 = contractType === 'ERC1155'
+  return (
+    <div className="w-full flex flex-col px-6 py-24">
+      <div
+        className={`flex items-center justify-center h-[300px] [background-image:var(--background)] bg-background-secondary bg-center rounded-sm ${
+          THEME.backgroundMode === 'tile' ? 'bg-repeat' : 'bg-cover bg-no-repeat'
+        }`}
+        style={style}
+      >
+        <Image src={tokenMetadata?.image} className="size-full object-contain" />
+      </div>
+      <div className="pt-4 pb-6 w-full flex flex-col gap-1 items-center">
+        <span className="text-3xl font-bold w-full">{tokenMetadata?.name}</span>
+        <div className="flex flex-col w-full gap-3">
+          <span className="inline-flex mx-auto items-center gap-2 font-bold text-[9px] bg-background-secondary px-1.25 py-1 rounded-xs">
+            <NetworkImage chainId={chainId} size="xs" /> {chain?.title}
+          </span>
+          {isERC1155 && balance && (
+            <div className="grid justify-items-start gap-2">
+              <span className="text-xs font-bold">Balance</span>
+              <div className="w-full flex items-center gap-2">
+                <p className="flex-1 text-start text-style-lg font-bold">{balance?.toString() || '0'}</p>
+              </div>
+            </div>
+          )}
 
+          {contractAddress && (
+            <div className="flex flex-col gap-2">
+              <span className="text-xs font-bold text-left">Contract Address</span>
+              <div className="flex gap-2 text-left">
+                <p className="font-mono text-sm text-seq-grey-500">
+                  {isMobile ? truncateAtMiddle(contractAddress, 25) : contractAddress}
+                </p>
+                <CopyButton text={contractAddress} />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="w-full flex flex-col gap-2">
+        <div className="flex gap-2 w-full">
+          <button
+            type="button"
+            className="bg-gradient-primary rounded-md flex items-center justify-center gap-2 text-sm font-bold p-4 cursor-pointer flex-1"
+            onClick={() => setShowSendModal(true)}
+          >
+            <SendIcon />
+            Send
+          </button>
+          <Favorite id={uuid} />
+        </div>
+
+        {tokenMetadata?.description && (
+          <Collapsible label="Details">
+            <span className="text-seq-grey-500 text-xs font-bold">{tokenMetadata?.description}</span>
+          </Collapsible>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function CollectibleModal(props: TokenTileProps) {
+  const style = {
+    ...(THEME.appBackground && { '--background': `url(${THEME.appBackground})` })
+  } as React.CSSProperties
+
+  const location = useLocation()
+
+  const isMobile = useMediaQuery('isMobile')
+
+  const { setShowSendModal } = useInventory()
+  const { tokenMetadata, chainId, chain, balance, contractType, contractAddress, uuid } = props
+  const isERC1155 = contractType === 'ERC1155'
   return (
     <div className="w-full flex flex-col p-6">
+      <Link to={location.pathname}>
+        <ExpandIcon />
+      </Link>
       <div
         className={`flex items-center justify-center h-[300px] [background-image:var(--background)] bg-background-secondary bg-center rounded-sm ${
           THEME.backgroundMode === 'tile' ? 'bg-repeat' : 'bg-cover bg-no-repeat'
@@ -278,7 +362,7 @@ function Favorite({ id }: { id: string }) {
         {...inert(has(id))}
       >
         <HeartIcon />
-        Add
+        Favorite
       </span>
       <span
         className="flex gap-2 inert:translate-y-4 inert:opacity-0 transition-all items-center justify-center"

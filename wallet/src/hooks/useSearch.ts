@@ -42,7 +42,7 @@ export function useSearchFilter() {
     throw new Error('useSearchFilter must be used within a Search Context Provider')
   }
 
-  const { query, filteredItems } = context
+  const { query, setQuery, filteredItems } = context
 
   const isSearching = query
 
@@ -61,5 +61,5 @@ export function useSearchFilter() {
   const totalResults = filteredItems.length
   const hasNoResults = isSearching && totalResults === 0
 
-  return { filterResults, totalResults, hasNoResults, isSearching, query }
+  return { filterResults, totalResults, hasNoResults, isSearching, query, setQuery }
 }

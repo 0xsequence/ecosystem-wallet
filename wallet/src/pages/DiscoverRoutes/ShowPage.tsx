@@ -75,7 +75,7 @@ export function DiscoverShowRoute() {
                   {...inert(favorites.has(item.id))}
                 >
                   <HeartIcon />
-                  Add
+                  Favorite
                 </span>
               </button>
             </div>

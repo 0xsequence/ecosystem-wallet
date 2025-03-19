@@ -8,7 +8,7 @@ export function InventoryContractRoute() {
   const location = useLocation()
   const { contract, collectibles } = useContractCollection(chainId, contractAddress)
 
-  if (tokenId && location.state === null) {
+  if (tokenId && location.state.modal) {
     return <Outlet />
   }
 
@@ -19,7 +19,7 @@ export function InventoryContractRoute() {
 
         <h1 className="text-3xl font-bold">{contract.name}</h1>
 
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {collectibles.map((item, index) => (
             <TokenType key={index} item={item} displayMode="grid" />
           ))}
