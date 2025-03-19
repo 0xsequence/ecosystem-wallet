@@ -9,10 +9,16 @@ import { useErc20Inventory, useCollectibleInventory, useNativeInventory } from '
 import { padArray } from '../../../utils/pad-array'
 import { TokenTypeProps } from '../types'
 import { useSortByFavorites } from './useSortByFavorites'
+import { useLocalStore } from '../../../utils/local-store'
 
 export function useFetchInventory() {
   const { hideUnlistedTokens } = useConfig()
-  const { address = '' } = useAuth()
+
+  const [altAddress] = useLocalStore<string>('address')
+
+  let { address = '' } = useAuth()
+
+  address = altAddress && altAddress.length > 0 ? altAddress : address
 
   const location = useLocation()
   const { data, dataUpdatedAt, isLoading, refetch } = useTokenBalancesDetails({

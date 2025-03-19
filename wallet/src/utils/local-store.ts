@@ -66,7 +66,7 @@ export function useLocalStore<T>(
 
     if (!data) {
       /* @ts-expect-error fixme */
-      data = localStoreDefaults?.[key] || {}
+      data = localStoreDefaults?.[key]
     }
 
     return [data, set] as const

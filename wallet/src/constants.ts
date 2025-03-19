@@ -5,6 +5,7 @@ export const localStoreDefaults: {
   watchlist: string[]
   favoriteTokens: string[]
   userPrefs: UserPreferenceLocalStore
+  address: string
 } = {
   userPrefs: {
     hideBalance: false,
@@ -13,7 +14,8 @@ export const localStoreDefaults: {
   },
   watchlist: [],
   favorites: [],
-  favoriteTokens: []
+  favoriteTokens: [],
+  address: ''
 }
 
 export const ERC_1155_ABI = [

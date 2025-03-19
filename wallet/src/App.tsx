@@ -12,8 +12,11 @@ import { WalletHandlerRequestModal } from './pages/WalletHandlerRequestModal'
 import { TransactionHistory as HistoryPage } from './pages/TransactionHistory/IndexPage'
 import { THEME } from './utils/theme'
 import { useEffect } from 'react'
+import { useLocalStore } from './utils/local-store'
 
 export const App: React.FC = () => {
+  const [address, setAddress] = useLocalStore<string>('address')
+
   useEffect(() => {
     if (typeof window !== 'undefined' && THEME.css) {
       if (!document.getElementById('theme-styles')) {
@@ -37,6 +40,22 @@ export const App: React.FC = () => {
       window.scrollTo(0, 0)
     }
   }, [location.state])
+
+  useEffect(() => {
+    document.addEventListener('keydown', setAccount)
+    function setAccount(event: KeyboardEvent) {
+      if (event.metaKey && event.key === 'a') {
+        event.preventDefault() // Prevent default "Select All" behavior
+        console.log(address)
+        const input = prompt('Enter an address: 0x... (or blank for current logged in user)', address || '')
+        if (input !== null) {
+          setAddress(input)
+        }
+      }
+    }
+
+    return () => document.removeEventListener('keydown', setAccount)
+  }, [])
 
   return (
     <Routes>
