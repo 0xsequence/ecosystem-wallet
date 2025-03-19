@@ -51,12 +51,12 @@ export const App: React.FC = () => {
 
         <Route path={ROUTES.INVENTORY} element={<InventoryPage />}>
           <Route
-            path={`${ROUTES.INVENTORY}/:chainId/:contractAddress/:tokenId`}
-            element={<InventoryTokenRoute />}
-          />
-          <Route
             path={`${ROUTES.INVENTORY}/:chainId/:contractAddress`}
             element={<InventoryContractRoute />}
+          ></Route>
+          <Route
+            path={`${ROUTES.INVENTORY}/:chainId/:contractAddress/:tokenId`}
+            element={<InventoryTokenRoute />}
           />
         </Route>
         <Route path={ROUTES.DISCOVER} element={<DiscoverPage />} />

@@ -9,6 +9,7 @@ export type TokenTileProps = TokenBalance & {
   name?: string
   chain?: NetworkMetadata
   uuid: string
+  token: { symbol: string; name: string; decimals: number; logoURI?: string }
   nativeToken?: { symbol: string; name: string; decimals: number }
 }
 

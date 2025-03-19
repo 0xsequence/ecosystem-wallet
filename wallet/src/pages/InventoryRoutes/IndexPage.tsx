@@ -45,7 +45,6 @@ export const InventoryPage = () => {
           <SearchInput name="search" onChange={e => value.setQuery(e.target.value)} />
           <InventoryDisplayModeSwitch />
         </div>
-        {/* <pre>{JSON.stringify(filteredItems, null, 2)}</pre> */}
         <div className="grid grid-cols-1 grid-rows-1 [&>*]:col-start-1 [&>*]:row-start-1">
           <InventoryGrid isActive={prefs?.inventoryDisplayMode === 'grid'} />
           <InventoryList isActive={prefs?.inventoryDisplayMode === 'list'} />

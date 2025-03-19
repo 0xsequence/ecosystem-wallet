@@ -10,8 +10,8 @@ import { useFavoriteTokens } from '../../../hooks/useFavoriteTokens'
 import SvgHeartIcon from '../../../design-system-patch/icons/HeartIcon'
 
 export function InventoryCoinTile(props: TokenTileProps) {
-  const { chainId, contractAddress, tokenID, title, balance, nativeToken, uuid } = props
-  const { symbol = '', decimals = 18 } = nativeToken || {}
+  const { chainId, contractAddress, tokenID, title, contractType, balance, token, uuid } = props
+  const { symbol = '', decimals = 18 } = token || {}
   const [prefs] = useLocalStore<{ hideBalance: boolean }>('userPrefs')
   const { has } = useFavoriteTokens()
 
@@ -33,12 +33,21 @@ export function InventoryCoinTile(props: TokenTileProps) {
         ) : null}
       </>
       <div className="w-[50%] max-w-20">
-        <TokenImage
-          src={nativeTokenImageUrl(chainId, 'lg')}
-          size="xl"
-          className="size-full bg-button-glass rounded-full"
-          withNetwork={chainId}
-        />
+        {contractType === 'ERC20' ? (
+          <TokenImage
+            src={token.logoURI}
+            size="xl"
+            className="size-full bg-button-glass rounded-full"
+            withNetwork={chainId}
+          />
+        ) : (
+          <TokenImage
+            src={nativeTokenImageUrl(chainId, 'lg')}
+            size="xl"
+            className="size-full bg-button-glass rounded-full"
+            withNetwork={chainId}
+          />
+        )}
       </div>
       <div className="flex flex-col flex-1 justify-end items-start text-start">
         <span className="text-xs sm:text-sm font-medium text-seq-grey-500 leading-tight text-start mb-0.5">
@@ -67,9 +76,9 @@ export function InventoryCoinTile(props: TokenTileProps) {
 }
 
 export function InventoryCoinList(props: TokenTileProps) {
-  const { chainId, title, balance, contractAddress, tokenID, nativeToken, uuid } = props
+  const { chainId, title, balance, contractType, contractAddress, tokenID, token, uuid } = props
 
-  const { symbol = '', decimals = 18 } = nativeToken || {}
+  const { symbol = '', decimals = 18 } = token || {}
   const [prefs] = useLocalStore<{ hideBalance: boolean }>('userPrefs')
   const { has } = useFavoriteTokens()
   return (
@@ -81,12 +90,21 @@ export function InventoryCoinList(props: TokenTileProps) {
       className="p-4 sm:py-3 px-4 flex items-center gap-3 relative"
     >
       <div className="size-8">
-        <TokenImage
-          src={nativeTokenImageUrl(chainId, 'lg')}
-          size="xl"
-          className="size-full bg-button-glass rounded-full"
-          withNetwork={chainId}
-        />
+        {contractType === 'ERC20' ? (
+          <TokenImage
+            src={token.logoURI}
+            size="xl"
+            className="size-full bg-button-glass rounded-full"
+            withNetwork={chainId}
+          />
+        ) : (
+          <TokenImage
+            src={nativeTokenImageUrl(chainId, 'lg')}
+            size="xl"
+            className="size-full bg-button-glass rounded-full"
+            withNetwork={chainId}
+          />
+        )}
       </div>
       <div className="flex flex-col flex-1 justify-end items-start text-start">
         <span className="text-xs sm:text-sm font-medium text-seq-grey-500 leading-tight text-start mb-0.5">

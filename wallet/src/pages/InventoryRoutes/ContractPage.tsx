@@ -1,6 +1,5 @@
 import { Outlet, useLocation, useParams } from 'react-router'
 import { TokenType } from './components/TokenType'
-import { TokenDetailModal } from './components/TokenDetailModal'
 import { useContractCollection } from './helpers/useContractCollection'
 // import { useAuth } from '../../context/AuthContext'
 
@@ -26,7 +25,7 @@ export function InventoryContractRoute() {
           ))}
         </div>
       </div>
-      <TokenDetailModal />
+      {/* <TokenDetailModal /> */}
     </>
   )
 }
