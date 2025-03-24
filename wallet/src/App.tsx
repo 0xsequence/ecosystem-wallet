@@ -33,10 +33,9 @@ export const App: React.FC = () => {
 
   const location = useLocation()
   useEffect(() => {
-    if (location.state && location.state.modal) {
-      //
-    }
-    if (location.state && location.state.top) {
+    if ((location.state && location.state.modal) || (location.state && location.state.keepPosition)) {
+      // do nothing
+    } else {
       window.scrollTo(0, 0)
     }
   }, [location.state])

@@ -8,7 +8,11 @@ export function TokenDetailModal() {
   const location = useLocation()
 
   function close() {
-    navigate(location?.state?.referer || '/inventory')
+    navigate(location?.state?.referer || '/inventory', {
+      state: {
+        keepPosition: true
+      }
+    })
   }
 
   if (!tokenId) return null
