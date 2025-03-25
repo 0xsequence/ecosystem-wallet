@@ -11,12 +11,18 @@ importers:
       '@0xsequence/api':
         specifier: ^2.2.13
         version: 2.2.13
+      '@0xsequence/core':
+        specifier: ^2.2.13
+        version: 2.2.13(ethers@6.13.0)
       '@0xsequence/design-system':
         specifier: 2.0.1
         version: 2.0.1(@types/react-dom@18.3.0)(@types/react@18.3.10)(motion@12.4.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@0xsequence/indexer':
         specifier: ^2.2.13
         version: 2.2.13
+      '@0xsequence/metadata':
+        specifier: ^2.2.13
+        version: 2.2.15
       '@0xsequence/network':
         specifier: ^2.2.13
         version: 2.2.13(ethers@6.13.0)
@@ -158,6 +164,9 @@ packages:
 
   '@0xsequence/indexer@2.2.13':
     resolution: {integrity: sha512-RFjjjckuAhM0vgYFO1RgYyBqsUrU54l2N/Isr5DPSLCCczp+qcopNuFMB0e0FuvzUP1buunxTjHRVjFH75kQEA==}
+
+  '@0xsequence/metadata@2.2.15':
+    resolution: {integrity: sha512-1tQPwFCFwYvBWtssfIiKQmvBad5o4+gnH2xGkW31l+wxO0vd1TlJLPBJ4ZAPCG+nX2bBQoU89oipeTAZqtxApQ==}
 
   '@0xsequence/network@2.2.13':
     resolution: {integrity: sha512-U8sVC2nWokPtQzIXwNKOP/mgkkuvjxYmQrgITkc8YDTAQOYPu6n/4lIqQ2//jjSfloniMK00tDpfUd5fCFbsUA==}
@@ -3012,6 +3021,8 @@ snapshots:
       - '@types/react-dom'
 
   '@0xsequence/indexer@2.2.13': {}
+
+  '@0xsequence/metadata@2.2.15': {}
 
   '@0xsequence/network@2.2.13(ethers@6.13.0)':
     dependencies:

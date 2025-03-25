@@ -3,10 +3,15 @@ import { NetworkInfo } from '../../../components/NetworkInfo'
 import { FeeOptionSelector } from '../../../components/FeeOptionSelector'
 
 import { useTransactionHandler } from '../../../hooks/useTransactionHandler'
+import { useEffect } from 'react'
+// import { getContractInfo } from '../../../utils/txnDecoder'
+import { decoderService } from '../../../services/TransactionDecoder'
+import { useAuth } from '../../../context/AuthContext'
 
 type TransactionHandler = ReturnType<typeof useTransactionHandler>
 
 export function SendTransactionPanel({ handler }: { handler: TransactionHandler }) {
+  const { address: accountAddress } = useAuth()
   const {
     transactionRequest,
     requestOrigin,
@@ -19,6 +24,24 @@ export function SendTransactionPanel({ handler }: { handler: TransactionHandler 
     handleApproveTxn,
     handleRejectTxn
   } = handler
+
+  useEffect(() => {
+    if (accountAddress && transactionRequest) {
+      // Convert ethers Transaction to @0xsequence/core Transaction format
+      const sequenceTxns = transactionRequest.map(tx => ({
+        delegateCall: false, // Default to regular call
+        revertOnError: true, // Set default behavior to revert on error
+        gasLimit: tx.gasLimit || 0n,
+        to: tx.to || '', // Use 'to' property for sequence Transaction type
+        value: tx.value || 0n,
+        data: tx.data || '0x'
+      }))
+
+      decoderService.decodeTransactions(accountAddress, sequenceTxns).then(decodedTxns => {
+        console.log('decodedTxns', decodedTxns)
+      })
+    }
+  }, [accountAddress, transactionRequest])
 
   return (
     <>
