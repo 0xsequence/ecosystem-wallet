@@ -83,11 +83,10 @@ interface NativeTransferDecoding extends BaseDecoding {
   type: typeof NATIVE_TRANSFER_TYPE
   transferType: TxnTransferType
   contractAddress: string
-  contractType: ContractType
+  contractType: ContractType.NATIVE
   from: string
   to: string
-  tokenIds: string[]
-  amounts: string[]
+  value: string
 }
 
 const nativeTransferDecoder: DecoderDefinition<NativeTransferDecoding> = {
@@ -99,11 +98,10 @@ const nativeTransferDecoder: DecoderDefinition<NativeTransferDecoding> = {
     type: NATIVE_TRANSFER_TYPE,
     transferType: TxnTransferType.SEND,
     contractAddress: zeroAddress,
-    contractType: ContractType.UNKNOWN,
+    contractType: ContractType.NATIVE,
     from: fromAddress,
     to: getAddress(transaction.target),
-    tokenIds: ['0'],
-    amounts: [BigInt(transaction.value).toString()],
+    value: BigInt(transaction.value).toString(),
     methodName: 'nativeTokenTransfer'
   })
 }
