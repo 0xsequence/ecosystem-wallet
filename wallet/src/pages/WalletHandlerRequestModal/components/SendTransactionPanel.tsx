@@ -1,14 +1,32 @@
 import { Button, Collapsible } from '@0xsequence/design-system'
 import { NetworkInfo } from '../../../components/NetworkInfo'
 import { FeeOptionSelector } from '../../../components/FeeOptionSelector'
+import { TransferTxnDetailView } from '../../../components/TransferTxnDetailView'
 
 import { useTransactionHandler } from '../../../hooks/useTransactionHandler'
-import { useEffect } from 'react'
-// import { getContractInfo } from '../../../utils/txnDecoder'
+import { useEffect, useState } from 'react'
 import { decoderService } from '../../../services/TransactionDecoder'
 import { useAuth } from '../../../context/AuthContext'
 
+import { ContractType, TxnTransferType } from '@0xsequence/indexer'
+
 type TransactionHandler = ReturnType<typeof useTransactionHandler>
+
+interface DecodedTransferBase {
+  type: string
+  transferType: TxnTransferType
+  contractAddress: string
+  contractType: ContractType
+  from: string
+  to: string
+  value?: string
+  amount?: string
+  tokenId?: string
+  tokenIds?: string[]
+  amounts?: string[]
+  methodName: string
+  target: string
+}
 
 export function SendTransactionPanel({ handler }: { handler: TransactionHandler }) {
   const { address: accountAddress } = useAuth()
@@ -25,21 +43,41 @@ export function SendTransactionPanel({ handler }: { handler: TransactionHandler 
     handleRejectTxn
   } = handler
 
+  const [decodedTransactions, setDecodedTransactions] = useState<DecodedTransferBase[]>([])
+
   useEffect(() => {
-    if (accountAddress && transactionRequest) {
-      // Convert ethers Transaction to @0xsequence/core Transaction format
+    if (accountAddress && transactionRequest && requestChainId) {
+      setDecodedTransactions([])
       const sequenceTxns = transactionRequest.map(tx => ({
-        delegateCall: false, // Default to regular call
-        revertOnError: true, // Set default behavior to revert on error
+        delegateCall: false,
+        revertOnError: true,
         gasLimit: tx.gasLimit || 0n,
-        to: tx.to || '', // Use 'to' property for sequence Transaction type
+        to: tx.to || '',
         value: tx.value || 0n,
         data: tx.data || '0x'
       }))
 
-      decoderService.decodeTransactions(accountAddress, sequenceTxns).then(decodedTxns => {
-        console.log('decodedTxns', decodedTxns)
-      })
+      // Pass requestChainId as the second argument
+      decoderService
+        .decodeTransactions(accountAddress, requestChainId, sequenceTxns)
+        .then(decodedTxns => {
+          console.log('decodedTxns', JSON.stringify(decodedTxns, null, 2))
+          const transferTxns = decodedTxns.filter(
+            d =>
+              d &&
+              [
+                'native-transfer',
+                'erc20-transfer',
+                'erc1155-single-transfer',
+                'erc1155-batch-transfer'
+              ].includes(d.type)
+          )
+          setDecodedTransactions(transferTxns)
+        })
+        .catch(error => {
+          console.error('Error decoding transactions:', error)
+          setDecodedTransactions([])
+        })
     }
   }, [accountAddress, transactionRequest])
 
@@ -54,10 +92,17 @@ export function SendTransactionPanel({ handler }: { handler: TransactionHandler 
         </div>
         <div className="flex flex-col gap-2 w-full">
           {transactionRequest?.map((txn, index) => (
-            <div className="flex flex-col gap-2 w-full" key={index}>
-              <div className="flex mt-2 flex-col gap-2 w-full">
-                {requestChainId && <NetworkInfo chainId={requestChainId} />}
-              </div>
+            <div className="flex flex-col gap-4 w-full" key={index}>
+              {index === 0 && requestChainId && (
+                <div className="flex mt-2 flex-col gap-2 w-full">
+                  <NetworkInfo chainId={requestChainId} />
+                </div>
+              )}
+
+              {decodedTransactions[index] && requestChainId && (
+                <TransferTxnDetailView transfer={decodedTransactions[index]} chainId={requestChainId} />
+              )}
+
               <div
                 style={
                   {
