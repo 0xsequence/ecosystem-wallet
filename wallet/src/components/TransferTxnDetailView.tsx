@@ -64,15 +64,8 @@ export const TransferTxnDetailView: React.FC<TransferTxnDetailViewProps> = ({ tr
       case ContractType.ERC1155:
         if (transfer.tokenIds && transfer.amounts) {
           return (
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-2">
-                <NetworkImage chainId={chainId} size="sm" />
-                <span>ERC1155 Batch</span>
-                <CopyButton copyText={transfer.contractAddress} />
-              </div>
-              <ul className="list-none pl-4 text-xs space-y-2">
-                {' '}
-                {/* Changed list style and added spacing */}
+            <div className="flex flex-col gap-2">
+              <ul className="list-none text-xs space-y-2 mt-2">
                 {transfer.tokenMetadata && transfer.tokenMetadata.length > 0
                   ? transfer.tokenMetadata.map((meta, index) => (
                       <li key={index} className="flex items-center gap-2 py-1">
@@ -85,7 +78,7 @@ export const TransferTxnDetailView: React.FC<TransferTxnDetailViewProps> = ({ tr
                         ) : (
                           <div className="w-8 h-8 rounded bg-background-tertiary flex items-center justify-center text-text-secondary text-[10px]">
                             ?
-                          </div> // Placeholder
+                          </div>
                         )}
                         <div className="flex flex-col">
                           <span className="font-medium text-text-primary">
@@ -98,7 +91,6 @@ export const TransferTxnDetailView: React.FC<TransferTxnDetailViewProps> = ({ tr
                       </li>
                     ))
                   : transfer.tokenIds?.map((id, index) => (
-                      // Fallback if metadata is not available
                       <li key={index} className="py-1">
                         ID: {shortenAddress(id)} - Amount: {transfer.amounts?.[index] ?? 'N/A'}
                       </li>
@@ -126,7 +118,7 @@ export const TransferTxnDetailView: React.FC<TransferTxnDetailViewProps> = ({ tr
   }
 
   return (
-    <div className="flex flex-col gap-3 p-4 rounded-lg bg-background-secondary border border-border-primary text-sm">
+    <div className="flex flex-col gap-3 p-4 rounded-lg bg-background-secondary text-sm">
       <div className="flex justify-between items-center">
         <span className="font-medium text-text-primary">
           {isSend ? 'Send' : isReceive ? 'Receive' : 'Interact with'}
@@ -135,14 +127,12 @@ export const TransferTxnDetailView: React.FC<TransferTxnDetailViewProps> = ({ tr
           {transfer.methodName}
         </span>
       </div>
-
       <div className="flex flex-col gap-1">
         <span className="text-xs text-text-secondary">Asset</span>
         {renderTokenInfo()}
       </div>
-
       {transfer.from && transfer.from !== zeroAddress && (
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1 mt-2">
           <span className="text-xs text-text-secondary">From</span>
           <div className="flex items-center gap-1">
             <span className="font-mono text-text-primary">{shortenAddress(transfer.from)}</span>
@@ -150,7 +140,6 @@ export const TransferTxnDetailView: React.FC<TransferTxnDetailViewProps> = ({ tr
           </div>
         </div>
       )}
-
       {transfer.to && transfer.to !== zeroAddress && (
         <div className="flex flex-col gap-1">
           <span className="text-xs text-text-secondary">To</span>
@@ -160,7 +149,6 @@ export const TransferTxnDetailView: React.FC<TransferTxnDetailViewProps> = ({ tr
           </div>
         </div>
       )}
-
       {transfer.target && transfer.target.toLowerCase() !== transfer.contractAddress.toLowerCase() && (
         <div className="flex flex-col gap-1">
           <span className="text-xs text-text-secondary">Interacting With</span>
