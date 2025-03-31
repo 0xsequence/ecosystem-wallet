@@ -1,9 +1,12 @@
 import React from 'react'
-import { ContractType, TxnTransferType } from '@0xsequence/indexer'
-import { zeroAddress } from 'viem'
+import { ContractInfo, ContractType, TxnTransferType } from '@0xsequence/indexer' // Added ContractInfo
+import { formatUnits, zeroAddress } from 'viem'
 
 import { NetworkImage } from './NetworkImage'
+
 import { CopyButton } from '../design-system-patch/copy-button/CopyButton'
+import { useNativeToken } from '../utils/nativeToken'
+import { TokenImage } from '@0xsequence/design-system'
 
 const shortenAddress = (str: string, chars = 4): string => {
   if (!str) return ''
@@ -28,6 +31,7 @@ type DecodedTransfer = {
     name?: string
     image?: string
   }[]
+  contractInfo?: ContractInfo // for ERC20
   methodName: string
   target: string
 }
@@ -40,6 +44,7 @@ interface TransferTxnDetailViewProps {
 export const TransferTxnDetailView: React.FC<TransferTxnDetailViewProps> = ({ transfer, chainId }) => {
   const isSend = transfer.transferType === TxnTransferType.SEND
   const isReceive = transfer.transferType === TxnTransferType.RECEIVE
+  const nativeTokenInfo = useNativeToken(chainId)
 
   const renderTokenInfo = () => {
     switch (transfer.contractType) {
@@ -47,25 +52,32 @@ export const TransferTxnDetailView: React.FC<TransferTxnDetailViewProps> = ({ tr
         return (
           <div className="flex items-center gap-2">
             <NetworkImage chainId={chainId} size="sm" />
-            <span>Native Token</span>
-            {transfer.value && <span className="font-medium">{transfer.value}</span>}
+            {transfer.value && <span className="font-medium">{formatUnits(BigInt(transfer.value), 18)}</span>}
+            <span className="font-bold">{nativeTokenInfo.symbol}</span>
           </div>
         )
-      case ContractType.ERC20:
+
+      case ContractType.ERC20: {
+        const decimals = transfer.contractInfo?.decimals ?? 18 // Default to 18 if decimals unknown
+        const symbol = transfer.contractInfo?.symbol ?? 'Token'
+        const logoURI = transfer.contractInfo?.logoURI
+        const formattedAmount = transfer.amount ? formatUnits(BigInt(transfer.amount), decimals) : '?'
+
         return (
           <div className="flex items-center gap-2">
-            <NetworkImage chainId={chainId} size="sm" />
-            <span>ERC20 Token</span>
-            {transfer.amount && <span className="font-medium">{transfer.amount}</span>}
+            <TokenImage src={logoURI} symbol={symbol} />
+            <span className="font-medium">{formattedAmount}</span>
+            <span className="font-bold">{symbol}</span>
             <CopyButton copyText={transfer.contractAddress} />
           </div>
         )
+      }
       case ContractType.ERC721:
       case ContractType.ERC1155:
         if (transfer.tokenIds && transfer.amounts) {
           return (
             <div className="flex flex-col gap-2">
-              <ul className="list-none text-xs space-y-2 mt-2">
+              <ul className="list-none text-xs space-y-2">
                 {transfer.tokenMetadata && transfer.tokenMetadata.length > 0
                   ? transfer.tokenMetadata.map((meta, index) => (
                       <li key={index} className="flex items-center gap-2 py-1">
@@ -128,7 +140,7 @@ export const TransferTxnDetailView: React.FC<TransferTxnDetailViewProps> = ({ tr
         </span>
       </div>
       <div className="flex flex-col gap-1">
-        <span className="text-xs text-text-secondary">Asset</span>
+        <span className="text-xs text-text-secondary mb-2">Asset</span>
         {renderTokenInfo()}
       </div>
       {transfer.from && transfer.from !== zeroAddress && (
@@ -146,15 +158,6 @@ export const TransferTxnDetailView: React.FC<TransferTxnDetailViewProps> = ({ tr
           <div className="flex items-center gap-1">
             <span className="font-mono text-text-primary">{shortenAddress(transfer.to)}</span>
             <CopyButton copyText={transfer.to} />
-          </div>
-        </div>
-      )}
-      {transfer.target && transfer.target.toLowerCase() !== transfer.contractAddress.toLowerCase() && (
-        <div className="flex flex-col gap-1">
-          <span className="text-xs text-text-secondary">Interacting With</span>
-          <div className="flex items-center gap-1">
-            <span className="font-mono text-text-primary">{shortenAddress(transfer.target)}</span>
-            <CopyButton copyText={transfer.target} />
           </div>
         </div>
       )}

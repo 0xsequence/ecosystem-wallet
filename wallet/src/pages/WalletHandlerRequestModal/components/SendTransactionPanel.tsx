@@ -1,14 +1,13 @@
 import { Button, Collapsible } from '@0xsequence/design-system'
+import { ContractType, TxnTransferType } from '@0xsequence/indexer'
+
 import { NetworkInfo } from '../../../components/NetworkInfo'
 import { FeeOptionSelector } from '../../../components/FeeOptionSelector'
 import { TransferTxnDetailView } from '../../../components/TransferTxnDetailView'
-
 import { useTransactionHandler } from '../../../hooks/useTransactionHandler'
 import { useEffect, useState } from 'react'
 import { decoderService } from '../../../services/TransactionDecoder'
 import { useAuth } from '../../../context/AuthContext'
-
-import { ContractType, TxnTransferType } from '@0xsequence/indexer'
 
 type TransactionHandler = ReturnType<typeof useTransactionHandler>
 
