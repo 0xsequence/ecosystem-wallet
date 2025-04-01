@@ -56,7 +56,6 @@ export function SendTransactionPanel({ handler }: { handler: TransactionHandler 
         data: tx.data || '0x'
       }))
 
-      // Pass requestChainId as the second argument
       decoderService
         .decodeTransactions(accountAddress, requestChainId, sequenceTxns)
         .then(decodedTxns => {
@@ -67,6 +66,7 @@ export function SendTransactionPanel({ handler }: { handler: TransactionHandler 
               [
                 'native-transfer',
                 'erc20-transfer',
+                'erc721-transfer',
                 'erc1155-single-transfer',
                 'erc1155-batch-transfer'
               ].includes(d.type)

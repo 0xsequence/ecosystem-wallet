@@ -1,17 +1,24 @@
+import { TokenImage, truncateAddress } from '@0xsequence/design-system'
+import { ContractInfo, ContractType, TxnTransferType } from '@0xsequence/indexer'
 import React from 'react'
-import { ContractInfo, ContractType, TxnTransferType } from '@0xsequence/indexer' // Added ContractInfo
 import { formatUnits, zeroAddress } from 'viem'
 
 import { NetworkImage } from './NetworkImage'
 
 import { CopyButton } from '../design-system-patch/copy-button/CopyButton'
 import { useNativeToken } from '../utils/nativeToken'
-import { TokenImage } from '@0xsequence/design-system'
 
-const shortenAddress = (str: string, chars = 4): string => {
-  if (!str) return ''
-  if (str.length <= chars * 2 + 3) return str
-  return `${str.substring(0, chars + 2)}...${str.substring(str.length - chars)}`
+type TokenMetadataSingle = {
+  tokenId: string
+  name?: string
+  image?: string
+  description?: string
+  properties?: Record<string, unknown>
+  attributes?: Record<string, unknown>[]
+  updatedAt?: string
+  status?: string
+  queuedAt?: string | null
+  source?: string
 }
 
 type DecodedTransfer = {
@@ -26,11 +33,7 @@ type DecodedTransfer = {
   tokenId?: string
   tokenIds?: string[]
   amounts?: string[]
-  tokenMetadata?: {
-    tokenId: string
-    name?: string
-    image?: string
-  }[]
+  tokenMetadata?: TokenMetadataSingle[] | TokenMetadataSingle // Allow array or single object
   contractInfo?: ContractInfo // for ERC20
   methodName: string
   target: string
@@ -75,11 +78,13 @@ export const TransferTxnDetailView: React.FC<TransferTxnDetailViewProps> = ({ tr
       case ContractType.ERC721:
       case ContractType.ERC1155:
         if (transfer.tokenIds && transfer.amounts) {
+          const metadataArray = Array.isArray(transfer.tokenMetadata) ? transfer.tokenMetadata : []
+
           return (
             <div className="flex flex-col gap-2">
               <ul className="list-none text-xs space-y-2">
-                {transfer.tokenMetadata && transfer.tokenMetadata.length > 0
-                  ? transfer.tokenMetadata.map((meta, index) => (
+                {metadataArray.length > 0
+                  ? metadataArray.map((meta: TokenMetadataSingle, index: number) => (
                       <li key={index} className="flex items-center gap-2 py-1">
                         {meta.image ? (
                           <img
@@ -94,7 +99,7 @@ export const TransferTxnDetailView: React.FC<TransferTxnDetailViewProps> = ({ tr
                         )}
                         <div className="flex flex-col">
                           <span className="font-medium text-text-primary">
-                            {meta.name || `Token ID: ${shortenAddress(meta.tokenId)}`}
+                            {meta.name || `Token ID: ${meta.tokenId}`}
                           </span>
                           <span className="text-text-secondary">
                             Amount: {transfer.amounts?.[index] ?? 'N/A'}
@@ -104,24 +109,55 @@ export const TransferTxnDetailView: React.FC<TransferTxnDetailViewProps> = ({ tr
                     ))
                   : transfer.tokenIds?.map((id, index) => (
                       <li key={index} className="py-1">
-                        ID: {shortenAddress(id)} - Amount: {transfer.amounts?.[index] ?? 'N/A'}
+                        ID: {id} - Amount: {transfer.amounts?.[index] ?? 'N/A'}
                       </li>
                     ))}
               </ul>
             </div>
           )
         } else if (transfer.tokenId) {
-          return (
-            <div className="flex items-center gap-2">
-              <NetworkImage chainId={chainId} size="sm" />
-              <span>{transfer.contractType}</span>
-              <span>ID: {shortenAddress(transfer.tokenId)}</span>
-              {transfer.contractType === ContractType.ERC1155 && transfer.amount && (
-                <span className="font-medium">Amount: {transfer.amount}</span>
-              )}
-              <CopyButton copyText={transfer.contractAddress} />
-            </div>
-          )
+          // Handle single token transfer
+          // Check if tokenMetadata is a single object
+          if (transfer.tokenMetadata && !Array.isArray(transfer.tokenMetadata)) {
+            const meta = transfer.tokenMetadata
+            return (
+              <div className="flex items-center gap-2">
+                {meta.image ? (
+                  <img
+                    src={meta.image}
+                    alt={meta.name || `Token ${meta.tokenId}`}
+                    className="w-8 h-8 rounded object-cover"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded bg-background-tertiary flex items-center justify-center text-text-secondary text-[10px]">
+                    ?
+                  </div>
+                )}
+                <div className="flex flex-col">
+                  <span className="font-medium text-text-primary">
+                    {meta.name || `Token ID: ${meta.tokenId}`}
+                  </span>
+                  {transfer.contractType === ContractType.ERC1155 && transfer.amount && (
+                    <span className="text-text-secondary">Amount: {transfer.amount}</span>
+                  )}
+                </div>
+                <CopyButton copyText={transfer.contractAddress} />
+              </div>
+            )
+          } else {
+            // Fallback if single tokenMetadata is not available
+            return (
+              <div className="flex items-center gap-2">
+                <NetworkImage chainId={chainId} size="sm" />
+                <span>{transfer.contractType}</span>
+                <span>ID: {transfer.tokenId}</span>
+                {transfer.contractType === ContractType.ERC1155 && transfer.amount && (
+                  <span className="font-medium">Amount: {transfer.amount}</span>
+                )}
+                <CopyButton copyText={transfer.contractAddress} />
+              </div>
+            )
+          }
         }
         return <span>Collectible Transfer (Unknown format)</span>
       default:
@@ -147,7 +183,7 @@ export const TransferTxnDetailView: React.FC<TransferTxnDetailViewProps> = ({ tr
         <div className="flex flex-col gap-1 mt-2">
           <span className="text-xs text-text-secondary">From</span>
           <div className="flex items-center gap-1">
-            <span className="font-mono text-text-primary">{shortenAddress(transfer.from)}</span>
+            <span className="font-mono text-text-primary">{truncateAddress(transfer.from)}</span>
             <CopyButton copyText={transfer.from} />
           </div>
         </div>
@@ -156,7 +192,7 @@ export const TransferTxnDetailView: React.FC<TransferTxnDetailViewProps> = ({ tr
         <div className="flex flex-col gap-1">
           <span className="text-xs text-text-secondary">To</span>
           <div className="flex items-center gap-1">
-            <span className="font-mono text-text-primary">{shortenAddress(transfer.to)}</span>
+            <span className="font-mono text-text-primary">{truncateAddress(transfer.to)}</span>
             <CopyButton copyText={transfer.to} />
           </div>
         </div>
