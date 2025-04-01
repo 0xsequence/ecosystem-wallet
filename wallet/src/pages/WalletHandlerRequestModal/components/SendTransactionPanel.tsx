@@ -6,7 +6,7 @@ import { FeeOptionSelector } from '../../../components/FeeOptionSelector'
 import { TransferTxnDetailView } from '../../../components/TransferTxnDetailView'
 import { useTransactionHandler } from '../../../hooks/useTransactionHandler'
 import { useEffect, useState } from 'react'
-import { decoderService } from '../../../services/TransactionDecoder'
+import { txnDecoder } from '../../../services/TransactionDecoder'
 import { useAuth } from '../../../context/AuthContext'
 
 type TransactionHandler = ReturnType<typeof useTransactionHandler>
@@ -56,7 +56,7 @@ export function SendTransactionPanel({ handler }: { handler: TransactionHandler 
         data: tx.data || '0x'
       }))
 
-      decoderService
+      txnDecoder
         .decodeTransactions(accountAddress, requestChainId, sequenceTxns)
         .then(decodedTxns => {
           console.log('decodedTxns', JSON.stringify(decodedTxns, null, 2))

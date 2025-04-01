@@ -91,7 +91,7 @@ const nativeTransferDecoder: DecoderDefinition<NativeTransferDecoding> = {
 type InferDecodedType<T extends DecoderDefinition<any, any>> =
   T extends DecoderDefinition<infer U, any> ? U : never
 
-export class TransactionDecoderService {
+export class TransactionDecoder {
   private decoders: Array<DecoderDefinition<any, any>> = [nativeTransferDecoder]
 
   constructor(private apiClient: SequenceAPIClient) {}
@@ -841,9 +841,9 @@ const erc1155BatchTransferDecoder: DecoderDefinition<ERC1155BatchTransferDecodin
     }
   }
 
-export const decoderService = new TransactionDecoderService(apiClient)
+export const txnDecoder = new TransactionDecoder(apiClient)
 
-decoderService.registerDecoder(erc1155BatchTransferDecoder)
-decoderService.registerDecoder(erc1155SingleTransferDecoder)
-decoderService.registerDecoder(erc721TransferDecoder)
-decoderService.registerDecoder(erc20TransferDecoder)
+txnDecoder.registerDecoder(erc1155BatchTransferDecoder)
+txnDecoder.registerDecoder(erc1155SingleTransferDecoder)
+txnDecoder.registerDecoder(erc721TransferDecoder)
+txnDecoder.registerDecoder(erc20TransferDecoder)
