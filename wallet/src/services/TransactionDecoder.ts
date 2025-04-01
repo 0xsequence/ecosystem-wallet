@@ -1,525 +1,191 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ContractCall, SequenceAPIClient } from '@0xsequence/api'
 import { commons } from '@0xsequence/core'
 import { ContractInfo, ContractType, TokenMetadata, TxnTransferType } from '@0xsequence/indexer'
-import { getAddress, encodeFunctionData, zeroAddress, Hex, slice, toHex } from 'viem'
 
-import { apiClient } from '../sequenceApiClient'
+import { getAddress, zeroAddress, Hex, slice, toHex, decodeFunctionData, Abi } from 'viem'
+
 import { getContractInfoBatch, getTokenMetadata } from '../utils/metadata'
 
-interface TransactionEncodedWithCall extends commons.transaction.TransactionEncoded {
-  call?: ContractCall
-}
-
+// --- Type Definitions ---
+// Use the TransactionEncoded type from @0xsequence/core for internal consistency
+type TransactionEncoded = commons.transaction.TransactionEncoded
 type Args = Record<string, any>
-
-interface TxnData<TArgs extends Args = Args> {
-  to: string
-  signature: string
-  byteSignature: Hex
-  methodName: string
-  args: TArgs
-  objs: TxnData[]
-  value: string
-  data: string
-}
-
-interface ContractCallArg {
-  name?: string
-  type: string
-  value: any
-}
-
 type DecodingType = string
+
+/**
+ * Represents a flexible transaction input structure compatible with
+ * common fields from ethers.js or viem transaction requests.
+ */
+interface DecodeTransactionInput {
+  /** Target address (contract or EOA) */
+  to?: string | null | undefined
+  /** Alternative to 'to', used by Sequence types */
+  target?: string | undefined
+  /** Transaction data (calldata), should be a hex string */
+  data?: string | undefined
+  /** Value to send (in wei), accepts various numeric types */
+  value?: string | number | bigint | undefined
+  /** For meta-transactions: Whether the call is a delegateCall */
+  delegateCall?: boolean | undefined
+  /** For meta-transactions: Whether to revert if the sub-call fails */
+  revertOnError?: boolean | undefined
+  /** Gas limit for the transaction */
+  gasLimit?: string | number | bigint | undefined
+
+  // Note: Fields like nonce, gasPrice, maxFeePerGas etc. are ignored
+  // as they are not directly used in function call decoding.
+}
 
 interface BaseDecoding {
   type: DecodingType
-  signature: string
+  signature?: string // Optional, using function name as default
   byteSignature: Hex
   methodName: string
   target: string
-  value: string
+  value: string // Value is stored as string representation of bigint (wei)
 }
 
-interface DecoderDefinition<TDecoded extends BaseDecoding, TInputArgs extends Args = Args> {
+interface DecoderDefinition<TDecoded extends BaseDecoding, TDecodedArgs extends Args = Args> {
   type: DecodingType
-  byteSignatures: Hex[]
-  matcher?: (txnData: TxnData) => boolean
+  abi: Abi // ABI needed for viem decoding
+  byteSignatures: Hex[] // Used for quick matching
+  matcher?: (txn: TransactionEncoded) => boolean
   decoder: (params: {
-    txnData: TxnData<TInputArgs>
+    transaction: TransactionEncoded // The normalized transaction being decoded
+    decodedArgs: TDecodedArgs // Arguments decoded by viem (after transformer)
     baseDecoding: BaseDecoding
-    transaction: commons.transaction.TransactionEncoded
     fromAddress: string
   }) => TDecoded | undefined
-  argsTransformer?: (rawArgs: Args) => TInputArgs
+  // ArgsTransformer now takes viem's output and shapes it into TDecodedArgs
+  argsTransformer?: (rawViemArgs: readonly any[] | Record<string, any>) => TDecodedArgs
   metadataFetcher?: (params: {
     baseDecodedResult: TDecoded
     chainID: string | number
   }) => Promise<Partial<TDecoded> | undefined> // Returns only metadata fields
 }
 
-const NATIVE_TRANSFER_TYPE = 'native-transfer'
+// --- ABIs for Specific Decoders ---
+const erc20Abi = [
+  {
+    constant: false,
+    inputs: [
+      { name: '_to', type: 'address' },
+      { name: '_value', type: 'uint256' }
+    ],
+    name: 'transfer',
+    outputs: [{ name: '', type: 'bool' }],
+    payable: false,
+    stateMutability: 'nonpayable',
+    type: 'function'
+  }
+] as const
 
+const erc721Abi = [
+  {
+    constant: false,
+    inputs: [
+      { name: '_from', type: 'address' },
+      { name: '_to', type: 'address' },
+      { name: '_tokenId', type: 'uint256' }
+    ],
+    name: 'transferFrom',
+    outputs: [],
+    payable: false,
+    stateMutability: 'nonpayable',
+    type: 'function'
+  },
+  {
+    constant: false,
+    inputs: [
+      { name: '_from', type: 'address' },
+      { name: '_to', type: 'address' },
+      { name: '_tokenId', type: 'uint256' }
+    ],
+    name: 'safeTransferFrom',
+    outputs: [],
+    payable: false,
+    stateMutability: 'nonpayable',
+    type: 'function'
+  },
+  {
+    // Version with data
+    constant: false,
+    inputs: [
+      { name: '_from', type: 'address' },
+      { name: '_to', type: 'address' },
+      { name: '_tokenId', type: 'uint256' },
+      { name: '_data', type: 'bytes' }
+    ],
+    name: 'safeTransferFrom',
+    outputs: [],
+    payable: false,
+    stateMutability: 'nonpayable',
+    type: 'function'
+  }
+] as const
+
+const erc1155Abi = [
+  {
+    constant: false,
+    inputs: [
+      { name: '_from', type: 'address' },
+      { name: '_to', type: 'address' },
+      { name: '_id', type: 'uint256' },
+      { name: '_value', type: 'uint256' },
+      { name: '_data', type: 'bytes' }
+    ],
+    name: 'safeTransferFrom',
+    outputs: [],
+    payable: false,
+    stateMutability: 'nonpayable',
+    type: 'function'
+  },
+  {
+    constant: false,
+    inputs: [
+      { name: '_from', type: 'address' },
+      { name: '_to', type: 'address' },
+      { name: '_ids', type: 'uint256[]' },
+      { name: '_values', type: 'uint256[]' },
+      { name: '_data', type: 'bytes' }
+    ],
+    name: 'safeBatchTransferFrom',
+    outputs: [],
+    payable: false,
+    stateMutability: 'nonpayable',
+    type: 'function'
+  }
+] as const
+
+// --- Native Transfer Decoder ---
+const NATIVE_TRANSFER_TYPE = 'native-transfer'
 interface NativeTransferDecoding extends BaseDecoding {
   type: typeof NATIVE_TRANSFER_TYPE
   transferType: TxnTransferType
-  contractAddress: string
+  contractAddress: string // Always zeroAddress
   contractType: ContractType.NATIVE
   from: string
   to: string
-  value: string
+  // value is already in BaseDecoding
 }
-
 const nativeTransferDecoder: DecoderDefinition<NativeTransferDecoding> = {
   type: NATIVE_TRANSFER_TYPE,
-  byteSignatures: [],
-  matcher: transaction => transaction.data === '0x' || !transaction.data,
+  abi: [], // No ABI
+  byteSignatures: [], // Matcher is sufficient
+  // Matcher now operates on TransactionEncoded after normalization
+  matcher: (transaction: TransactionEncoded) =>
+    (!transaction.data || transaction.data === '0x') && BigInt(transaction.value ?? 0) > 0n,
   decoder: ({ baseDecoding, transaction, fromAddress }) => ({
     ...baseDecoding,
     type: NATIVE_TRANSFER_TYPE,
-    transferType: TxnTransferType.SEND,
+    transferType: TxnTransferType.SEND, // Wallet is always the sender in this context
     contractAddress: zeroAddress,
     contractType: ContractType.NATIVE,
     from: fromAddress,
-    to: getAddress(transaction.target),
-    value: BigInt(transaction.value).toString(),
-    methodName: 'nativeTokenTransfer'
+    to: getAddress(transaction.target), // target is already checksummed by normalize
+    value: baseDecoding.value, // Get value from baseDecoding
+    methodName: 'nativeTokenTransfer' // Static name
   })
-  // No fetchMetadata needed for native transfers
-}
-
-type InferDecodedType<T extends DecoderDefinition<any, any>> =
-  T extends DecoderDefinition<infer U, any> ? U : never
-
-export class TransactionDecoder {
-  private decoders: Array<DecoderDefinition<any, any>> = [nativeTransferDecoder]
-
-  constructor(private apiClient: SequenceAPIClient) {}
-
-  public registerDecoder<TDecoded extends BaseDecoding, TInputArgs extends Args>(
-    decoder: DecoderDefinition<TDecoded, TInputArgs>
-  ): void {
-    this.decoders.push(decoder)
-  }
-
-  public getSupportedTypes(): DecodingType[] {
-    return this.decoders.map(d => d.type)
-  }
-
-  // Make decodeTransactions async and add chainID parameter
-  public async decodeTransactions(
-    accountAddress: string,
-    chainID: string | number, // Added chainID
-    transactions: commons.transaction.Transaction[]
-  ): Promise<Array<InferDecodedType<(typeof this.decoders)[number]>>> {
-    const encodedTxns = this.encodeTransactions(transactions)
-    const decodedRoot: TxnData = await this.decodeTxnData(encodedTxns)
-    const fromAddress = getAddress(accountAddress)
-
-    const results: Array<InferDecodedType<(typeof this.decoders)[number]>> = []
-
-    // Make attemptDecode async to handle async decodeSingleTransaction
-    const attemptDecode = async (
-      originalTxn: commons.transaction.TransactionEncoded,
-      txnDataToDecode: TxnData
-    ): Promise<InferDecodedType<(typeof this.decoders)[number]> | undefined> => {
-      // Pass chainID and await the async call
-      return await this.decodeSingleTransaction(originalTxn, txnDataToDecode, fromAddress, chainID)
-    }
-
-    if (decodedRoot.objs?.length) {
-      // Use Promise.all to handle potential async decodes in nested transactions
-      // Note: This still processes nested decodes concurrently, but the metadata fetch within each is sequential.
-      const nestedResults = await Promise.all(
-        decodedRoot.objs.map(nestedTxnData => {
-          const pseudoOriginalTxn: commons.transaction.TransactionEncoded = {
-            target: nestedTxnData.to,
-            data: nestedTxnData.data,
-            value: nestedTxnData.value,
-            delegateCall: false,
-            revertOnError: false,
-            gasLimit: 0
-          }
-          // Await the async call here
-          return attemptDecode(pseudoOriginalTxn, nestedTxnData)
-        })
-      )
-      // Filter out undefined results and push valid ones
-      results.push(
-        ...(nestedResults.filter(r => r !== undefined) as Array<
-          InferDecodedType<(typeof this.decoders)[number]>
-        >)
-      )
-      // If nested transactions were decoded, return them
-      if (results.length > 0) return results
-    }
-
-    const rootResult = await attemptDecode(encodedTxns[0], decodedRoot)
-    if (rootResult) {
-      results.push(rootResult)
-    }
-
-    return results
-  }
-
-  private encodeTransactions(
-    transactions: Array<commons.transaction.Transaction | commons.transaction.TransactionEncoded>
-  ): commons.transaction.TransactionEncoded[] {
-    return transactions.map(txn => ({
-      delegateCall: txn.delegateCall ?? false,
-      revertOnError: txn.revertOnError ?? false,
-      gasLimit: txn.gasLimit ?? 0,
-      target: 'target' in txn ? txn.target : 'to' in txn ? txn.to : zeroAddress,
-      value: txn.value ?? 0,
-      data: txn.data ?? '0x'
-    }))
-  }
-
-  private async decodeTxnData(txns: commons.transaction.TransactionEncoded[]): Promise<TxnData> {
-    const callData = encodeFunctionData({ abi: mainModuleAbi, functionName: 'selfExecute', args: [txns] })
-    const { call } = await this.apiClient.decodeContractCall({ callData })
-    return createTxnData('', call, 0, callData)
-  }
-
-  private async decodeSingleTransaction<TDecoded extends BaseDecoding, TInputArgs extends Args>(
-    originalTransaction: commons.transaction.TransactionEncoded,
-    txnDataForMatching: TxnData,
-    fromAddress: string,
-    chainID: string | number // Added chainID
-  ): Promise<TDecoded | undefined> {
-    // Return Promise
-    const baseDecoding: BaseDecoding = {
-      type: 'unknown', // Default type
-      signature: txnDataForMatching.signature || '',
-      byteSignature: txnDataForMatching.byteSignature || '0x',
-      methodName: txnDataForMatching.methodName || '',
-      target: txnDataForMatching.to || originalTransaction.target,
-      value: BigInt(txnDataForMatching.value || originalTransaction.value).toString()
-    }
-
-    for (const decoder of this.decoders as Array<DecoderDefinition<TDecoded, TInputArgs>>) {
-      const txnByteSignature = txnDataForMatching.byteSignature
-        ? txnDataForMatching.byteSignature.toLowerCase()
-        : '0x'
-      const decoderSigs = decoder.byteSignatures.map(sig => sig.toLowerCase())
-
-      const isByteSigMatch =
-        decoder.byteSignatures.length === 0
-          ? txnByteSignature === '0x' || !txnDataForMatching.data || txnDataForMatching.data === '0x'
-          : decoderSigs.some(sig => sig === txnByteSignature)
-
-      const isMatcherMatch = decoder.matcher ? decoder.matcher(txnDataForMatching) : isByteSigMatch
-
-      if (isMatcherMatch) {
-        let transformedArgs: TInputArgs = txnDataForMatching.args as TInputArgs
-
-        if (decoder.argsTransformer) {
-          try {
-            transformedArgs = decoder.argsTransformer(txnDataForMatching.args)
-          } catch (error) {
-            console.error(`Error transforming args for decoder ${decoder.type}:`, error)
-            continue // Skip this decoder if args transformation fails
-          }
-        }
-
-        const specificTxnData: TxnData<TInputArgs> = {
-          ...txnDataForMatching,
-          args: transformedArgs
-        }
-
-        try {
-          // Perform initial decoding
-          const decodedResult = decoder.decoder({
-            txnData: specificTxnData,
-            baseDecoding,
-            transaction: originalTransaction,
-            fromAddress
-          })
-
-          // If decoding was successful, attempt to fetch metadata
-          if (decodedResult) {
-            // Check if fetchMetadata exists for this decoder
-            if (decoder.metadataFetcher) {
-              try {
-                // Await the metadata fetch
-                const metadataFields = await decoder.metadataFetcher({
-                  baseDecodedResult: decodedResult,
-                  chainID
-                })
-                if (metadataFields) {
-                  // Merge metadata into the result and return
-                  return { ...decodedResult, ...metadataFields }
-                }
-              } catch (error) {
-                console.error(`Error fetching metadata for decoder ${decoder.type}:`, error)
-                // Return base result even if metadata fetch fails, log the error
-                return decodedResult
-              }
-            }
-            // If no fetchMetadata or it didn't return fields, return the base decoded result
-            return decodedResult
-          }
-        } catch (error) {
-          console.error(`Error in decoder ${decoder.type}:`, error)
-          // Continue to the next decoder if an error occurs
-        }
-      }
-    }
-
-    // No matching decoder found or all failed
-    return undefined
-  }
-}
-
-// --- ABI Definition
-const mainModuleAbi = [
-  {
-    type: 'function',
-    name: 'nonce',
-    constant: true,
-    inputs: [],
-    outputs: [
-      {
-        type: 'uint256'
-      }
-    ],
-    payable: false,
-    stateMutability: 'view'
-  },
-  {
-    type: 'function',
-    name: 'readNonce',
-    constant: true,
-    inputs: [
-      {
-        type: 'uint256'
-      }
-    ],
-    outputs: [
-      {
-        type: 'uint256'
-      }
-    ],
-    payable: false,
-    stateMutability: 'view'
-  },
-  {
-    type: 'function',
-    name: 'updateImplementation',
-    constant: false,
-    inputs: [
-      {
-        type: 'address'
-      }
-    ],
-    outputs: [],
-    payable: false,
-    stateMutability: 'nonpayable'
-  },
-  {
-    type: 'function',
-    name: 'selfExecute',
-    constant: false,
-    inputs: [
-      {
-        components: [
-          {
-            type: 'bool',
-            name: 'delegateCall'
-          },
-          {
-            type: 'bool',
-            name: 'revertOnError'
-          },
-          {
-            type: 'uint256',
-            name: 'gasLimit'
-          },
-          {
-            type: 'address',
-            name: 'target'
-          },
-          {
-            type: 'uint256',
-            name: 'value'
-          },
-          {
-            type: 'bytes',
-            name: 'data'
-          }
-        ],
-        type: 'tuple[]'
-      }
-    ],
-    outputs: [],
-    payable: false,
-    stateMutability: 'nonpayable'
-  },
-  {
-    type: 'function',
-    name: 'execute',
-    constant: false,
-    inputs: [
-      {
-        components: [
-          {
-            type: 'bool',
-            name: 'delegateCall'
-          },
-          {
-            type: 'bool',
-            name: 'revertOnError'
-          },
-          {
-            type: 'uint256',
-            name: 'gasLimit'
-          },
-          {
-            type: 'address',
-            name: 'target'
-          },
-          {
-            type: 'uint256',
-            name: 'value'
-          },
-          {
-            type: 'bytes',
-            name: 'data'
-          }
-        ],
-        type: 'tuple[]'
-      },
-      {
-        type: 'uint256'
-      },
-      {
-        type: 'bytes'
-      }
-    ],
-    outputs: [],
-    payable: false,
-    stateMutability: 'nonpayable'
-  },
-  {
-    type: 'function',
-    name: 'createContract',
-    inputs: [
-      {
-        type: 'bytes'
-      }
-    ],
-    payable: true,
-    stateMutability: 'payable'
-  },
-  {
-    type: 'function',
-    name: 'setExtraImageHash',
-    constant: false,
-    inputs: [
-      {
-        type: 'bytes32',
-        name: 'imageHash'
-      },
-      {
-        type: 'uint256',
-        name: 'expiration'
-      }
-    ],
-    outputs: [],
-    payable: false,
-    stateMutability: 'nonpayable'
-  }
-]
-
-// --- Helper Functions (transformArgs, createTxnData - unchanged) ---
-const transformArgs = (args: ContractCallArg[]): Args => {
-  if (args.length === 1 && args[0].type.startsWith('tuple[]')) {
-    const firstArg = args[0]
-
-    if (Array.isArray(firstArg.value)) {
-      const callTxn = firstArg.value.find(txn => txn.call?.args)
-      if (callTxn?.call) {
-        return transformArgs(callTxn.call.args)
-      }
-    }
-  }
-
-  return Object.fromEntries(
-    args.map((arg, i) => {
-      const name = arg.name && !arg.name.startsWith('unnamed') ? arg.name : `_${i}`
-      let value = arg.value
-
-      if (Array.isArray(value)) {
-        if (arg.type.includes('tuple')) {
-          value = value.map(v => {
-            if (v.call?.args) {
-              return transformArgs(v.call.args)
-            }
-            return v
-          })
-        } else {
-          value = value.map(v => {
-            if (typeof v === 'bigint') return v.toString()
-            return v
-          })
-        }
-      } else if (typeof value === 'bigint') {
-        value = value.toString()
-      }
-
-      return [name, value]
-    })
-  )
-}
-
-const createTxnData = (
-  to: string,
-  call: ContractCall,
-  value: string | number | bigint,
-  data: Hex
-): TxnData => {
-  const rawArgs = transformArgs(call.args)
-
-  let objs: TxnData['objs'] = []
-  const methodByteSignature: Hex = slice(data, 0, 4) // Changed let to const
-
-  switch (call.signature) {
-    case 'execute((bool,bool,uint256,address,uint256,bytes)[],uint256,bytes)':
-    case 'selfExecute((bool,bool,uint256,address,uint256,bytes)[])': {
-      const txns: TransactionEncodedWithCall[] = call.args[0].value
-
-      const processedTxns = txns.map(txn => {
-        if (txn.call) {
-          return createTxnData(txn.target, txn.call, txn.value, txn.data as Hex)
-        } else {
-          const nestedByteSig = txn.data && txn.data !== '0x' ? slice(txn.data as Hex, 0, 4) : '0x'
-          return {
-            to: txn.target,
-            signature: '',
-            byteSignature: nestedByteSig,
-            methodName: '',
-            args: {},
-            objs: [],
-            value: toHex(BigInt(txn.value)),
-            data: txn.data as Hex
-          }
-        }
-      })
-
-      objs = processedTxns
-    }
-  }
-
-  return {
-    to,
-    signature: call.signature,
-    byteSignature: methodByteSignature,
-    methodName: call.function,
-    args: rawArgs,
-    objs,
-    value: toHex(BigInt(value)),
-    data: data
-  }
 }
 
 // --- ERC20 Decoder ---
@@ -531,40 +197,41 @@ interface ERC20TransferDecoding extends BaseDecoding {
   from: string
   to: string
   amount: string
-  contractInfo?: ContractInfo // Added metadata field
+  contractInfo?: ContractInfo
 }
-
+interface ERC20TransferRawArgs {
+  _to: Hex
+  _value: bigint
+}
 interface ERC20TransferArgs {
   recipient: string
   amount: string
 }
-
 const erc20TransferDecoder: DecoderDefinition<ERC20TransferDecoding, ERC20TransferArgs> = {
   type: 'erc20-transfer',
-  byteSignatures: ['0xa9059cbb'], // transfer(address,uint256)
-  argsTransformer: (rawArgs): ERC20TransferArgs => ({
-    // Added checks for 'to' and 'value' which are present in the decoded call args
-    recipient: String(rawArgs.recipient || rawArgs._to || rawArgs.to || rawArgs._0 || zeroAddress),
-    amount: String(rawArgs.amount || rawArgs._value || rawArgs.value || rawArgs._1 || '0')
-  }),
-  decoder: ({ txnData, baseDecoding, fromAddress }) => {
-    const { recipient, amount } = txnData.args
-
-    if (!recipient || recipient === zeroAddress || amount === undefined) {
-      console.warn('ERC20 Transfer: Invalid or missing arguments after transformation.')
+  abi: erc20Abi,
+  byteSignatures: ['0xa9059cbb'],
+  argsTransformer: (rawViemArgs): ERC20TransferArgs => {
+    const args = rawViemArgs as unknown as ERC20TransferRawArgs
+    return {
+      recipient: getAddress(args._to ?? (rawViemArgs as any[])[0] ?? zeroAddress),
+      amount: (args._value ?? (rawViemArgs as any[])[1] ?? 0n).toString()
+    }
+  },
+  decoder: ({ transaction, decodedArgs, baseDecoding, fromAddress }) => {
+    const { recipient, amount } = decodedArgs
+    if (!recipient || recipient === zeroAddress || amount === undefined || amount === '0') {
       return undefined
     }
-
     return {
       ...baseDecoding,
       type: 'erc20-transfer',
-      transferType: TxnTransferType.SEND, // Assuming wallet initiated transfers are sends
-      contractAddress: getAddress(txnData.to),
+      transferType: TxnTransferType.SEND,
+      contractAddress: getAddress(transaction.target),
       contractType: ContractType.ERC20,
       from: fromAddress,
-      to: getAddress(recipient),
-      amount: amount,
-      methodName: 'transfer'
+      to: recipient,
+      amount: amount
     }
   },
   metadataFetcher: async ({ baseDecodedResult, chainID }) => {
@@ -574,7 +241,6 @@ const erc20TransferDecoder: DecoderDefinition<ERC20TransferDecoding, ERC20Transf
         chainID: String(chainID),
         contractAddresses: [contractAddress]
       })
-      // Use contractInfoMap which is keyed by address. Try both checksummed and lowercase lookup.
       const info =
         result.contractInfoMap?.[contractAddress] ?? result.contractInfoMap?.[contractAddress.toLowerCase()]
       return info ? { contractInfo: info } : undefined
@@ -587,7 +253,6 @@ const erc20TransferDecoder: DecoderDefinition<ERC20TransferDecoding, ERC20Transf
 
 // --- ERC721 Decoder ---
 const ERC721_TRANSFER_TYPE = 'erc721-transfer'
-
 interface ERC721TransferDecoding extends BaseDecoding {
   type: typeof ERC721_TRANSFER_TYPE
   transferType: TxnTransferType
@@ -596,52 +261,47 @@ interface ERC721TransferDecoding extends BaseDecoding {
   from: string
   to: string
   tokenId: string
-  tokenMetadata?: TokenMetadata // Added metadata field
+  tokenMetadata?: TokenMetadata
 }
-
+interface ERC721TransferRawArgs {
+  _from: Hex
+  _to: Hex
+  _tokenId: bigint
+  _data?: Hex
+}
 interface ERC721TransferArgs {
   from: string
   to: string
   tokenId: string
 }
-
 const erc721TransferDecoder: DecoderDefinition<ERC721TransferDecoding, ERC721TransferArgs> = {
   type: ERC721_TRANSFER_TYPE,
-  byteSignatures: [
-    '0x23b872dd', // transferFrom(address,address,uint256)
-    '0x42842e0e' // safeTransferFrom(address,address,uint256)
-    // Note: safeTransferFrom(address,address,uint256,bytes) - 0xb88d4fde - is not handled here, assumes no data payload
-  ],
-  argsTransformer: (rawArgs): ERC721TransferArgs => ({
-    from: String(rawArgs.from || rawArgs._from || rawArgs._0 || zeroAddress),
-    to: String(rawArgs.to || rawArgs._to || rawArgs._1 || zeroAddress),
-    tokenId: String(rawArgs.tokenId || rawArgs._tokenId || rawArgs._2 || '0')
-  }),
-  decoder: ({ txnData, baseDecoding, fromAddress }) => {
-    const { from, to, tokenId } = txnData.args
-
+  abi: erc721Abi,
+  byteSignatures: ['0x23b872dd', '0x42842e0e', '0xb88d4fde'],
+  argsTransformer: (rawViemArgs): ERC721TransferArgs => {
+    const args = rawViemArgs as unknown as ERC721TransferRawArgs
+    return {
+      from: getAddress(args._from ?? (rawViemArgs as any[])[0] ?? zeroAddress),
+      to: getAddress(args._to ?? (rawViemArgs as any[])[1] ?? zeroAddress),
+      tokenId: (args._tokenId ?? (rawViemArgs as any[])[2] ?? 0n).toString()
+    }
+  },
+  decoder: ({ transaction, decodedArgs, baseDecoding, fromAddress }) => {
+    const { from, to, tokenId } = decodedArgs
     if (!from || from === zeroAddress || !to || to === zeroAddress || tokenId === undefined) {
-      console.warn('ERC721 Transfer: Invalid or missing arguments after transformation.')
       return undefined
     }
-
-    // Determine transfer type based on who initiated (fromAddress)
     const transferType =
       from.toLowerCase() === fromAddress.toLowerCase() ? TxnTransferType.SEND : TxnTransferType.RECEIVE
-
-    // Determine method name based on byte signature
-    const methodName = txnData.byteSignature === '0x42842e0e' ? 'safeTransferFrom' : 'transferFrom'
-
     return {
       ...baseDecoding,
       type: ERC721_TRANSFER_TYPE,
       transferType: transferType,
-      contractAddress: getAddress(txnData.to),
+      contractAddress: getAddress(transaction.target),
       contractType: ContractType.ERC721,
-      from: getAddress(from),
-      to: getAddress(to),
-      tokenId: tokenId,
-      methodName: methodName
+      from: from,
+      to: to,
+      tokenId: tokenId
     }
   },
   metadataFetcher: async ({ baseDecodedResult, chainID }) => {
@@ -667,6 +327,7 @@ const erc721TransferDecoder: DecoderDefinition<ERC721TransferDecoding, ERC721Tra
 const ERC1155_SINGLE_TRANSFER_TYPE = 'erc1155-single-transfer'
 const ERC1155_BATCH_TRANSFER_TYPE = 'erc1155-batch-transfer'
 
+// --- Single Transfer ---
 interface ERC1155SingleTransferDecoding extends BaseDecoding {
   type: typeof ERC1155_SINGLE_TRANSFER_TYPE
   transferType: TxnTransferType
@@ -677,22 +338,15 @@ interface ERC1155SingleTransferDecoding extends BaseDecoding {
   tokenId: string
   amount: string
   data: string
-  tokenMetadata?: TokenMetadata // Added metadata field
+  tokenMetadata?: TokenMetadata
 }
-
-interface ERC1155BatchTransferDecoding extends BaseDecoding {
-  type: typeof ERC1155_BATCH_TRANSFER_TYPE
-  transferType: TxnTransferType
-  contractAddress: string
-  contractType: ContractType.ERC1155
-  from: string
-  to: string
-  tokenIds: string[]
-  amounts: string[]
-  data: string
-  tokenMetadata?: TokenMetadata[] // Added metadata field (array)
+interface ERC1155SingleTransferRawArgs {
+  _from: Hex
+  _to: Hex
+  _id: bigint
+  _value: bigint
+  _data: Hex
 }
-
 interface ERC1155SingleTransferArgs {
   from: string
   to: string
@@ -700,56 +354,49 @@ interface ERC1155SingleTransferArgs {
   amount: string
   data: string
 }
-
-interface ERC1155BatchTransferArgs {
-  from: string
-  to: string
-  tokenIds: string[]
-  amounts: string[]
-  data: string
-}
-
 const erc1155SingleTransferDecoder: DecoderDefinition<
   ERC1155SingleTransferDecoding,
   ERC1155SingleTransferArgs
 > = {
   type: ERC1155_SINGLE_TRANSFER_TYPE,
-  byteSignatures: ['0xf242432a'], // safeTransferFrom(address,address,uint256,uint256,bytes)
-  argsTransformer: (rawArgs): ERC1155SingleTransferArgs => ({
-    from: String(rawArgs.from || rawArgs._from || rawArgs._0 || zeroAddress),
-    to: String(rawArgs.to || rawArgs._to || rawArgs._1 || zeroAddress),
-    tokenId: String(rawArgs.id || rawArgs.tokenId || rawArgs._id || rawArgs._2 || '0'),
-    amount: String(rawArgs.value || rawArgs.amount || rawArgs._value || rawArgs._3 || '0'),
-    data: String(rawArgs.data || rawArgs._data || rawArgs._4 || '0x')
-  }),
-  decoder: ({ txnData, baseDecoding, fromAddress }) => {
-    const { from, to, tokenId, amount, data } = txnData.args
-
+  abi: erc1155Abi,
+  byteSignatures: ['0xf242432a'],
+  argsTransformer: (rawViemArgs): ERC1155SingleTransferArgs => {
+    const args = rawViemArgs as unknown as ERC1155SingleTransferRawArgs
+    return {
+      from: getAddress(args._from ?? (rawViemArgs as any[])[0] ?? zeroAddress),
+      to: getAddress(args._to ?? (rawViemArgs as any[])[1] ?? zeroAddress),
+      tokenId: (args._id ?? (rawViemArgs as any[])[2] ?? 0n).toString(),
+      amount: (args._value ?? (rawViemArgs as any[])[3] ?? 0n).toString(),
+      data: args._data ?? (rawViemArgs as any[])[4] ?? '0x'
+    }
+  },
+  decoder: ({ transaction, decodedArgs, baseDecoding, fromAddress }) => {
+    const { from, to, tokenId, amount, data } = decodedArgs
     if (
       !from ||
       from === zeroAddress ||
       !to ||
       to === zeroAddress ||
       tokenId === undefined ||
-      amount === undefined
+      amount === undefined ||
+      amount === '0'
     ) {
-      console.warn('ERC1155 Single Transfer: Invalid or missing arguments after transformation.')
       return undefined
     }
-
+    const transferType =
+      from.toLowerCase() === fromAddress.toLowerCase() ? TxnTransferType.SEND : TxnTransferType.RECEIVE
     return {
       ...baseDecoding,
       type: ERC1155_SINGLE_TRANSFER_TYPE,
-      transferType:
-        from.toLowerCase() === fromAddress.toLowerCase() ? TxnTransferType.SEND : TxnTransferType.RECEIVE,
-      contractAddress: getAddress(txnData.to),
+      transferType: transferType,
+      contractAddress: getAddress(transaction.target),
       contractType: ContractType.ERC1155,
-      from: getAddress(from),
-      to: getAddress(to),
+      from: from,
+      to: to,
       tokenId: tokenId,
       amount: amount,
-      data: data,
-      methodName: 'safeTransferFrom'
+      data: data
     }
   },
   metadataFetcher: async ({ baseDecodedResult, chainID }) => {
@@ -771,26 +418,52 @@ const erc1155SingleTransferDecoder: DecoderDefinition<
   }
 }
 
+// --- Batch Transfer ---
+interface ERC1155BatchTransferDecoding extends BaseDecoding {
+  type: typeof ERC1155_BATCH_TRANSFER_TYPE
+  transferType: TxnTransferType
+  contractAddress: string
+  contractType: ContractType.ERC1155
+  from: string
+  to: string
+  tokenIds: string[]
+  amounts: string[]
+  data: string
+  tokenMetadata?: TokenMetadata[]
+}
+interface ERC1155BatchTransferRawArgs {
+  _from: Hex
+  _to: Hex
+  _ids: readonly bigint[]
+  _values: readonly bigint[]
+  _data: Hex
+}
+interface ERC1155BatchTransferArgs {
+  from: string
+  to: string
+  tokenIds: string[]
+  amounts: string[]
+  data: string
+}
 const erc1155BatchTransferDecoder: DecoderDefinition<ERC1155BatchTransferDecoding, ERC1155BatchTransferArgs> =
   {
     type: ERC1155_BATCH_TRANSFER_TYPE,
-    byteSignatures: ['0x2eb2c2d6'], // safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)
-    argsTransformer: (rawArgs): ERC1155BatchTransferArgs => {
-      const tokenIdsRaw = rawArgs.ids || rawArgs.tokenIds || rawArgs._ids || rawArgs._2
-      const amountsRaw =
-        rawArgs.values || rawArgs.amounts || rawArgs._values || rawArgs._amounts || rawArgs._3
-
+    abi: erc1155Abi,
+    byteSignatures: ['0x2eb2c2d6'],
+    argsTransformer: (rawViemArgs): ERC1155BatchTransferArgs => {
+      const args = rawViemArgs as unknown as ERC1155BatchTransferRawArgs
+      const idsRaw = args._ids ?? (rawViemArgs as any[])[2] ?? []
+      const valuesRaw = args._values ?? (rawViemArgs as any[])[3] ?? []
       return {
-        from: String(rawArgs.from || rawArgs._from || rawArgs._0 || zeroAddress),
-        to: String(rawArgs.to || rawArgs._to || rawArgs._1 || zeroAddress),
-        tokenIds: Array.isArray(tokenIdsRaw) ? tokenIdsRaw.map(String) : [],
-        amounts: Array.isArray(amountsRaw) ? amountsRaw.map(String) : [],
-        data: String(rawArgs.data || rawArgs._data || rawArgs._4 || '0x')
+        from: getAddress(args._from ?? (rawViemArgs as any[])[0] ?? zeroAddress),
+        to: getAddress(args._to ?? (rawViemArgs as any[])[1] ?? zeroAddress),
+        tokenIds: Array.isArray(idsRaw) ? idsRaw.map(id => id.toString()) : [],
+        amounts: Array.isArray(valuesRaw) ? valuesRaw.map(v => v.toString()) : [],
+        data: args._data ?? (rawViemArgs as any[])[4] ?? '0x'
       }
     },
-    decoder: ({ txnData, baseDecoding, fromAddress }) => {
-      const { from, to, tokenIds, amounts, data } = txnData.args
-
+    decoder: ({ transaction, decodedArgs, baseDecoding, fromAddress }) => {
+      const { from, to, tokenIds, amounts, data } = decodedArgs
       if (
         !from ||
         from === zeroAddress ||
@@ -802,23 +475,21 @@ const erc1155BatchTransferDecoder: DecoderDefinition<ERC1155BatchTransferDecodin
         amounts.length === 0 ||
         tokenIds.length !== amounts.length
       ) {
-        console.warn('ERC1155 Batch Transfer: Invalid or inconsistent arguments after transformation.')
         return undefined
       }
-
+      const transferType =
+        from.toLowerCase() === fromAddress.toLowerCase() ? TxnTransferType.SEND : TxnTransferType.RECEIVE
       return {
         ...baseDecoding,
         type: ERC1155_BATCH_TRANSFER_TYPE,
-        transferType:
-          from.toLowerCase() === fromAddress.toLowerCase() ? TxnTransferType.SEND : TxnTransferType.RECEIVE,
-        contractAddress: getAddress(txnData.to),
+        transferType: transferType,
+        contractAddress: getAddress(transaction.target),
         contractType: ContractType.ERC1155,
-        from: getAddress(from),
-        to: getAddress(to),
+        from: from,
+        to: to,
         tokenIds: tokenIds,
         amounts: amounts,
-        data: data,
-        methodName: 'safeBatchTransferFrom'
+        data: data
       }
     },
     metadataFetcher: async ({ baseDecodedResult, chainID }) => {
@@ -826,9 +497,8 @@ const erc1155BatchTransferDecoder: DecoderDefinition<ERC1155BatchTransferDecodin
         const result = await getTokenMetadata({
           chainID: String(chainID),
           contractAddress: baseDecodedResult.contractAddress,
-          tokenIDs: baseDecodedResult.tokenIds // Fetch metadata for all token IDs in the batch
+          tokenIDs: baseDecodedResult.tokenIds
         })
-        // Ensure we return an array, even if empty or undefined
         const metaArray = result.tokenMetadata || []
         return metaArray.length > 0 ? { tokenMetadata: metaArray } : undefined
       } catch (error) {
@@ -841,9 +511,242 @@ const erc1155BatchTransferDecoder: DecoderDefinition<ERC1155BatchTransferDecodin
     }
   }
 
-export const txnDecoder = new TransactionDecoder(apiClient)
+export type DecodedTransactionResult =
+  | NativeTransferDecoding
+  | ERC20TransferDecoding
+  | ERC721TransferDecoding
+  | ERC1155SingleTransferDecoding
+  | ERC1155BatchTransferDecoding
+  | BaseDecoding // Fallback for unknown/undecoded
 
-txnDecoder.registerDecoder(erc1155BatchTransferDecoder)
-txnDecoder.registerDecoder(erc1155SingleTransferDecoder)
-txnDecoder.registerDecoder(erc721TransferDecoder)
-txnDecoder.registerDecoder(erc20TransferDecoder)
+export class TransactionDecoder {
+  private decoders: Array<DecoderDefinition<any, any>> = [
+    nativeTransferDecoder,
+    erc20TransferDecoder,
+    erc721TransferDecoder,
+    erc1155SingleTransferDecoder,
+    erc1155BatchTransferDecoder
+  ]
+
+  constructor() {}
+
+  public registerDecoder<TDecoded extends BaseDecoding, TInputArgs extends Args>(
+    decoder: DecoderDefinition<TDecoded, TInputArgs>
+  ): void {
+    if (decoder.type !== NATIVE_TRANSFER_TYPE && (!decoder.abi || decoder.abi.length === 0)) {
+      console.warn(
+        `Decoder registered for type "${decoder.type}" without an ABI. Decoding arguments will not be possible.`
+      )
+    }
+    this.decoders.push(decoder)
+  }
+
+  public getSupportedTypes(): DecodingType[] {
+    return this.decoders.map(d => d.type)
+  }
+
+  /**
+   * Decodes a list of transactions based on registered decoders.
+   * Accepts flexible input objects compatible with ethers.js/viem.
+   */
+  public async decodeTransactions(
+    accountAddress: string,
+    chainID: string | number,
+    transactions: Array<DecodeTransactionInput>
+  ): Promise<DecodedTransactionResult[]> {
+    const fromAddress = getAddress(accountAddress)
+    const results: DecodedTransactionResult[] = []
+
+    // Normalize input transactions to the internal TransactionEncoded format
+    const encodedTxns = this.normalizeTransactions(transactions)
+
+    for (const tx of encodedTxns) {
+      const decoded = await this.decodeSingleTransaction(tx, fromAddress, chainID)
+      if (decoded) {
+        results.push(decoded)
+      }
+    }
+
+    return results
+  }
+
+  /**
+   * Converts flexible transaction inputs into the internal TransactionEncoded format.
+   */
+  // MODIFIED: Implementation updated to handle DecodeTransactionInput
+  private normalizeTransactions(transactions: Array<DecodeTransactionInput>): TransactionEncoded[] {
+    return transactions.map(txn => {
+      // Determine target address (prefer 'target', fallback to 'to')
+      const targetAddress = txn.target ?? txn.to ?? zeroAddress
+      // Ensure address is checksummed, handle null/zeroAddress
+      const checksummedTarget =
+        targetAddress === zeroAddress || targetAddress === null ? zeroAddress : getAddress(targetAddress)
+
+      // Ensure data is a valid Hex string, default to '0x'
+      const dataHex =
+        txn.data && typeof txn.data === 'string' && txn.data.startsWith('0x') ? (txn.data as Hex) : '0x'
+
+      // Convert value to bigint, handling potential errors, then format as Hex
+      let valueBigInt: bigint = 0n
+      if (txn.value !== undefined && txn.value !== null) {
+        try {
+          valueBigInt = BigInt(txn.value)
+        } catch (e) {
+          console.warn('Could not parse transaction value:', txn.value, e)
+        }
+      }
+      const valueHex = toHex(valueBigInt)
+
+      // Convert gasLimit to bigint, handling potential errors
+      let gasLimitBigInt: bigint = 0n
+      if (txn.gasLimit !== undefined && txn.gasLimit !== null) {
+        try {
+          gasLimitBigInt = BigInt(txn.gasLimit)
+        } catch (e) {
+          console.warn('Could not parse transaction gasLimit:', txn.gasLimit, e)
+        }
+      }
+
+      // Return the object conforming to the internal TransactionEncoded structure
+      return {
+        delegateCall: txn.delegateCall ?? false,
+        revertOnError: txn.revertOnError ?? false,
+        gasLimit: gasLimitBigInt, // Ensure TransactionEncoded expects bigint for gasLimit
+        target: checksummedTarget,
+        value: valueHex, // Ensure TransactionEncoded expects hex for value
+        data: dataHex
+      }
+    })
+  }
+
+  // Decodes a single, normalized transaction using registered decoders
+  private async decodeSingleTransaction(
+    transaction: TransactionEncoded, // Expects the normalized format
+    fromAddress: string,
+    chainID: string | number
+  ): Promise<DecodedTransactionResult | undefined> {
+    // Ensure data is a valid Hex string (already done in normalize, but safe check)
+    const dataHex = (transaction.data && transaction.data.startsWith('0x') ? transaction.data : '0x') as Hex
+
+    const txByteSignature: Hex = dataHex.length >= 10 ? (slice(dataHex, 0, 4).toLowerCase() as Hex) : '0x'
+    const targetAddress = getAddress(transaction.target) // target is already checksummed
+
+    // Base information available for any transaction
+    const baseDecoding: Omit<BaseDecoding, 'type' | 'methodName' | 'signature'> = {
+      byteSignature: txByteSignature,
+      target: targetAddress,
+      value: BigInt(transaction.value ?? 0).toString() // Use normalized value (hex)
+    }
+
+    // --- Try Native Transfer Matcher First ---
+    // Pass the *normalized* transaction to the matcher
+    if (nativeTransferDecoder.matcher && nativeTransferDecoder.matcher(transaction)) {
+      const nativeResult = nativeTransferDecoder.decoder({
+        transaction,
+        decodedArgs: {},
+        baseDecoding: {
+          ...baseDecoding,
+          type: NATIVE_TRANSFER_TYPE,
+          methodName: 'nativeTokenTransfer',
+          signature: ''
+        },
+        fromAddress
+      })
+      return nativeResult as DecodedTransactionResult | undefined
+    }
+
+    // --- Iterate through other decoders ---
+    for (const decoder of this.decoders) {
+      if (decoder.type === NATIVE_TRANSFER_TYPE) continue
+
+      const decoderSigs = decoder.byteSignatures.map(sig => sig.toLowerCase())
+      const isByteSigMatch = decoderSigs.includes(txByteSignature)
+
+      if (isByteSigMatch && decoder.abi && decoder.abi.length > 0) {
+        try {
+          const { functionName, args: rawViemArgs } = decodeFunctionData({
+            abi: decoder.abi,
+            data: dataHex
+          })
+
+          let transformedArgs = rawViemArgs as Args
+          if (decoder.argsTransformer) {
+            try {
+              transformedArgs = decoder.argsTransformer(rawViemArgs || [])
+            } catch (error) {
+              console.error(
+                `Error transforming args for decoder ${decoder.type} (${functionName}):`,
+                error,
+                'Raw args:',
+                rawViemArgs
+              )
+              continue
+            }
+          }
+
+          const currentBaseDecoding: BaseDecoding = {
+            ...baseDecoding,
+            type: decoder.type,
+            methodName: functionName,
+            signature: functionName // Use functionName as default signature identifier
+          }
+
+          let decodedResult = decoder.decoder({
+            transaction: transaction,
+            decodedArgs: transformedArgs,
+            baseDecoding: currentBaseDecoding,
+            fromAddress
+          })
+
+          if (!decodedResult) {
+            continue
+          }
+
+          if (decoder.metadataFetcher) {
+            try {
+              const metadataFields = await decoder.metadataFetcher({
+                baseDecodedResult: decodedResult,
+                chainID
+              })
+              if (metadataFields) {
+                decodedResult = { ...decodedResult, ...metadataFields }
+              }
+            } catch (error) {
+              console.error(`Error fetching metadata for decoder ${decoder.type}:`, error)
+            }
+          }
+
+          return decodedResult
+        } catch (e) {
+          if (
+            e instanceof Error &&
+            (e.message.includes('data is too short') ||
+              e.message.includes('Cannot decode zero data') ||
+              e.message.includes('Invalid ABI resolution'))
+          ) {
+            // Ignore common decoding failures
+          } else if (e instanceof Error && e.message.includes('Function not found')) {
+            console.warn(
+              `Viem function not found for ${decoder.type} selector ${txByteSignature} in provided ABI.`
+            )
+          } else {
+            console.error(
+              `Unexpected Viem error during decoding for ${decoder.type} (${txByteSignature}):`,
+              e
+            )
+          }
+        }
+      }
+    }
+
+    // --- Fallback for Unknown Transactions ---
+    return {
+      ...baseDecoding,
+      type: 'unknown',
+      methodName: 'unknown',
+      signature: ''
+    }
+  }
+}
+
+export const txnDecoder = new TransactionDecoder()

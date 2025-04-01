@@ -21,7 +21,7 @@ type TokenMetadataSingle = {
   source?: string
 }
 
-type DecodedTransfer = {
+export type DecodedTransfer = {
   type: string
   transferType: TxnTransferType
   contractAddress: string

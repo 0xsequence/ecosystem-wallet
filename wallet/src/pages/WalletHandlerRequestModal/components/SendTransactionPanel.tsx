@@ -1,31 +1,15 @@
 import { Button, Collapsible } from '@0xsequence/design-system'
-import { ContractType, TxnTransferType } from '@0xsequence/indexer'
 
 import { NetworkInfo } from '../../../components/NetworkInfo'
 import { FeeOptionSelector } from '../../../components/FeeOptionSelector'
-import { TransferTxnDetailView } from '../../../components/TransferTxnDetailView'
+import { DecodedTransfer, TransferTxnDetailView } from '../../../components/TransferTxnDetailView'
 import { useTransactionHandler } from '../../../hooks/useTransactionHandler'
 import { useEffect, useState } from 'react'
-import { txnDecoder } from '../../../services/TransactionDecoder'
+
 import { useAuth } from '../../../context/AuthContext'
+import { DecodedTransactionResult, txnDecoder } from '../../../services/TransactionDecoder'
 
 type TransactionHandler = ReturnType<typeof useTransactionHandler>
-
-interface DecodedTransferBase {
-  type: string
-  transferType: TxnTransferType
-  contractAddress: string
-  contractType: ContractType
-  from: string
-  to: string
-  value?: string
-  amount?: string
-  tokenId?: string
-  tokenIds?: string[]
-  amounts?: string[]
-  methodName: string
-  target: string
-}
 
 export function SendTransactionPanel({ handler }: { handler: TransactionHandler }) {
   const { address: accountAddress } = useAuth()
@@ -42,22 +26,14 @@ export function SendTransactionPanel({ handler }: { handler: TransactionHandler 
     handleRejectTxn
   } = handler
 
-  const [decodedTransactions, setDecodedTransactions] = useState<DecodedTransferBase[]>([])
+  const [decodedTransactions, setDecodedTransactions] = useState<DecodedTransactionResult[]>([])
 
   useEffect(() => {
     if (accountAddress && transactionRequest && requestChainId) {
       setDecodedTransactions([])
-      const sequenceTxns = transactionRequest.map(tx => ({
-        delegateCall: false,
-        revertOnError: true,
-        gasLimit: tx.gasLimit || 0n,
-        to: tx.to || '',
-        value: tx.value || 0n,
-        data: tx.data || '0x'
-      }))
 
       txnDecoder
-        .decodeTransactions(accountAddress, requestChainId, sequenceTxns)
+        .decodeTransactions(accountAddress, requestChainId, transactionRequest)
         .then(decodedTxns => {
           console.log('decodedTxns', JSON.stringify(decodedTxns, null, 2))
           const transferTxns = decodedTxns.filter(
@@ -99,7 +75,10 @@ export function SendTransactionPanel({ handler }: { handler: TransactionHandler 
               )}
 
               {decodedTransactions[index] && requestChainId && (
-                <TransferTxnDetailView transfer={decodedTransactions[index]} chainId={requestChainId} />
+                <TransferTxnDetailView
+                  transfer={decodedTransactions[index] as DecodedTransfer}
+                  chainId={requestChainId}
+                />
               )}
 
               <div
