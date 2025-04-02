@@ -154,6 +154,24 @@ const erc1155Abi = [
     payable: false,
     stateMutability: 'nonpayable',
     type: 'function'
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256[]',
+        name: 'tokenIds',
+        type: 'uint256[]'
+      },
+      {
+        internalType: 'uint256[]',
+        name: 'amounts',
+        type: 'uint256[]'
+      }
+    ],
+    name: 'batchMint',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function'
   }
 ] as const
 
@@ -326,6 +344,7 @@ const erc721TransferDecoder: DecoderDefinition<ERC721TransferDecoding, ERC721Tra
 // --- ERC1155 Decoders ---
 const ERC1155_SINGLE_TRANSFER_TYPE = 'erc1155-single-transfer'
 const ERC1155_BATCH_TRANSFER_TYPE = 'erc1155-batch-transfer'
+const ERC1155_BATCH_MINT_TYPE = 'erc1155-batch-mint'
 
 // --- Single Transfer ---
 interface ERC1155SingleTransferDecoding extends BaseDecoding {
@@ -511,12 +530,83 @@ const erc1155BatchTransferDecoder: DecoderDefinition<ERC1155BatchTransferDecodin
     }
   }
 
+// --- Batch Mint ---
+interface ERC1155BatchMintDecoding extends BaseDecoding {
+  type: typeof ERC1155_BATCH_MINT_TYPE
+  contractAddress: string
+  contractType: ContractType.ERC1155
+  tokenIds: string[]
+  amounts: string[]
+  tokenMetadata?: TokenMetadata[]
+}
+interface ERC1155BatchMintRawArgs {
+  tokenIds: readonly bigint[]
+  amounts: readonly bigint[]
+}
+interface ERC1155BatchMintArgs {
+  tokenIds: string[]
+  amounts: string[]
+}
+const erc1155BatchMintDecoder: DecoderDefinition<ERC1155BatchMintDecoding, ERC1155BatchMintArgs> = {
+  type: ERC1155_BATCH_MINT_TYPE,
+  abi: erc1155Abi,
+  byteSignatures: ['0x688d2232'], // Corrected signature for batchMint(uint256[],uint256[])
+  argsTransformer: (rawViemArgs): ERC1155BatchMintArgs => {
+    const args = rawViemArgs as unknown as ERC1155BatchMintRawArgs
+    const idsRaw = args.tokenIds ?? (rawViemArgs as any[])[0] ?? []
+    const amountsRaw = args.amounts ?? (rawViemArgs as any[])[1] ?? []
+    return {
+      tokenIds: Array.isArray(idsRaw) ? idsRaw.map(id => id.toString()) : [],
+      amounts: Array.isArray(amountsRaw) ? amountsRaw.map(v => v.toString()) : []
+    }
+  },
+  decoder: ({ transaction, decodedArgs, baseDecoding }) => {
+    const { tokenIds, amounts } = decodedArgs
+    if (
+      !Array.isArray(tokenIds) ||
+      !Array.isArray(amounts) ||
+      tokenIds.length === 0 ||
+      amounts.length === 0 ||
+      tokenIds.length !== amounts.length
+    ) {
+      return undefined
+    }
+    // Minting is always considered a RECEIVE from the perspective of the contract caller (the wallet)
+    return {
+      ...baseDecoding,
+      type: ERC1155_BATCH_MINT_TYPE,
+      contractAddress: getAddress(transaction.target),
+      contractType: ContractType.ERC1155,
+      tokenIds: tokenIds,
+      amounts: amounts
+    }
+  },
+  metadataFetcher: async ({ baseDecodedResult, chainID }) => {
+    try {
+      const result = await getTokenMetadata({
+        chainID: String(chainID),
+        contractAddress: baseDecodedResult.contractAddress,
+        tokenIDs: baseDecodedResult.tokenIds
+      })
+      const metaArray = result.tokenMetadata || []
+      return metaArray.length > 0 ? { tokenMetadata: metaArray } : undefined
+    } catch (error) {
+      console.error(
+        `Error fetching ERC1155 batch mint token metadata for ${baseDecodedResult.contractAddress}:`,
+        error
+      )
+      return undefined
+    }
+  }
+}
+
 export type DecodedTransactionResult =
   | NativeTransferDecoding
   | ERC20TransferDecoding
   | ERC721TransferDecoding
   | ERC1155SingleTransferDecoding
   | ERC1155BatchTransferDecoding
+  | ERC1155BatchMintDecoding
   | BaseDecoding // Fallback for unknown/undecoded
 
 export class TransactionDecoder {
@@ -525,7 +615,8 @@ export class TransactionDecoder {
     erc20TransferDecoder,
     erc721TransferDecoder,
     erc1155SingleTransferDecoder,
-    erc1155BatchTransferDecoder
+    erc1155BatchTransferDecoder,
+    erc1155BatchMintDecoder
   ]
 
   constructor() {}

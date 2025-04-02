@@ -5,8 +5,9 @@ import { formatUnits, zeroAddress } from 'viem'
 
 import { NetworkImage } from './NetworkImage'
 
-import { CopyButton } from '../design-system-patch/copy-button/CopyButton'
 import { useNativeToken } from '../utils/nativeToken'
+import { CopyButton } from './CopyButton'
+import { formatDisplay } from '../utils/helpers'
 
 type TokenMetadataSingle = {
   tokenId: string
@@ -55,7 +56,11 @@ export const TransferTxnDetailView: React.FC<TransferTxnDetailViewProps> = ({ tr
         return (
           <div className="flex items-center gap-2">
             <NetworkImage chainId={chainId} size="sm" />
-            {transfer.value && <span className="font-medium">{formatUnits(BigInt(transfer.value), 18)}</span>}
+            {transfer.value && (
+              <span className="font-medium">
+                {formatDisplay(formatUnits(BigInt(transfer.value), 18), { maximumFractionDigits: 5 })}
+              </span>
+            )}
             <span className="font-bold">{nativeTokenInfo.symbol}</span>
           </div>
         )
@@ -69,9 +74,11 @@ export const TransferTxnDetailView: React.FC<TransferTxnDetailViewProps> = ({ tr
         return (
           <div className="flex items-center gap-2">
             <TokenImage src={logoURI} symbol={symbol} />
-            <span className="font-medium">{formattedAmount}</span>
+            <span className="font-medium">
+              {formatDisplay(formattedAmount, { maximumFractionDigits: 5 })}
+            </span>
             <span className="font-bold">{symbol}</span>
-            <CopyButton copyText={transfer.contractAddress} />
+            <CopyButton text={transfer.contractAddress} />
           </div>
         )
       }
@@ -141,7 +148,7 @@ export const TransferTxnDetailView: React.FC<TransferTxnDetailViewProps> = ({ tr
                     <span className="text-text-secondary">Amount: {transfer.amount}</span>
                   )}
                 </div>
-                <CopyButton copyText={transfer.contractAddress} />
+                <CopyButton text={transfer.contractAddress} />
               </div>
             )
           } else {
@@ -154,7 +161,7 @@ export const TransferTxnDetailView: React.FC<TransferTxnDetailViewProps> = ({ tr
                 {transfer.contractType === ContractType.ERC1155 && transfer.amount && (
                   <span className="font-medium">Amount: {transfer.amount}</span>
                 )}
-                <CopyButton copyText={transfer.contractAddress} />
+                <CopyButton text={transfer.contractAddress} />
               </div>
             )
           }
@@ -184,7 +191,7 @@ export const TransferTxnDetailView: React.FC<TransferTxnDetailViewProps> = ({ tr
           <span className="text-xs text-text-secondary">From</span>
           <div className="flex items-center gap-1">
             <span className="font-mono text-text-primary">{truncateAddress(transfer.from)}</span>
-            <CopyButton copyText={transfer.from} />
+            <CopyButton text={transfer.from} />
           </div>
         </div>
       )}
@@ -193,7 +200,7 @@ export const TransferTxnDetailView: React.FC<TransferTxnDetailViewProps> = ({ tr
           <span className="text-xs text-text-secondary">To</span>
           <div className="flex items-center gap-1">
             <span className="font-mono text-text-primary">{truncateAddress(transfer.to)}</span>
-            <CopyButton copyText={transfer.to} />
+            <CopyButton text={transfer.to} />
           </div>
         </div>
       )}

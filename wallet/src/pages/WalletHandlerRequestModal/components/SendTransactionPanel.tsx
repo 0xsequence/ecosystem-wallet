@@ -3,6 +3,7 @@ import { Button, Collapsible } from '@0xsequence/design-system'
 import { NetworkInfo } from '../../../components/NetworkInfo'
 import { FeeOptionSelector } from '../../../components/FeeOptionSelector'
 import { DecodedTransfer, TransferTxnDetailView } from '../../../components/TransferTxnDetailView'
+import { DecodedMintTxn, MintTxnDetailView } from '../../../components/MintTxnDetailView'
 import { useTransactionHandler } from '../../../hooks/useTransactionHandler'
 import { useEffect, useState } from 'react'
 
@@ -36,7 +37,7 @@ export function SendTransactionPanel({ handler }: { handler: TransactionHandler 
         .decodeTransactions(accountAddress, requestChainId, transactionRequest)
         .then(decodedTxns => {
           console.log('decodedTxns', JSON.stringify(decodedTxns, null, 2))
-          const transferTxns = decodedTxns.filter(
+          const supportedTxns = decodedTxns.filter(
             d =>
               d &&
               [
@@ -44,10 +45,11 @@ export function SendTransactionPanel({ handler }: { handler: TransactionHandler 
                 'erc20-transfer',
                 'erc721-transfer',
                 'erc1155-single-transfer',
-                'erc1155-batch-transfer'
+                'erc1155-batch-transfer',
+                'erc1155-batch-mint'
               ].includes(d.type)
           )
-          setDecodedTransactions(transferTxns)
+          setDecodedTransactions(supportedTxns)
         })
         .catch(error => {
           console.error('Error decoding transactions:', error)
@@ -75,10 +77,19 @@ export function SendTransactionPanel({ handler }: { handler: TransactionHandler 
               )}
 
               {decodedTransactions[index] && requestChainId && (
-                <TransferTxnDetailView
-                  transfer={decodedTransactions[index] as DecodedTransfer}
-                  chainId={requestChainId}
-                />
+                <>
+                  {decodedTransactions[index].type === 'erc1155-batch-mint' ? (
+                    <MintTxnDetailView
+                      txn={decodedTransactions[index] as DecodedMintTxn}
+                      chainId={requestChainId}
+                    />
+                  ) : (
+                    <TransferTxnDetailView
+                      transfer={decodedTransactions[index] as DecodedTransfer}
+                      chainId={requestChainId}
+                    />
+                  )}
+                </>
               )}
 
               <div
