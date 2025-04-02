@@ -182,6 +182,15 @@ export const TransferTxnDetailView: React.FC<TransferTxnDetailViewProps> = ({ tr
           {transfer.methodName}
         </span>
       </div>
+      {transfer.contractType !== ContractType.NATIVE && (
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-text-secondary mb-1">Contract</span>
+          <div className="flex items-center gap-1">
+            <span className="font-mono text-text-primary">{truncateAddress(transfer.contractAddress)}</span>
+            <CopyButton text={transfer.contractAddress} />
+          </div>
+        </div>
+      )}
       <div className="flex flex-col gap-1">
         <span className="text-xs text-text-secondary mb-2">Asset</span>
         {renderTokenInfo()}
