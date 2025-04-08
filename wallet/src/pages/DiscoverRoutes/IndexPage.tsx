@@ -13,6 +13,7 @@ import { useState } from 'react'
 import { useFavorites } from '../../hooks/useFavorites'
 import { useWatchlist } from '../../hooks/useWatchlist'
 import { walletConnectStore } from '../../store/WalletConnectStore'
+import { useHorizontalScrollStatus } from '../../hooks/useHorizontalScrollStatus'
 
 const ALL_DISCOVER_CATEGORIES = [
   {
@@ -88,6 +89,8 @@ export const DiscoverPage = () => {
       ?.map(item => DISCOVER_ITEMS.find(d => (d.id ? d.id === item : false)))
       .filter(Boolean) || []
 
+  const scroll = useHorizontalScrollStatus<HTMLDivElement>()
+
   let items: (DiscoverItem | undefined)[] = []
   switch (category) {
     case 'All':
@@ -135,7 +138,11 @@ export const DiscoverPage = () => {
           Feature dApp
         </div> */}
 
-        <div className="flex gap-2 py-6 overflow-scroll scrollbar-none">
+        <div
+          className="flex gap-2 py-6 overflow-scroll scrollbar-none data-[scroll-end]:scrollbar-end-overflow-mask data-[scroll-start]:scrollbar-start-overflow-mask data-[scroll-progress]:scrollbar-progress-overflow-mask"
+          ref={scroll.ref}
+          {...scroll.attributes}
+        >
           {ALL_DISCOVER_CATEGORIES.map(item => (
             <button
               type="button"
