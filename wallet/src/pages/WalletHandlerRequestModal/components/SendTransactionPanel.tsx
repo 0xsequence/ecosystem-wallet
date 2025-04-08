@@ -1,12 +1,19 @@
 import { Button, Collapsible } from '@0xsequence/design-system'
+
 import { NetworkInfo } from '../../../components/NetworkInfo'
 import { FeeOptionSelector } from '../../../components/FeeOptionSelector'
-
+import { DecodedTransfer, TransferTxnDetailView } from '../../../components/TransferTxnDetailView'
+import { DecodedMintTxn, MintTxnDetailView } from '../../../components/MintTxnDetailView'
 import { useTransactionHandler } from '../../../hooks/useTransactionHandler'
+import { useEffect, useState } from 'react'
+
+import { useAuth } from '../../../context/AuthContext'
+import { DecodedTransactionResult, txnDecoder } from '../../../services/TransactionDecoder'
 
 type TransactionHandler = ReturnType<typeof useTransactionHandler>
 
 export function SendTransactionPanel({ handler }: { handler: TransactionHandler }) {
+  const { address: accountAddress } = useAuth()
   const {
     transactionRequest,
     requestOrigin,
@@ -20,6 +27,37 @@ export function SendTransactionPanel({ handler }: { handler: TransactionHandler 
     handleRejectTxn
   } = handler
 
+  const [decodedTransactions, setDecodedTransactions] = useState<DecodedTransactionResult[]>([])
+
+  useEffect(() => {
+    if (accountAddress && transactionRequest && requestChainId) {
+      setDecodedTransactions([])
+
+      txnDecoder
+        .decodeTransactions(accountAddress, requestChainId, transactionRequest)
+        .then(decodedTxns => {
+          console.log('decodedTxns', JSON.stringify(decodedTxns, null, 2))
+          const supportedTxns = decodedTxns.filter(
+            d =>
+              d &&
+              [
+                'native-transfer',
+                'erc20-transfer',
+                'erc721-transfer',
+                'erc1155-single-transfer',
+                'erc1155-batch-transfer',
+                'erc1155-batch-mint'
+              ].includes(d.type)
+          )
+          setDecodedTransactions(supportedTxns)
+        })
+        .catch(error => {
+          console.error('Error decoding transactions:', error)
+          setDecodedTransactions([])
+        })
+    }
+  }, [accountAddress, transactionRequest])
+
   return (
     <>
       <div className="flex flex-col flex-1 items-start px-6 py-6 gap-2 ">
@@ -31,10 +69,29 @@ export function SendTransactionPanel({ handler }: { handler: TransactionHandler 
         </div>
         <div className="flex flex-col gap-2 w-full">
           {transactionRequest?.map((txn, index) => (
-            <div className="flex flex-col gap-2 w-full" key={index}>
-              <div className="flex mt-2 flex-col gap-2 w-full">
-                {requestChainId && <NetworkInfo chainId={requestChainId} />}
-              </div>
+            <div className="flex flex-col gap-4 w-full" key={index}>
+              {index === 0 && requestChainId && (
+                <div className="flex mt-2 flex-col gap-2 w-full">
+                  <NetworkInfo chainId={requestChainId} />
+                </div>
+              )}
+
+              {decodedTransactions[index] && requestChainId && (
+                <>
+                  {decodedTransactions[index].type === 'erc1155-batch-mint' ? (
+                    <MintTxnDetailView
+                      txn={decodedTransactions[index] as DecodedMintTxn}
+                      chainId={requestChainId}
+                    />
+                  ) : (
+                    <TransferTxnDetailView
+                      transfer={decodedTransactions[index] as DecodedTransfer}
+                      chainId={requestChainId}
+                    />
+                  )}
+                </>
+              )}
+
               <div
                 style={
                   {

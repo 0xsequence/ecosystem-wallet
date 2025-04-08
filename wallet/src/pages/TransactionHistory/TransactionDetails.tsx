@@ -1,24 +1,16 @@
 import { Token } from '@0xsequence/api'
-import {
-  Card,
-  compareAddress,
-  GradientAvatar,
-  nativeTokenImageUrl,
-  NetworkImage,
-  TokenImage
-} from '@0xsequence/design-system'
+import { Card, compareAddress, GradientAvatar, NetworkImage, TokenImage } from '@0xsequence/design-system'
 import { Transaction, TxnTransfer } from '@0xsequence/indexer'
 import dayjs from 'dayjs'
 import { ethers } from 'ethers'
 import { useConfig } from '../../hooks/useConfig'
 import { useCoinPrices } from '../../hooks/useCoinPrices'
-
-import { networks, ChainId } from '@0xsequence/network'
 import { CopyButton } from '../../components/CopyButton'
 import { formatDisplay, truncateAtMiddle } from '../../utils/helpers'
 import { useCollectiblePrices } from '../../hooks/useCollectiblePrices'
 import { ArrowRightIcon } from '../../design-system-patch/icons'
 import { useExchangeRate } from '../../hooks/useExchangeRate'
+import { useNativeToken } from '../../utils/nativeToken'
 
 function useCoinsAndCollectables(transaction: Transaction) {
   const coins: Token[] = []
@@ -62,19 +54,8 @@ interface TransactionDetailProps {
   transaction: Transaction
 }
 
-function useNativeToken(transaction: TransactionDetailProps['transaction']) {
-  const { nativeToken, blockExplorer } = networks[transaction.chainId as ChainId]
-  return {
-    logoURI: nativeTokenImageUrl(transaction.chainId),
-    symbol: nativeToken.symbol,
-    decimals: nativeToken.decimals,
-    blockExplorerUrl: blockExplorer?.rootUrl,
-    blockExplorerName: blockExplorer?.name
-  }
-}
-
 export const TransactionDetails = ({ transaction }: TransactionDetailProps) => {
-  const nativeTokenInfo = useNativeToken(transaction)
+  const nativeTokenInfo = useNativeToken(transaction.chainId)
 
   const date = dayjs(transaction.timestamp).format('ddd MMM DD YYYY, hh:mm:ss a')
 

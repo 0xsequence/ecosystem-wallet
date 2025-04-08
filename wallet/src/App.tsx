@@ -14,8 +14,12 @@ import { THEME } from './utils/theme'
 import { useEffect } from 'react'
 import { useLocalStore } from './utils/local-store'
 
-export const App: React.FC = () => {
+
+  export const App: React.FC = () => {
   const [address, setAddress] = useLocalStore<string>('address')
+
+
+  const location = useLocation()
 
   useEffect(() => {
     if (typeof window !== 'undefined' && THEME.css) {
@@ -31,7 +35,6 @@ export const App: React.FC = () => {
     }
   }, [])
 
-  const location = useLocation()
   useEffect(() => {
     if ((location.state && location.state.modal) || (location.state && location.state.keepPosition)) {
       // do nothing
