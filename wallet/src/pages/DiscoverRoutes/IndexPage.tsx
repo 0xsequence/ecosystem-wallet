@@ -1,4 +1,4 @@
-import { Image } from '@0xsequence/design-system'
+import { Image, Text } from '@0xsequence/design-system'
 import { ExternalLinkIcon, HeartIcon } from '../../design-system-patch/icons'
 
 import { useSnapshot } from 'valtio'
@@ -7,14 +7,14 @@ import { SessionTypes } from '@walletconnect/types'
 import { Link } from 'react-router'
 import { ROUTES } from '../../routes'
 
-import { DISCOVER_ITEMS } from '../../data/discover_items'
+import { DISCOVER_ITEMS, DISCOVER_CATEGORIES, type DiscoverItem } from '../../data/discover_items'
 import { inert } from '../../utils/inert'
 import { useState } from 'react'
 import { useFavorites } from '../../hooks/useFavorites'
 import { useWatchlist } from '../../hooks/useWatchlist'
 import { walletConnectStore } from '../../store/WalletConnectStore'
 
-const DISCOVER_CATEGORIES = [
+const ALL_DISCOVER_CATEGORIES = [
   {
     id: 'all',
     label: 'All',
@@ -27,16 +27,7 @@ const DISCOVER_CATEGORIES = [
     icon: <HeartIcon size="xs" />
   },
 
-  {
-    id: 'defi',
-    label: 'DeFi',
-    name: 'defi'
-  },
-  {
-    id: 'games',
-    label: 'Games',
-    name: 'games'
-  }
+  ...DISCOVER_CATEGORIES
 ]
 
 interface SessionViewProps {
@@ -91,12 +82,13 @@ export const DiscoverPage = () => {
     .filter(Boolean)
 
   const favorites = useFavorites()
-  const favoriteItems = favorites
-    .items()
-    ?.map(item => DISCOVER_ITEMS.find(d => (d.id ? d.id === item : false)))
-    .filter(Boolean)
+  const favoriteItems =
+    favorites
+      .items()
+      ?.map(item => DISCOVER_ITEMS.find(d => (d.id ? d.id === item : false)))
+      .filter(Boolean) || []
 
-  let items
+  let items: (DiscoverItem | undefined)[] = []
   switch (category) {
     case 'All':
       items = DISCOVER_ITEMS
@@ -138,32 +130,41 @@ export const DiscoverPage = () => {
         </div>
       </div>
 
-      <div className="flex flex-col gap-4 w-full max-w-screen-lg mx-auto mt-2 sm:mt-18 sm:px-2 p-8 sm:py-0 mb-16">
+      <div className="flex flex-col gap-4 w-full max-w-screen-lg mx-auto mt-2 sm:mt-18 sm:px-2 p-8 sm:py-0 mb-16 ">
         {/* <div className="aspect-video rounded-xl bg-white/10 flex items-center justify-center">
           Feature dApp
         </div> */}
 
-        <div className="flex gap-2 py-6">
-          {DISCOVER_CATEGORIES.map(item => (
+        <div className="flex gap-2 py-6 overflow-scroll scrollbar-none">
+          {ALL_DISCOVER_CATEGORIES.map(item => (
             <button
               type="button"
               key={item.id}
               onClick={() => setCategory(item.label)}
-              className="px-4 py-2 rounded-[6px] bg-button-glass text-[14px] font-medium aria-[current='true']:bg-primary aria-[current='true']:text-inverse cursor-pointer hover:opacity-80 focus:opacity-80"
+              className="px-4 py-2 rounded-[6px] bg-button-glass text-[14px] font-medium aria-[current='true']:bg-primary aria-[current='true']:text-inverse cursor-pointer hover:opacity-80 focus:opacity-80 text-nowrap"
               aria-current={category === item.label}
             >
               {item.label}
             </button>
           ))}
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-          {items?.map(item => (
-            <DiscoverItem item={item} key={item?.title} />
-          ))}
-          {category === 'Favorites'
-            ? validSessions.map(item => <WalletConnect item={item.peerMetadata} />)
-            : null}
-        </div>
+
+        {items.length ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+            {items?.map(item => (
+              <DiscoverItem item={item} key={item?.title} />
+            ))}
+            {category === 'Favorites'
+              ? validSessions.map(item => <WalletConnect item={item.peerMetadata} />)
+              : null}
+          </div>
+        ) : (
+          <div className="aspect-video rounded-lg w-full bg-background-raised flex items-center justify-center">
+            <Text variant="normal" color="primary">
+              Nothing found in {category}
+            </Text>
+          </div>
+        )}
       </div>
     </>
   )
