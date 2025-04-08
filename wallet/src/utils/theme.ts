@@ -10,6 +10,7 @@ export type ThemeProps = {
     empty: string
   }
   auth: {
+    welcome: string
     logo: string
     size: { w: number; h: number }
     cover?: string
@@ -22,7 +23,10 @@ export type ThemeProps = {
 function theme() {
   const css = import.meta.env.VITE_PROJECT_THEME_CSS_VARIABLES
 
+  // const assetPath = import.meta.env.VITE_PROJECT_ASSET_PATH
+
   const name = import.meta.env.VITE_PROJECT_NAME
+  const welcome = import.meta.env.VITE_AUTH_WELCOME_MESSAGE || `Sign in to ${name}`
   const mode = import.meta.env.VITE_PROJECT_BASE_THEME || 'dark'
   const favicon = import.meta.env.VITE_PROJECT_FAVICON || import.meta.env.VITE_PROJECT_SMALL_LOGO
 
@@ -50,6 +54,7 @@ function theme() {
     appBackground,
     backgroundMode,
     auth: {
+      welcome,
       logo: import.meta.env.VITE_PROJECT_AUTH_LOGO || import.meta.env.VITE_PROJECT_LOGO,
       size: {
         w: logoSize[0] ?? undefined,
