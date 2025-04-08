@@ -184,7 +184,7 @@ function CoinValue(props: TokenTileProps) {
       </span>
 
       <span
-        className="data-[trending='down']:text-red-400 text-green-400 text-xs leading-[1.1]"
+        className="data-[trending='down']:text-negative text-positive text-xs leading-[1.1]"
         data-trending={trending}
       >
         {priceChangeText}

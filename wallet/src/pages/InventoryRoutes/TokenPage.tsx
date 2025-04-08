@@ -2,7 +2,7 @@ import { Link, useLocation, useParams } from 'react-router'
 
 import { HeartIcon, SendIcon } from '../../design-system-patch/icons'
 import { useInventory } from './helpers/useInventory'
-import { TokenTileProps, TokenTypeProps } from './types'
+import { TokenTypeProps } from './types'
 import { formatDisplay, truncateAtMiddle } from '../../utils/helpers'
 import { useCoinPrices } from '../../hooks/useCoinPrices'
 import { WrappedCollapse } from '../../components/wrapped-collapse'
@@ -17,16 +17,19 @@ import {
   nativeTokenImageUrl,
   cn,
   useMediaQuery,
-  ExpandIcon
+  ExpandIcon,
+  Button
 } from '@0xsequence/design-system'
 import { formatUnits } from 'ethers'
 import { zeroAddress } from 'viem'
 import { useFavoriteTokens } from '../../hooks/useFavoriteTokens'
-import { inert } from '../../utils/inert'
+import { SendTokens } from './components/SendTokens'
 
 export function InventoryTokenRoute() {
   const { contractInfo } = useInventory()
   const { chainId, contractAddress, tokenId } = useParams()
+
+  const location = useLocation()
 
   if (!chainId || !contractAddress || !tokenId) {
     return null
@@ -39,6 +42,8 @@ export function InventoryTokenRoute() {
   return (
     <div className="w-full max-w-screen-lg mx-auto">
       <TokenDetails item={item} />
+      {}
+      {!location?.state?.modal ? <SendTokens /> : null}
     </div>
   )
 }
@@ -96,8 +101,9 @@ function CoinDetails(props: TokenTypeProps) {
 
   const isMobile = useMediaQuery('isMobile')
 
-  const { setShowSendModal } = useInventory()
+  const { setShowSendModal, setShowInventoryItem } = useInventory()
   const { balance, contractAddress, tokenMetadata, chainId, chain, contractInfo, uuid } = props
+
   const logoURI = contractInfo?.logoURI || nativeTokenImageUrl(props.chainId)
   const { symbol = chain?.nativeToken?.symbol || '', decimals = chain?.nativeToken?.decimals || 18 } = {
     symbol: contractInfo?.symbol,
@@ -182,14 +188,22 @@ function CoinDetails(props: TokenTypeProps) {
       </div>
       <div className="w-full flex flex-col gap-2">
         <div className="flex gap-2 w-full">
-          <button
-            type="button"
-            className="bg-gradient-primary rounded-md flex items-center justify-center gap-2 text-sm font-bold p-4 cursor-pointer flex-1"
-            onClick={() => setShowSendModal(true)}
-          >
-            <SendIcon />
-            Send
-          </button>
+          <Button
+            variant="primary"
+            shape="square"
+            leftIcon={SendIcon}
+            label="Send"
+            onClick={() => {
+              setShowSendModal(true)
+              setShowInventoryItem({
+                chainId,
+                contractAddress,
+                tokenId: tokenMetadata?.tokenId,
+                tokenClass: props.tokenClass
+              })
+            }}
+          ></Button>
+
           <Favorite id={uuid} />
         </div>
 
@@ -205,7 +219,7 @@ function CoinDetails(props: TokenTypeProps) {
   )
 }
 
-function TokenDetailsCollectable(props: TokenTileProps) {
+function TokenDetailsCollectable(props: TokenTypeProps) {
   const location = useLocation()
 
   if (location.state && location.state.modal) {
@@ -215,15 +229,16 @@ function TokenDetailsCollectable(props: TokenTileProps) {
   return <CollectibleRoute {...props} />
 }
 
-function CollectibleRoute(props: TokenTileProps) {
+function CollectibleRoute(props: TokenTypeProps) {
   const style = {
     ...(THEME.appBackground && { '--background': `url(${THEME.appBackground})` })
   } as React.CSSProperties
 
   const isMobile = useMediaQuery('isMobile')
 
-  const { setShowSendModal } = useInventory()
+  const { setShowSendModal, setShowInventoryItem } = useInventory()
   const { tokenMetadata, chainId, chain, balance, contractType, contractAddress, uuid } = props
+
   const isERC1155 = contractType === 'ERC1155'
   return (
     <div className="w-full flex flex-col px-6 py-24">
@@ -265,14 +280,21 @@ function CollectibleRoute(props: TokenTileProps) {
       </div>
       <div className="w-full flex flex-col gap-2">
         <div className="flex gap-2 w-full">
-          <button
-            type="button"
-            className="bg-gradient-primary rounded-md flex items-center justify-center gap-2 text-sm font-bold p-4 cursor-pointer flex-1"
-            onClick={() => setShowSendModal(true)}
-          >
-            <SendIcon />
-            Send
-          </button>
+          <Button
+            variant="primary"
+            shape="square"
+            leftIcon={SendIcon}
+            label="Send"
+            onClick={() => {
+              setShowSendModal(true)
+              setShowInventoryItem({
+                chainId,
+                contractAddress,
+                tokenId: tokenMetadata?.tokenId,
+                tokenClass: props.tokenClass
+              })
+            }}
+          ></Button>
           <Favorite id={uuid} />
         </div>
 
@@ -286,7 +308,7 @@ function CollectibleRoute(props: TokenTileProps) {
   )
 }
 
-function CollectibleModal(props: TokenTileProps) {
+function CollectibleModal(props: TokenTypeProps) {
   const style = {
     ...(THEME.appBackground && { '--background': `url(${THEME.appBackground})` })
   } as React.CSSProperties
@@ -295,7 +317,7 @@ function CollectibleModal(props: TokenTileProps) {
 
   const isMobile = useMediaQuery('isMobile')
 
-  const { setShowSendModal } = useInventory()
+  const { setShowSendModal, setShowInventoryItem } = useInventory()
   const { tokenMetadata, chainId, chain, balance, contractType, contractAddress, uuid } = props
   const isERC1155 = contractType === 'ERC1155'
   return (
@@ -340,14 +362,21 @@ function CollectibleModal(props: TokenTileProps) {
       </div>
       <div className="w-full flex flex-col gap-2">
         <div className="flex gap-2 w-full">
-          <button
-            type="button"
-            className="bg-gradient-primary rounded-md flex items-center justify-center gap-2 text-sm font-bold p-4 cursor-pointer flex-1"
-            onClick={() => setShowSendModal(true)}
-          >
-            <SendIcon />
-            Send
-          </button>
+          <Button
+            variant="primary"
+            shape="square"
+            leftIcon={SendIcon}
+            label="Send"
+            onClick={() => {
+              setShowSendModal(true)
+              setShowInventoryItem({
+                chainId,
+                contractAddress,
+                tokenId: tokenMetadata?.tokenId,
+                tokenClass: props.tokenClass
+              })
+            }}
+          ></Button>
           <Favorite id={uuid} />
         </div>
 
@@ -367,25 +396,36 @@ function Favorite({ id }: { id: string }) {
   const { has, toggle } = useFavoriteTokens()
 
   return (
-    <button
-      type="button"
+    <Button
+      variant="raised"
+      shape="square"
+      leftIcon={HeartIcon}
+      label={has(id) ? 'Remove' : 'Favorite'}
       onClick={() => toggle(id)}
-      className="bg-button-glass rounded-md items-center justify-center gap-2 text-sm font-bold p-4 cursor-pointer grid grid-cols-1 grid-rows-1 [&>span]:col-start-1 [&>span]:row-start-1 hover:opacity-80 focus-visible:opacity-80 transition-all"
-    >
-      <span
-        className="flex gap-2 inert:-translate-y-4 inert:opacity-0 transition-all items-center justify-center"
-        {...inert(has(id))}
-      >
-        <HeartIcon />
-        Favorite
-      </span>
-      <span
-        className="flex gap-2 inert:translate-y-4 inert:opacity-0 transition-all items-center justify-center"
-        {...inert(!has(id))}
-      >
-        <HeartIcon />
-        Remove
-      </span>
-    </button>
+    ></Button>
   )
+
+  // return (
+
+  //   <button
+  //     type="button"
+  //     onClick={
+  //     className="bg-button-glass rounded-md items-center justify-center gap-2 text-sm font-bold p-4 cursor-pointer grid grid-cols-1 grid-rows-1 [&>span]:col-start-1 [&>span]:row-start-1 hover:opacity-80 focus-visible:opacity-80 transition-all"
+  //   >
+  //     <span
+  //       className="flex gap-2 inert:-translate-y-4 inert:opacity-0 transition-all items-center justify-center"
+  //       {...inert(has(id))}
+  //     >
+  //       <HeartIcon />
+  //       Favorite
+  //     </span>
+  //     <span
+  //       className="flex gap-2 inert:translate-y-4 inert:opacity-0 transition-all items-center justify-center"
+  //       {...inert(!has(id))}
+  //     >
+  //       <HeartIcon />
+  //       Remove
+  //     </span>
+  //   </button>
+  // )
 }

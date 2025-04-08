@@ -14,7 +14,6 @@ export function TokenDetailModal() {
       }
     })
   }
-
   if (!tokenId) return null
 
   if (location.state && location.state.modal) {

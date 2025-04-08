@@ -14,10 +14,8 @@ import { THEME } from './utils/theme'
 import { useEffect } from 'react'
 import { useLocalStore } from './utils/local-store'
 
-
-  export const App: React.FC = () => {
+export const App: React.FC = () => {
   const [address, setAddress] = useLocalStore<string>('address')
-
 
   const location = useLocation()
 
@@ -48,7 +46,7 @@ import { useLocalStore } from './utils/local-store'
     function setAccount(event: KeyboardEvent) {
       if (event.metaKey && event.key === 'a') {
         event.preventDefault() // Prevent default "Select All" behavior
-        console.log(address)
+
         const input = prompt('Enter an address: 0x... (or blank for current logged in user)', address || '')
         if (input !== null) {
           setAddress(input)

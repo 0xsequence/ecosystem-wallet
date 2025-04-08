@@ -365,7 +365,7 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
               </div>
             ) : (
               <Button
-                className="flex-shrink-0 rounded-md w-full col-start-1 row-start-1  min-h-[3rem]"
+                className="flex-shrink-0 rounded-md w-full col-start-1 row-start-1 min-h-[3rem]"
                 width="full"
                 variant="primary"
                 type="submit"

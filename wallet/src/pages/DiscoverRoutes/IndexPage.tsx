@@ -139,9 +139,9 @@ export const DiscoverPage = () => {
       </div>
 
       <div className="flex flex-col gap-4 w-full max-w-screen-lg mx-auto mt-2 sm:mt-18 sm:px-2 p-8 sm:py-0 mb-16">
-        <div className="aspect-video rounded-xl bg-white/10 flex items-center justify-center">
+        {/* <div className="aspect-video rounded-xl bg-white/10 flex items-center justify-center">
           Feature dApp
-        </div>
+        </div> */}
 
         <div className="flex gap-2 py-6">
           {DISCOVER_CATEGORIES.map(item => (

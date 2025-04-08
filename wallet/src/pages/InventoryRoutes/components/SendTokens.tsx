@@ -2,6 +2,7 @@ import { SendCollectible } from '../../../components/SendCollectible'
 import { SendCoin } from '../../../components/SendCoin'
 import { Modal, ModalPrimitive } from '@0xsequence/design-system'
 import { useInventory } from '../helpers/useInventory'
+import { zeroAddress } from 'viem'
 
 export function SendTokens() {
   const {
@@ -15,11 +16,15 @@ export function SendTokens() {
   const { chainId, tokenId, tokenClass, contractAddress } = showInventoryItem || {}
 
   const isCoin = tokenClass !== 'collectable'
+
   const collectibleBalanceToSend = isCoin
     ? null
     : inventoryByTokenClass.collectibleInventory.find(collectible => collectible.tokenID === tokenId)
   const coinBalanceToSend = isCoin
-    ? (contractAddress ? inventoryByTokenClass.erc20Inventory : inventoryByTokenClass.nativeBalances).find(
+    ? (contractAddress && contractAddress !== zeroAddress
+        ? inventoryByTokenClass.erc20Inventory
+        : inventoryByTokenClass.nativeBalances
+      ).find(
         balance =>
           balance.chainId === chainId &&
           (contractAddress ? balance.contractAddress === contractAddress : true)
