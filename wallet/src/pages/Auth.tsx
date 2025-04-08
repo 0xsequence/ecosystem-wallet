@@ -163,14 +163,16 @@ export const Auth: React.FC = () => {
   }, [pendingConnectionEventData])
 
   return (
-    <ThemeProvider theme="light" root="#auth-root">
+    <ThemeProvider theme={THEME.auth.theme} root="#auth-root">
       <div className="flex flex-col flex-1 items-center justify-center text-primary" id="auth-root">
         <AuthCoverWrapper>
-          <Card className="bg-transparent w-full gap-6 flex flex-col px-6 py-[5rem] rounded-none">
+          <Card className="bg-transparent w-full gap-6 flex flex-col px-6 rounded-none flex-1">
             {!emailAuthInProgress && (
               <>
-                <div className="flex items-center gap-4 flex-col">
-                  <Image src={THEME.auth.logo} width={THEME.auth.size.w} height={THEME.auth.size.h} />
+                <div className="flex items-center gap-4 flex-col flex-1">
+                  <div className="flex-1">
+                    <Image src={THEME.auth.logo} width={THEME.auth.size.w} height={THEME.auth.size.h} />
+                  </div>
                   <span>
                     {isPopup && pendingEventOrigin ? (
                       <span>
@@ -370,11 +372,13 @@ function AuthCoverWrapper({ children }: { children: React.ReactNode }) {
   } as React.CSSProperties
 
   const hasBorder = !!getCSSVariable('--color-auth-border')
+  const hasBackground = !!getCSSVariable('--color-auth-bg')
 
   return (
     <div
-      className="flex w-[calc(100%-32px)] md:w-auto mx-4 min-h-[40rem] overflow-clip rounded-lg group"
+      className="flex w-[calc(100%-32px)] md:w-auto mx-4 min-h-[40rem] overflow-clip rounded-lg group bg-background-primary data-[background='true']:bg-[var(--color-auth-bg)] data-[border='true']:border data-[border='true']:border-[var(--color-auth-border,transparent)]"
       data-border={hasBorder}
+      data-background={hasBackground}
       data-component="auth-container"
     >
       <div className="grid auth-grid-template max-w-screen-lg w-full">
