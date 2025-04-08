@@ -9,6 +9,7 @@ import { TokenPrice } from '@0xsequence/api'
 import { useInventory } from '../pages/InventoryRoutes/helpers/useInventory'
 import { UserPreferenceLocalStore } from '../pages/InventoryRoutes/types'
 import { useExchangeRate } from '../hooks/useExchangeRate'
+import { Text } from '@0xsequence/design-system'
 
 function useTotalCoinBalance() {
   const { coinInventory } = useInventory()
@@ -66,7 +67,9 @@ export function WalletsTotalBalance() {
 
   return (
     <dl className="w-full flex flex-col gap-0.25 px-3 py-2.5 border border-border-normal rounded-sm">
-      <dt className="text-style-sm font-semibold text-white/80">Total Balance (USD)</dt>
+      <Text asChild variant="small" fontWeight="semibold" color="primary">
+        <dt>Total Balance (USD)</dt>
+      </Text>
       <dd className="text-xl font-bold flex gap-2">
         <button
           type="button"

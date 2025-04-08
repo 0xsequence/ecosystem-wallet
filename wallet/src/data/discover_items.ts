@@ -6,13 +6,14 @@ export type DiscoverItem = {
   description: string
   categories?: string[]
   contracts?: string[]
+  chains?: string[]
 }
 
-function parseDiscoverItems(envVar: string | undefined): DiscoverItem[] {
+function parseDiscoverItems<T>(envVar: string | undefined): T[] {
   if (!envVar) return []
   try {
-    console.log(envVar)
     const parsed = JSON.parse(envVar)
+
     if (!Array.isArray(parsed)) return []
     return parsed
   } catch (e) {
@@ -21,7 +22,26 @@ function parseDiscoverItems(envVar: string | undefined): DiscoverItem[] {
   }
 }
 
-export const DISCOVER_ITEMS = parseDiscoverItems(import.meta.env.VITE_DISCOVER_ITEMS) as DiscoverItem[]
+function parseChainItems<T>(envVar: string | undefined): T | undefined {
+  if (!envVar) return undefined
+  try {
+    const parsed = JSON.parse(envVar)
+
+    return parsed
+  } catch (e) {
+    console.error('Failed to parse VITE_DISCOVER_ITEMS:', e)
+    return undefined
+  }
+}
+
+export type ChainItem = { name: string; icon: string }
+
+export const DISCOVER_CHAINS =
+  parseChainItems<Record<string, ChainItem>>(import.meta.env.VITE_DISCOVER_CHAINS) || {}
+
+export const DISCOVER_ITEMS = parseDiscoverItems<DiscoverItem>(
+  import.meta.env.VITE_DISCOVER_ITEMS
+) as DiscoverItem[]
 function toKebabCase(str: string) {
   return str
     .toLowerCase()

@@ -7,7 +7,13 @@ import { SessionTypes } from '@walletconnect/types'
 import { Link } from 'react-router'
 import { ROUTES } from '../../routes'
 
-import { DISCOVER_ITEMS, DISCOVER_CATEGORIES, type DiscoverItem } from '../../data/discover_items'
+import {
+  DISCOVER_ITEMS,
+  DISCOVER_CATEGORIES,
+  DISCOVER_CHAINS,
+  type ChainItem,
+  type DiscoverItem
+} from '../../data/discover_items'
 import { inert } from '../../utils/inert'
 import { useState } from 'react'
 import { useFavorites } from '../../hooks/useFavorites'
@@ -177,6 +183,37 @@ export const DiscoverPage = () => {
   )
 }
 
+function ItemChains({ chains }: { chains?: string[] }) {
+  const hasChains = Object.values(DISCOVER_CHAINS).length && chains?.length
+
+  if (!hasChains) {
+    return null
+  }
+
+  const chainItems = chains.map(chain => DISCOVER_CHAINS[chain]).filter(Boolean) as ChainItem[]
+
+  return (
+    <div className="flex gap-1 px-4 mt-2">
+      {chainItems.splice(0, 5).map(chain => (
+        <div key={chain.name} className="size-4 flex-shrink-0">
+          <Image
+            src={chain.icon}
+            className="size-full bg-button-glass rounded-full flex-shrink-0"
+            alt={chain.name}
+            width={16}
+            height={16}
+          />
+        </div>
+      ))}
+      {chainItems.length > 5 ? (
+        <Text variant="small" color="primary">
+          +{chainItems.length}
+        </Text>
+      ) : null}
+    </div>
+  )
+}
+
 function DiscoverItem({ item, direct = false }: { item?: (typeof DISCOVER_ITEMS)[0]; direct?: boolean }) {
   const watchlist = useWatchlist()
   const favorites = useFavorites()
@@ -190,7 +227,6 @@ function DiscoverItem({ item, direct = false }: { item?: (typeof DISCOVER_ITEMS)
       className="bg-background-secondary backdrop-blur-2xl text-primary rounded-lg flex flex-col font-bold text-sm overflow-clip hover:scale-102 focus-within:scale-102 focus-within:ring-2 focus-within:ring-blue-600 transition-transform self-stretch"
     >
       {item.img ? <Image src={item.img} className="object-cover size-full aspect-square" /> : null}
-
       <div className="py-4 flex flex-col">
         {direct && item.href ? (
           <a
@@ -224,6 +260,7 @@ function DiscoverItem({ item, direct = false }: { item?: (typeof DISCOVER_ITEMS)
 
           {favorites.has(item.id) ? <HeartIcon className="size-4" /> : null}
         </span>
+        <ItemChains chains={item.chains} />
       </div>
     </div>
   )
