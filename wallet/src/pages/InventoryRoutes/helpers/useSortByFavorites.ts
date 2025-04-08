@@ -1,7 +1,8 @@
 import { useFavoriteTokens } from '../../../hooks/useFavoriteTokens'
 import { TokenTypeProps } from '../types'
+import { CoinGroup } from './useFetchInventory'
 
-export function useSortByFavorites(inventory?: (TokenTypeProps | null)[]) {
+export function useSortByFavorites(inventory?: (CoinGroup | TokenTypeProps | null)[]) {
   const { has } = useFavoriteTokens()
   if (!inventory) return []
   return inventory.sort((a, b) => {

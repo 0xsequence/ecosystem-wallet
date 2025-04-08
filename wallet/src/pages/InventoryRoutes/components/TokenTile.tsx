@@ -22,7 +22,7 @@ export function TokenTile(
       to={`/inventory/${chainId}/${contractAddress}/${tokenId || '0'}`}
       state={{ modal: true, referer }}
       className={cn(
-        'aspect-square rounded-md overflow-clip bg-background-secondary backdrop-blur-2xl cursor-pointer hover:scale-102 hover:-translate-y-0.5 transition-transform relative',
+        'aspect-square rounded-md overflow-clip bg-background-secondary backdrop-blur-2xl cursor-pointer hover:opacity-80 focus:opacity-80 transition-transform relative',
         className
       )}
       {...rest}

@@ -4,10 +4,11 @@ import { useLocalStore } from '../../utils/local-store.ts'
 
 import { InventoryDisplayModeSwitch } from './components/InventoryDisplayModeSwitch.tsx'
 import { UserPreferenceLocalStore } from './types.ts'
-import { SearchInput } from '@0xsequence/design-system'
+import { SearchInput, Select, Text } from '@0xsequence/design-system'
 import { Outlet, useLocation, useParams } from 'react-router'
 import { useInventory } from './helpers/useInventory'
 import { SearchContext, useSearchValues } from '../../hooks/useSearch'
+import { NetworkImage } from '../../components/NetworkImage'
 
 export const InventoryPage = () => {
   const { tokenId, contractAddress } = useParams()
@@ -50,7 +51,56 @@ export const InventoryPage = () => {
             value={value.query}
             onChange={e => value.setQuery(e.target.value)}
           />
-          <InventoryDisplayModeSwitch />
+
+          <div className="flex gap-2">
+            <Select
+              defaultValue="all"
+              label="Networks"
+              labelLocation="hidden"
+              name="selectDemo"
+              onValueChange={function Xs() {}}
+              options={[
+                {
+                  label: (
+                    <div className="flex items-center gap-2">
+                      <Text>All networks</Text>
+                    </div>
+                  ),
+                  value: 'all'
+                },
+                {
+                  label: (
+                    <div className="flex items-center gap-2">
+                      <NetworkImage chainId={10} size="sm" />
+                      <Text>Optimism</Text>
+                    </div>
+                  ),
+                  value: '10'
+                },
+
+                {
+                  label: (
+                    <div className="flex items-center gap-2">
+                      <NetworkImage chainId={8453} size="sm" />
+                      <Text>Base</Text>
+                    </div>
+                  ),
+                  value: '8453'
+                },
+                {
+                  label: (
+                    <div className="flex items-center gap-2">
+                      <NetworkImage chainId={1868} size="sm" />
+                      <Text>Soneium</Text>
+                    </div>
+                  ),
+                  value: '1868'
+                }
+              ]}
+            />
+
+            <InventoryDisplayModeSwitch />
+          </div>
         </div>
         <div className="grid grid-cols-1 grid-rows-1 [&>*]:col-start-1 [&>*]:row-start-1">
           <InventoryGrid isActive={prefs?.inventoryDisplayMode === 'grid'} />

@@ -10,8 +10,8 @@ export function InventoryDisplayModeSwitch() {
   return (
     <fieldset>
       <legend className="sr-only">Change display mode for inventory</legend>
-      <div className="flex h-full p-1 rounded-md bg-button-glass flex-1 overflow-clip">
-        <label className="has-checked:bg-button-glass rounded-sm p-3 flex items-center justify-center cursor-pointer  relative">
+      <div className="flex h-full p-1 rounded-xl bg-button-glass flex-1 overflow-clip">
+        <label className="has-checked:bg-button-glass rounded-[8px] p-3 flex items-center justify-center cursor-pointer  relative">
           <input
             type="radio"
             value="grid"
@@ -23,7 +23,7 @@ export function InventoryDisplayModeSwitch() {
           <GridIcon className="size-4" />
           <span className="sr-only">Grid</span>
         </label>
-        <label className="has-checked:bg-button-glass rounded-sm p-3 flex items-center justify-center cursor-pointer relative">
+        <label className="has-checked:bg-button-glass rounded-[8px] p-3 flex items-center justify-center cursor-pointer relative">
           <ListIcon className="size-4" />
           <input
             type="radio"

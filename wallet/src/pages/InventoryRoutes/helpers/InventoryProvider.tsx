@@ -1,7 +1,7 @@
 import { createContext, useState } from 'react'
 import type { TokenTypeProps } from '../types'
 
-import { useFetchInventory } from './useFetchInventory'
+import { CoinGroup, useFetchInventory } from './useFetchInventory'
 import { ZeroAddress } from 'ethers'
 import { ChainId } from '@0xsequence/network'
 
@@ -27,6 +27,7 @@ type InventoryContext = {
     collectibleInventory: TokenTypeProps[]
   }
   coinInventory: TokenTypeProps[]
+  coinGroups: CoinGroup[]
   collectibleInventory: TokenTypeProps[]
   inventoryIsEmpty: boolean
   status: { isLoading: boolean }
@@ -42,6 +43,7 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
   const {
     inventory,
     coinInventory,
+    coinGroups,
     collectibleInventory,
     inventoryByTokenClass,
     inventoryIsEmpty,
@@ -93,6 +95,8 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
         inventoryByTokenClass,
         /* @ts-expect-error FIXME */
         coinInventory,
+
+        coinGroups,
         /* @ts-expect-error FIXME */
         collectibleInventory,
         inventoryIsEmpty,

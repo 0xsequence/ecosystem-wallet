@@ -1,5 +1,5 @@
 import { TokenListItem, TokenTile } from './TokenTile'
-import { nativeTokenImageUrl, TokenImage, Text } from '@0xsequence/design-system'
+import { nativeTokenImageUrl, NetworkIcon, NetworkImage, Text, TokenImage } from '@0xsequence/design-system'
 import { formatUnits } from 'ethers'
 
 import type { TokenTileProps } from '../types'
@@ -9,25 +9,21 @@ import { useLocalStore } from '../../../utils/local-store'
 import { useFavoriteTokens } from '../../../hooks/useFavoriteTokens'
 import SvgHeartIcon from '../../../design-system-patch/icons/HeartIcon'
 import { useCoinPrices } from '../../../hooks/useCoinPrices'
-import { NetworkImage } from '../../../components/NetworkImage'
+import { CoinGroup } from '../helpers/useFetchInventory'
+import { Link } from 'react-router'
 
-export function InventoryCoinTile(props: TokenTileProps) {
-  const { chainId, contractAddress, tokenID, contractType, title, balance, token, uuid } = props
-  const { symbol = '', decimals = 18 } = token || {}
+export function InventoryCoinGroup(props: CoinGroup) {
+  const { balance, decimals, symbol, imageUrl, name: title, chains } = props
   const [prefs] = useLocalStore<{ hideBalance: boolean }>('userPrefs')
   const { has } = useFavoriteTokens()
-
+  const uuid = ''
   const isFavorite = has(uuid)
 
-  if (props.group) return null
-
   return (
-    <TokenTile
-      chainId={chainId}
-      contractAddress={contractAddress}
-      tokenId={tokenID}
-      tokenClass="nativeBalance"
-      className="p-4 sm:p-6 flex flex-col items-start gap-3 relative"
+    <Link
+      to=""
+      // state={{ modal: true, referer }}
+      className="aspect-square rounded-md overflow-clip bg-background-secondary backdrop-blur-2xl cursor-pointer hover:opacity-80 focus:opacity-80 transition-transform relative p-4 sm:p-6 flex flex-col items-start gap-3"
     >
       {props.testnet ? (
         <span className="rounded-full inline-flex px-1.5 py-0.5 bg-background-contrast absolute top-2 right-2">
@@ -44,26 +40,9 @@ export function InventoryCoinTile(props: TokenTileProps) {
         ) : null}
       </>
       <div className="w-[50%] max-w-20">
-        {contractType === 'ERC20' ? (
-          <TokenImage
-            src={token.logoURI}
-            size="xl"
-            className="size-full bg-button-glass rounded-full"
-            // withNetwork={chainId}
-          />
-        ) : (
-          <TokenImage
-            src={nativeTokenImageUrl(chainId, 'lg')}
-            size="xl"
-            className="size-full bg-button-glass rounded-full"
-            // withNetwork={chainId}
-          />
-        )}
+        <TokenImage src={imageUrl} size="xl" className="size-full bg-button-glass rounded-full" />
       </div>
       <div className="flex flex-col flex-1 justify-end items-start text-start gap-3">
-        {/* <span className="text-xs sm:text-sm font-medium text-seq-grey-500 leading-tight text-start mb-0.5">
-          {title}
-        </span> */}
         <span className="grid grid-cols-1 grid-rows-1 transition-all items-start justify-content-start text-md sm:text-lg font-bold text-start leading-[0] [&>span]:col-start-1 [&>span]:row-start-1">
           <span
             className="transition-all inert:translate-y-4 inert:scale-90 inert:opacity-0"
@@ -71,24 +50,35 @@ export function InventoryCoinTile(props: TokenTileProps) {
           >
             {limitDecimals(formatDisplay(formatUnits(balance, decimals)), 5)}
             {' '}
-            <span className="text-sm font-normal">{symbol}</span>
+
+            <Text variant="normal" color="primary">
+              {symbol}
+            </Text>
           </span>
           <span
             className="transition-all inert:-translate-y-4 inert:scale-90 inert:opacity-0"
             {...inert(!prefs?.hideBalance)}
           >
             •••{' '}
-            <span className="text-sm font-normal">{symbol}</span>
+            <Text variant="normal" color="primary">
+              {symbol}
+            </Text>
           </span>
         </span>
-        <div className="flex items-center gap-1">
-          <NetworkImage chainId={chainId} size="sm" />
-          <Text variant="normal" color="secondary" className="ml-1">
-            {title}
-          </Text>
-        </div>
+        {chains.length ? (
+          <div className="flex items-center gap-1">
+            {chains.map(chain => (
+              <NetworkImage chainId={chain.chainId} size="sm" />
+            ))}
+            {chains.length === 1 ? (
+              <Text variant="normal" color="secondary" className="ml-1">
+                {chains[0].title}
+              </Text>
+            ) : null}
+          </div>
+        ) : null}
       </div>
-    </TokenTile>
+    </Link>
   )
 }
 

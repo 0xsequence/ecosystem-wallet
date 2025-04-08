@@ -1,11 +1,12 @@
 import { useState, useMemo, createContext, useContext } from 'react'
 import Fuse from 'fuse.js'
 import { TokenTypeProps } from '../pages/InventoryRoutes/types'
+import { CoinGroup } from '../pages/InventoryRoutes/helpers/useFetchInventory'
 
 type SearchContextProps = {
   query: string
   setQuery: (query: string) => void
-  filteredItems: (TokenTypeProps | null)[]
+  filteredItems: (CoinGroup | TokenTypeProps | null)[]
 }
 
 export const SearchContext = createContext<SearchContextProps | null>(null)

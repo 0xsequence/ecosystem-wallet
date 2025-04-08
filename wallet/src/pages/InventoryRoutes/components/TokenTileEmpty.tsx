@@ -6,10 +6,7 @@ export function TokenTileEmpty(props: TokenTileEmptyProps) {
 
   return (
     <div
-      className={cn(
-        'aspect-square bg-background-secondary backdrop-blur-2xl rounded-md animate-pulse',
-        className
-      )}
+      className={cn('aspect-square bg-background-secondary backdrop-blur-2xl rounded-md', className)}
       {...rest}
     ></div>
   )
@@ -20,7 +17,7 @@ export function TokenListItemEmpty(props: TokenTileEmptyProps) {
 
   return (
     <div
-      className={cn('bg-background-secondary backdrop-blur-2xl rounded-md h-14 animate-pulse', className)}
+      className={cn('bg-background-secondary backdrop-blur-2xl rounded-md h-14', className)}
       {...rest}
     ></div>
   )

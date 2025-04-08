@@ -11,12 +11,17 @@ import { InventoryCoinList } from './InventoryCoin'
 import { useSortByFavorites } from '../helpers/useSortByFavorites'
 import { useCollectiblesByContract } from '../../../hooks/useCollectiblesByContract'
 import { useSearchFilter } from '../../../hooks/useSearch'
+import { padArray } from '../../../utils/pad-array'
 
 export function InventoryGrid({ isActive }: { isActive: boolean }) {
-  const { inventory, inventoryIsEmpty } = useInventory()
+  const { inventory, coinGroups, inventoryIsEmpty } = useInventory()
   const { hasNoResults, filterResults } = useSearchFilter()
 
-  const favorites = useSortByFavorites(filterResults(inventory))
+  const favorites = useSortByFavorites(
+    filterResults([...coinGroups, ...inventory.filter(item => !item?.group)])
+  )
+
+  const items = padArray(favorites, null, 12) as (TokenTypeProps | null)[]
 
   return (
     <Transition show={isActive}>
@@ -31,7 +36,7 @@ export function InventoryGrid({ isActive }: { isActive: boolean }) {
             <InventoryGridEmpty />
           ) : (
             <>
-              {favorites.map((item, index) => (
+              {items.map((item, index) => (
                 <TokenType key={index} item={item} />
               ))}
             </>

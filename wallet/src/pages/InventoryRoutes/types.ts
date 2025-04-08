@@ -10,11 +10,13 @@ export type TokenTileProps = TokenBalance & {
   chain?: NetworkMetadata
   uuid: string
   token: { symbol: string; name: string; decimals: number; logoURI?: string }
+  group?: string
+  testnet?: boolean
   nativeToken?: { symbol: string; name: string; decimals: number }
 }
 
 export type TokenTypeProps = TokenTileProps & {
-  tokenClass: 'erc20' | 'collectable' | 'nativeBalance'
+  tokenClass: 'erc20' | 'collectable' | 'nativeBalance' | 'group'
 }
 
 export type UserPreferenceLocalStore =
