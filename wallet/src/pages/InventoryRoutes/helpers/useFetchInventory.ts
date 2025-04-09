@@ -19,17 +19,35 @@ export type CoinGroup = currencyDefinition & {
   testnet: boolean
 }
 
+function useRefreshInventoryOnNavigate(records: ReturnType<typeof useTokenBalancesDetails>) {
+  const { isLoading, refetch, dataUpdatedAt } = records
+
+  const location = useLocation()
+  useEffect(() => {
+    if (!isLoading) {
+      const timeSinceLastFetch = Date.now() - dataUpdatedAt
+      if (location.pathname === '/inventory' && timeSinceLastFetch > 10000) {
+        refetch()
+      }
+    }
+  }, [location])
+}
+
+function useAddress() {
+  const [altAddress] = useLocalStore<string>('address')
+
+  const { address = '' } = useAuth()
+
+  return altAddress && altAddress.length > 0 ? altAddress : address
+}
+
 export function useFetchInventory() {
   const { hideUnlistedTokens } = useConfig()
 
-  const [altAddress] = useLocalStore<string>('address')
+  const address = useAddress()
 
-  let { address = '' } = useAuth()
-
-  address = altAddress && altAddress.length > 0 ? altAddress : address
-
-  const location = useLocation()
-  const { data, dataUpdatedAt, isLoading, refetch } = useTokenBalancesDetails({
+  // QUERY for inventory data
+  const records = useTokenBalancesDetails({
     omitMetadata: false,
     filter: {
       omitNativeBalances: false,
@@ -42,19 +60,13 @@ export function useFetchInventory() {
     }
   })
 
-  // Refetch inventory if route changes to /inventory and last fetch was >10s ago
-  useEffect(() => {
-    if (!isLoading) {
-      const timeSinceLastFetch = Date.now() - dataUpdatedAt
-      if (location.pathname === '/inventory' && timeSinceLastFetch > 10000) {
-        refetch()
-      }
-    }
-  }, [location])
+  const { data, isLoading, refetch } = records
 
-  const erc20Inventory = useErc20Inventory(data)
-  const collectibleInventory = useCollectibleInventory(data)
-  const nativeBalances = useNativeInventory(address, data)
+  useRefreshInventoryOnNavigate(records)
+
+  const erc20Inventory = useErc20Inventory(records.data)
+  const collectibleInventory = useCollectibleInventory(records.data)
+  const nativeBalances = useNativeInventory(address, records.data)
 
   const coinInventory = useSortByFavorites([...nativeBalances, ...erc20Inventory] as TokenTypeProps[])
 

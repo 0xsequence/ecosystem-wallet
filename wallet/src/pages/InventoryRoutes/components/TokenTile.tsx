@@ -8,7 +8,7 @@ export function TokenTile(
     children: React.ReactNode
     chainId: ChainId
     contractAddress: string
-    tokenClass: 'erc20' | 'collectable' | 'nativeBalance'
+    tokenClass: 'erc20' | 'collectable' | 'nativeBalance' | 'group'
     tokenId?: string
   } & ComponentProps<'a'>
 ) {

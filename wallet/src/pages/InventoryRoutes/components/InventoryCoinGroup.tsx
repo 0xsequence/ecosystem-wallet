@@ -1,5 +1,5 @@
-import { TokenListItem, TokenTile } from './TokenTile'
-import { nativeTokenImageUrl, NetworkIcon, NetworkImage, Text, TokenImage } from '@0xsequence/design-system'
+import { TokenListItem } from './TokenTile'
+import { nativeTokenImageUrl, NetworkImage, Text, TokenImage } from '@0xsequence/design-system'
 import { formatUnits } from 'ethers'
 
 import type { TokenTileProps } from '../types'
@@ -13,7 +13,7 @@ import { CoinGroup } from '../helpers/useFetchInventory'
 import { Link } from 'react-router'
 
 export function InventoryCoinGroup(props: CoinGroup) {
-  const { balance, decimals, symbol, imageUrl, name: title, chains } = props
+  const { balance, decimals, symbol, imageUrl, chains } = props
   const [prefs] = useLocalStore<{ hideBalance: boolean }>('userPrefs')
   const { has } = useFavoriteTokens()
   const uuid = ''
@@ -66,12 +66,12 @@ export function InventoryCoinGroup(props: CoinGroup) {
           </span>
         </span>
         {chains.length ? (
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.75">
             {chains.map(chain => (
               <NetworkImage chainId={chain.chainId} size="sm" />
             ))}
             {chains.length === 1 ? (
-              <Text variant="normal" color="secondary" className="ml-1">
+              <Text variant="small" color="secondary" className="ml-1 leading-[1.05]">
                 {chains[0].title}
               </Text>
             ) : null}

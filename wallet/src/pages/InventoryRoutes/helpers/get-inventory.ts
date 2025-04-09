@@ -51,6 +51,8 @@ export function useErc20Inventory(data?: { balances: GatewayTokenBalance[] }) {
       uuid: `${item.chainId}::${item.contractAddress}::${item.tokenID}`
     }))
     .sort((a, b) => {
+      // Sort by name
+
       const nameA = a.tokenMetadata?.name || ''
       const nameB = b.tokenMetadata?.name || ''
 
@@ -59,6 +61,8 @@ export function useErc20Inventory(data?: { balances: GatewayTokenBalance[] }) {
       return 0
     })
     .sort((a, b) => {
+      // Sort by favorites
+
       const uuidA = `${a.chainId}::${a.contractAddress}::${a.tokenID}`
       const uuidB = `${b.chainId}::${b.contractAddress}::${b.tokenID}`
 
