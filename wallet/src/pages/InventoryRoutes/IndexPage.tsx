@@ -9,10 +9,12 @@ import { Outlet, useLocation, useParams } from 'react-router'
 import { useInventory } from './helpers/useInventory'
 import { SearchContext, useSearchValues } from '../../hooks/useSearch'
 import { NetworkImage } from '../../components/NetworkImage'
+import { useState } from 'react'
 
 export const InventoryPage = () => {
   const { tokenId, contractAddress } = useParams()
   const [prefs] = useLocalStore<UserPreferenceLocalStore>('userPrefs')
+  const [networkFilter, setNetworkFilter] = useState<null | string | number>(null)
 
   const { inventory } = useInventory()
 
@@ -41,6 +43,14 @@ export const InventoryPage = () => {
     return <Outlet />
   }
 
+  function handleNetworkFilterChange(value: string | number) {
+    if (value === 'all') {
+      setNetworkFilter(null)
+    }
+
+    setNetworkFilter(value)
+  }
+
   return (
     <SearchContext.Provider value={value}>
       <div className="flex flex-col w-full max-w-screen-lg mx-auto mt-2 sm:my-8 sm:px-2 p-8 sm:py-0 gap-6">
@@ -53,51 +63,7 @@ export const InventoryPage = () => {
           />
 
           <div className="flex gap-2">
-            <Select
-              defaultValue="all"
-              label="Networks"
-              labelLocation="hidden"
-              name="selectDemo"
-              onValueChange={function Xs() {}}
-              options={[
-                {
-                  label: (
-                    <div className="flex items-center gap-2">
-                      <Text>All networks</Text>
-                    </div>
-                  ),
-                  value: 'all'
-                },
-                {
-                  label: (
-                    <div className="flex items-center gap-2">
-                      <NetworkImage chainId={10} size="sm" />
-                      <Text>Optimism</Text>
-                    </div>
-                  ),
-                  value: '10'
-                },
-
-                {
-                  label: (
-                    <div className="flex items-center gap-2">
-                      <NetworkImage chainId={8453} size="sm" />
-                      <Text>Base</Text>
-                    </div>
-                  ),
-                  value: '8453'
-                },
-                {
-                  label: (
-                    <div className="flex items-center gap-2">
-                      <NetworkImage chainId={1868} size="sm" />
-                      <Text>Soneium</Text>
-                    </div>
-                  ),
-                  value: '1868'
-                }
-              ]}
-            />
+            <NetworkFilter callback={handleNetworkFilterChange} />
 
             <InventoryDisplayModeSwitch />
           </div>
@@ -109,5 +75,55 @@ export const InventoryPage = () => {
       </div>
       <Outlet />
     </SearchContext.Provider>
+  )
+}
+
+function NetworkFilter({ callback }: { callback: (value: string | number) => void }) {
+  return (
+    <Select
+      defaultValue="all"
+      label="Networks"
+      labelLocation="hidden"
+      name="networkFilter"
+      onValueChange={callback}
+      options={[
+        {
+          label: (
+            <div className="flex items-center gap-2">
+              <Text>All networks</Text>
+            </div>
+          ),
+          value: 'all'
+        },
+        {
+          label: (
+            <div className="flex items-center gap-2">
+              <NetworkImage chainId={10} size="sm" />
+              <Text>Optimism</Text>
+            </div>
+          ),
+          value: '10'
+        },
+
+        {
+          label: (
+            <div className="flex items-center gap-2">
+              <NetworkImage chainId={8453} size="sm" />
+              <Text>Base</Text>
+            </div>
+          ),
+          value: '8453'
+        },
+        {
+          label: (
+            <div className="flex items-center gap-2">
+              <NetworkImage chainId={1868} size="sm" />
+              <Text>Soneium</Text>
+            </div>
+          ),
+          value: '1868'
+        }
+      ]}
+    />
   )
 }
