@@ -49,10 +49,10 @@ export function InventoryCoinList(props: TokenTypeProps) {
       tokenClass="nativeBalance"
       className="p-4 sm:py-3 px-4 flex items-center gap-3 relative trasition-all"
     >
-      <CoinIcon logoURI={logoURI} chainId={chainId} contractType={contractType} size="sm" />
+      <CoinIcon logoURI={logoURI} chainId={chainId} contractType={contractType} size="md" />
       <div className="flex flex-col gap-1">
-        <CoinChains chains={{ title, name, chainId }} size="xs" />
         <CoinBalance balance={balance} symbol={symbol} decimals={decimals} />
+        <CoinChains chains={{ title, name, chainId }} size="xs" />
       </div>
 
       <div className="flex gap-4 ml-auto mr-0">

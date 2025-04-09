@@ -4,7 +4,7 @@ type CoinIconProps = {
   contractType: string
   logoURI?: string
   chainId: number
-  size: 'sm' | 'lg'
+  size: 'sm' | 'md' | 'lg'
 }
 
 export function CoinIcon(props: CoinIconProps) {
@@ -14,7 +14,7 @@ export function CoinIcon(props: CoinIconProps) {
     case 'ERC20':
       return (
         <div
-          className="data-[size='sm']:size-8 data-[size='lg']:w-[50%] data-[size='lg']:max-w-20"
+          className="data-[size='md']:size-10 data-[size='lg']:w-[50%] data-[size='lg']:max-w-20"
           data-size={size}
         >
           <TokenImage src={logoURI} size="xl" className="size-full bg-button-glass rounded-full" />
@@ -23,7 +23,7 @@ export function CoinIcon(props: CoinIconProps) {
     default:
       return (
         <div
-          className="data-[size='sm']:size-8 data-[size='lg']:w-[50%] data-[size='lg']:max-w-20"
+          className="data-[size='md']:size-10 data-[size='lg']:w-[50%] data-[size='lg']:max-w-20"
           data-size={size}
         >
           <TokenImage
