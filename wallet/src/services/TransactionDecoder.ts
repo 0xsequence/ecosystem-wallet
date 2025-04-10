@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { commons } from '@0xsequence/core'
-import { ContractInfo, ContractType, TokenMetadata, TxnTransferType } from '@0xsequence/indexer'
+import { ContractType, TxnTransferType } from '@0xsequence/indexer'
+import type { ContractInfo, TokenMetadata } from '@0xsequence/metadata'
 
 import { getAddress, zeroAddress, Hex, slice, toHex, decodeFunctionData, Abi } from 'viem'
 
@@ -252,7 +253,10 @@ const erc20TransferDecoder: DecoderDefinition<ERC20TransferDecoding, ERC20Transf
       amount: amount
     }
   },
-  metadataFetcher: async ({ baseDecodedResult, chainID }) => {
+  metadataFetcher: async ({
+    baseDecodedResult,
+    chainID
+  }): Promise<{ contractInfo: ContractInfo } | undefined> => {
     try {
       const contractAddress = getAddress(baseDecodedResult.contractAddress)
       const result = await getContractInfoBatch({
