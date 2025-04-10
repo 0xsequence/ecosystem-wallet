@@ -252,7 +252,10 @@ const erc20TransferDecoder: DecoderDefinition<ERC20TransferDecoding, ERC20Transf
       amount: amount
     }
   },
-  metadataFetcher: async ({ baseDecodedResult, chainID }) => {
+  metadataFetcher: async ({
+    baseDecodedResult,
+    chainID
+  }): Promise<{ contractInfo: ContractInfo } | undefined> => {
     try {
       const contractAddress = getAddress(baseDecodedResult.contractAddress)
       const result = await getContractInfoBatch({
