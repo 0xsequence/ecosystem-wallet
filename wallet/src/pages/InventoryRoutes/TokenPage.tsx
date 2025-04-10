@@ -1,7 +1,7 @@
 import { Link, useLocation, useParams } from 'react-router'
 
 import { HeartIcon, SendIcon } from '../../design-system-patch/icons'
-import { useInventory } from './helpers/useInventory'
+import { useInventory } from './helpers/use-inventory'
 import { TokenTypeProps } from './types'
 import { formatDisplay, truncateAtMiddle } from '../../utils/helpers'
 import { useCoinPrices } from '../../hooks/useCoinPrices'

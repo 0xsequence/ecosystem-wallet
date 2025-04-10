@@ -2,7 +2,7 @@ import { TokenListItem } from './TokenTile'
 import { nativeTokenImageUrl, NetworkImage, Text, TokenImage } from '@0xsequence/design-system'
 import { formatUnits } from 'ethers'
 
-import type { TokenTileProps } from '../types'
+import type { TokenTypeProps } from '../types'
 import { formatDisplay, limitDecimals } from '../../../utils/helpers'
 import { inert } from '../../../utils/inert'
 import { useLocalStore } from '../../../utils/local-store'
@@ -82,7 +82,7 @@ export function InventoryCoinGroup(props: CoinGroup) {
   )
 }
 
-export function InventoryCoinList(props: TokenTileProps) {
+export function InventoryCoinList(props: TokenTypeProps) {
   const { chainId, title, balance, contractType, contractAddress, tokenID, token, uuid } = props
 
   const { symbol = '', decimals = 18 } = token || {}
@@ -147,7 +147,7 @@ export function InventoryCoinList(props: TokenTileProps) {
   )
 }
 
-function CoinValue(props: TokenTileProps) {
+function CoinValue(props: TokenTypeProps) {
   const { chainId, balance, contractAddress, token } = props
 
   const { data = [], isPending } = useCoinPrices([

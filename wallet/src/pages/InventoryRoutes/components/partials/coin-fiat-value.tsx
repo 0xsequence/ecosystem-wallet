@@ -7,13 +7,13 @@ import { ChainId } from '@0xsequence/network'
 
 export type CoinFiatValueProps = {
   chainId: ChainId
-  balance: string
   contractAddress: string
-  token: { symbol: string; name: string; decimals: number; logoURI?: string }
+  balance: string
+  decimals: number
 }
 
 export function CoinFiatValue(props: CoinFiatValueProps) {
-  const { chainId, balance, contractAddress, token } = props
+  const { chainId, balance, contractAddress, decimals } = props
 
   const { data = [], isPending } = useCoinPrices([
     {
@@ -21,7 +21,7 @@ export function CoinFiatValue(props: CoinFiatValueProps) {
       contractAddress
     }
   ])
-  const units = formatUnits(balance, token.decimals)
+  const units = formatUnits(balance, decimals)
   // const diplayedBalance = formatDisplay(units)
   const { price, price24hChange } = data[0] || {}
   const priceText = price

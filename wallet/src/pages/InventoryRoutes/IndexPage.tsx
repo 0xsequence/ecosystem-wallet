@@ -6,17 +6,17 @@ import { InventoryDisplayModeSwitch } from './components/InventoryDisplayModeSwi
 import { UserPreferenceLocalStore } from './types.ts'
 import { SearchInput, Select, Text } from '@0xsequence/design-system'
 import { Outlet, useLocation, useParams } from 'react-router'
-import { useInventory } from './helpers/useInventory'
+import { useInventory } from './helpers/use-inventory.ts'
 import { SearchContext, useSearchValues } from '../../hooks/useSearch'
 import { NetworkImage } from '../../components/NetworkImage'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 export const InventoryPage = () => {
   const { tokenId, contractAddress } = useParams()
   const [prefs] = useLocalStore<UserPreferenceLocalStore>('userPrefs')
-  const [networkFilter, setNetworkFilter] = useState<null | string | number>(null)
 
-  const { inventory } = useInventory()
+  const location = useLocation()
+  const inventory = useInventory()
 
   const searchKeys = [
     'title',
@@ -31,9 +31,23 @@ export const InventoryPage = () => {
     'tokenMetadata.properties'
   ]
 
-  const location = useLocation()
-
   const value = useSearchValues({ items: inventory, keys: searchKeys })
+  // const [chain, setChain] = useState<'all' | number | null>(null)
+
+  // const items = useMemo(() => {
+
+  //   if (chain && chain === 'all') {
+  //     return inventory.get()
+  //   }
+
+  //   if (chain) {
+  //     return inventory.get(view =>
+  //       view.filterBy.chain(chain).sortBy.type(['favorites', 'groups', 'coins', 'collectibles'])
+  //     )
+  //   }
+
+  //   return inventory
+  // }, [chain, inventory])
 
   if (
     (contractAddress && !tokenId) ||
@@ -44,11 +58,16 @@ export const InventoryPage = () => {
   }
 
   function handleNetworkFilterChange(value: string | number) {
-    if (value === 'all') {
-      setNetworkFilter(null)
+    if (value && value !== 'all') {
+      console.log(value)
+      inventory.set(view =>
+        view.filterBy.chain(value).sortBy.type(['favorites', 'groups', 'coins', 'collectibles'])
+      )
+    } else {
+      return inventory.set(null)
     }
 
-    setNetworkFilter(value)
+    // setChain(value)
   }
 
   return (
@@ -69,8 +88,8 @@ export const InventoryPage = () => {
           </div>
         </div>
         <div className="grid grid-cols-1 grid-rows-1 [&>*]:col-start-1 [&>*]:row-start-1">
-          <InventoryGrid isActive={prefs?.inventoryDisplayMode === 'grid'} />
-          <InventoryList isActive={prefs?.inventoryDisplayMode === 'list'} />
+          <InventoryGrid inventory={inventory} isActive={prefs?.inventoryDisplayMode === 'grid'} />
+          <InventoryList inventory={inventory} isActive={prefs?.inventoryDisplayMode === 'list'} />
         </div>
       </div>
       <Outlet />
@@ -102,7 +121,7 @@ function NetworkFilter({ callback }: { callback: (value: string | number) => voi
               <Text>Optimism</Text>
             </div>
           ),
-          value: '10'
+          value: '1'
         },
 
         {

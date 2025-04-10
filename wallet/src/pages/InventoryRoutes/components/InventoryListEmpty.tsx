@@ -2,7 +2,7 @@ import { Link } from 'react-router'
 import { TokenListItemEmpty, TokenTileEmpty } from './TokenTileEmpty'
 import { Button } from '@0xsequence/design-system'
 import { ROUTES } from '../../../routes'
-import { useInventory } from '../helpers/useInventory'
+import { useInventory } from '../helpers/use-inventory'
 import { THEME } from '../../../utils/theme'
 
 export function InventoryGridEmpty() {
@@ -38,16 +38,14 @@ export function InventoryGridEmpty() {
   )
 }
 
-export function InventoryListEmpty() {
-  const { status } = useInventory()
-
+export function InventoryListEmpty({ isLoading }: { isLoading: boolean }) {
   return (
     <>
       <TokenListItemEmpty />
       <TokenListItemEmpty />
       <TokenListItemEmpty />
 
-      {status.isLoading ? null : (
+      {isLoading ? null : (
         <div className="col-span-4 py-12 sm:col-span-2 flex flex-col items-center justify-center px-8 sm:py-4 text-center gap-1">
           <span className="font-bold text-style-normal ">You have no items</span>
           <p className="font-bold text-style-sm text-seq-grey-500">{THEME.inventory.empty}</p>

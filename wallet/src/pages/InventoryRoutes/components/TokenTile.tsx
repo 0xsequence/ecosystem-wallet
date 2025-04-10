@@ -8,7 +8,6 @@ export function TokenTile(
     children: React.ReactNode
     chainId: ChainId
     contractAddress: string
-    tokenClass: 'erc20' | 'collectable' | 'nativeBalance' | 'group'
     tokenId?: string
   } & ComponentProps<'a'>
 ) {
@@ -22,7 +21,7 @@ export function TokenTile(
       to={`/inventory/${chainId}/${contractAddress}/${tokenId || '0'}`}
       state={{ modal: true, referer }}
       className={cn(
-        'aspect-square rounded-md overflow-clip bg-background-secondary backdrop-blur-2xl cursor-pointer hover:opacity-80 focus:opacity-80 transition-transform relative',
+        'aspect-square rounded-md overflow-clip bg-background-secondary backdrop-blur-2xl cursor-pointer hover:opacity-80 focus:opacity-80 transition-opacity relative',
         className
       )}
       {...rest}
@@ -37,7 +36,6 @@ export function TokenListItem(
     children: React.ReactNode
     chainId: ChainId
     contractAddress: string
-    tokenClass: 'erc20' | 'collectable' | 'nativeBalance'
     tokenId?: string
   } & ComponentProps<'a'>
 ) {
@@ -49,7 +47,7 @@ export function TokenListItem(
       to={`/inventory/${chainId}/${contractAddress}/${tokenId || '0'}`}
       state={{ modal: true, referer }}
       className={cn(
-        'rounded-md overflow-clip bg-background-secondary backdrop-blur-2xl cursor-pointer hover:scale-102 hover:-translate-y-0.5 transition-transform',
+        'rounded-md overflow-clip bg-background-secondary backdrop-blur-2xl cursor-pointer hover:opacity-80 focus:opacity-80 transition-opacity',
         className
       )}
       {...rest}

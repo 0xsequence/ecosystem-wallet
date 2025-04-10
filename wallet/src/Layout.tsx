@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react'
 import { WalletHandlerRequestModal } from './pages/WalletHandlerRequestModal'
 import { useWalletHandlersContext } from './context/WalletHandlersContext'
 import { THEME } from './utils/theme'
-import { InventoryProvider } from './pages/InventoryRoutes/helpers/InventoryProvider'
+import { InventoryProvider } from './pages/InventoryRoutes/helpers/inventory-provider'
 
 const AppHeader = () => {
   return (
@@ -146,9 +146,9 @@ export const AppLayout = ({ showHeader = false }: { showHeader?: boolean }) => {
 export const ProtectedLayout = () => {
   return (
     <PrivateRoute>
-      <InventoryProvider>
-        <AppLayout showHeader />
-      </InventoryProvider>
+      {/* <InventoryProvider> */}
+      <AppLayout showHeader />
+      {/* </InventoryProvider> */}
     </PrivateRoute>
   )
 }

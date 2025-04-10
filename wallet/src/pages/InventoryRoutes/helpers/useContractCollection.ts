@@ -1,4 +1,4 @@
-import { useInventory } from './useInventory'
+import { useInventory } from './use-inventory'
 
 export function useContractCollection(chainId?: string, contractAddress?: string) {
   const { collectibleInventory } = useInventory()

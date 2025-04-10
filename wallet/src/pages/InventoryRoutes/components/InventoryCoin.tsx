@@ -8,26 +8,35 @@ import { FavoriteBadge } from './partials/favorite-badge'
 import { CoinFiatValue } from './partials/coin-fiat-value'
 
 export function InventoryCoinTile(props: TokenTypeProps) {
-  const { chainId, contractAddress, tokenID, name, contractType, title, balance, token, uuid, tokenClass } =
-    props
-  const { symbol, logoURI, decimals } = token || {}
+  const {
+    chainId,
+    symbol,
+    logoURI,
+    contractAddress,
+    tokenID,
+    contractType,
+    uuid,
+    prettyBalance,
+    testnet,
+    chainInfo
+  } = props
+  const { title, name } = chainInfo || {}
 
   return (
     <TokenTile
       chainId={chainId}
       contractAddress={contractAddress}
       tokenId={tokenID}
-      tokenClass={tokenClass}
       className="p-4 sm:p-6 flex flex-col items-start gap-3 relative"
     >
       <div className=" absolute top-2 right-2">
-        <TestnetBadge isTestnet={props.testnet} />
+        <TestnetBadge isTestnet={testnet} />
       </div>
       <CoinIcon {...{ contractType, logoURI, chainId }} size="lg" />
 
       <div className="flex mt-auto w-full justify-between">
         <div className="flex flex-col flex-1 justify-end items-start text-start gap-3">
-          <CoinBalance balance={balance} symbol={symbol} decimals={decimals} />
+          <CoinBalance balance={prettyBalance} symbol={symbol} />
           <CoinChains chains={{ title, name, chainId }} />
         </div>
         <FavoriteBadge id={uuid} />
@@ -37,27 +46,47 @@ export function InventoryCoinTile(props: TokenTypeProps) {
 }
 
 export function InventoryCoinList(props: TokenTypeProps) {
-  const { chainId, balance, contractType, contractAddress, title, name, tokenID, token, uuid, testnet } =
-    props
-  const { symbol, decimals, logoURI } = token || {}
+  const {
+    chainId,
+    symbol,
+    logoURI,
+    contractAddress,
+    tokenID,
+    contractType,
+    uuid,
+    prettyBalance,
+    testnet,
+    chainInfo,
+    decimals,
+    balance
+  } = props
+  const { title, name } = chainInfo || {}
 
   return (
     <TokenListItem
       chainId={chainId}
       contractAddress={contractAddress}
       tokenId={tokenID}
-      tokenClass="nativeBalance"
       className="p-4 sm:py-3 px-4 flex items-center gap-3 relative trasition-all"
     >
       <CoinIcon logoURI={logoURI} chainId={chainId} contractType={contractType} size="md" />
       <div className="flex flex-col gap-1">
-        <CoinBalance balance={balance} symbol={symbol} decimals={decimals} />
+        <CoinBalance balance={prettyBalance} symbol={symbol} />
         <CoinChains chains={{ title, name, chainId }} size="xs" />
       </div>
 
       <div className="flex gap-4 ml-auto mr-0">
         <FavoriteBadge id={uuid} />
-        {testnet ? <TestnetBadge isTestnet={true} /> : <CoinFiatValue {...props} />}
+        {testnet ? (
+          <TestnetBadge isTestnet={true} />
+        ) : (
+          <CoinFiatValue
+            chainId={chainId}
+            contractAddress={contractAddress}
+            balance={balance}
+            decimals={decimals}
+          />
+        )}
       </div>
     </TokenListItem>
   )

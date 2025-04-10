@@ -1,4 +1,4 @@
-import { createContext, useState } from 'react'
+import { createContext, useCallback, useMemo, useState } from 'react'
 import type { TokenTypeProps } from '../types'
 
 import { CoinGroup, useFetchInventory } from './useFetchInventory'
@@ -40,47 +40,14 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
   const [showSendModal, setShowSendModal] = useState<boolean>(false)
   const [showInventoryItem, setShowInventoryItem] = useState<ShowInventoryItem>(false)
 
-  const {
-    inventory,
-    coinInventory,
-    coinGroups,
-    collectibleInventory,
-    inventoryByTokenClass,
-    inventoryIsEmpty,
-    status,
-    refetchInventory
-  } = useFetchInventory()
+  const records = useFetchInventory()
 
-  function contractInfo({ chainId, contractAddress, tokenId }: InventoryItemIdentifier) {
-    // console.log(chainId, contractAddress, tokenId)
+  const inventory = useCallback(records => (records ? new InventoryClass(records) : null), [records])
 
-    const chain = parseInt(chainId as string)
+  const results = inventory(records)?.filter.byChain(1).filter.byType('erc20').sort.byBalance().records
+  console.log('>>?', inventory(results)?.filter.byType('erc20').sort.byBalance().records)
 
-    const result = inventory.find(item => {
-      if (contractAddress === ZeroAddress && tokenId === '0') {
-        if (item?.chainId === chain && item?.contractAddress === ZeroAddress) {
-          return item
-        }
-      }
-
-      if (contractAddress && tokenId) {
-        if (item?.contractAddress === contractAddress && item?.tokenID === tokenId) {
-          return item
-        }
-      }
-
-      if (tokenId === '0') {
-        if (
-          chainId === item?.chainId &&
-          (item?.contractAddress === contractAddress || item?.contractAddress === ZeroAddress)
-        ) {
-          return item
-        }
-      }
-    })
-
-    return result as TokenTypeProps
-  }
+  return <Inventory.Provider value={{}}>{children}</Inventory.Provider>
 
   return (
     <Inventory.Provider

@@ -1,22 +1,27 @@
 import type { ComponentProps } from 'react'
-import type { TokenBalance } from '@0xsequence/indexer'
-import type { NetworkMetadata } from '@0xsequence/network'
+import type { ContractInfo, TokenBalance } from '@0xsequence/indexer'
+import type { ChainId, NetworkMetadata } from '@0xsequence/network'
+import { currencyDefinition } from '../../utils/currencyGroups/networks'
 
 export type TokenTileEmptyProps = ComponentProps<'div'>
 
-export type TokenTileProps = TokenBalance & {
-  title?: string
+export type TokenTypeProps = TokenBalance & {
+  symbol: string
+  chainId: ChainId
+  logoURI?: string
+  decimals: number
   name?: string
-  chain?: NetworkMetadata
+  contractAddress: string
+  balance?: string
   uuid: string
   token: { symbol: string; name: string; decimals: number; logoURI?: string }
   group?: string
-  testnet?: boolean
   nativeToken?: { symbol: string; name: string; decimals: number }
-}
-
-export type TokenTypeProps = TokenTileProps & {
-  tokenClass: 'erc20' | 'collectable' | 'nativeBalance' | 'group'
+  chainInfo?: NetworkMetadata
+  contractInfo?: ContractInfo
+  testnet: boolean
+  prettyBalance: string
+  type: 'COIN' | 'COLLECTIBLE' | 'GROUP'
 }
 
 export type UserPreferenceLocalStore =
@@ -26,3 +31,9 @@ export type UserPreferenceLocalStore =
       currency: string
     }
   | undefined
+
+export type CoinGroup = currencyDefinition & {
+  balance: string
+  chains: { name?: string; title?: string; chainId: number }[]
+  testnet: boolean
+}
