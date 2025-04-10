@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { commons } from '@0xsequence/core'
-import { ContractInfo, ContractType, TokenMetadata, TxnTransferType } from '@0xsequence/indexer'
+import { ContractType, TxnTransferType } from '@0xsequence/indexer'
+import type { ContractInfo, TokenMetadata } from '@0xsequence/metadata'
 
 import { getAddress, zeroAddress, Hex, slice, toHex, decodeFunctionData, Abi } from 'viem'
 

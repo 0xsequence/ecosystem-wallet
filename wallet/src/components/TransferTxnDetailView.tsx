@@ -78,7 +78,6 @@ export const TransferTxnDetailView: React.FC<TransferTxnDetailViewProps> = ({ tr
               {formatDisplay(formattedAmount, { maximumFractionDigits: 5 })}
             </span>
             <span className="font-bold">{symbol}</span>
-            <CopyButton text={transfer.contractAddress} />
           </div>
         )
       }
@@ -148,7 +147,6 @@ export const TransferTxnDetailView: React.FC<TransferTxnDetailViewProps> = ({ tr
                     <span className="text-text-secondary">Amount: {transfer.amount}</span>
                   )}
                 </div>
-                <CopyButton text={transfer.contractAddress} />
               </div>
             )
           } else {
