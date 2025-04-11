@@ -9,7 +9,6 @@ import { useEffect, useState } from 'react'
 import { WalletHandlerRequestModal } from './pages/WalletHandlerRequestModal'
 import { useWalletHandlersContext } from './context/WalletHandlersContext'
 import { THEME } from './utils/theme'
-import { InventoryProvider } from './pages/InventoryRoutes/helpers/inventory-provider'
 
 const AppHeader = () => {
   return (

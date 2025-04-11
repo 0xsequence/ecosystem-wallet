@@ -25,7 +25,7 @@ export function NetworkFilterSelect({ callback }: { callback: (value: string | n
               <Text>Optimism</Text>
             </div>
           ),
-          value: '1'
+          value: '80002'
         },
 
         {

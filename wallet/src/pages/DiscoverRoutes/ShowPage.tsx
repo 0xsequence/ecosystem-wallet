@@ -3,7 +3,6 @@ import { DISCOVER_ITEMS, DiscoverItem } from '../../data/discover_items'
 import { ArrowLeftIcon, ExternalLinkIcon, HeartIcon } from '../../design-system-patch/icons'
 import { ROUTES } from '../../routes'
 import { useInventory } from '../InventoryRoutes/helpers/use-inventory'
-import { InventoryProvider } from '../InventoryRoutes/helpers/inventory-provider'
 import { TokenType } from '../InventoryRoutes/components/TokenType'
 import { TokenDetailModal } from '../InventoryRoutes/components/TokenDetailModal'
 import { useFavorites } from '../../hooks/useFavorites'
@@ -20,7 +19,7 @@ export function DiscoverShowRoute() {
   if (!item) return null
 
   return (
-    <InventoryProvider>
+    <>
       <div className="flex flex-col w-full lg:max-w-screen-lg max-w-screen-md mx-auto gap-12 px-4 py-12">
         <Link
           to={ROUTES.DISCOVER}
@@ -82,7 +81,7 @@ export function DiscoverShowRoute() {
         </div>
         {item.contracts ? <Collectables contracts={item.contracts} /> : null}
       </div>
-    </InventoryProvider>
+    </>
   )
 }
 

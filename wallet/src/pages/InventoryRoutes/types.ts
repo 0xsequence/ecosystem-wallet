@@ -15,12 +15,13 @@ export type TokenTypeProps = {
   contractAddress: string
   balance?: string
   uuid: string
+  path: string
   // token: { symbol: string; name: string; decimals: number; logoURI?: string }
   group?: string
   nativeToken?: { symbol: string; name: string; decimals: number }
   chainInfo?: NetworkMetadata
   contractInfo?: ContractInfo
-  TokenMetadata?: TokenMetadata
+  tokenMetadata?: TokenMetadata
   testnet: boolean
   prettyBalance: string
   contractType: 'NATIVE' | 'ERC20' | 'ERC1155' | 'ERC721'

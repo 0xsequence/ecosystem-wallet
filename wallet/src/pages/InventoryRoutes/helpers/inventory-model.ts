@@ -1,6 +1,8 @@
 import Fuse from 'fuse.js'
 import { TokenTypeProps } from '../types'
 import { FUSE_OPTIONS } from '../../../constants'
+import { networksMap } from '../../../utils/currencyGroups/networks'
+import { TOKEN_TYPES } from '../../../utils/normalize-balances'
 export type InventoryReturn = ReturnType<typeof inventory>
 
 export interface InventoryView {
@@ -53,7 +55,7 @@ export function inventory(data: TokenTypeProps[]) {
       console.log(favourites, nonFavorites)
       value = structuredClone([...favourites, ...nonFavorites])
 
-      return { ...then, ...sortBy }
+      return { ...sortBy }
     },
 
     favorites(list: string[] | null) {
@@ -68,7 +70,7 @@ export function inventory(data: TokenTypeProps[]) {
         if (!aFav && bFav) return 1
         return 0
       })
-      return { ...then, ...sortBy }
+      return { ...sortBy }
     },
 
     type(order: string[]) {
@@ -84,7 +86,7 @@ export function inventory(data: TokenTypeProps[]) {
         return rankA - rankB
       })
 
-      return { ...then, ...sortBy }
+      return { ...sortBy }
     },
 
     testnet(order: 'asc' | 'desc' = 'asc') {
@@ -100,7 +102,7 @@ export function inventory(data: TokenTypeProps[]) {
         }
       })
 
-      return { ...then, ...sortBy }
+      return { ...sortBy }
     },
 
     balance(order: 'asc' | 'desc' | 'lowToHigh' | 'highToLow' = 'desc') {
@@ -112,7 +114,7 @@ export function inventory(data: TokenTypeProps[]) {
         return normalized === 'desc' ? Number(bBal - aBal) : Number(aBal - bBal)
       })
 
-      return { ...then, ...sortBy }
+      return { ...sortBy }
     },
     sort() {
       if (comparators.length > 0) {
@@ -150,7 +152,8 @@ export function inventory(data: TokenTypeProps[]) {
       if (!tokenId) {
         return { ...then, ...filterBy }
       }
-      const nextValue = value.filter(item => item?.tokenMetadata?.tokenID === tokenId)
+
+      const nextValue = value.filter(item => item?.tokenID === tokenId)
 
       value = structuredClone(nextValue)
 
@@ -174,6 +177,69 @@ export function inventory(data: TokenTypeProps[]) {
       }
 
       return { ...then, ...filterBy }
+    },
+
+    showGroups() {
+      const groups = value.filter(item => item.type === TOKEN_TYPES.GROUP)
+      const solos = value.filter(item => !item.group)
+
+      value = structuredClone([...groups, ...solos])
+
+      return { ...then, ...filterBy }
+    }
+  }
+
+  const groupBy = {
+    contractAcrossNetworks() {
+      const groups = Object.values(
+        value.reduce((acc, coin) => {
+          const chainId = coin.chainId
+          const contractAddress = coin.contractAddress.toLowerCase()
+
+          const network = networksMap[chainId]
+
+          if (network?.currencies) {
+            const record = network.currencies.find(
+              currency => currency.contractAddress.toLowerCase() === contractAddress
+            )
+            let balance = '0'
+            if (coin.balance && typeof coin.balance === 'string') {
+              balance = coin.balance
+            }
+
+            if (record && record.group) {
+              coin.group = record.group
+              if (!acc[record.group]) {
+                acc[record.group] = {
+                  ...record,
+                  balance: '0',
+                  chains: [],
+                  type: 'GROUP',
+                  testnet: record.group.includes('testnet')
+                }
+              }
+
+              acc[record.group].balance = (BigInt(acc[record.group].balance) + BigInt(balance)).toString()
+
+              acc[record.group].chains.push({
+                uuid: coin.uuid,
+                name: coin.name,
+                title: coin.chainInfo?.title,
+                chainId: coin.chainId,
+                original: coin
+              })
+            }
+          }
+          return acc
+        }, {} as Record<string, any>)
+      ).filter(item => item.chains.length > 1)
+
+      const uuids = groups.flatMap(group => group.chains.map(chain => chain.uuid))
+
+      const nextValue = value.filter(token => !uuids.includes(token.uuid))
+
+      value = [...groups, ...nextValue]
+      return { ...then, ...groupBy }
     }
   }
 
@@ -200,8 +266,54 @@ export function inventory(data: TokenTypeProps[]) {
     filterBy,
     sortBy,
     search,
+    groupBy,
     records
   }
 
   return then
 }
+
+// const groups = coinInventory.reduce((acc, coin) => {
+//   if (!coin) return acc
+
+//   const chainId = coin.chainId
+//   const network = networksMap[chainId]
+
+//   if (network?.currencies) {
+//     const record = network.currencies.find(
+//       currency => currency.contractAddress.toLowerCase() === coin.contractAddress.toLowerCase()
+//     )
+
+//     let balance = '0'
+//     if (coin.balance && typeof coin.balance === 'string') {
+//       balance = coin.balance
+//     }
+
+//     if (record && record.group) {
+//       coin.group = record.group
+//       if (!acc[record.group]) {
+//         acc[record.group] = {
+//           ...record,
+//           balance: '0',
+//           chains: [],
+//           tokenClass: 'group',
+//           testnet: record.group.includes('testnet')
+//         }
+//       }
+
+//       acc[record.group].balance = (BigInt(acc[record.group].balance) + BigInt(balance)).toString()
+
+//       acc[record.group].chains.push({
+//         name: coin.name,
+//         title: coin.title,
+//         chainId: coin.chainId
+//       })
+//     }
+//     P
+//   }
+//   return acc
+// }, {} as Record<string, CoinGroup>)
+
+// const coinGroups = Object.entries(groups).map(([key, value]) => {
+//   return { key, ...value }
+// })

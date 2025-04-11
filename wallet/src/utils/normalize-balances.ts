@@ -4,6 +4,7 @@ import { ZERO_ADDRESS } from '@0xsequence/design-system'
 import { getTokenBalancesDetails } from './balance'
 import { TokenTypeProps } from '../pages/InventoryRoutes/types'
 import { TokenBalance } from '@0xsequence/indexer'
+import { networksMap } from './currencyGroups/networks'
 
 export const CONTRACT_TYPES = {
   NATIVE: 'NATIVE',
@@ -41,8 +42,7 @@ export function normalizeBalances(data: Awaited<ReturnType<typeof getTokenBalanc
 
 export function normalizeTokens(balances: TokenBalance[]) {
   if (!balances) return []
-
-  return balances?.map(token => {
+  const records = balances?.map(token => {
     const contractType = token?.contractType ? token.contractType.toUpperCase() : CONTRACT_TYPES.NATIVE
 
     const chainInfo = networks[token.chainId as ChainId]
@@ -96,4 +96,53 @@ export function normalizeTokens(balances: TokenBalance[]) {
         } as TokenTypeProps
     }
   })
+
+  return [...records, ...groups(records)]
+}
+
+function groups(value: TokenTypeProps[]) {
+  const groups = Object.values(
+    value.reduce((acc, coin) => {
+      const chainId = coin.chainId
+      const contractAddress = coin.contractAddress.toLowerCase()
+
+      const network = networksMap[chainId]
+
+      if (network?.currencies) {
+        const record = network.currencies.find(
+          currency => currency.contractAddress.toLowerCase() === contractAddress
+        )
+        let balance = '0'
+        if (coin.balance && typeof coin.balance === 'string') {
+          balance = coin.balance
+        }
+
+        if (record && record.group) {
+          coin.group = record.group
+          if (!acc[record.group]) {
+            acc[record.group] = {
+              ...record,
+              uuid: `group::${record.group}`,
+              path: `/group/${record.group}`,
+              balance: '0',
+              chains: [],
+              type: 'GROUP',
+              testnet: record.group.includes('testnet')
+            }
+          }
+
+          acc[record.group].balance = (BigInt(acc[record.group].balance) + BigInt(balance)).toString()
+          acc[record.group].chains.push(coin)
+        }
+      }
+      return acc
+    }, {} as Record<string, any>)
+  ).filter(item => item.chains.length > 1)
+
+  return groups
+  // const uuids = groups.flatMap(group => group.chains.map(chain => chain.uuid))
+
+  // const nextValue = value.filter(token => !uuids.includes(token.uuid))
+
+  // return [...groups, ...nextValue]
 }

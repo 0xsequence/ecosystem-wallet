@@ -8,27 +8,11 @@ import { FavoriteBadge } from './partials/favorite-badge'
 import { CoinFiatValue } from './partials/coin-fiat-value'
 
 export function InventoryCoinTile(props: TokenTypeProps) {
-  const {
-    chainId,
-    symbol,
-    logoURI,
-    contractAddress,
-    tokenId,
-    contractType,
-    uuid,
-    prettyBalance,
-    testnet,
-    chainInfo
-  } = props
+  const { chainId, symbol, logoURI, contractType, uuid, prettyBalance, testnet, chainInfo, path } = props
   const { title, name } = chainInfo || {}
 
   return (
-    <TokenTile
-      chainId={chainId}
-      contractAddress={contractAddress}
-      tokenId={tokenId}
-      className="p-4 sm:p-6 flex flex-col items-start gap-3 relative"
-    >
+    <TokenTile path={path} className="p-4 sm:p-6 flex flex-col items-start gap-3 relative">
       <div className=" absolute top-2 right-2">
         <TestnetBadge isTestnet={testnet} />
       </div>
@@ -51,7 +35,7 @@ export function InventoryCoinList(props: TokenTypeProps) {
     symbol,
     logoURI,
     contractAddress,
-    tokenID,
+    path,
     contractType,
     uuid,
     prettyBalance,
@@ -63,12 +47,7 @@ export function InventoryCoinList(props: TokenTypeProps) {
   const { title, name } = chainInfo || {}
 
   return (
-    <TokenListItem
-      chainId={chainId}
-      contractAddress={contractAddress}
-      tokenId={tokenID}
-      className="p-4 sm:py-3 px-4 flex items-center gap-3 relative trasition-all"
-    >
+    <TokenListItem path={path} className="p-4 sm:py-3 px-4 flex items-center gap-3 relative trasition-all">
       <CoinIcon logoURI={logoURI} chainId={chainId} contractType={contractType} size="md" />
       <div className="flex flex-col gap-1">
         <CoinBalance balance={prettyBalance} symbol={symbol} />
@@ -83,7 +62,7 @@ export function InventoryCoinList(props: TokenTypeProps) {
           <CoinFiatValue
             chainId={chainId}
             contractAddress={contractAddress}
-            balance={balance}
+            balance={balance || '0'}
             decimals={decimals}
           />
         )}

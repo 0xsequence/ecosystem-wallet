@@ -8,6 +8,11 @@ export function InventoryContractRoute() {
   const { tokenId } = useParams()
   const location = useLocation()
 
+  // Show modal
+  if (tokenId && location?.state?.modal && location?.state?.referer === '/inventory') {
+    return <TokenDetailModal />
+  }
+
   // Bypass and show child
   if (tokenId && location.state === null) {
     return <Outlet />

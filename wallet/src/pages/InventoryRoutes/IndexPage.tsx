@@ -9,7 +9,7 @@ import { Outlet, useLocation, useParams } from 'react-router'
 import { useInventory } from './helpers/use-inventory.ts'
 import { useFavoriteTokens } from '../../hooks/useFavoriteTokens'
 import { useFetchInventory } from './helpers/useFetchInventory'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { NetworkFilterSelect } from '../../components/NetworkFilterSelect'
 
 export const InventoryPage = () => {
@@ -37,26 +37,28 @@ function InventoryPageView() {
   const query = useFetchInventory()
 
   const inventory = useInventory(query?.data, view =>
-    view
-      .search(searchTerm)
-      .sortBy.type(['COIN', 'COLLECTIBLE'])
-      .favorites(favorites)
+    view.filterBy
+      .showGroups()
+      .sortBy.favorites(favorites)
+      .type(['GROUP', 'COIN', 'COLLECTIBLE'])
       .testnet()
       .balance()
       .sort()
   )
 
+  const lastState = useMemo(() => inventory.getSnapshot(), [])
+
   function handleNetworkFilterChange(value: string | number) {
     if (value && value !== 'all') {
       const records = inventory.getView(
         view => view.filterBy.chain(value).sortBy.type(['COIN', 'COLLECTIBLE']).balance().testnet().sort(),
-        inventory.initialView
+        lastState
       )
       if (records) {
         inventory.setView(records)
       }
     } else {
-      inventory.setView(inventory.initialView)
+      inventory.setView(lastState)
     }
   }
 

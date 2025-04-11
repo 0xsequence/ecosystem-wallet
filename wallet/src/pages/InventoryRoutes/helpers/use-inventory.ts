@@ -3,6 +3,20 @@ import { useMemo, useState } from 'react'
 import { inventory, type InventoryReturn } from './inventory-model'
 import { TokenTypeProps } from '../types'
 
+// function deepFreeze<T>(obj: T): T {
+//   if (obj && typeof obj === 'object' && !Object.isFrozen(obj)) {
+//     Object.freeze(obj)
+//     Object.getOwnPropertyNames(obj).forEach(prop => {
+//       // @ts-ignore
+//       const value = obj[prop]
+//       if (value && typeof value === 'object') {
+//         deepFreeze(value)
+//       }
+//     })
+//   }
+//   return obj
+// }
+
 export function useInventory(
   data?: TokenTypeProps[] | false,
   value?: (view: InventoryReturn) => InventoryReturn
@@ -39,6 +53,10 @@ export function useInventory(
     if (typeof value === 'function' && data) {
       return value(inventory(data)).records()
     }
+  }
+
+  function getSnapshot(): TokenTypeProps[] {
+    return structuredClone(view) //deepFreeze([...view])
   }
 
   // function updateView(
@@ -79,5 +97,5 @@ export function useInventory(
 
   const deprecated = { items: view, get: getView, data }
 
-  return { view, setView: setViewState, getView, useView, initialView, ...deprecated }
+  return { view, getSnapshot, setView: setViewState, getView, useView, initialView, ...deprecated }
 }
