@@ -8,30 +8,20 @@ import { ChevronRightIcon } from '@0xsequence/design-system'
 import { Link } from 'react-router'
 import { TokenTypeProps } from '../types'
 import { InventoryCoinList } from './InventoryCoin'
-import { useSortByFavorites } from '../helpers/useSortByFavorites'
-import { useCollectiblesByContract } from '../../../hooks/useCollectiblesByContract'
-import { useSearchFilter } from '../../../hooks/useSearch'
 import { padArray } from '../../../utils/pad-array'
+import { ContractInfo } from '@0xsequence/indexer'
 
-export function InventoryGrid({ inventory, isActive }: { isActive: boolean }) {
-  // const { inventory, coinGroups, inventoryIsEmpty } = useInventory()
+export function InventoryGrid({
+  items,
+  isActive,
+  isLoading
+}: {
+  items: TokenTypeProps[]
+  isActive: boolean
+  isLoading: boolean
+}) {
+  const hasNoResults = false
 
-  const { hasNoResults, filterResults } = useSearchFilter()
-  // const dunkeroo = useInventory()
-
-  // useEffect(() => {
-  //   console.log(dunkeroo.items)
-  //   setTimeout(() => {
-  //     dunkeroo.set(view => view.filterBy.type('ERC20'))
-  //     console.log(dunkeroo.items)
-  //   }, 1000)
-  // }, [])
-
-  // const favorites = useSortByFavorites(
-  //   filterResults([...coinGroups, ...inventory.filter(item => !item?.group)])
-  // )
-
-  // const items = padArray(inventory, null, 12) as (TokenTypeProps | null)[]
   return (
     <Transition show={isActive}>
       {hasNoResults ? (
@@ -41,12 +31,11 @@ export function InventoryGrid({ inventory, isActive }: { isActive: boolean }) {
           className="isolate grid grid-cols-2 sm:grid-cols-4 gap-2  data-[closed]:opacity-0  data-[closed]:scale-95 data-[closed]:translate-y-2 transition-all"
           {...inert(!isActive)}
         >
-          {inventory.items.length < 1 ? (
-            // <InventoryGridEmpty />
-            <>No</>
+          {items.length < 1 ? (
+            <InventoryGridEmpty isLoading={isLoading} />
           ) : (
             <>
-              {inventory.items.map((item, index) => (
+              {items.map((item, index) => (
                 <TokenType key={index} item={item} />
               ))}
             </>
@@ -57,27 +46,44 @@ export function InventoryGrid({ inventory, isActive }: { isActive: boolean }) {
   )
 }
 
-export function InventoryList({ inventory, isActive }: { isActive: boolean }) {
+export function InventoryList({
+  items,
+  isActive,
+  isLoading
+}: {
+  items: TokenTypeProps[]
+  isActive: boolean
+  isLoading: boolean
+}) {
+  console.log(items)
+  const inventory = useInventory(items)
+
   const coins = useMemo(() => inventory.get(view => view.filterBy.type('coins')), [inventory])
-  const collectibles = useMemo(
-    () => inventory.get(view => view.filterBy.type('collectibles').groupBy.contracts()),
-    [inventory]
-  )
+  const collectibles = useMemo(() => inventory.get(view => view.filterBy.type('collectibles')), [inventory])
 
-  const { hasNoResults, filterResults } = useSearchFilter()
+  const collectiblesByContract = collectibles?.reduce((acc, item) => {
+    if (!acc[item.contractAddress]) {
+      acc[item.contractAddress] = []
+    }
+    acc[item.contractAddress].push(item)
 
-  const inventoryIsEmpty = !coins || !collectibles || coins.length < 1 || collectibles.length < 1
+    return acc
+  }, {} as Record<string, TokenTypeProps[]>)
 
-  // const filteredCoins = filterResults(coinInventory)
-  // const filteredCollectibles = filterResults(collectibleInventory)
+  const hasNoResults = false
 
-  // const inventoryByContract = useCollectiblesByContract(filteredCollectibles)
+  const inventoryIsEmpty = false // !coins || !collectibles || coins.length < 1 || collectibles.length < 1
 
   const [showAllCoins, setShowAllCoins] = useState(false)
 
   function toggleShowAllCoins() {
     setShowAllCoins(!showAllCoins)
   }
+
+  const coinListSize = 6
+  const coinsInitial = coins?.slice(0, coinListSize)
+  const coinsMore = coins?.slice(coinListSize, coins?.length)
+  const showMore = coins ? coins.length > coinListSize : null
 
   return (
     <Transition show={isActive}>
@@ -86,14 +92,12 @@ export function InventoryList({ inventory, isActive }: { isActive: boolean }) {
       ) : (
         <div className="isolate flex flex-col gap-2 data-[closed]:opacity-0 data-[closed]:scale-95 data-[closed]:translate-y-2 transition-all">
           {inventoryIsEmpty ? (
-            <InventoryListEmpty isLoading={inventory.query.isLoading} />
+            <InventoryListEmpty isLoading={isLoading} />
           ) : (
             <>
               <div className="isolate flex flex-col gap-2">
-                {coins
-                  .slice(0, 6)
-                  .map((item, index) => (!item ? null : <InventoryCoinList {...item} key={item.uuid} />))}
-                {coins.length > 6 ? (
+                {coinsInitial?.map(item => (!item ? null : <InventoryCoinList {...item} key={item.uuid} />))}
+                {showMore ? (
                   <>
                     <button
                       type="button"
@@ -112,8 +116,8 @@ export function InventoryList({ inventory, isActive }: { isActive: boolean }) {
                       {...inert(!showAllCoins)}
                     >
                       <div className="isolate flex flex-col gap-2 min-h-0">
-                        {coins.slice(6, coins.length).map((item, index) => (
-                          <TokenType key={index} item={item} displayMode="list" />
+                        {coinsMore?.map(item => (
+                          <InventoryCoinList {...item} key={item.uuid} />
                         ))}
                       </div>
                     </div>
@@ -121,9 +125,14 @@ export function InventoryList({ inventory, isActive }: { isActive: boolean }) {
                 ) : null}
               </div>
               <div className="isolate flex flex-col sm:grid-cols-4 gap-2  ">
-                {Object.values(collectibles).map(item => (
-                  <ContractCollectibles items={item} key={item?.[0]?.contractInfo?.address} />
-                ))}
+                {collectiblesByContract &&
+                  Object.values(collectiblesByContract).map(item => (
+                    <ContractCollectibles
+                      contract={item[0].contractInfo}
+                      items={item}
+                      key={item[0]?.uuid + '-group'}
+                    />
+                  ))}
               </div>
             </>
           )}
@@ -133,9 +142,10 @@ export function InventoryList({ inventory, isActive }: { isActive: boolean }) {
   )
 }
 
-function ContractCollectibles({ items }: { items: TokenTypeProps[] }) {
-  const contract = items?.[0]?.contractInfo
-  if (!contract) return null
+function ContractCollectibles({ contract, items }: { contract?: ContractInfo; items: TokenTypeProps[] }) {
+  if (!contract) {
+    return null
+  }
 
   const collectibles = items.length <= 7 ? items : items?.slice(0, 7)
 

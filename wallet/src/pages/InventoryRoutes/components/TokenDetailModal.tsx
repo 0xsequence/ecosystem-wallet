@@ -22,7 +22,7 @@ export function TokenDetailModal() {
         <Modal scroll={true} autoHeight onClose={() => close()}>
           <Outlet />
         </Modal>
-        <SendTokens />
+        {/* <SendTokens /> */}
       </>
     )
   }
@@ -30,7 +30,7 @@ export function TokenDetailModal() {
   return (
     <>
       <Outlet />
-      <SendTokens />
+      {/* <SendTokens /> */}
     </>
   )
 }

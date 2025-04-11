@@ -1,5 +1,24 @@
 import { UserPreferenceLocalStore } from './pages/InventoryRoutes/types'
 
+export const SEARCH_KEYS = [
+  'title',
+  'name',
+  'symbol',
+  'nativeToken.symbol',
+  'nativeToken.name',
+  'contractInfo.name',
+  'contractInfo.symbol',
+  'tokenMetadata.name',
+  'tokenMetadata.description',
+  'tokenMetadata.properties'
+]
+export const FUSE_OPTIONS = {
+  keys: SEARCH_KEYS,
+  threshold: 0.3, // Adjust for sensitivity
+  includeScore: false,
+  ignoreLocation: true // Ignores position relevance (useful for flexible matching)
+}
+
 export const localStoreDefaults: {
   favorites: string[]
   watchlist: string[]

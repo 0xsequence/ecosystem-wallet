@@ -8,6 +8,7 @@ import { getTokenBalancesDetails } from '../../../utils/balance'
 import { TIME } from '../../../utils/time.const'
 import { INDEXER_CLIENT_GATEWAY } from '../../../utils/indexer'
 import { normalizeBalances } from '../../../utils/normalize-balances'
+import { TokenTypeProps } from '../types'
 
 export function useFetchInventory() {
   const location = useLocation()
@@ -34,7 +35,7 @@ export function useFetchInventory() {
     queryFn: async () => {
       const data = await getTokenBalancesDetails(INDEXER_CLIENT_GATEWAY, args)
 
-      return normalizeBalances(data)
+      return normalizeBalances(data) as TokenTypeProps[]
     },
     retry: true,
     staleTime: 30 * TIME.SECOND,

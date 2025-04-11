@@ -2,12 +2,9 @@ import { Link } from 'react-router'
 import { TokenListItemEmpty, TokenTileEmpty } from './TokenTileEmpty'
 import { Button } from '@0xsequence/design-system'
 import { ROUTES } from '../../../routes'
-import { useInventory } from '../helpers/use-inventory'
 import { THEME } from '../../../utils/theme'
 
-export function InventoryGridEmpty() {
-  const { status } = useInventory()
-
+export function InventoryGridEmpty({ isLoading }: { isLoading: boolean }) {
   return (
     <>
       <TokenTileEmpty />
@@ -15,7 +12,7 @@ export function InventoryGridEmpty() {
       <TokenTileEmpty className="hidden sm:block" />
       <TokenTileEmpty className="hidden sm:block" />
       <TokenTileEmpty className="hidden sm:block" />
-      {status.isLoading ? (
+      {isLoading ? (
         <>
           <TokenTileEmpty className="hidden sm:block" />
           <TokenTileEmpty className="hidden sm:block" />

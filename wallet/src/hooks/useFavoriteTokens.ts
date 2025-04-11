@@ -59,5 +59,5 @@ export function useFavoriteTokens() {
     return favorites
   }
 
-  return { remove, add, toggle, has, items }
+  return { remove, add, toggle, has, items, favorites }
 }

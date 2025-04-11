@@ -13,7 +13,7 @@ export function InventoryCoinTile(props: TokenTypeProps) {
     symbol,
     logoURI,
     contractAddress,
-    tokenID,
+    tokenId,
     contractType,
     uuid,
     prettyBalance,
@@ -26,7 +26,7 @@ export function InventoryCoinTile(props: TokenTypeProps) {
     <TokenTile
       chainId={chainId}
       contractAddress={contractAddress}
-      tokenId={tokenID}
+      tokenId={tokenId}
       className="p-4 sm:p-6 flex flex-col items-start gap-3 relative"
     >
       <div className=" absolute top-2 right-2">

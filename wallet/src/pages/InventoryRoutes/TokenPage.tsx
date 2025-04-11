@@ -24,18 +24,23 @@ import { formatUnits } from 'ethers'
 import { zeroAddress } from 'viem'
 import { useFavoriteTokens } from '../../hooks/useFavoriteTokens'
 import { SendTokens } from './components/SendTokens'
+import { TOKEN_TYPES } from '../../utils/normalize-balances'
+import { useFetchInventory } from './helpers/useFetchInventory'
 
 export function InventoryTokenRoute() {
-  const { contractInfo } = useInventory()
   const { chainId, contractAddress, tokenId } = useParams()
-
   const location = useLocation()
+
+  const query = useFetchInventory()
+  const inventory = useInventory(query?.data, view =>
+    view.filterBy.chain(chainId).contract(contractAddress).tokenId(tokenId)
+  )
+
+  const item = inventory.view?.[0]
 
   if (!chainId || !contractAddress || !tokenId) {
     return null
   }
-
-  const item = contractInfo({ chainId, contractAddress, tokenId })
 
   if (!item) return null
 
@@ -43,8 +48,9 @@ export function InventoryTokenRoute() {
     <div className="w-full max-w-screen-lg mx-auto">
       <TokenDetails item={item} />
       {}
-      {!location?.state?.modal ? <SendTokens /> : null}
+      {!location?.state?.modal ? null : null}
     </div>
+    //SendTokens
   )
 }
 
@@ -54,11 +60,10 @@ function TokenDetails({ item }: { item: TokenTypeProps }) {
   }
 
   // Implementation
-  switch (item?.tokenClass) {
-    case 'nativeBalance':
-    case 'erc20':
+  switch (item?.type) {
+    case TOKEN_TYPES.COIN:
       return <CoinDetails {...item} />
-    case 'collectable':
+    case TOKEN_TYPES.COLLECTIBLE:
       return <TokenDetailsCollectable {...item} />
     default:
       return null
@@ -198,8 +203,7 @@ function CoinDetails(props: TokenTypeProps) {
               setShowInventoryItem({
                 chainId,
                 contractAddress,
-                tokenId: tokenMetadata?.tokenId,
-                tokenClass: props.tokenClass
+                tokenId: tokenMetadata?.tokenId
               })
             }}
           ></Button>
@@ -290,8 +294,7 @@ function CollectibleRoute(props: TokenTypeProps) {
               setShowInventoryItem({
                 chainId,
                 contractAddress,
-                tokenId: tokenMetadata?.tokenId,
-                tokenClass: props.tokenClass
+                tokenId: tokenMetadata?.tokenId
               })
             }}
           ></Button>

@@ -1,75 +1,83 @@
-// import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
-// import { useFetchInventory } from './useFetchInventory'
-// import { inventory } from './inventory-model'
+import { inventory, type InventoryReturn } from './inventory-model'
+import { TokenTypeProps } from '../types'
 
-// type InventoryView = ReturnType<typeof inventory> | null
+export function useInventory(
+  data?: TokenTypeProps[] | false,
+  value?: (view: InventoryReturn) => InventoryReturn
+) {
+  const [viewState, setViewState] = useState<TokenTypeProps[] | null>(null)
 
-// export function useInventory() {
-//   const query = useFetchInventory()
+  const initialView = useMemo(() => {
+    const records = data || []
 
-//   const [view, setView] = useState<InventoryView>(null)
+    if (typeof value === 'function') {
+      return value(inventory(records)).records()
+    } else {
+      return inventory(records).records()
+    }
+  }, [data])
 
-//   const items = view || query.data || []
+  const view = viewState || initialView || inventory([]).records()
 
-//   function get(value?: null | ((view: typeof inventory) => ReturnType<typeof inventory>)) {
-//     if (typeof value === 'function') {
-//       return value(inventory(items)).records()
-//     } else {
-//       return value
-//     }
-//   }
-
-//   function set(value: null | ((view: typeof inventory) => ReturnType<typeof inventory>)) {
-//     if (typeof value === 'function') {
-//       setView(value(inventory(query.data)).records())
-//     } else {
-//       setView(value)
-//     }
-//   }
-
-//   return { items, set, get, data: query.data, query }
-// }
-
-import { useState, useMemo } from 'react'
-
-import { useFetchInventory } from './useFetchInventory'
-import { inventory } from './inventory-model'
-
-type InventoryInstance = ReturnType<typeof inventory> | null
-
-export function useInventory() {
-  const query = useFetchInventory()
-  const [view, setView] = useState<InventoryInstance>(null)
-
-  const defaultInventory = useMemo(() => {
-    if (!query.data) return inventory([])
-    return inventory(query.data)
-  }, [query.data])
-
-  const active = view || defaultInventory
-
-  function get(fn?: (inv: ReturnType<typeof inventory>) => InventoryInstance) {
-    return fn ? fn(active).records() : active.records()
+  function useView(
+    value: (view: InventoryReturn) => InventoryReturn,
+    data: TokenTypeProps[] | null | undefined = view
+  ): ReturnType<InventoryReturn['records']> | null | undefined {
+    return useMemo(() => {
+      if (typeof value === 'function' && data) {
+        return value(inventory(data)).records()
+      }
+    }, [view, data, value])
   }
 
-  function set(fn: null | ((inv: ReturnType<typeof inventory>) => InventoryInstance)) {
-    if (typeof fn === 'function') {
-      const result = fn(defaultInventory)
-      setView(result)
-    } else {
-      setView(null)
+  function getView(
+    value: (view: InventoryReturn) => InventoryReturn,
+    data: TokenTypeProps[] | null | undefined = view
+  ): ReturnType<InventoryReturn['records']> | null | undefined {
+    if (typeof value === 'function' && data) {
+      return value(inventory(data)).records()
     }
   }
 
-  console.log(active)
+  // function updateView(
 
-  return {
-    // ...active,
-    items: active.records(),
-    get,
-    set,
-    query,
-    data: query.data
-  }
+  // )
+
+  // function setView(
+  //   value: (view: InventoryReturn) => InventoryReturn,
+  //   data: TokenTypeProps[] | null | undefined | = view
+
+  // ): void  {
+
+  //   if (typeof value === 'function') {
+  //     setViewState(value(inventory(data)).records())
+  //   }
+  // } else {
+
+  // }
+
+  //   const records = getView(
+  //     view => view.filterBy.chain(value).sortBy.type(['COIN', 'COLLECTIBLE']).balance().testnet().sort(),
+  //     data
+  //   )
+  //   if (records) {
+  //     inventory.setView(records)
+  //   }
+  // }
+
+  // function set(value?: null | ((view: InventoryReturn) => InventoryReturn)): void {
+  //   if (typeof value === 'function') {
+  //     if (query.data) {
+  //       setView(value(inventory(query.data)).records())
+  //     }
+  //   } else {
+  //     setView(null)
+  //   }
+  // }
+
+  const deprecated = { items: view, get: getView, data }
+
+  return { view, setView: setViewState, getView, useView, initialView, ...deprecated }
 }

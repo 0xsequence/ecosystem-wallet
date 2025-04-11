@@ -1,7 +1,9 @@
 import { ChainId, networks } from '@0xsequence/network'
 import { formatPrettyBalance } from './format-pretty-balance'
 import { ZERO_ADDRESS } from '@0xsequence/design-system'
-import { ContractInfo } from '@0xsequence/indexer'
+import { getTokenBalancesDetails } from './balance'
+import { TokenTypeProps } from '../pages/InventoryRoutes/types'
+import { TokenBalance } from '@0xsequence/indexer'
 
 export const CONTRACT_TYPES = {
   NATIVE: 'NATIVE',
@@ -32,29 +34,27 @@ export function normalizeBalances(data: Awaited<ReturnType<typeof getTokenBalanc
 
   let records = Array.from(set)
 
-  records = normalizeTokens(records)
+  records = normalizeTokens(records as TokenBalance[])
 
-  return records as TokenBalance[]
+  return records as TokenTypeProps[]
 }
 
-export function normalizeTokens(balances) {
+export function normalizeTokens(balances: TokenBalance[]) {
   if (!balances) return []
 
   return balances?.map(token => {
-    // Assign native contract type to native balances
-    if (!token.contractType) {
-      token.contractType = CONTRACT_TYPES.NATIVE
-    }
+    const contractType = token?.contractType ? token.contractType.toUpperCase() : CONTRACT_TYPES.NATIVE
 
     const chainInfo = networks[token.chainId as ChainId]
     const testnet = chainInfo?.type?.toLowerCase() === 'testnet'
 
-    switch (token.contractType) {
+    switch (contractType) {
       case CONTRACT_TYPES.NATIVE:
         return {
           ...token,
+          contractType,
           type: TOKEN_TYPES.COIN,
-          uuid: `${token.chainId}::native`,
+          uuid: `${token.chainId}::${ZERO_ADDRESS}::0`,
           path: `/${token.chainId}/native`,
           chainInfo,
           contractAddress: ZERO_ADDRESS,
@@ -63,34 +63,37 @@ export function normalizeTokens(balances) {
           decimals: chainInfo?.nativeToken?.decimals,
           logoURI: chainInfo?.logoURI,
           prettyBalance: formatPrettyBalance(token.balance, chainInfo.nativeToken.decimals)
-        }
+        } as TokenTypeProps
 
       case CONTRACT_TYPES.ERC20:
         return {
           ...token,
+          contractType,
           type: TOKEN_TYPES.COIN,
-          uuid: `${token.chainId}::${token.contractAddress}`,
+          uuid: `${token.chainId}::${token.contractAddress}::0`,
           path: `/${token.chainId}/${token.contractAddress}`,
           chainInfo,
-          symbol: token.contractInfo.symbol,
-          decimals: token.contractInfo.decimals,
-          logoURI: token.contractInfo.logoURI,
+          symbol: token.contractInfo?.symbol,
+          decimals: token.contractInfo?.decimals,
+          logoURI: token.contractInfo?.logoURI,
           testnet,
-
           prettyBalance: formatPrettyBalance(token.balance, token.contractInfo?.decimals || undefined)
-        }
+        } as TokenTypeProps
 
       case CONTRACT_TYPES.ERC1155:
       case CONTRACT_TYPES.ERC721:
         return {
           ...token,
+          contractType,
           type: TOKEN_TYPES.COLLECTIBLE,
           uuid: `${token.chainId}::${token.contractAddress}::${token.tokenID || 0}`,
           path: `/${token.chainId}/${token.contractAddress}/${token.tokenID || 0}`,
           chainInfo,
           testnet,
+          symbol: token.contractInfo?.symbol,
+          decimals: token.contractInfo?.decimals,
           prettyBalance: token.balance
-        }
+        } as TokenTypeProps
     }
   })
 }
