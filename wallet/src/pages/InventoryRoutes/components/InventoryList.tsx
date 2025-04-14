@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useState } from 'react'
 import { inert } from '../../../utils/inert'
-import { useInventory } from '../helpers/use-inventory'
+import { useInventory } from '../../../hooks/use-inventory'
 import { InventoryListEmpty, InventoryGridEmpty } from './InventoryListEmpty'
 import { TokenType } from './TokenType'
 import { Transition } from '@headlessui/react'
@@ -8,34 +8,37 @@ import { ChevronRightIcon } from '@0xsequence/design-system'
 import { Link } from 'react-router'
 import { TokenTypeProps } from '../types'
 import { InventoryCoinList } from './InventoryCoin'
-import { padArray } from '../../../utils/pad-array'
 import { ContractInfo } from '@0xsequence/indexer'
+import { TOKEN_TYPES } from '../../../utils/normalize-balances'
+import { InventoryCoinGroupList } from './InventoryCoinGroup'
 
 export function InventoryGrid({
-  items,
+  inventory,
   isActive,
   isLoading
 }: {
-  items: TokenTypeProps[]
+  inventory: ReturnType<typeof useInventory>
   isActive: boolean
   isLoading: boolean
 }) {
-  const hasNoResults = false
+  const hasNoResults = inventory.records.length < 1 && !isLoading && inventory.active.search
 
   return (
     <Transition show={isActive}>
       {hasNoResults ? (
-        <NoResults />
+        <div>
+          <NoResults term={inventory.active.search} clear={() => inventory.refiners.search('')} />
+        </div>
       ) : (
         <div
           className="isolate grid grid-cols-2 sm:grid-cols-4 gap-2  data-[closed]:opacity-0  data-[closed]:scale-95 data-[closed]:translate-y-2 transition-all"
           {...inert(!isActive)}
         >
-          {items.length < 1 ? (
+          {inventory.records.length < 1 ? (
             <InventoryGridEmpty isLoading={isLoading} />
           ) : (
             <>
-              {items.map((item, index) => (
+              {inventory.records.map((item, index) => (
                 <TokenType key={index} item={item} />
               ))}
             </>
@@ -47,19 +50,16 @@ export function InventoryGrid({
 }
 
 export function InventoryList({
-  items,
+  inventory,
   isActive,
   isLoading
 }: {
-  items: TokenTypeProps[]
+  inventory: ReturnType<typeof useInventory>
   isActive: boolean
   isLoading: boolean
 }) {
-  console.log(items)
-  const inventory = useInventory(items)
-
-  const coins = useMemo(() => inventory.get(view => view.filterBy.type('coins')), [inventory])
-  const collectibles = useMemo(() => inventory.get(view => view.filterBy.type('collectibles')), [inventory])
+  const coins = inventory?.records?.filter(item => [TOKEN_TYPES.GROUP, TOKEN_TYPES.COIN].includes(item.type))
+  const collectibles = inventory?.records?.filter(item => item.type === TOKEN_TYPES.COLLECTIBLE)
 
   const collectiblesByContract = collectibles?.reduce((acc, item) => {
     if (!acc[item.contractAddress]) {
@@ -88,7 +88,9 @@ export function InventoryList({
   return (
     <Transition show={isActive}>
       {hasNoResults ? (
-        <NoResults />
+        <div>
+          <NoResults term={inventory.active.search} clear={() => inventory.refiners.search('')} />
+        </div>
       ) : (
         <div className="isolate flex flex-col gap-2 data-[closed]:opacity-0 data-[closed]:scale-95 data-[closed]:translate-y-2 transition-all">
           {inventoryIsEmpty ? (
@@ -96,7 +98,14 @@ export function InventoryList({
           ) : (
             <>
               <div className="isolate flex flex-col gap-2">
-                {coinsInitial?.map(item => (!item ? null : <InventoryCoinList {...item} key={item.uuid} />))}
+                {coinsInitial?.map(item =>
+                  !item ? null : item.type === TOKEN_TYPES.COIN ? (
+                    <InventoryCoinList {...item} key={item.uuid} />
+                  ) : (
+                    <InventoryCoinGroupList {...item} key={item.uuid} />
+                  )
+                )}
+
                 {showMore ? (
                   <>
                     <button
@@ -187,16 +196,14 @@ function ContractCollectibles({ contract, items }: { contract?: ContractInfo; it
   )
 }
 
-function NoResults() {
-  const { query, setQuery } = useSearchFilter()
-
+function NoResults({ term, clear }: { term?: string | null; clear: () => void }) {
   return (
     <div className="text-center text-primary bg-background-muted w-full px-4 max-sm:py-12 sm:aspect-video rounded-lg flex items-center justify-center flex-col pointer-events-auto gap-4">
-      <span>No results found for "{query}"</span>
+      <span>No results found for "{term}"</span>
       <button
         type="button"
         className="cursor-pointer hover:opacity-80 focus:opacity-80 bg-button-glass px-3 py-1 rounded-sm text-sm font-medium textfit-body"
-        onClick={() => setQuery('')}
+        onClick={() => clear()}
       >
         Clear
       </button>

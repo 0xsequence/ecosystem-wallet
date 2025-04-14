@@ -1,8 +1,9 @@
 import { Outlet, useLocation, useParams } from 'react-router'
 import { TokenType } from './components/TokenType'
 import { TokenDetailModal } from './components/TokenDetailModal'
-import { useInventory } from './helpers/use-inventory'
+import { useInventory } from '../../hooks/use-inventory'
 import { useFetchInventory } from './helpers/useFetchInventory'
+import { CONTRACT_TYPES } from './constants'
 
 export function InventoryContractRoute() {
   const { tokenId } = useParams()
@@ -25,13 +26,29 @@ function ContractPageView() {
   const { chainId, contractAddress } = useParams()
 
   const query = useFetchInventory()
-  const inventory = useInventory(query?.data, view => view.filterBy.chain(chainId).contract(contractAddress))
 
-  const collectibles = inventory.view
+  const nativeToken = contractAddress?.toUpperCase() === CONTRACT_TYPES.NATIVE
+
+  const filters = nativeToken
+    ? {
+        filter: {
+          chain: [chainId],
+          type: [CONTRACT_TYPES.NATIVE]
+        }
+      }
+    : { filter: { chain: [chainId], contract: [contractAddress] } }
+
+  const inventory = useInventory(query?.data, filters)
+
+  const collectibles = inventory.records
   const contract = collectibles?.[0]?.contractInfo
 
+  if (nativeToken) {
+    return <>Get token</>
+  }
+
   if (!contract || !collectibles) {
-    return <>Loading</>
+    return <></>
   }
 
   return (

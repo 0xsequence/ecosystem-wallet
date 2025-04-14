@@ -6,21 +6,25 @@ import { EyeIcon, HiddenIcon } from '../design-system-patch/icons'
 import { useLocalStore } from '../utils/local-store'
 import { inert } from '../utils/inert'
 import { TokenPrice } from '@0xsequence/api'
-import { useInventory } from '../pages/InventoryRoutes/helpers/use-inventory'
+
 import { UserPreferenceLocalStore } from '../pages/InventoryRoutes/types'
 import { useExchangeRate } from '../hooks/useExchangeRate'
 import { Text } from '@0xsequence/design-system'
+import { useFetchInventory } from '../pages/InventoryRoutes/helpers/useFetchInventory'
+import { useInventory } from '../hooks/use-inventory'
 
 function useTotalCoinBalance() {
-  const { coinInventory } = useInventory()
+  const query = useFetchInventory()
 
-  const coins = coinInventory.map(chain => {
-    const chainId = chain.chainId || chain?.chain?.chainId
+  const { records } = useInventory(query?.data, { filters: { type: ['COIN'] } })
+
+  const coins = records.map(chain => {
+    const chainId = chain.chainId
     const contractAddress = chain.contractAddress
     const decimals = chain?.nativeToken?.decimals || chain?.contractInfo?.decimals
     const balance = chain?.balance
     const name = chain?.name || chain?.contractInfo?.name
-    const units = formatUnits(balance, decimals)
+    const units = formatUnits(balance || '0', decimals)
 
     return {
       units,
@@ -29,7 +33,7 @@ function useTotalCoinBalance() {
       contractAddress
     }
   })
-  /* @ts-expect-error FIXME */
+
   const { data: coinPriceData = [], isPending } = useCoinPrices(coins)
 
   const total = coinPriceData.reduce((acc: number, chain: TokenPrice) => {

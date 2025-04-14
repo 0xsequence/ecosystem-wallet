@@ -8,6 +8,7 @@ export const SEARCH_KEYS = [
   'nativeToken.name',
   'contractInfo.name',
   'contractInfo.symbol',
+  'networkInfo.name',
   'tokenMetadata.name',
   'tokenMetadata.description',
   'tokenMetadata.properties'

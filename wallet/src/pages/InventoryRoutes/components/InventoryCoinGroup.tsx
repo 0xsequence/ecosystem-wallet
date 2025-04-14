@@ -1,5 +1,5 @@
 import { TokenListItem } from './TokenTile'
-import { nativeTokenImageUrl, NetworkImage, Text, TokenImage } from '@0xsequence/design-system'
+import { NetworkImage, Text, TokenImage } from '@0xsequence/design-system'
 import { formatUnits } from 'ethers'
 
 import type { TokenTypeProps } from '../types'
@@ -8,9 +8,14 @@ import { inert } from '../../../utils/inert'
 import { useLocalStore } from '../../../utils/local-store'
 import { useFavoriteTokens } from '../../../hooks/useFavoriteTokens'
 import SvgHeartIcon from '../../../design-system-patch/icons/HeartIcon'
-import { useCoinPrices } from '../../../hooks/useCoinPrices'
-import { CoinGroup } from '../helpers/useFetchInventory'
 import { Link } from 'react-router'
+import { CoinGroup } from '../types'
+import { CoinIcon } from './partials/coin-icon'
+import { CoinBalance } from './partials/coin-balance'
+import { CoinChains } from './partials/coin-chains'
+import { FavoriteBadge } from './partials/favorite-badge'
+import { TestnetBadge } from './partials/testnet-badge'
+import { CoinFiatValue } from './partials/coin-fiat-value'
 
 export function InventoryCoinGroup(props: CoinGroup) {
   const { balance, decimals, symbol, imageUrl, chains } = props
@@ -68,7 +73,7 @@ export function InventoryCoinGroup(props: CoinGroup) {
         {chains.length ? (
           <div className="flex items-center gap-0.75">
             {chains.map(chain => (
-              <NetworkImage chainId={chain.chainId} size="sm" />
+              <NetworkImage chainId={chain.chainId} size="sm" key={chain.chainId} />
             ))}
             {chains.length === 1 ? (
               <Text variant="small" color="secondary" className="ml-1 leading-[1.05]">
@@ -82,119 +87,43 @@ export function InventoryCoinGroup(props: CoinGroup) {
   )
 }
 
-export function InventoryCoinList(props: TokenTypeProps) {
-  const { chainId, title, balance, contractType, contractAddress, tokenID, token, uuid } = props
+export function InventoryCoinGroupList(props: TokenTypeProps) {
+  const {
+    chainId,
+    symbol,
+    logoURI,
+    contractAddress,
+    path,
+    contractType,
+    uuid,
+    prettyBalance,
+    testnet,
+    decimals,
+    balance,
+    chains
+  } = props
 
-  const { symbol = '', decimals = 18 } = token || {}
-  const [prefs] = useLocalStore<{ hideBalance: boolean }>('userPrefs')
-  const { has } = useFavoriteTokens()
   return (
-    <TokenListItem
-      chainId={chainId}
-      contractAddress={contractAddress}
-      tokenId={tokenID}
-      tokenClass="nativeBalance"
-      className="p-4 sm:py-3 px-4 flex items-center gap-3 relative trasition-all"
-    >
-      <div className="size-8">
-        {contractType === 'ERC20' ? (
-          <TokenImage
-            src={token.logoURI}
-            size="xl"
-            className="size-full bg-button-glass rounded-full"
-            withNetwork={chainId}
-          />
+    <TokenListItem path={path} className="p-4 sm:py-3 px-4 flex items-center gap-3 relative trasition-all">
+      <CoinIcon logoURI={logoURI} chainId={chainId} contractType={contractType} size="md" />
+      <div className="flex flex-col gap-1">
+        <CoinBalance balance={prettyBalance} symbol={symbol} />
+        {chains ? <CoinChains chains={chains} size="xs" /> : null}
+      </div>
+
+      <div className="flex gap-4 ml-auto mr-0">
+        <FavoriteBadge id={uuid} />
+        {testnet ? (
+          <TestnetBadge isTestnet={true} />
         ) : (
-          <TokenImage
-            src={nativeTokenImageUrl(chainId, 'lg')}
-            size="xl"
-            className="size-full bg-button-glass rounded-full"
-            withNetwork={chainId}
+          <CoinFiatValue
+            chainId={chainId}
+            contractAddress={contractAddress}
+            balance={balance || '0'}
+            decimals={decimals}
           />
         )}
       </div>
-      <div className="flex flex-col flex-1 justify-end items-start text-start">
-        <span className="text-xs sm:text-sm font-medium text-seq-grey-500 leading-tight text-start mb-0.5">
-          {title}
-        </span>
-
-        <span className="grid grid-cols-1 grid-rows-1 transition-all items-start justify-content-start text-md sm:text-lg font-bold text-start leading-[0] [&>span]:col-start-1 [&>span]:row-start-1">
-          <span
-            className="transition-all inert:translate-y-4 inert:scale-90 inert:opacity-0 whitespace-nowrap"
-            {...inert(prefs?.hideBalance)}
-          >
-            {limitDecimals(formatDisplay(formatUnits(balance, decimals)), 5)}
-            {' '}
-            <span className="text-xs sm:text-sm font-normal">{symbol}</span>
-          </span>
-          <span
-            className="transition-all inert:-translate-y-4 inert:scale-90 inert:opacity-0"
-            {...inert(!prefs?.hideBalance)}
-          >
-            •••{' '}
-            <span className="text-sm font-normal">{symbol}</span>
-          </span>
-        </span>
-      </div>
-
-      <CoinValue {...props} />
-      {has(uuid) ? (
-        <div className="flex items-center justify-center bg-button-glass p-1.25 rounded-full backdrop-blur-2xl">
-          <SvgHeartIcon className="size-4" />
-        </div>
-      ) : null}
     </TokenListItem>
-  )
-}
-
-function CoinValue(props: TokenTypeProps) {
-  const { chainId, balance, contractAddress, token } = props
-
-  const { data = [], isPending } = useCoinPrices([
-    {
-      chainId,
-      contractAddress
-    }
-  ])
-  const units = formatUnits(balance, token.decimals)
-  // const diplayedBalance = formatDisplay(units)
-  const { price, price24hChange } = data[0] || {}
-  const priceText = price
-    ? `${formatDisplay(price.value * Number(units), {
-        disableScientificNotation: true,
-        significantDigits: 2,
-        maximumFractionDigits: 3,
-        currency: 'USD'
-      })}`
-    : ''
-  const priceChangeText = price24hChange
-    ? `${price24hChange.value > 0 ? '+' : ''}${formatDisplay(price24hChange.value, {
-        disableScientificNotation: true,
-        significantDigits: 2
-      })}%`
-    : ''
-
-  const trending = priceChangeText.startsWith('-') ? 'down' : 'up'
-  const [prefs] = useLocalStore<{ hideBalance: boolean }>('userPrefs')
-  if (isPending) {
-    return <>...</>
-  }
-
-  return (
-    <div
-      className="grid grid-rows-[1fr_1fr] group inert:grid-rows-[0fr_1fr] text-end overflow-clip transition-all items-center"
-      {...inert(prefs?.hideBalance)}
-    >
-      <span className="min-h-0 overflow-hidden group-inert:opacity-0 transition-all leading-[1.1] self-end">
-        {priceText}
-      </span>
-
-      <span
-        className="data-[trending='down']:text-negative text-positive text-xs leading-[1.1]"
-        data-trending={trending}
-      >
-        {priceChangeText}
-      </span>
-    </div>
   )
 }

@@ -46,7 +46,6 @@ export function inventory(data: TokenTypeProps[]) {
       const nonFavorites: TokenTypeProps[] = []
       value.forEach(a => {
         if (set.has(a.uuid)) {
-          console.log(a.uuid)
           favourites.push(a)
         } else {
           nonFavorites.push(a)
@@ -181,9 +180,11 @@ export function inventory(data: TokenTypeProps[]) {
 
     showGroups() {
       const groups = value.filter(item => item.type === TOKEN_TYPES.GROUP)
-      const solos = value.filter(item => !item.group)
+      const keys = groups.map(item => item.group)
 
-      value = structuredClone([...groups, ...solos])
+      const records = value.filter(item => !keys.includes(item.group))
+
+      value = structuredClone([...groups, ...records])
 
       return { ...then, ...filterBy }
     }

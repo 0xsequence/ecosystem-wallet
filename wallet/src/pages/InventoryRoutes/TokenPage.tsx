@@ -1,7 +1,7 @@
 import { Link, useLocation, useParams } from 'react-router'
 
 import { HeartIcon, SendIcon } from '../../design-system-patch/icons'
-import { useInventory } from './helpers/use-inventory'
+import { useInventory } from '../../hooks/use-inventory'
 import { TokenTypeProps } from './types'
 import { formatDisplay, truncateAtMiddle } from '../../utils/helpers'
 import { useCoinPrices } from '../../hooks/useCoinPrices'
@@ -28,19 +28,33 @@ import { useFavoriteTokens } from '../../hooks/useFavoriteTokens'
 import { TOKEN_TYPES } from '../../utils/normalize-balances'
 import { useFetchInventory } from './helpers/useFetchInventory'
 import { CONTRACT_TYPES } from './constants'
+import { SendTokens } from './components/SendTokens'
+import { createContext, useContext, useState } from 'react'
+
+interface TokenContext {
+  sendModal: boolean
+  setSendModal: React.Dispatch<React.SetStateAction<boolean>>
+}
+
+const TokenContext = createContext<TokenContext | null>(null)
+function useTokenContext() {
+  const context = useContext(TokenContext)
+  if (!context) throw new Error('useTokenContext must be used within a TokenContext Provider')
+  return context
+}
 
 export function InventoryTokenRoute() {
   const { chainId, contractAddress, tokenId } = useParams()
-  const location = useLocation()
 
   const query = useFetchInventory()
+  const [sendModal, setSendModal] = useState(false)
 
   // Get the token from the inventory
-  const inventory = useInventory(query?.data, view =>
-    view.filterBy.chain(chainId).contract(contractAddress).tokenId(tokenId)
-  )
+  const inventory = useInventory(query?.data, {
+    filter: { chain: chainId, contract: contractAddress, tokenId }
+  })
 
-  const item = inventory.view?.[0]
+  const item = inventory.records?.[0]
 
   if (!chainId || !contractAddress || !tokenId) {
     return null
@@ -49,10 +63,19 @@ export function InventoryTokenRoute() {
   if (!item) return null
 
   return (
-    <div className="w-full max-w-screen-lg mx-auto">
-      <TokenDetails item={item} />
-      {!location?.state?.modal ? null : null}
-    </div>
+    <TokenContext.Provider value={{ sendModal, setSendModal }}>
+      <div className="w-full max-w-screen-lg mx-auto">
+        <TokenDetails item={item} />
+        {sendModal ? (
+          <SendTokens
+            chainId={chainId}
+            contractAddress={contractAddress}
+            tokenId={tokenId}
+            close={() => setSendModal(false)}
+          />
+        ) : null}
+      </div>
+    </TokenContext.Provider>
     //SendTokens
   )
 }
@@ -110,6 +133,7 @@ function CoinDetails(props: TokenTypeProps) {
   const isMobile = useMediaQuery('isMobile')
 
   // const { setShowSendModal, setShowInventoryItem } = useInventory()
+  const { setSendModal } = useTokenContext()
   const { balance, contractAddress, tokenMetadata, chainInfo, chainId, contractInfo, uuid } = props
 
   const logoURI = contractInfo?.logoURI || nativeTokenImageUrl(props.chainId)
@@ -202,6 +226,7 @@ function CoinDetails(props: TokenTypeProps) {
             shape="square"
             leftIcon={SendIcon}
             label="Send"
+            onClick={() => setSendModal(true)}
             // onClick={() => {
             //   setShowSendModal(true)
             //   setShowInventoryItem({
@@ -243,7 +268,7 @@ function CollectiblePageView(props: TokenTypeProps) {
   } as React.CSSProperties
 
   const { tokenMetadata, chainId, chainInfo, balance, contractType, contractAddress, uuid } = props
-
+  const { setSendModal } = useTokenContext()
   const hasBalance = contractType === CONTRACT_TYPES.ERC1155 && balance
   return (
     <div className="w-full flex flex-col px-6 py-24">
@@ -295,14 +320,15 @@ function CollectiblePageView(props: TokenTypeProps) {
             shape="square"
             leftIcon={SendIcon}
             label="Send"
-            // onClick={() => {
-            //   setShowSendModal(true)
-            //   setShowInventoryItem({
-            //     chainId,
-            //     contractAddress,
-            //     tokenId: tokenMetadata?.tokenId
-            //   })
-            // }}
+            onClick={() => {
+              setSendModal(true)
+              // setShowSendModal(true)
+              // setShowInventoryItem({
+              //   chainId,
+              //   contractAddress,
+              //   tokenId: tokenMetadata?.tokenId
+              // })
+            }}
           ></Button>
           <Favorite id={uuid} />
         </div>
@@ -325,7 +351,7 @@ function CollectibleModal(props: TokenTypeProps) {
   const location = useLocation()
 
   const isMobile = useMediaQuery('isMobile')
-
+  const { setSendModal } = useTokenContext()
   // const { setShowSendModal, setShowInventoryItem } = useInventory()
   const { tokenMetadata, chainId, balance, contractType, chainInfo, contractAddress, uuid } = props
   const isERC1155 = contractType === 'ERC1155'
@@ -376,15 +402,16 @@ function CollectibleModal(props: TokenTypeProps) {
             shape="square"
             leftIcon={SendIcon}
             label="Send"
-            // onClick={() => {
-            //   setShowSendModal(true)
-            //   setShowInventoryItem({
-            //     chainId,
-            //     contractAddress,
-            //     tokenId: tokenMetadata?.tokenId,
-            //     tokenClass: props.tokenClass
-            //   })
-            // }}
+            onClick={() => {
+              setSendModal(true)
+              // setShowSendModal(true)
+              // setShowInventoryItem({
+              //   chainId,
+              //   contractAddress,
+              //   tokenId: tokenMetadata?.tokenId,
+              //   tokenClass: props.tokenClass
+              // })
+            }}
           ></Button>
           <Favorite id={uuid} />
         </div>

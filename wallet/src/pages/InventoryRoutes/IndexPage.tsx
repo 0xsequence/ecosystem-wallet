@@ -6,11 +6,11 @@ import { InventoryDisplayModeSwitch } from './components/InventoryDisplayModeSwi
 import { UserPreferenceLocalStore } from './types.ts'
 import { SearchInput } from '@0xsequence/design-system'
 import { Outlet, useLocation, useParams } from 'react-router'
-import { useInventory } from './helpers/use-inventory.ts'
 import { useFavoriteTokens } from '../../hooks/useFavoriteTokens'
 import { useFetchInventory } from './helpers/useFetchInventory'
-import { useMemo, useState } from 'react'
 import { NetworkFilterSelect } from '../../components/NetworkFilterSelect'
+import { useInventory } from '../../hooks/use-inventory'
+import { useState } from 'react'
 
 export const InventoryPage = () => {
   const { tokenId, contractAddress } = useParams()
@@ -36,34 +36,33 @@ function InventoryPageView() {
 
   const query = useFetchInventory()
 
-  const inventory = useInventory(query?.data, view =>
-    view.filterBy
-      .showGroups()
-      .sortBy.favorites(favorites)
-      .type(['GROUP', 'COIN', 'COLLECTIBLE'])
-      .testnet()
-      .balance()
-      .sort()
-  )
+  const DEFAULT_REFINERS = {
+    organize: {
+      groupContractsAcrossNetworks: { minGroupSize: 2 }
+    },
+    sort: {
+      type: ['GROUP', 'COIN', 'COLLECTIBLE'],
+      favorites,
+      testnet: ['asc'],
+      balance: ['desc']
+    }
+  }
 
-  const lastState = useMemo(() => inventory.getSnapshot(), [])
+  const inventory = useInventory(query?.data, DEFAULT_REFINERS)
 
   function handleNetworkFilterChange(value: string | number) {
+    value = value.toString()
+
     if (value && value !== 'all') {
-      const records = inventory.getView(
-        view => view.filterBy.chain(value).sortBy.type(['COIN', 'COLLECTIBLE']).balance().testnet().sort(),
-        lastState
-      )
-      if (records) {
-        inventory.setView(records)
-      }
+      inventory.refiners.filter.set({ chain: value.split(',') })
     } else {
-      inventory.setView(lastState)
+      inventory.refiners.filter.clear('chain')
     }
   }
 
   return (
     <>
+      {/* <pre>{JSON.stringify(active, null, 2)}</pre> */}
       <div className="flex flex-col w-full max-w-screen-lg mx-auto mt-2 sm:my-8 sm:px-2 p-8 sm:py-0 gap-6">
         <div className="flex justify-between items-center gap-4">
           <SearchInput
@@ -71,12 +70,13 @@ function InventoryPageView() {
             name="search"
             value={searchTerm}
             onChange={e => {
-              const term = e.target.value
-              setSearchTerm(term)
-              const records = inventory.getView(view => view.search(term), inventory.initialView)
-              if (records) {
-                inventory.setView(records)
+              if (e.target.value && e.target.value.length > 0) {
+                inventory.refiners.organize.clear(['groupContractsAcrossNetworks'])
+              } else {
+                inventory.refiners.organize.add({ groupContractsAcrossNetworks: { minGroupSize: 2 } })
               }
+              inventory.refiners.search(e.target.value)
+              setSearchTerm(e.target.value)
             }}
           />
 
@@ -88,17 +88,18 @@ function InventoryPageView() {
 
         <div className="grid grid-cols-1 grid-rows-1 [&>*]:col-start-1 [&>*]:row-start-1">
           <InventoryGrid
-            items={inventory.view}
+            inventory={inventory}
             isActive={prefs?.inventoryDisplayMode === 'grid'}
             isLoading={query.isLoading}
           />
           <InventoryList
-            items={inventory.view}
+            inventory={inventory}
             isActive={prefs?.inventoryDisplayMode === 'list'}
             isLoading={query.isLoading}
           />
         </div>
       </div>
+
       <Outlet />
     </>
   )

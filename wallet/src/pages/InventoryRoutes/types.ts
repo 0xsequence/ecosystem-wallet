@@ -26,6 +26,7 @@ export type TokenTypeProps = {
   prettyBalance: string
   contractType: 'NATIVE' | 'ERC20' | 'ERC1155' | 'ERC721'
   type: 'COIN' | 'COLLECTIBLE' | 'GROUP'
+  chains?: TokenTypeProps[]
 }
 
 export type UserPreferenceLocalStore =

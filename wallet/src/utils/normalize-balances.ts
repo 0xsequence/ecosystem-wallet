@@ -96,8 +96,8 @@ export function normalizeTokens(balances: TokenBalance[]) {
         } as TokenTypeProps
     }
   })
-
-  return [...records, ...groups(records)]
+  return records
+  // return [...records, ...groups(records)]
 }
 
 function groups(value: TokenTypeProps[]) {

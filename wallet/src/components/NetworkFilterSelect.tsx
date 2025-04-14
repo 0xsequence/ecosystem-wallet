@@ -25,7 +25,7 @@ export function NetworkFilterSelect({ callback }: { callback: (value: string | n
               <Text>Optimism</Text>
             </div>
           ),
-          value: '80002'
+          value: '10, 11155420'
         },
 
         {
@@ -35,7 +35,7 @@ export function NetworkFilterSelect({ callback }: { callback: (value: string | n
               <Text>Base</Text>
             </div>
           ),
-          value: '8453'
+          value: '8453,84532'
         },
         {
           label: (
@@ -44,7 +44,7 @@ export function NetworkFilterSelect({ callback }: { callback: (value: string | n
               <Text>Soneium</Text>
             </div>
           ),
-          value: '1868'
+          value: '1868,1946'
         }
       ]}
     />

@@ -1,13 +1,8 @@
 import { NetworkImage, Text } from '@0xsequence/design-system'
-
-type ChainInfo = {
-  name?: string
-  title?: string
-  chainId: number
-}
+import { TokenTypeProps } from '../../types'
 
 type CoinChainsProps = {
-  chains: ChainInfo | ChainInfo[]
+  chains: TokenTypeProps | TokenTypeProps[]
   size?: 'xs' | 'sm' | 'md' | 'lg'
 }
 
@@ -35,7 +30,7 @@ export function CoinChains(props: CoinChainsProps) {
           color="secondary"
           className="ml-1 leading-[1.05]"
         >
-          {chainsList[0].title}
+          {chainsList[0].chainInfo?.title}
         </Text>
       </div>
     )
@@ -43,7 +38,7 @@ export function CoinChains(props: CoinChainsProps) {
 
   // If there are multiple chains, only show their network image.
   return (
-    <div className="flex items-center gap-0.75 data-[size='xs']:gap-0" data-size={size}>
+    <div className="flex items-center gap-0.75 data-[size='xs']:gap-0.5" data-size={size}>
       {chainsList.map(chain => (
         <NetworkImage chainId={chain.chainId} size={size} />
       ))}

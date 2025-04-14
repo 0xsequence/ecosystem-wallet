@@ -1,11 +1,13 @@
 import { Modal } from '@0xsequence/design-system'
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router'
 import { SendTokens } from './SendTokens'
+import { useState } from 'react'
 
 export function TokenDetailModal() {
-  const { tokenId } = useParams()
+  const { chainId, contractAddress, tokenId } = useParams()
   const navigate = useNavigate()
   const location = useLocation()
+  const [send, setSend] = useState(false)
 
   function close() {
     navigate(location?.state?.referer || '/inventory', {
@@ -14,15 +16,18 @@ export function TokenDetailModal() {
       }
     })
   }
+
   if (!tokenId) return null
 
   if (location.state && location.state.modal) {
     return (
       <>
         <Modal scroll={true} autoHeight onClose={() => close()}>
-          <Outlet />
+          <Outlet context={{ setSend }} />
         </Modal>
-        {/* <SendTokens /> */}
+        {send ? (
+          <SendTokens close={setSend} chainId={chainId} contractAddress={contractAddress} tokenId={tokenId} />
+        ) : null}
       </>
     )
   }

@@ -1,4 +1,4 @@
-import { useInventory } from './use-inventory'
+import { useInventory } from '../../../hooks/use-inventory'
 
 export function useContractCollection(chainId?: string, contractAddress?: string) {
   const { collectibleInventory } = useInventory()
