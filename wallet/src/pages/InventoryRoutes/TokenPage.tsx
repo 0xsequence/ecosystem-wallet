@@ -36,8 +36,8 @@ interface TokenContext {
   setSendModal: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const TokenContext = createContext<TokenContext | null>(null)
-function useTokenContext() {
+export const TokenContext = createContext<TokenContext | null>(null)
+export function useTokenContext() {
   const context = useContext(TokenContext)
   if (!context) throw new Error('useTokenContext must be used within a TokenContext Provider')
   return context
@@ -51,7 +51,7 @@ export function InventoryTokenRoute() {
 
   // Get the token from the inventory
   const inventory = useInventory(query?.data, {
-    filter: { chain: chainId, contract: contractAddress, tokenId }
+    filter: { uuid: `${chainId}::${contractAddress}::${tokenId}` }
   })
 
   const item = inventory.records?.[0]
@@ -227,14 +227,6 @@ function CoinDetails(props: TokenTypeProps) {
             leftIcon={SendIcon}
             label="Send"
             onClick={() => setSendModal(true)}
-            // onClick={() => {
-            //   setShowSendModal(true)
-            //   setShowInventoryItem({
-            //     chainId,
-            //     contractAddress,
-            //     tokenId: tokenMetadata?.tokenId
-            //   })
-            // }}
           ></Button>
 
           <Favorite id={uuid} />

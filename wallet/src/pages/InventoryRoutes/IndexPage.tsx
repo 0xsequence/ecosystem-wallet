@@ -11,9 +11,10 @@ import { useFetchInventory } from './helpers/useFetchInventory'
 import { NetworkFilterSelect } from '../../components/NetworkFilterSelect'
 import { useInventory } from '../../hooks/use-inventory'
 import { useState } from 'react'
+import { TokenDetailModal } from './components/TokenDetailModal'
 
 export const InventoryPage = () => {
-  const { tokenId, contractAddress } = useParams()
+  const { tokenId, contractAddress, groupId } = useParams()
   const location = useLocation()
 
   // Bypass and show child
@@ -22,7 +23,20 @@ export const InventoryPage = () => {
     (tokenId && location.state === null) ||
     (tokenId && location.state && location.state.referer !== '/inventory')
   ) {
-    return <Outlet />
+    return (
+      <>
+        <Outlet />
+      </>
+    )
+  }
+
+  if (groupId && location.state && location.state.modal) {
+    return (
+      <>
+        <InventoryPageView />
+        <TokenDetailModal />
+      </>
+    )
   }
 
   return <InventoryPageView />
@@ -30,7 +44,7 @@ export const InventoryPage = () => {
 
 function InventoryPageView() {
   const [prefs] = useLocalStore<UserPreferenceLocalStore>('userPrefs')
-
+  const location = useLocation()
   const { favorites } = useFavoriteTokens()
   const [searchTerm, setSearchTerm] = useState('')
 
@@ -99,7 +113,6 @@ function InventoryPageView() {
           />
         </div>
       </div>
-
       <Outlet />
     </>
   )

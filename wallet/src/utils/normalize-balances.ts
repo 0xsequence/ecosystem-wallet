@@ -48,6 +48,12 @@ export function normalizeTokens(balances: TokenBalance[]) {
     const chainInfo = networks[token.chainId as ChainId]
     const testnet = chainInfo?.type?.toLowerCase() === 'testnet'
 
+    const crosschain = networksMap[token.chainId]
+
+    const group = crosschain.currencies?.find(
+      currency => currency.contractAddress.toLowerCase() === token?.contractAddress
+    )
+
     switch (contractType) {
       case CONTRACT_TYPES.NATIVE:
         return {
@@ -55,13 +61,14 @@ export function normalizeTokens(balances: TokenBalance[]) {
           contractType,
           type: TOKEN_TYPES.COIN,
           uuid: `${token.chainId}::${ZERO_ADDRESS}::0`,
-          path: `/${token.chainId}/native`,
+          path: `/${token.chainId}/${ZERO_ADDRESS}/0`,
           chainInfo,
           contractAddress: ZERO_ADDRESS,
           testnet,
           symbol: chainInfo?.nativeToken?.symbol,
           decimals: chainInfo?.nativeToken?.decimals,
           logoURI: chainInfo?.logoURI,
+          group,
           prettyBalance: formatPrettyBalance(token.balance, chainInfo.nativeToken.decimals)
         } as TokenTypeProps
 
@@ -71,12 +78,13 @@ export function normalizeTokens(balances: TokenBalance[]) {
           contractType,
           type: TOKEN_TYPES.COIN,
           uuid: `${token.chainId}::${token.contractAddress}::0`,
-          path: `/${token.chainId}/${token.contractAddress}`,
+          path: `/${token.chainId}/${token.contractAddress}/0`,
           chainInfo,
           symbol: token.contractInfo?.symbol,
           decimals: token.contractInfo?.decimals,
           logoURI: token.contractInfo?.logoURI,
           testnet,
+          group,
           prettyBalance: formatPrettyBalance(token.balance, token.contractInfo?.decimals || undefined)
         } as TokenTypeProps
 
@@ -92,6 +100,7 @@ export function normalizeTokens(balances: TokenBalance[]) {
           testnet,
           symbol: token.contractInfo?.symbol,
           decimals: token.contractInfo?.decimals,
+          group,
           prettyBalance: token.balance
         } as TokenTypeProps
     }
@@ -100,49 +109,49 @@ export function normalizeTokens(balances: TokenBalance[]) {
   // return [...records, ...groups(records)]
 }
 
-function groups(value: TokenTypeProps[]) {
-  const groups = Object.values(
-    value.reduce((acc, coin) => {
-      const chainId = coin.chainId
-      const contractAddress = coin.contractAddress.toLowerCase()
+// function groups(value: TokenTypeProps[]) {
+//   const groups = Object.values(
+//     value.reduce((acc, coin) => {
+//       const chainId = coin.chainId
+//       const contractAddress = coin.contractAddress.toLowerCase()
 
-      const network = networksMap[chainId]
+//       const network = networksMap[chainId]
 
-      if (network?.currencies) {
-        const record = network.currencies.find(
-          currency => currency.contractAddress.toLowerCase() === contractAddress
-        )
-        let balance = '0'
-        if (coin.balance && typeof coin.balance === 'string') {
-          balance = coin.balance
-        }
+//       if (network?.currencies) {
+//         const record = network.currencies.find(
+//           currency => currency.contractAddress.toLowerCase() === contractAddress
+//         )
+//         let balance = '0'
+//         if (coin.balance && typeof coin.balance === 'string') {
+//           balance = coin.balance
+//         }
 
-        if (record && record.group) {
-          coin.group = record.group
-          if (!acc[record.group]) {
-            acc[record.group] = {
-              ...record,
-              uuid: `group::${record.group}`,
-              path: `/group/${record.group}`,
-              balance: '0',
-              chains: [],
-              type: 'GROUP',
-              testnet: record.group.includes('testnet')
-            }
-          }
+//         if (record && record.group) {
+//           coin.group = record.group
+//           if (!acc[record.group]) {
+//             acc[record.group] = {
+//               ...record,
+//               uuid: `group::${record.group}`,
+//               path: `/group/${record.group}`,
+//               balance: '0',
+//               chains: [],
+//               type: 'GROUP',
+//               testnet: record.group.includes('testnet')
+//             }
+//           }
 
-          acc[record.group].balance = (BigInt(acc[record.group].balance) + BigInt(balance)).toString()
-          acc[record.group].chains.push(coin)
-        }
-      }
-      return acc
-    }, {} as Record<string, any>)
-  ).filter(item => item.chains.length > 1)
+//           acc[record.group].balance = (BigInt(acc[record.group].balance) + BigInt(balance)).toString()
+//           acc[record.group].chains.push(coin)
+//         }
+//       }
+//       return acc
+//     }, {} as Record<string, any>)
+//   ).filter(item => item.chains.length > 1)
 
-  return groups
-  // const uuids = groups.flatMap(group => group.chains.map(chain => chain.uuid))
+//   return groups
+//   // const uuids = groups.flatMap(group => group.chains.map(chain => chain.uuid))
 
-  // const nextValue = value.filter(token => !uuids.includes(token.uuid))
+//   // const nextValue = value.filter(token => !uuids.includes(token.uuid))
 
-  // return [...groups, ...nextValue]
-}
+//   // return [...groups, ...nextValue]
+// }

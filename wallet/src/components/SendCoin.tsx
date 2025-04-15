@@ -102,6 +102,9 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
     : 'contractAddress' in balance
     ? balance.contractAddress
     : ethers.ZeroAddress
+
+  console.log(chainId, contractAddress)
+
   const { data: coinPrices = [], isPending: isPendingCoinPrices } = useCoinPrices([
     {
       chainId,

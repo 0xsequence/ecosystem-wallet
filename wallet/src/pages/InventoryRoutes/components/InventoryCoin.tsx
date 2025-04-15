@@ -6,6 +6,9 @@ import { CoinChains } from './partials/coin-chains'
 import { TestnetBadge } from './partials/testnet-badge'
 import { FavoriteBadge } from './partials/favorite-badge'
 import { CoinFiatValue } from './partials/coin-fiat-value'
+import { Button } from '@0xsequence/design-system'
+import { SendIcon } from '../../../design-system-patch/icons'
+import { useTokenContext } from '../TokenPage'
 
 export function InventoryCoinTile(props: TokenTypeProps) {
   const { chainId, symbol, logoURI, contractType, uuid, prettyBalance, testnet, path } = props

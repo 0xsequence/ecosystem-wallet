@@ -18,12 +18,16 @@ export function SendTokens({
 }) {
   const query = useFetchInventory()
 
+  const uuid = `${chainId}::${contractAddress}::${tokenId}`
   const inventory = useInventory(query?.data, {
-    filter: { chain: [chainId], contract: [contractAddress], tokenId: [tokenId] }
+    filter: { uuid: [uuid] }
   })
 
   // const { chainId, tokenId, tokenClass, contractAddress } = showInventoryItem || {}
   const token = inventory?.records?.[0]
+
+  console.log(chainId)
+
   if (!token) return null
 
   const balance = structuredClone(token)
@@ -97,10 +101,10 @@ export function SendTokens({
           </ModalPrimitive.Title>
         </div>
         {token.type === TOKEN_TYPES.COIN && (
-          <SendCoin chainId={chainId} balance={balance} onSuccess={onSendSuccess} />
+          <SendCoin chainId={parseInt(chainId)} balance={balance} onSuccess={onSendSuccess} />
         )}
         {token.type === TOKEN_TYPES.COLLECTIBLE && (
-          <SendCollectible chainId={chainId} balance={balance} onSuccess={onSendSuccess} />
+          <SendCollectible chainId={parseInt(chainId)} balance={balance} onSuccess={onSendSuccess} />
         )}
       </div>
     </Modal>

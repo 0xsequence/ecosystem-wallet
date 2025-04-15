@@ -3,6 +3,8 @@ import { contract } from './filter-contract'
 import { tokenId } from './filter-token-id'
 import { type } from './filter-type'
 import { TokenTypeProps } from '../../pages/InventoryRoutes/types'
+import { uuid } from './filter-uuid'
+import { group } from './filter-group'
 
 type FilterArgs = {
   type:
@@ -25,5 +27,7 @@ export const filter: FilterFns = {
   type,
   tokenId,
   chain,
-  contract
+  contract,
+  group,
+  uuid
 }

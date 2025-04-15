@@ -81,9 +81,11 @@ export function InventoryList({
   }
 
   const coinListSize = 6
-  const coinsInitial = coins?.slice(0, coinListSize)
+  const notRequired = coins.length === coinListSize + 1
+
+  const coinsInitial = notRequired ? coins : coins?.slice(0, coinListSize)
   const coinsMore = coins?.slice(coinListSize, coins?.length)
-  const showMore = coins ? coins.length > coinListSize : null
+  const showMore = coins ? coins.length > coinsInitial.length : null
 
   return (
     <Transition show={isActive}>

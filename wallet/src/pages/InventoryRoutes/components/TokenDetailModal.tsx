@@ -7,7 +7,7 @@ export function TokenDetailModal() {
   const { chainId, contractAddress, tokenId } = useParams()
   const navigate = useNavigate()
   const location = useLocation()
-  const [send, setSend] = useState(false)
+  const [sendModal, setSendModal] = useState(false)
 
   function close() {
     navigate(location?.state?.referer || '/inventory', {
@@ -17,16 +17,19 @@ export function TokenDetailModal() {
     })
   }
 
-  if (!tokenId) return null
-
   if (location.state && location.state.modal) {
     return (
       <>
         <Modal scroll={true} autoHeight onClose={() => close()}>
-          <Outlet context={{ setSend }} />
+          <Outlet />
         </Modal>
-        {send ? (
-          <SendTokens close={setSend} chainId={chainId} contractAddress={contractAddress} tokenId={tokenId} />
+        {sendModal ? (
+          <SendTokens
+            close={setSendModal}
+            chainId={chainId}
+            contractAddress={contractAddress}
+            tokenId={tokenId.toString()}
+          />
         ) : null}
       </>
     )
@@ -35,7 +38,14 @@ export function TokenDetailModal() {
   return (
     <>
       <Outlet />
-      {/* <SendTokens /> */}
+      {sendModal ? (
+        <SendTokens
+          close={setSendModal}
+          chainId={chainId}
+          contractAddress={contractAddress}
+          tokenId={tokenId}
+        />
+      ) : null}
     </>
   )
 }

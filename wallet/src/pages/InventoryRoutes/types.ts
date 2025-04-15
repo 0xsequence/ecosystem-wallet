@@ -17,7 +17,15 @@ export type TokenTypeProps = {
   uuid: string
   path: string
   // token: { symbol: string; name: string; decimals: number; logoURI?: string }
-  group?: string
+  group?: {
+    contractAddress: string
+    name: string
+    symbol: string
+    decimals: number
+    imageUrl: string
+    default: boolean
+    group: string
+  }
   nativeToken?: { symbol: string; name: string; decimals: number }
   chainInfo?: NetworkMetadata
   contractInfo?: ContractInfo
@@ -38,7 +46,19 @@ export type UserPreferenceLocalStore =
   | undefined
 
 export type CoinGroup = currencyDefinition & {
-  balance: string
-  chains: { name?: string; title?: string; chainId: number }[]
+  contractAddress: string
+  name: string
+  symbol: string
+  decimals: number
+  imageUrl: string
+  default: boolean
+  group: string
+  path: string
+  uuid: string
+  balance: bigint | string
+  type: 'GROUP'
   testnet: boolean
+  logoURI: string
+  prettyBalance: string
+  chains: TokenTypeProps[]
 }

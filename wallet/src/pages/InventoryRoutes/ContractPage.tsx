@@ -6,11 +6,10 @@ import { useFetchInventory } from './helpers/useFetchInventory'
 import { CONTRACT_TYPES } from './constants'
 
 export function InventoryContractRoute() {
-  const { tokenId } = useParams()
+  const { tokenId, groupId } = useParams()
   const location = useLocation()
-
   // Show modal
-  if (tokenId && location?.state?.modal && location?.state?.referer === '/inventory') {
+  if ((tokenId || groupId) && location?.state?.modal && location?.state?.referer === '/inventory') {
     return <TokenDetailModal />
   }
 

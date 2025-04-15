@@ -48,8 +48,8 @@ export function groupContractsAcrossNetworks(
               type: TOKEN_TYPES.GROUP,
               testnet: record.group.includes('testnet'),
               group: record.group,
-              uuid: `group::${record.group}::0`,
-              path: `/group/${record.group}`,
+              uuid: `coins::${record.group}::0`,
+              path: `/coins/${record.group}`,
               logoURI: coin.logoURI
             }
           }

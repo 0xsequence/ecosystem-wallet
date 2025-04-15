@@ -1,4 +1,4 @@
-import { TokenImage, nativeTokenImageUrl } from '@0xsequence/design-system'
+import { NetworkImage, TokenImage, nativeTokenImageUrl } from '@0xsequence/design-system'
 
 type CoinIconProps = {
   contractType: string
@@ -9,7 +9,6 @@ type CoinIconProps = {
 
 export function CoinIcon(props: CoinIconProps) {
   const { contractType, logoURI, chainId, size = 'lg' } = props
-
   switch (contractType) {
     case 'NATIVE':
       return (
@@ -22,6 +21,16 @@ export function CoinIcon(props: CoinIconProps) {
             size="xl"
             className="size-full bg-button-glass rounded-full"
           />
+        </div>
+      )
+
+    case 'GROUP':
+      return (
+        <div
+          className="data-[size='md']:size-10 data-[size='lg']:w-[50%] data-[size='lg']:max-w-20"
+          data-size={size}
+        >
+          <NetworkImage chainId={chainId} size="xl" className="size-full bg-button-glass rounded-full" />
         </div>
       )
     default:

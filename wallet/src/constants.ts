@@ -11,7 +11,9 @@ export const SEARCH_KEYS = [
   'networkInfo.name',
   'tokenMetadata.name',
   'tokenMetadata.description',
-  'tokenMetadata.properties'
+  'tokenMetadata.properties',
+  'chainInfo.name',
+  'chainInfo.title'
 ]
 export const FUSE_OPTIONS = {
   keys: SEARCH_KEYS,

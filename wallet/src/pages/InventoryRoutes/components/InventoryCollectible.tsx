@@ -1,5 +1,5 @@
 import { TokenListItem, TokenTile } from './TokenTile'
-import { Image as SeqImage } from '@0xsequence/design-system'
+import { NetworkImage, Image as SeqImage } from '@0xsequence/design-system'
 import { useState, useEffect } from 'react'
 import { useFavoriteTokens } from '../../../hooks/useFavoriteTokens'
 import SvgHeartIcon from '../../../design-system-patch/icons/HeartIcon'
@@ -59,7 +59,7 @@ const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({ srcList, fallback
 export default ImageWithFallback
 
 export function InventoryCollectibleTile(props: TokenTypeProps) {
-  const { path, uuid, contractInfo, tokenMetadata } = props
+  const { path, uuid, chainId, contractInfo, tokenMetadata } = props
 
   const { has } = useFavoriteTokens()
 
@@ -70,6 +70,8 @@ export function InventoryCollectibleTile(props: TokenTypeProps) {
           <SvgHeartIcon />
         </div>
       ) : null}
+
+      <NetworkImage chainId={chainId} className="absolute bottom-4 left-4 size-6" />
       <ImageWithFallback srcList={[tokenMetadata?.image, contractInfo?.logoURI]} width={100} />
     </TokenTile>
   )
