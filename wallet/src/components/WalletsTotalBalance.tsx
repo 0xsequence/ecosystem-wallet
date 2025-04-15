@@ -12,54 +12,78 @@ import { useExchangeRate } from '../hooks/useExchangeRate'
 import { Text } from '@0xsequence/design-system'
 import { useFetchInventory } from '../pages/InventoryRoutes/helpers/useFetchInventory'
 import { useInventory } from '../hooks/use-inventory'
+import { TOKEN_TYPES } from '../utils/normalize-balances'
+import { formatDisplay } from '../utils/format-display'
 
 function useTotalCoinBalance() {
+  const [prefs, setPrefs] = useLocalStore<UserPreferenceLocalStore>('userPrefs')
   const query = useFetchInventory()
 
   const { records } = useInventory(query?.data, { filters: { type: ['COIN'] } })
 
-  const coins = records.map(chain => {
-    const chainId = chain.chainId
-    const contractAddress = chain.contractAddress
-    const decimals = chain?.nativeToken?.decimals || chain?.contractInfo?.decimals
-    const balance = chain?.balance
-    const name = chain?.name || chain?.contractInfo?.name
-    const units = formatUnits(balance || '0', decimals)
+  const coins = records
+    .filter(chain => {
+      if (chain.testnet) return false
+      if (chain.type === TOKEN_TYPES.COLLECTIBLE) return false
+      return true
+    })
+    .map(chain => {
+      console.log(chain.balance, chain.decimals)
 
-    return {
-      units,
-      name,
-      chainId,
-      contractAddress
-    }
+      const units = chain?.balance ? formatUnits(chain.balance, chain.decimals) : null
+
+      return {
+        ...chain,
+        units
+      }
+    })
+
+  const forPrices = coins.map(coin => {
+    return { chainId: coin.chainId, contractAddress: coin.contractAddress }
   })
 
-  const { data: coinPriceData = [], isPending } = useCoinPrices(coins)
+  console.log(forPrices)
 
-  const total = coinPriceData.reduce((acc: number, chain: TokenPrice) => {
-    if (!chain || !chain.price || !chain.price.value) return acc
+  const coinPrices = useCoinPrices(forPrices)
 
-    const chainId = chain.token.chainId
+  const total =
+    coinPrices?.data?.reduce((acc: number, chain: TokenPrice) => {
+      if (!chain || !chain.price || !chain.price.value) return acc
 
-    const current = coins?.find(coin => coin.chainId === chainId)
-    if (!current) return acc
+      const current = coins?.find(
+        coin => coin.chainId === chain.token.chainId && coin.contractAddress === chain.token.contractAddress
+      )
 
-    const value = Number(current.units) * chain.price.value
+      if (!current) return acc
 
-    acc = acc + value
-    return acc
-  }, 0)
+      const priceText = `${formatDisplay(chain.price.value * Number(current.units), {
+        disableScientificNotation: true,
+        significantDigits: 2,
+        maximumFractionDigits: 3,
+        currency: 'USD'
+      })}`
 
-  const [prefs, setPrefs] = useLocalStore<UserPreferenceLocalStore>('userPrefs')
+      const units = current.units
+      const value = chain.price.value
 
-  const { data: exchangeRate } = useExchangeRate(prefs?.currency || 'USD')
+      console.log(units, value)
+
+      const inc = units * value
+
+      // console.log(formatUnits(value, 18))
+
+      acc = acc + inc
+      return acc
+    }, 0) || 0
+
+  const exchangeRate = useExchangeRate(prefs?.currency || 'USD')
   const totalCoinBalance = Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: prefs?.currency || 'USD'
-  }).format(total * (exchangeRate || 0))
+  }).format(total * (exchangeRate?.data || 0))
 
   return {
-    totalCoinBalancePending: isPending,
+    totalCoinBalancePending: coinPrices.isPending,
     totalCoinBalance,
     prefs,
     setPrefs
