@@ -18,8 +18,8 @@ importers:
         specifier: 2.0.1
         version: 2.0.1(@types/react-dom@18.3.6(@types/react@18.3.20))(@types/react@18.3.20)(motion@12.4.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@0xsequence/indexer':
-        specifier: ^2.3.7
-        version: 2.3.7
+        specifier: ^2.3.9
+        version: 2.3.9
       '@0xsequence/metadata':
         specifier: ^2.3.7
         version: 2.3.7
@@ -176,6 +176,9 @@ packages:
 
   '@0xsequence/indexer@2.3.7':
     resolution: {integrity: sha512-Wh/cABunoeW9svHCGALZzbB4Qfv7DGKOjbl4e0GRhcGCaKRmXi9ZBHGxWkw4N/q48la33tWM9AHGV96hOBu4jw==}
+
+  '@0xsequence/indexer@2.3.9':
+    resolution: {integrity: sha512-ZtiA7827BTjujOupom5dGJd4oMvfQA2HQ9orjrreZusQPmfadie9ldVrnzX19YS+AZDeCOix9qDG+cRSpYfHwQ==}
 
   '@0xsequence/metadata@2.3.7':
     resolution: {integrity: sha512-MqFwrUZO+jjQbttdVDjP8vbprT8JgQUEd/SvTVq8zw5eHS2TDl/JMH2jgKlg4BUOortctnqfK7IQx9XP60GGaA==}
@@ -3310,6 +3313,8 @@ snapshots:
       - '@types/react-dom'
 
   '@0xsequence/indexer@2.3.7': {}
+
+  '@0xsequence/indexer@2.3.9': {}
 
   '@0xsequence/metadata@2.3.7': {}
 

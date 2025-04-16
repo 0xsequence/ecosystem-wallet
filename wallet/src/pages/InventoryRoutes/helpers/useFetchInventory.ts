@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useLocation } from 'react-router'
-import { ContractVerificationStatus } from '@0xsequence/indexer'
+import { ContractVerificationStatus, NetworkType } from '@0xsequence/indexer'
 import { useAddress } from './use-address'
 import { useConfig } from '../../../hooks/useConfig'
 import { getTokenBalancesDetails } from '../../../utils/balance'
@@ -19,6 +19,7 @@ export function useFetchInventory() {
   // Get inventory details
   const args = {
     omitMetadata: false,
+    networkType: NetworkType.ALL,
     filter: {
       omitNativeBalances: false,
       accountAddresses: address ? [address] : [],
