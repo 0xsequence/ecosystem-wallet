@@ -1,5 +1,5 @@
 import { TokenListItem, TokenTile } from './TokenTile'
-import type { TokenTypeProps } from '../types'
+import type { TokenRecord } from '../types'
 import { CoinIcon } from './partials/coin-icon'
 import { CoinBalance } from './partials/coin-balance'
 import { CoinChains } from './partials/coin-chains'
@@ -10,7 +10,7 @@ import { Button } from '@0xsequence/design-system'
 import { SendIcon } from '../../../design-system-patch/icons'
 import { useTokenContext } from '../TokenPage'
 
-export function InventoryCoinTile(props: TokenTypeProps) {
+export function InventoryCoinTile(props: TokenRecord) {
   const { chainId, symbol, logoURI, contractType, uuid, prettyBalance, testnet, path } = props
 
   return (
@@ -31,7 +31,7 @@ export function InventoryCoinTile(props: TokenTypeProps) {
   )
 }
 
-export function InventoryCoinList(props: TokenTypeProps) {
+export function InventoryCoinList(props: TokenRecord) {
   const {
     chainId,
     symbol,

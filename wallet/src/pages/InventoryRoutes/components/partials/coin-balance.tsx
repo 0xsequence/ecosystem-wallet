@@ -2,7 +2,7 @@ import { inert } from '../../../../utils/inert'
 import { useLocalStore } from '../../../../utils/local-store'
 
 type CoinBalanceProps = {
-  balance: string
+  balance?: string
   symbol: string
 }
 

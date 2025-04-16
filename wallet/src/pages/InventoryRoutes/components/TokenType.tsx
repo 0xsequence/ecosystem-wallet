@@ -1,16 +1,16 @@
 import { InventoryCoinTile, InventoryCoinList } from './InventoryCoin.tsx'
 import { InventoryCollectibleTile, InventoryCollectibleList } from './InventoryCollectible.tsx'
 import { TokenTileEmpty, TokenListItemEmpty } from './TokenTileEmpty.tsx'
-import type { TokenTypeProps } from '../types.ts'
+import type { TokenRecord } from '../types.ts'
 import { InventoryCoinGroup } from './InventoryCoinGroup'
-import { CoinGroup } from '../helpers/useFetchInventory'
 import { TOKEN_TYPES } from '../../../utils/normalize-balances'
+import { CoinGroup } from '../types'
 
-function isCoinGroup(item: { type: TokenTypeProps['type'] }): item is CoinGroup {
+function isCoinGroup(item: { type: TokenRecord['type'] }): item is CoinGroup {
   return item?.type === TOKEN_TYPES.GROUP
 }
 
-function isTokenTypeProps(item: { type: TokenTypeProps['type'] }): item is TokenTypeProps {
+function isTokenRecord(item: { type: TokenRecord['type'] }): item is TokenRecord {
   return Object.keys(TOKEN_TYPES).includes(item?.type)
 }
 
@@ -19,7 +19,7 @@ export function TokenType({
   item,
   displayMode = 'grid'
 }: {
-  item: CoinGroup | TokenTypeProps | null
+  item: CoinGroup | TokenRecord | null
   displayMode?: 'grid' | 'list'
 }) {
   if (!item) return <TokenTileEmpty />
@@ -29,7 +29,7 @@ export function TokenType({
       return <InventoryCoinGroup {...item} />
     }
 
-    if (isTokenTypeProps(item)) {
+    if (isTokenRecord(item)) {
       switch (item.type) {
         case TOKEN_TYPES.COIN:
           return <InventoryCoinTile {...item} />
@@ -43,13 +43,11 @@ export function TokenType({
 
   // You can expand this for list mode if needed
 
-  if (displayMode === 'list') {
+  if (displayMode === 'list' && !isCoinGroup(item)) {
     switch (item?.type) {
-      case 'NATIVE':
-      case 'ERC20':
+      case TOKEN_TYPES.COIN:
         return <InventoryCoinList {...item} />
-      case 'ERC721':
-      case 'ERC1155':
+      case TOKEN_TYPES.COLLECTIBLE:
         return <InventoryCollectibleList {...item} />
 
       default:

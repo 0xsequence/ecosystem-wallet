@@ -1,31 +1,29 @@
 import type { ComponentProps } from 'react'
-import type { ContractInfo } from '@0xsequence/indexer'
-import type { ChainId, NetworkMetadata } from '@0xsequence/network'
-import { currencyDefinition } from '../../utils/currencyGroups/networks'
+import type { ContractInfo, TokenBalance } from '@0xsequence/indexer'
+import type { NetworkMetadata } from '@0xsequence/network'
+import { CurrencyGroup } from '../../utils/currencyGroups/networks'
 import { TokenMetadata } from '@0xsequence/indexer'
 
 export type TokenTileEmptyProps = ComponentProps<'div'>
 
-export type TokenTypeProps = {
+export type TokenRecord = {
+  contractAddress: string
+  accountAddress: string
+  balance: string
+  blockHash: string
+  blockNumber: number
+  uniqueCollectibles: string
+  isSummary: boolean
   symbol: string
-  chainId: ChainId
+  chainId: string
   logoURI?: string
   decimals: number
   name?: string
-  contractAddress: string
-  balance?: string
   uuid: string
   path: string
+  tokenId?: string
   // token: { symbol: string; name: string; decimals: number; logoURI?: string }
-  group?: {
-    contractAddress: string
-    name: string
-    symbol: string
-    decimals: number
-    imageUrl: string
-    default: boolean
-    group: string
-  }
+  group?: CurrencyGroup
   nativeToken?: { symbol: string; name: string; decimals: number }
   chainInfo?: NetworkMetadata
   contractInfo?: ContractInfo
@@ -34,7 +32,6 @@ export type TokenTypeProps = {
   prettyBalance: string
   contractType: 'NATIVE' | 'ERC20' | 'ERC1155' | 'ERC721'
   type: 'COIN' | 'COLLECTIBLE' | 'GROUP'
-  chains?: TokenTypeProps[]
 }
 
 export type UserPreferenceLocalStore =
@@ -45,20 +42,21 @@ export type UserPreferenceLocalStore =
     }
   | undefined
 
-export type CoinGroup = currencyDefinition & {
+export type CoinGroup = {
   contractAddress: string
   name: string
+  chainId: 0 // set as 0
   symbol: string
   decimals: number
-  imageUrl: string
-  default: boolean
-  group: string
+  imageUrl?: string
+  group?: CurrencyGroup
+  default?: boolean
   path: string
   uuid: string
-  balance: bigint | string
+  balance?: string
   type: 'GROUP'
   testnet: boolean
-  logoURI: string
-  prettyBalance: string
-  chains: TokenTypeProps[]
+  logoURI?: string
+  prettyBalance?: string
+  chains: TokenRecord[]
 }

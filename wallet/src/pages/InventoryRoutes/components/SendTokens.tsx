@@ -14,7 +14,7 @@ export function SendTokens({
   chainId: string
   contractAddress: string
   tokenId: string
-  close: () => void
+  close: React.Dispatch<React.SetStateAction<boolean>>
 }) {
   const query = useFetchInventory()
 
@@ -25,8 +25,6 @@ export function SendTokens({
 
   // const { chainId, tokenId, tokenClass, contractAddress } = showInventoryItem || {}
   const token = inventory?.records?.[0]
-
-  console.log(chainId)
 
   if (!token) return null
 
@@ -50,7 +48,7 @@ export function SendTokens({
     // setShowInventoryItem(false)
     // setShowSendModal(false)
     if (typeof close === 'function') {
-      close()
+      close(true)
     }
 
     // Store initial balance state
@@ -88,7 +86,7 @@ export function SendTokens({
       scroll={false}
       onClose={() => {
         if (typeof close === 'function') {
-          close()
+          close(true)
         }
       }}
     >
@@ -101,10 +99,10 @@ export function SendTokens({
           </ModalPrimitive.Title>
         </div>
         {token.type === TOKEN_TYPES.COIN && (
-          <SendCoin chainId={parseInt(chainId)} balance={balance} onSuccess={onSendSuccess} />
+          <SendCoin chainId={chainId} balance={balance} onSuccess={onSendSuccess} />
         )}
         {token.type === TOKEN_TYPES.COLLECTIBLE && (
-          <SendCollectible chainId={parseInt(chainId)} balance={balance} onSuccess={onSendSuccess} />
+          <SendCollectible chainId={chainId} balance={balance} onSuccess={onSendSuccess} />
         )}
       </div>
     </Modal>

@@ -1,17 +1,17 @@
 import { useState, useMemo, createContext, useContext } from 'react'
 import Fuse from 'fuse.js'
-import { TokenTypeProps } from '../pages/InventoryRoutes/types'
+import { TokenRecord } from '../pages/InventoryRoutes/types'
 import { CoinGroup } from '../pages/InventoryRoutes/helpers/useFetchInventory'
 
 type SearchContextProps = {
   query: string
   setQuery: (query: string) => void
-  filteredItems: (CoinGroup | TokenTypeProps | null)[]
+  filteredItems: (CoinGroup | TokenRecord | null)[]
 }
 
 export const SearchContext = createContext<SearchContextProps | null>(null)
 
-export function useSearchValues({ items, keys }: { items: (TokenTypeProps | null)[]; keys: string[] }) {
+export function useSearchValues({ items, keys }: { items: (TokenRecord | null)[]; keys: string[] }) {
   const [query, setQuery] = useState('')
 
   // Configure Fuse.js options
@@ -47,7 +47,7 @@ export function useSearchFilter() {
 
   const isSearching = query
 
-  function filterResults(items: (TokenTypeProps | null)[]) {
+  function filterResults(items: (TokenRecord | null)[]) {
     if (!isSearching) {
       return items
     }

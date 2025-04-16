@@ -1,9 +1,9 @@
-import { useParams } from 'react-router'
+import { Link, useLocation, useParams } from 'react-router'
 import { useInventory } from '../../hooks/use-inventory'
 import { useFetchInventory } from './helpers/useFetchInventory'
 import { Fragment, useState } from 'react'
 import { SendTokens } from './components/SendTokens'
-import { TokenTypeProps } from './types'
+import { TokenRecord } from './types'
 import { Text, TokenImage, Button, SendIcon } from '@0xsequence/design-system'
 import { THEME } from '../../utils/theme'
 import { TestnetBadge } from './components/partials/testnet-badge'
@@ -12,9 +12,10 @@ import { FavoriteBadge } from './components/partials/favorite-badge'
 import { CoinIcon } from './components/partials/coin-icon'
 import { CoinChains } from './components/partials/coin-chains'
 import { CoinBalance } from './components/partials/coin-balance'
+import { ExpandIcon } from '../../design-system-patch/icons'
 
 export function InventoryCoinGroupRoute() {
-  const { groupId } = useParams()
+  const { groupId } = useParams() as { groupId: string }
   const query = useFetchInventory()
 
   const inventory = useInventory(query?.data, {
@@ -23,11 +24,17 @@ export function InventoryCoinGroupRoute() {
   })
 
   const coinGroup = inventory.records?.[0]
+  const location = useLocation()
 
   if (!coinGroup) return null
 
   return (
     <>
+      {location.state && location.state.modal ? (
+        <Link to={location.pathname}>
+          <ExpandIcon />
+        </Link>
+      ) : null}
       <div
         className={`mx-4 mt-16 mb-4 py-8 flex flex-col items-center h-[240px] [background-image:var(--background)] bg-background-secondary bg-center rounded-sm  ${
           THEME.backgroundMode === 'tile' ? 'bg-repeat' : 'bg-cover bg-no-repeat'
@@ -72,10 +79,9 @@ export function InventoryCoinGroupRoute() {
   )
 }
 
-export function GroupCoinList(props: TokenTypeProps) {
+export function GroupCoinList(props: TokenRecord) {
   const { chainId, symbol, logoURI, contractAddress, uuid, prettyBalance, testnet, decimals, balance } = props
   const [sendModal, setSendModal] = useState(false)
-
   return (
     <Fragment>
       <div className="p-4 sm:py-3 px-4 flex items-center gap-3 relative trasition-all">
@@ -113,7 +119,7 @@ export function GroupCoinList(props: TokenTypeProps) {
           close={setSendModal}
           chainId={props.chainId}
           contractAddress={props.contractAddress}
-          tokenId={0}
+          tokenId={'0'}
         />
       ) : null}
     </Fragment>

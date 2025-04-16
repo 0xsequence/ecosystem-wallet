@@ -1,19 +1,15 @@
 import { useMemo, useState } from 'react'
-import { TokenTypeProps } from '../pages/InventoryRoutes/types'
+import { TokenRecord } from '../pages/InventoryRoutes/types'
 import Fuse from 'fuse.js'
-import { filter } from './inventory-refinements/filters'
-import { sort } from './inventory-refinements/sorters'
-import { organize } from './inventory-refinements/organizers'
+import { filter, FilterArgs, FilterKeys } from './inventory-refinements/filters'
+import { sort, SortArgs, SortKeys } from './inventory-refinements/sorters'
+import { organize, OrganizeArgs, OrganizeKeys } from './inventory-refinements/organizers'
 import { FUSE_OPTIONS } from '../constants'
 
-type FilterKey = keyof typeof filter // 'type' | 'chain' | 'contract'
-type SortKey = keyof typeof sort
-type OrganizerKey = keyof typeof organize
-
-interface RefinersState {
-  sort: Record<SortKey, string[]> | null
-  filter: Record<FilterKey, string[]> | null
-  organize: Record<OrganizerKey, string[]> | null
+export interface RefinersState {
+  sort: Partial<SortArgs> | null
+  filter: Partial<FilterArgs> | null
+  organize: Partial<OrganizeArgs> | null
   searchTerm: string | null
 }
 
@@ -24,7 +20,7 @@ interface RefinersState {
  * @param initialRefiners - Optional initial state for filters and sorters.
  * @returns An object with refined `records`, active refiners, and manipulation methods.
  */
-export function useInventory(data?: TokenTypeProps[], initialRefiners?: Partial<RefinersState>) {
+export function useInventory(data?: TokenRecord[], initialRefiners?: Partial<RefinersState>) {
   const [activeFilters, setActiveFilters] = useState<RefinersState['filter']>(initialRefiners?.filter || null)
   const [activeSorters, setActiveSorters] = useState<RefinersState['sort']>(initialRefiners?.sort || null)
   const [activeOrganizers, setActiveOrganizers] = useState<RefinersState['organize']>(
@@ -42,7 +38,7 @@ export function useInventory(data?: TokenTypeProps[], initialRefiners?: Partial<
    * @param term - Search query.
    * @returns Filtered and ranked data.
    */
-  function searchByTerm(values?: TokenTypeProps[], term?: string): TokenTypeProps[] | undefined {
+  function searchByTerm(values?: TokenRecord[], term?: string): TokenRecord[] | undefined {
     if (!values || !term) return values
     const fuse = new Fuse(structuredClone(values), FUSE_OPTIONS)
     return fuse.search(term).map(({ item }) => item)
@@ -54,25 +50,24 @@ export function useInventory(data?: TokenTypeProps[], initialRefiners?: Partial<
     },
 
     organize: {
-      add(args: Record<OrganizerKey, string | string[]>) {
+      add(args: Partial<OrganizeArgs>) {
         setActiveOrganizers(current => {
           const nextArgs = new Map(Object.entries(current || {}))
           Object.entries(args).forEach(([key, arg]) => {
-            const items = Array.isArray(arg) ? arg : [arg]
-            const currentValues = nextArgs.get(key) || []
-            nextArgs.set(key, [...currentValues, ...items])
+            const currentValue = nextArgs.get(key) || {}
+            nextArgs.set(key, { ...currentValue, ...arg })
           })
-          return Object.fromEntries(nextArgs) as Record<OrganizerKey, string[]>
+          return Object.fromEntries(nextArgs)
         })
         return { ...refiners, ...refiners.organize }
       },
 
-      clear(args: OrganizerKey | OrganizerKey[]) {
+      clear(args: OrganizeKeys | OrganizeKeys[]) {
         setActiveOrganizers(current => {
           const nextArgs = new Map(Object.entries(current || {}))
           const keys = Array.isArray(args) ? args : [args]
           keys.forEach(key => nextArgs.delete(key))
-          return Object.fromEntries(nextArgs) as Record<OrganizerKey, string[]>
+          return Object.fromEntries(nextArgs)
         })
         return { ...refiners, ...refiners.organize }
       }
@@ -81,15 +76,18 @@ export function useInventory(data?: TokenTypeProps[], initialRefiners?: Partial<
       /**
        * Adds new filter values to the current filter state.
        */
-      add(args: Record<FilterKey, string | string[]>) {
+      add(args: Partial<FilterArgs>) {
         setActiveFilters(current => {
           const nextArgs = new Map(Object.entries(current || {}))
           Object.entries(args).forEach(([key, arg]) => {
             const items = Array.isArray(arg) ? arg : [arg]
-            const currentValues = nextArgs.get(key) || []
+
+            const values = nextArgs.get(key) || []
+            const currentValues = Array.isArray(values) ? values : [values]
+
             nextArgs.set(key, [...currentValues, ...items])
           })
-          return Object.fromEntries(nextArgs) as Record<FilterKey, string[]>
+          return Object.fromEntries(nextArgs)
         })
         return { ...refiners, ...refiners.filter }
       },
@@ -97,15 +95,15 @@ export function useInventory(data?: TokenTypeProps[], initialRefiners?: Partial<
       /**
        * Replaces filter values for given keys.
        */
-      set(args: Record<FilterKey, string | string[]>) {
+      set(args: Partial<FilterArgs>) {
         setActiveFilters(current => {
           const nextArgs = new Map(Object.entries(current || {}))
           Object.entries(args).forEach(([key, arg]) => {
             const items = Array.isArray(arg) ? arg : [arg]
-            refiners.filter.clear(key)
+            refiners.filter.clear(key as keyof FilterArgs)
             nextArgs.set(key, items)
           })
-          return Object.fromEntries(nextArgs) as Record<FilterKey, string[]>
+          return Object.fromEntries(nextArgs)
         })
         return { ...refiners, ...refiners.filter }
       },
@@ -113,20 +111,24 @@ export function useInventory(data?: TokenTypeProps[], initialRefiners?: Partial<
       /**
        * Removes specific filter values or entire filters if value list is empty.
        */
-      remove(args: Record<FilterKey, string | string[]>) {
+      remove(args: Partial<FilterArgs>) {
         setActiveFilters(current => {
           const nextArgs = new Map(Object.entries(current || {}))
           Object.entries(args).forEach(([key, arg]) => {
             const items = arg ? (Array.isArray(arg) ? arg : [arg]) : []
-            const existing = nextArgs.get(key)
+            const existing = nextArgs.get(key) as (string | number)[]
             if (!items.length || !existing) {
               nextArgs.delete(key)
             } else {
               const filtered = existing.filter(item => !items.includes(item))
-              filtered.length ? nextArgs.set(key, filtered) : nextArgs.delete(key)
+              if (filtered.length) {
+                nextArgs.set(key, filtered)
+              } else {
+                nextArgs.delete(key)
+              }
             }
           })
-          return Object.fromEntries(nextArgs) as Record<FilterKey, string[]>
+          return Object.fromEntries(nextArgs)
         })
         return { ...refiners, ...refiners.filter }
       },
@@ -134,12 +136,12 @@ export function useInventory(data?: TokenTypeProps[], initialRefiners?: Partial<
       /**
        * Clears one or more specific filters.
        */
-      clear(args: FilterKey | FilterKey[]) {
+      clear(args: FilterKeys | FilterKeys[]) {
         setActiveFilters(current => {
           const nextArgs = new Map(Object.entries(current || {}))
           const keys = Array.isArray(args) ? args : [args]
           keys.forEach(key => nextArgs.delete(key))
-          return Object.fromEntries(nextArgs) as Record<FilterKey, string[]>
+          return Object.fromEntries(nextArgs)
         })
         return { ...refiners, ...refiners.filter }
       },
@@ -157,14 +159,14 @@ export function useInventory(data?: TokenTypeProps[], initialRefiners?: Partial<
       /**
        * Sets sorting criteria for sorters.
        */
-      add(args: Record<SortKey, string | string[]>) {
+      add(args: Record<SortKeys, string | string[]>) {
         setActiveSorters(current => {
           const nextArgs = new Map(Object.entries(current || {}))
           Object.entries(args).forEach(([key, arg]) => {
             const items = Array.isArray(arg) ? arg : [arg]
             nextArgs.set(key, items)
           })
-          return Object.fromEntries(nextArgs) as Record<SortKey, string[]>
+          return Object.fromEntries(nextArgs)
         })
         return { ...refiners, ...refiners.sort }
       },
@@ -172,12 +174,12 @@ export function useInventory(data?: TokenTypeProps[], initialRefiners?: Partial<
       /**
        * Removes one or more sort keys.
        */
-      remove(args: SortKey | SortKey[]) {
+      remove(args: SortKeys | SortKeys[]) {
         setActiveSorters(current => {
           const nextArgs = new Map(Object.entries(current || {}))
           const keys = Array.isArray(args) ? args : [args]
           keys.forEach(key => nextArgs.delete(key))
-          return Object.fromEntries(nextArgs) as Record<SortKey, string[]>
+          return Object.fromEntries(nextArgs)
         })
         return { ...refiners, ...refiners.sort }
       }
@@ -192,7 +194,8 @@ export function useInventory(data?: TokenTypeProps[], initialRefiners?: Partial<
 
     if (activeFilters) {
       Object.entries(activeFilters).forEach(([key, refiners]) => {
-        mutableData = filter?.[key as FilterKey]?.(mutableData, refiners)
+        /* @ts-expect-error refiners not scoped tightly */
+        mutableData = filter?.[key as FilterKeys]?.(mutableData, refiners)
       })
     }
 
@@ -202,13 +205,14 @@ export function useInventory(data?: TokenTypeProps[], initialRefiners?: Partial<
 
     if (activeOrganizers) {
       Object.entries(activeOrganizers).forEach(([key, refiners]) => {
-        mutableData = organize?.[key as OrganizerKey]?.(mutableData, refiners)
+        mutableData = organize?.[key as OrganizeKeys]?.(mutableData, refiners)
       })
     }
 
     if (activeSorters) {
       const comparators = Object.entries(activeSorters).map(([key, refiners]) =>
-        sort?.[key as SortKey]?.(refiners)
+        /* @ts-expect-error refiners not scoped tightly */
+        sort?.[key as SortKeys]?.(refiners)
       )
 
       mutableData = mutableData?.sort((a, b) => {
@@ -223,13 +227,13 @@ export function useInventory(data?: TokenTypeProps[], initialRefiners?: Partial<
     }
 
     return mutableData || []
-  }, [activeSearchTerm, activeSorters, activeFilters, initial])
+  }, [activeSearchTerm, activeOrganizers, activeSorters, activeFilters, initial])
 
   return {
     records,
     refiners,
     active: {
-      search: activeSearchTerm,
+      searchTerm: activeSearchTerm,
       filter: activeFilters,
       sort: activeSorters,
       organize: activeOrganizers

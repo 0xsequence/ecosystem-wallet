@@ -1,6 +1,6 @@
-import { TokenTypeProps } from '../pages/InventoryRoutes/types'
+import { TokenRecord } from '../pages/InventoryRoutes/types'
 
-export function useCollectiblesByContract(inventory: (TokenTypeProps | null)[]) {
+export function useCollectiblesByContract(inventory: (TokenRecord | null)[]) {
   return inventory.reduce((acc, item) => {
     if (!item) {
       return acc
@@ -13,5 +13,5 @@ export function useCollectiblesByContract(inventory: (TokenTypeProps | null)[]) 
       acc[item.contractAddress].push(item)
     }
     return acc
-  }, {} as Record<string, TokenTypeProps[]>)
+  }, {} as Record<string, TokenRecord[]>)
 }

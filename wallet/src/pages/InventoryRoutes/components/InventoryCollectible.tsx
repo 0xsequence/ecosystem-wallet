@@ -3,7 +3,7 @@ import { NetworkImage, Image as SeqImage } from '@0xsequence/design-system'
 import { useState, useEffect } from 'react'
 import { useFavoriteTokens } from '../../../hooks/useFavoriteTokens'
 import SvgHeartIcon from '../../../design-system-patch/icons/HeartIcon'
-import { TokenTypeProps } from '../types'
+import { TokenRecord } from '../types'
 
 const getImageSize = (url: string): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -58,7 +58,7 @@ const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({ srcList, fallback
 
 export default ImageWithFallback
 
-export function InventoryCollectibleTile(props: TokenTypeProps) {
+export function InventoryCollectibleTile(props: TokenRecord) {
   const { path, uuid, chainId, contractInfo, tokenMetadata } = props
 
   const { has } = useFavoriteTokens()
@@ -77,7 +77,7 @@ export function InventoryCollectibleTile(props: TokenTypeProps) {
   )
 }
 
-export function InventoryCollectibleList(props: TokenTypeProps) {
+export function InventoryCollectibleList(props: TokenRecord) {
   const { path, contractInfo, tokenMetadata } = props
 
   return (

@@ -2,7 +2,7 @@ import { Link, useLocation, useParams } from 'react-router'
 
 import { HeartIcon, SendIcon } from '../../design-system-patch/icons'
 import { useInventory } from '../../hooks/use-inventory'
-import { TokenTypeProps } from './types'
+import { TokenRecord } from './types'
 import { formatDisplay, truncateAtMiddle } from '../../utils/helpers'
 import { useCoinPrices } from '../../hooks/useCoinPrices'
 import { WrappedCollapse } from '../../components/wrapped-collapse'
@@ -30,6 +30,7 @@ import { useFetchInventory } from './helpers/useFetchInventory'
 import { CONTRACT_TYPES } from './constants'
 import { SendTokens } from './components/SendTokens'
 import { createContext, useContext, useState } from 'react'
+import { ChainId } from '@0xsequence/network'
 
 interface TokenContext {
   sendModal: boolean
@@ -55,20 +56,15 @@ export function InventoryTokenRoute() {
   })
 
   const item = inventory.records?.[0]
-
-  if (!chainId || !contractAddress || !tokenId) {
-    return null
-  }
-
   if (!item) return null
 
   return (
     <TokenContext.Provider value={{ sendModal, setSendModal }}>
       <div className="w-full max-w-screen-lg mx-auto">
         <TokenDetails item={item} />
-        {sendModal ? (
+        {sendModal && chainId && contractAddress && tokenId ? (
           <SendTokens
-            chainId={chainId}
+            chainId={chainId as unknown as ChainId}
             contractAddress={contractAddress}
             tokenId={tokenId}
             close={() => setSendModal(false)}
@@ -80,20 +76,13 @@ export function InventoryTokenRoute() {
   )
 }
 
-function TokenDetails({ item }: { item: TokenTypeProps }) {
-  if (!item) {
-    return null
+function TokenDetails({ item }: { item: TokenRecord }) {
+  if (item.type === TOKEN_TYPES.COIN) {
+    return <CoinDetails {...item} />
+  } else if (item.type === TOKEN_TYPES.COLLECTIBLE) {
+    return <TokenDetailsCollectable {...item} />
   }
-
-  // Implementation
-  switch (item?.type) {
-    case TOKEN_TYPES.COIN:
-      return <CoinDetails {...item} />
-    case TOKEN_TYPES.COLLECTIBLE:
-      return <TokenDetailsCollectable {...item} />
-    default:
-      return null
-  }
+  return null
 }
 
 function useCoinFiatPrice(chainId: number, contractAddress: string, balance: string, decimals?: number) {
@@ -125,7 +114,7 @@ function useCoinFiatPrice(chainId: number, contractAddress: string, balance: str
   return { isPending, value, change }
 }
 
-function CoinDetails(props: TokenTypeProps) {
+function CoinDetails(props: TokenRecord) {
   const style = {
     ...(THEME.appBackground && { '--background': `url(${THEME.appBackground})` })
   } as React.CSSProperties
@@ -147,23 +136,17 @@ function CoinDetails(props: TokenTypeProps) {
 
   const price = useCoinFiatPrice(chainId, contractAddress, balance || '', decimals)
 
-  const location = useLocation()
   return (
-    <div className="w-full flex flex-col gap-6 p-6 ">
-      {location.state && location.state.modal ? (
-        <Link to={location.pathname}>
-          <ExpandIcon />
-        </Link>
-      ) : null}
+    <div className="w-full flex flex-col gap-6  ">
       <div
-        className={`py-8 h-[240px] [background-image:var(--background)] bg-background-secondary bg-center rounded-sm  ${
+        className={`[background-image:var(--background)] bg-background-secondary bg-center rounded-sm  ${
           THEME.backgroundMode === 'tile' ? 'bg-repeat' : 'bg-cover bg-no-repeat'
         }`}
         style={style}
       >
-        <div className="grid gap-2 place-items-center">
+        <div className="w-full flex flex-col items-center justify-center py-12 gap-3">
           <TokenImage src={logoURI} size="xl" withNetwork={chainId} />
-          <div className="flex-1 grid place-items-center">
+          <>
             {price.isPending ? (
               <div className="h-[52px] grid place-items-center gap-2">
                 <div className="h-7 w-24 bg-black/5 rounded animate-pulse" />
@@ -183,7 +166,7 @@ function CoinDetails(props: TokenTypeProps) {
                 )}
               </>
             )}
-          </div>
+          </>
           <span className="inline-flex mx-auto items-center gap-2 font-bold text-[9px] bg-button-glass px-1.25 py-1 rounded-xs">
             <NetworkImage chainId={chainId} size="xs" /> {chainInfo?.title}
           </span>
@@ -233,18 +216,16 @@ function CoinDetails(props: TokenTypeProps) {
         </div>
 
         {contractInfo?.extensions?.description && (
-          <WrappedCollapse>
-            <Collapsible label="Details">
-              <span>{contractInfo?.extensions?.description}</span>
-            </Collapsible>
-          </WrappedCollapse>
+          <Collapsible label="Details">
+            <span>{contractInfo?.extensions?.description}</span>
+          </Collapsible>
         )}
       </div>
     </div>
   )
 }
 
-function TokenDetailsCollectable(props: TokenTypeProps) {
+function TokenDetailsCollectable(props: TokenRecord) {
   const location = useLocation()
 
   if (location.state && location.state?.modal) {
@@ -254,7 +235,7 @@ function TokenDetailsCollectable(props: TokenTypeProps) {
   return <CollectiblePageView {...props} />
 }
 
-function CollectiblePageView(props: TokenTypeProps) {
+function CollectiblePageView(props: TokenRecord) {
   const style = {
     ...(THEME.appBackground && { '--background': `url(${THEME.appBackground})` })
   } as React.CSSProperties
@@ -314,12 +295,6 @@ function CollectiblePageView(props: TokenTypeProps) {
             label="Send"
             onClick={() => {
               setSendModal(true)
-              // setShowSendModal(true)
-              // setShowInventoryItem({
-              //   chainId,
-              //   contractAddress,
-              //   tokenId: tokenMetadata?.tokenId
-              // })
             }}
           ></Button>
           <Favorite id={uuid} />
@@ -335,7 +310,7 @@ function CollectiblePageView(props: TokenTypeProps) {
   )
 }
 
-function CollectibleModal(props: TokenTypeProps) {
+function CollectibleModal(props: TokenRecord) {
   const style = {
     ...(THEME.appBackground && { '--background': `url(${THEME.appBackground})` })
   } as React.CSSProperties

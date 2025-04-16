@@ -13,13 +13,12 @@ import { Text } from '@0xsequence/design-system'
 import { useFetchInventory } from '../pages/InventoryRoutes/helpers/useFetchInventory'
 import { useInventory } from '../hooks/use-inventory'
 import { TOKEN_TYPES } from '../utils/normalize-balances'
-import { formatDisplay } from '../utils/format-display'
 
 function useTotalCoinBalance() {
   const [prefs, setPrefs] = useLocalStore<UserPreferenceLocalStore>('userPrefs')
   const query = useFetchInventory()
 
-  const { records } = useInventory(query?.data, { filters: { type: ['COIN'] } })
+  const { records } = useInventory(query?.data, { filter: { type: ['COIN'] } })
 
   const coins = records
     .filter(chain => {
@@ -28,10 +27,7 @@ function useTotalCoinBalance() {
       return true
     })
     .map(chain => {
-      console.log(chain.balance, chain.decimals)
-
       const units = chain?.balance ? formatUnits(chain.balance, chain.decimals) : null
-
       return {
         ...chain,
         units
@@ -56,17 +52,8 @@ function useTotalCoinBalance() {
 
       if (!current) return acc
 
-      const priceText = `${formatDisplay(chain.price.value * Number(current.units), {
-        disableScientificNotation: true,
-        significantDigits: 2,
-        maximumFractionDigits: 3,
-        currency: 'USD'
-      })}`
-
-      const units = current.units
+      const units = Number(current.units)
       const value = chain.price.value
-
-      console.log(units, value)
 
       const inc = units * value
 

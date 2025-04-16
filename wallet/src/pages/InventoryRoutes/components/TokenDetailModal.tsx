@@ -23,7 +23,7 @@ export function TokenDetailModal() {
         <Modal scroll={true} autoHeight onClose={() => close()}>
           <Outlet />
         </Modal>
-        {sendModal ? (
+        {sendModal && chainId && contractAddress && tokenId ? (
           <SendTokens
             close={setSendModal}
             chainId={chainId}
@@ -38,7 +38,7 @@ export function TokenDetailModal() {
   return (
     <>
       <Outlet />
-      {sendModal ? (
+      {sendModal && chainId && contractAddress && tokenId ? (
         <SendTokens
           close={setSendModal}
           chainId={chainId}

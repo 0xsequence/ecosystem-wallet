@@ -9,7 +9,7 @@ import { Outlet, useLocation, useParams } from 'react-router'
 import { useFavoriteTokens } from '../../hooks/useFavoriteTokens'
 import { useFetchInventory } from './helpers/useFetchInventory'
 import { NetworkFilterSelect } from '../../components/NetworkFilterSelect'
-import { useInventory } from '../../hooks/use-inventory'
+import { RefinersState, useInventory } from '../../hooks/use-inventory'
 import { useState } from 'react'
 import { TokenDetailModal } from './components/TokenDetailModal'
 
@@ -44,21 +44,20 @@ export const InventoryPage = () => {
 
 function InventoryPageView() {
   const [prefs] = useLocalStore<UserPreferenceLocalStore>('userPrefs')
-  const location = useLocation()
   const { favorites } = useFavoriteTokens()
   const [searchTerm, setSearchTerm] = useState('')
 
   const query = useFetchInventory()
 
-  const DEFAULT_REFINERS = {
+  const DEFAULT_REFINERS: Partial<RefinersState> = {
     organize: {
       groupContractsAcrossNetworks: { minGroupSize: 2 }
     },
     sort: {
       type: ['GROUP', 'COIN', 'COLLECTIBLE'],
       favorites,
-      testnet: ['asc'],
-      balance: ['desc']
+      testnet: 'asc',
+      balance: 'desc'
     }
   }
 

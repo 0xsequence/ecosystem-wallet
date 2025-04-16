@@ -1,12 +1,8 @@
-import { TokenTypeProps } from '../../pages/InventoryRoutes/types'
+import { TokenRecord } from '../../pages/InventoryRoutes/types'
+import { TokenType } from './filters'
 
-export function type(
-  values?: TokenTypeProps[],
-  args?: 'ERC20' | 'ERC1155' | 'ERC721' | 'NATIVE' | 'COIN' | 'COLLECTIBLE'
-) {
-  if (!values || !type) {
-    return values
-  }
+export function type(values?: TokenRecord[], args?: TokenType | TokenType[]): TokenRecord[] {
+  if (!values || !args) return [] // <- fix here
 
   const types: (typeof args)[] = Array.isArray(args) ? [...args] : [args]
 

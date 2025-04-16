@@ -6,7 +6,7 @@ import { TokenType } from './TokenType'
 import { Transition } from '@headlessui/react'
 import { ChevronRightIcon } from '@0xsequence/design-system'
 import { Link } from 'react-router'
-import { TokenTypeProps } from '../types'
+import { TokenRecord } from '../types'
 import { InventoryCoinList } from './InventoryCoin'
 import { ContractInfo } from '@0xsequence/indexer'
 import { TOKEN_TYPES } from '../../../utils/normalize-balances'
@@ -68,7 +68,7 @@ export function InventoryList({
     acc[item.contractAddress].push(item)
 
     return acc
-  }, {} as Record<string, TokenTypeProps[]>)
+  }, {} as Record<string, TokenRecord[]>)
 
   const hasNoResults = false
 
@@ -153,7 +153,7 @@ export function InventoryList({
   )
 }
 
-function ContractCollectibles({ contract, items }: { contract?: ContractInfo; items: TokenTypeProps[] }) {
+function ContractCollectibles({ contract, items }: { contract?: ContractInfo; items: TokenRecord[] }) {
   if (!contract) {
     return null
   }

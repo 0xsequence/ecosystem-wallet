@@ -2,7 +2,7 @@ import { TokenListItem } from './TokenTile'
 import { NetworkImage, Text, TokenImage } from '@0xsequence/design-system'
 import { formatUnits } from 'ethers'
 
-import type { TokenTypeProps } from '../types'
+import type { TokenRecord } from '../types'
 import { formatDisplay, limitDecimals } from '../../../utils/helpers'
 import { inert } from '../../../utils/inert'
 import { useLocalStore } from '../../../utils/local-store'
@@ -112,7 +112,7 @@ export function InventoryCoinGroup(props: CoinGroup) {
   )
 }
 
-export function InventoryCoinGroupList(props: TokenTypeProps) {
+export function InventoryCoinGroupList(props: TokenRecord) {
   const {
     chainId,
     symbol,

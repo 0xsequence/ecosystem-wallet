@@ -1,9 +1,10 @@
 import { Outlet, useLocation, useParams } from 'react-router'
 import { TokenType } from './components/TokenType'
 import { TokenDetailModal } from './components/TokenDetailModal'
-import { useInventory } from '../../hooks/use-inventory'
+import { RefinersState, useInventory } from '../../hooks/use-inventory'
 import { useFetchInventory } from './helpers/useFetchInventory'
 import { CONTRACT_TYPES } from './constants'
+import { ZERO_ADDRESS } from '@0xsequence/design-system'
 
 export function InventoryContractRoute() {
   const { tokenId, groupId } = useParams()
@@ -22,13 +23,13 @@ export function InventoryContractRoute() {
 }
 
 function ContractPageView() {
-  const { chainId, contractAddress } = useParams()
+  const { chainId = 0, contractAddress = ZERO_ADDRESS } = useParams()
 
   const query = useFetchInventory()
 
   const nativeToken = contractAddress?.toUpperCase() === CONTRACT_TYPES.NATIVE
 
-  const filters = nativeToken
+  const filters: Partial<RefinersState> = nativeToken
     ? {
         filter: {
           chain: [chainId],

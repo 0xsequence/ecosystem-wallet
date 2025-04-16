@@ -1,8 +1,8 @@
 import { NetworkImage, Text } from '@0xsequence/design-system'
-import { TokenTypeProps } from '../../types'
+import { TokenRecord } from '../../types'
 
 type CoinChainsProps = {
-  chains: TokenTypeProps | TokenTypeProps[]
+  chains: TokenRecord | TokenRecord[]
   size?: 'xs' | 'sm' | 'md' | 'lg'
   showIcon?: boolean
 }

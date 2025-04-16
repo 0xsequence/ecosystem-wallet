@@ -1,8 +1,8 @@
-import { TokenTypeProps } from '../../pages/InventoryRoutes/types'
+import { TokenRecord } from '../../pages/InventoryRoutes/types'
 
-export function contract(values?: TokenTypeProps[], contractAddress?: string | string[]) {
+export function contract(values?: TokenRecord[], contractAddress?: string | string[]) {
   if (!contractAddress || !values) {
-    return values
+    return []
   }
 
   const contractAddresses = Array.isArray(contractAddress) ? contractAddress : [contractAddress]
