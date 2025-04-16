@@ -1,8 +1,8 @@
 import { Link, useLocation, useParams } from 'react-router'
 
 import { HeartIcon, SendIcon } from '../../design-system-patch/icons'
-import { useInventory } from './helpers/useInventory'
-import { TokenTypeProps } from './types'
+import { useInventory } from '../../hooks/use-inventory'
+import { isTokenGroupRecord, TokenRecord } from './types'
 import { formatDisplay, truncateAtMiddle } from '../../utils/helpers'
 import { useCoinPrices } from '../../hooks/useCoinPrices'
 import { WrappedCollapse } from '../../components/wrapped-collapse'
@@ -12,6 +12,7 @@ import { CopyButton } from '../../components/CopyButton'
 import {
   NetworkImage,
   Image,
+  Text,
   TokenImage,
   Collapsible,
   nativeTokenImageUrl,
@@ -23,46 +24,64 @@ import {
 import { formatUnits } from 'ethers'
 import { zeroAddress } from 'viem'
 import { useFavoriteTokens } from '../../hooks/useFavoriteTokens'
+// import { SendTokens } from './components/SendTokens'
+import { TOKEN_TYPES } from '../../utils/normalize-balances'
+import { useFetchInventory } from './helpers/use-fetch-inventory'
+import { CONTRACT_TYPES } from './constants'
 import { SendTokens } from './components/SendTokens'
+import { createContext, useContext, useState } from 'react'
+
+interface TokenContext {
+  sendModal: boolean
+  setSendModal: React.Dispatch<React.SetStateAction<boolean>>
+}
+
+export const TokenContext = createContext<TokenContext | null>(null)
+export function useTokenContext() {
+  const context = useContext(TokenContext)
+  if (!context) throw new Error('useTokenContext must be used within a TokenContext Provider')
+  return context
+}
 
 export function InventoryTokenRoute() {
-  const { contractInfo } = useInventory()
   const { chainId, contractAddress, tokenId } = useParams()
 
-  const location = useLocation()
+  const query = useFetchInventory()
+  const [sendModal, setSendModal] = useState(false)
 
-  if (!chainId || !contractAddress || !tokenId) {
-    return null
-  }
+  // Get the token from the inventory
+  const inventory = useInventory(query?.data, {
+    filter: { uuid: `${chainId}::${contractAddress}::${tokenId}` }
+  })
 
-  const item = contractInfo({ chainId, contractAddress, tokenId })
-
-  if (!item) return null
+  const item = inventory.records?.[0]
+  if (!item || isTokenGroupRecord(item)) return null
 
   return (
-    <div className="w-full max-w-screen-lg mx-auto">
-      <TokenDetails item={item} />
-      {}
-      {!location?.state?.modal ? <SendTokens /> : null}
-    </div>
+    <TokenContext.Provider value={{ sendModal, setSendModal }}>
+      <div className="w-full max-w-screen-lg mx-auto">
+        <TokenDetails item={item} />
+        {sendModal && chainId && contractAddress && tokenId ? (
+          <SendTokens
+            chainId={parseInt(chainId)}
+            contractAddress={contractAddress}
+            tokenId={tokenId}
+            close={() => setSendModal(false)}
+          />
+        ) : null}
+      </div>
+    </TokenContext.Provider>
+    //SendTokens
   )
 }
 
-function TokenDetails({ item }: { item: TokenTypeProps }) {
-  if (!item) {
-    return null
+function TokenDetails({ item }: { item: TokenRecord }) {
+  if (item.type === TOKEN_TYPES.COIN) {
+    return <CoinDetails {...item} />
+  } else if (item.type === TOKEN_TYPES.COLLECTIBLE) {
+    return <TokenDetailsCollectable {...item} />
   }
-
-  // Implementation
-  switch (item?.tokenClass) {
-    case 'nativeBalance':
-    case 'erc20':
-      return <CoinDetails {...item} />
-    case 'collectable':
-      return <TokenDetailsCollectable {...item} />
-    default:
-      return null
-  }
+  return null
 }
 
 function useCoinFiatPrice(chainId: number, contractAddress: string, balance: string, decimals?: number) {
@@ -94,43 +113,48 @@ function useCoinFiatPrice(chainId: number, contractAddress: string, balance: str
   return { isPending, value, change }
 }
 
-function CoinDetails(props: TokenTypeProps) {
+function CoinDetails(props: TokenRecord) {
   const style = {
     ...(THEME.appBackground && { '--background': `url(${THEME.appBackground})` })
   } as React.CSSProperties
 
   const isMobile = useMediaQuery('isMobile')
 
-  const { setShowSendModal, setShowInventoryItem } = useInventory()
-  const { balance, contractAddress, tokenMetadata, chainId, chain, contractInfo, uuid } = props
+  // const { setShowSendModal, setShowInventoryItem } = useInventory()
+  const { setSendModal } = useTokenContext()
+  const { balance, contractAddress, tokenMetadata, chainInfo, chainId, contractInfo, uuid } = props
 
   const logoURI = contractInfo?.logoURI || nativeTokenImageUrl(props.chainId)
-  const { symbol = chain?.nativeToken?.symbol || '', decimals = chain?.nativeToken?.decimals || 18 } = {
-    symbol: contractInfo?.symbol,
-    decimals: contractInfo?.decimals
-  }
-  const units = formatUnits(balance, decimals)
+  const { symbol = chainInfo?.nativeToken?.symbol || '', decimals = chainInfo?.nativeToken?.decimals || 18 } =
+    {
+      symbol: contractInfo?.symbol,
+      decimals: contractInfo?.decimals
+    }
+  const units = formatUnits(balance || '', decimals)
   const diplayedBalance = formatDisplay(units)
 
-  const price = useCoinFiatPrice(chainId, contractAddress, balance, decimals)
+  const price = useCoinFiatPrice(chainId, contractAddress, balance || '', decimals)
 
   const location = useLocation()
+
   return (
-    <div className="w-full flex flex-col gap-6 p-6 ">
+    <div className="flex flex-col p-5">
       {location.state && location.state.modal ? (
-        <Link to={location.pathname}>
-          <ExpandIcon />
-        </Link>
+        <div className="h-[2.5rem]">
+          <Link to={location.pathname}>
+            <ExpandIcon />
+          </Link>
+        </div>
       ) : null}
       <div
-        className={`py-8 h-[240px] [background-image:var(--background)] bg-background-secondary bg-center rounded-sm  ${
+        className={`[background-image:var(--background)] bg-background-secondary bg-center rounded-sm  ${
           THEME.backgroundMode === 'tile' ? 'bg-repeat' : 'bg-cover bg-no-repeat'
         }`}
         style={style}
       >
-        <div className="grid gap-2 place-items-center">
+        <div className="w-full flex flex-col items-center justify-center py-12 gap-3">
           <TokenImage src={logoURI} size="xl" withNetwork={chainId} />
-          <div className="flex-1 grid place-items-center">
+          <>
             {price.isPending ? (
               <div className="h-[52px] grid place-items-center gap-2">
                 <div className="h-7 w-24 bg-black/5 rounded animate-pulse" />
@@ -150,13 +174,13 @@ function CoinDetails(props: TokenTypeProps) {
                 )}
               </>
             )}
-          </div>
+          </>
           <span className="inline-flex mx-auto items-center gap-2 font-bold text-[9px] bg-button-glass px-1.25 py-1 rounded-xs">
-            <NetworkImage chainId={chainId} size="xs" /> {chain?.title || props?.title}
+            <NetworkImage chainId={chainId} size="xs" /> {chainInfo?.title}
           </span>
         </div>
       </div>
-      <div className="flex flex-col gap-1 text-center justify-center">
+      <div className="flex flex-col gap-4 text-center justify-center mt-6">
         <div className="flex flex-col gap-3">
           <div className="grid justify-items-start gap-2">
             <span className="text-xs font-bold">Balance</span>
@@ -193,53 +217,40 @@ function CoinDetails(props: TokenTypeProps) {
             shape="square"
             leftIcon={SendIcon}
             label="Send"
-            onClick={() => {
-              setShowSendModal(true)
-              setShowInventoryItem({
-                chainId,
-                contractAddress,
-                tokenId: tokenMetadata?.tokenId,
-                tokenClass: props.tokenClass
-              })
-            }}
+            onClick={() => setSendModal(true)}
           ></Button>
 
           <Favorite id={uuid} />
         </div>
 
         {contractInfo?.extensions?.description && (
-          <WrappedCollapse>
-            <Collapsible label="Details">
-              <span>{contractInfo?.extensions?.description}</span>
-            </Collapsible>
-          </WrappedCollapse>
+          <Collapsible label="Details">
+            <span>{contractInfo?.extensions?.description}</span>
+          </Collapsible>
         )}
       </div>
     </div>
   )
 }
 
-function TokenDetailsCollectable(props: TokenTypeProps) {
+function TokenDetailsCollectable(props: TokenRecord) {
   const location = useLocation()
 
-  if (location.state && location.state.modal) {
+  if (location.state && location.state?.modal) {
     return <CollectibleModal {...props} />
   }
 
-  return <CollectibleRoute {...props} />
+  return <CollectiblePageView {...props} />
 }
 
-function CollectibleRoute(props: TokenTypeProps) {
+function CollectiblePageView(props: TokenRecord) {
   const style = {
     ...(THEME.appBackground && { '--background': `url(${THEME.appBackground})` })
   } as React.CSSProperties
 
-  const isMobile = useMediaQuery('isMobile')
-
-  const { setShowSendModal, setShowInventoryItem } = useInventory()
-  const { tokenMetadata, chainId, chain, balance, contractType, contractAddress, uuid } = props
-
-  const isERC1155 = contractType === 'ERC1155'
+  const { tokenMetadata, chainId, chainInfo, balance, contractType, contractAddress, uuid } = props
+  const { setSendModal } = useTokenContext()
+  const hasBalance = contractType === CONTRACT_TYPES.ERC1155 && balance
   return (
     <div className="w-full flex flex-col px-6 py-24">
       <div
@@ -254,23 +265,28 @@ function CollectibleRoute(props: TokenTypeProps) {
         <span className="text-3xl font-bold w-full">{tokenMetadata?.name}</span>
         <div className="flex flex-col w-full gap-3">
           <span className="inline-flex mx-auto items-center gap-2 font-bold text-[9px] bg-background-secondary px-1.25 py-1 rounded-xs">
-            <NetworkImage chainId={chainId} size="xs" /> {chain?.title}
+            <NetworkImage chainId={chainId} size="xs" /> {chainInfo?.title}
           </span>
-          {isERC1155 && balance && (
+          {hasBalance ? (
             <div className="grid justify-items-start gap-2">
               <span className="text-xs font-bold">Balance</span>
               <div className="w-full flex items-center gap-2">
                 <p className="flex-1 text-start text-style-lg font-bold">{balance?.toString() || '0'}</p>
               </div>
             </div>
-          )}
+          ) : null}
 
           {contractAddress && (
             <div className="flex flex-col gap-2">
               <span className="text-xs font-bold text-left">Contract Address</span>
               <div className="flex gap-2 text-left">
                 <p className="font-mono text-sm text-seq-grey-500">
-                  {isMobile ? truncateAtMiddle(contractAddress, 25) : contractAddress}
+                  <Text variant="small" color="primary" className="md:hidden">
+                    {truncateAtMiddle(contractAddress, 25)}
+                  </Text>
+                  <Text variant="small" color="primary" className="hidden md:inline">
+                    {contractAddress}
+                  </Text>
                 </p>
                 <CopyButton text={contractAddress} />
               </div>
@@ -286,13 +302,7 @@ function CollectibleRoute(props: TokenTypeProps) {
             leftIcon={SendIcon}
             label="Send"
             onClick={() => {
-              setShowSendModal(true)
-              setShowInventoryItem({
-                chainId,
-                contractAddress,
-                tokenId: tokenMetadata?.tokenId,
-                tokenClass: props.tokenClass
-              })
+              setSendModal(true)
             }}
           ></Button>
           <Favorite id={uuid} />
@@ -308,7 +318,7 @@ function CollectibleRoute(props: TokenTypeProps) {
   )
 }
 
-function CollectibleModal(props: TokenTypeProps) {
+function CollectibleModal(props: TokenRecord) {
   const style = {
     ...(THEME.appBackground && { '--background': `url(${THEME.appBackground})` })
   } as React.CSSProperties
@@ -316,15 +326,19 @@ function CollectibleModal(props: TokenTypeProps) {
   const location = useLocation()
 
   const isMobile = useMediaQuery('isMobile')
-
-  const { setShowSendModal, setShowInventoryItem } = useInventory()
-  const { tokenMetadata, chainId, chain, balance, contractType, contractAddress, uuid } = props
+  const { setSendModal } = useTokenContext()
+  // const { setShowSendModal, setShowInventoryItem } = useInventory()
+  const { tokenMetadata, chainId, balance, contractType, chainInfo, contractAddress, uuid } = props
   const isERC1155 = contractType === 'ERC1155'
   return (
-    <div className="w-full flex flex-col p-6">
-      <Link to={location.pathname}>
-        <ExpandIcon />
-      </Link>
+    <div className="flex flex-col p-5">
+      {location.state && location.state.modal ? (
+        <div className="h-[2.5rem]">
+          <Link to={location.pathname}>
+            <ExpandIcon />
+          </Link>
+        </div>
+      ) : null}
       <div
         className={`flex items-center justify-center h-[300px] [background-image:var(--background)] bg-background-secondary bg-center rounded-sm ${
           THEME.backgroundMode === 'tile' ? 'bg-repeat' : 'bg-cover bg-no-repeat'
@@ -337,7 +351,7 @@ function CollectibleModal(props: TokenTypeProps) {
         <span className="text-xl font-bold">{tokenMetadata?.name}</span>
         <div className="flex flex-col w-full gap-3">
           <span className="inline-flex mx-auto items-center gap-2 font-bold text-[9px] bg-background-secondary px-1.25 py-1 rounded-xs">
-            <NetworkImage chainId={chainId} size="xs" /> {chain?.title}
+            <NetworkImage chainId={chainId} size="xs" /> {chainInfo?.title}
           </span>
           {isERC1155 && balance && (
             <div className="grid justify-items-start gap-2">
@@ -368,13 +382,14 @@ function CollectibleModal(props: TokenTypeProps) {
             leftIcon={SendIcon}
             label="Send"
             onClick={() => {
-              setShowSendModal(true)
-              setShowInventoryItem({
-                chainId,
-                contractAddress,
-                tokenId: tokenMetadata?.tokenId,
-                tokenClass: props.tokenClass
-              })
+              setSendModal(true)
+              // setShowSendModal(true)
+              // setShowInventoryItem({
+              //   chainId,
+              //   contractAddress,
+              //   tokenId: tokenMetadata?.tokenId,
+              //   tokenClass: props.tokenClass
+              // })
             }}
           ></Button>
           <Favorite id={uuid} />

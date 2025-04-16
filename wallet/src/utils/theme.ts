@@ -22,10 +22,18 @@ export type ThemeProps = {
     title?: string
     message?: string
   }
+  chainSwitcher?: number[] | number[][]
 }
 
 function theme() {
   const css = import.meta.env.VITE_PROJECT_THEME_CSS_VARIABLES
+
+  let chainSwitcher: number[] | number[][] | null = null
+  try {
+    chainSwitcher = JSON.parse(import.meta.env.VITE_PROJECT_CHAIN_SWITCHER)
+  } catch {
+    //
+  }
 
   // const assetPath = import.meta.env.VITE_PROJECT_ASSET_PATH
 
@@ -71,7 +79,8 @@ function theme() {
       color: import.meta.env.VITE_PROJECT_AUTH_MESSAGE_COLOR || 'white',
       title: import.meta.env.VITE_PROJECT_AUTH_TITLE,
       message: import.meta.env.VITE_PROJECT_AUTH_MESSAGE
-    }
+    },
+    chainSwitcher
   }
 }
 

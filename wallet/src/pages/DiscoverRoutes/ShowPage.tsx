@@ -2,13 +2,13 @@ import { Link, useParams } from 'react-router'
 import { DISCOVER_ITEMS, DiscoverItem } from '../../data/discover_items'
 import { ArrowLeftIcon, ExternalLinkIcon, HeartIcon } from '../../design-system-patch/icons'
 import { ROUTES } from '../../routes'
-import { useInventory } from '../InventoryRoutes/helpers/useInventory'
-import { InventoryProvider } from '../InventoryRoutes/helpers/InventoryProvider'
+import { useInventory } from '../../hooks/use-inventory'
 import { TokenType } from '../InventoryRoutes/components/TokenType'
 import { TokenDetailModal } from '../InventoryRoutes/components/TokenDetailModal'
 import { useFavorites } from '../../hooks/useFavorites'
 import { inert } from '../../utils/inert'
 import { useWatchlist } from '../../hooks/useWatchlist'
+import { useFetchInventory } from '../InventoryRoutes/helpers/use-fetch-inventory'
 
 export function DiscoverShowRoute() {
   const { id } = useParams()
@@ -20,7 +20,7 @@ export function DiscoverShowRoute() {
   if (!item) return null
 
   return (
-    <InventoryProvider>
+    <>
       <div className="flex flex-col w-full lg:max-w-screen-lg max-w-screen-md mx-auto gap-12 px-4 py-12">
         <Link
           to={ROUTES.DISCOVER}
@@ -82,22 +82,24 @@ export function DiscoverShowRoute() {
         </div>
         {item.contracts ? <Collectables contracts={item.contracts} /> : null}
       </div>
-    </InventoryProvider>
+    </>
   )
 }
 
 function Collectables({ contracts }: { contracts: string[] }) {
-  const { inventory } = useInventory()
+  const query = useFetchInventory()
 
-  const items = inventory.filter(item => (item ? contracts.includes(item.contractAddress) : false))
+  const inventory = useInventory(query?.data, {
+    filter: { contract: contracts }
+  })
 
-  if (!items) return null
+  if (!inventory.records) return null
 
   return (
     <div className="flex flex-col gap-4">
       <h2 className="text-xl font-semibold">Your collectables</h2>
       <div className="isolate grid grid-cols-2 sm:grid-cols-4 gap-2 ">
-        {items.map((item, index) => (
+        {inventory.records.map((item, index) => (
           <TokenType key={index} item={item} />
         ))}
       </div>

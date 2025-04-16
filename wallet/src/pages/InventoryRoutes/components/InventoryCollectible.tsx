@@ -1,9 +1,9 @@
-import { TokenBalance } from '@0xsequence/indexer'
 import { TokenListItem, TokenTile } from './TokenTile'
-import { Image as SeqImage } from '@0xsequence/design-system'
+import { NetworkImage, Image as SeqImage } from '@0xsequence/design-system'
 import { useState, useEffect } from 'react'
 import { useFavoriteTokens } from '../../../hooks/useFavoriteTokens'
 import SvgHeartIcon from '../../../design-system-patch/icons/HeartIcon'
+import { TokenRecord } from '../types'
 
 const getImageSize = (url: string): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -58,35 +58,30 @@ const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({ srcList, fallback
 
 export default ImageWithFallback
 
-export function InventoryCollectibleTile(props: TokenBalance) {
-  const { chainId, contractInfo, tokenMetadata, contractAddress, tokenID } = props
+export function InventoryCollectibleTile(props: TokenRecord) {
+  const { path, uuid, chainId, contractInfo, tokenMetadata } = props
 
-  const uuid = `${chainId}::${contractAddress}::${tokenID}`
   const { has } = useFavoriteTokens()
 
   return (
-    <TokenTile chainId={chainId} contractAddress={contractAddress} tokenClass="collectable" tokenId={tokenID}>
+    <TokenTile path={path}>
       {has(uuid) ? (
         <div className="flex items-center justify-center bottom-4 right-4 absolute bg-button-glass p-2 rounded-full backdrop-blur-2xl">
           <SvgHeartIcon />
         </div>
       ) : null}
+
+      <NetworkImage chainId={chainId} className="absolute bottom-4 left-4 size-6" />
       <ImageWithFallback srcList={[tokenMetadata?.image, contractInfo?.logoURI]} width={100} />
     </TokenTile>
   )
 }
 
-export function InventoryCollectibleList(props: TokenBalance) {
-  const { chainId, contractInfo, tokenMetadata, contractAddress, tokenID } = props
+export function InventoryCollectibleList(props: TokenRecord) {
+  const { path, contractInfo, tokenMetadata } = props
 
   return (
-    <TokenListItem
-      chainId={chainId}
-      contractAddress={contractAddress}
-      tokenClass="collectable"
-      tokenId={tokenID}
-      className="flex gap-2"
-    >
+    <TokenListItem path={path} className="flex gap-2">
       <div className="size-16 m-2 rounded-sm overflow-clip">
         <ImageWithFallback srcList={[tokenMetadata?.image, contractInfo?.logoURI]} />
       </div>

@@ -4,16 +4,14 @@ import {
   ContractType,
   GetTokenBalancesDetailsArgs,
   GetTokenBalancesSummaryArgs,
-  NativeTokenBalance,
   SequenceIndexerGateway,
   TokenBalance
 } from '@0xsequence/indexer'
 import { ethers } from 'ethers'
+import { TokenRecord } from '../pages/InventoryRoutes/types'
 
-export const isNativeCoinBalance = (
-  balance: NativeTokenBalance | TokenBalance
-): balance is NativeTokenBalance => {
-  return compareAddress((balance as TokenBalance).contractAddress, ethers.ZeroAddress)
+export const isNativeCoinBalance = (balance: TokenRecord): balance is TokenRecord => {
+  return compareAddress((balance as TokenRecord).contractAddress, ethers.ZeroAddress)
 }
 
 export const getTokenBalancesDetails = async (
@@ -33,7 +31,7 @@ export const getTokenBalancesSummary = async (
 }
 
 interface ComputeBalanceFiat {
-  balance: TokenBalance
+  balance: TokenRecord
   prices: TokenPrice[]
   decimals: number
   conversionRate: number
@@ -52,7 +50,7 @@ export const computeBalanceFiat = ({
     return '0.00'
   }
   const priceFiat = priceForToken.price?.value || 0
-  const valueFormatted = ethers.formatUnits(balance.balance, decimals)
+  const valueFormatted = ethers.formatUnits(balance.balance || '0', decimals)
   const usdValue = parseFloat(valueFormatted) * priceFiat
   totalUsd += usdValue
 

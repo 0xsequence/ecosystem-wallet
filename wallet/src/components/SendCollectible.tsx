@@ -11,7 +11,6 @@ import {
   TextInput,
   useToast
 } from '@0xsequence/design-system'
-import { TokenBalance } from '@0xsequence/indexer'
 import {
   MaySentTransactionResponse,
   SentTransactionResponse,
@@ -36,10 +35,11 @@ import { TransactionConfirmation } from './TransactionConfirmation'
 import { SendIcon } from '../design-system-patch/icons'
 import { WrappedInput } from './wrapped-input'
 import { TIME } from '../utils/time.const'
+import { TokenRecord } from '../pages/InventoryRoutes/types'
 
 interface SendCollectibleProps {
   chainId: number
-  balance: TokenBalance
+  balance: TokenRecord
   onSuccess: (txnResponse: SentTransactionResponse) => void
 }
 
@@ -138,7 +138,7 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
     switch (contractType) {
       case 'ERC721':
         transaction = {
-          to: (tokenBalance as TokenBalance).contractAddress as `0x${string}`,
+          to: tokenBalance.contractAddress as `0x${string}`,
           data: new ethers.Interface(ERC_721_ABI).encodeFunctionData('safeTransferFrom', [
             accountAddress,
             toAddress,
@@ -149,7 +149,7 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
       case 'ERC1155':
       default:
         transaction = {
-          to: (tokenBalance as TokenBalance).contractAddress as `0x${string}`,
+          to: tokenBalance.contractAddress as `0x${string}`,
           data: new ethers.Interface(ERC_1155_ABI).encodeFunctionData('safeBatchTransferFrom', [
             accountAddress,
             toAddress,
@@ -163,7 +163,7 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
     // Check fee options before showing confirmation
     const feeOptionsResult = await checkTransactionFeeOptions({
       transactions: [transaction],
-      chainId
+      chainId: chainId
     })
 
     setFeeOptions(feeOptionsResult)

@@ -1,39 +1,31 @@
 import { InventoryCoinTile, InventoryCoinList } from './InventoryCoin.tsx'
 import { InventoryCollectibleTile, InventoryCollectibleList } from './InventoryCollectible.tsx'
 import { TokenTileEmpty, TokenListItemEmpty } from './TokenTileEmpty.tsx'
-import type { TokenTypeProps } from '../types.ts'
+import type { TokenGroupRecord, TokenRecord } from '../types.ts'
 import { InventoryCoinGroup } from './InventoryCoinGroup'
-import { CoinGroup } from '../helpers/useFetchInventory'
-
-function isCoinGroup(item: { tokenClass: TokenTypeProps['tokenClass'] }): item is CoinGroup {
-  return item?.tokenClass === 'group'
-}
-
-function isTokenTypeProps(item: { tokenClass: TokenTypeProps['tokenClass'] }): item is TokenTypeProps {
-  return ['nativeBalance', 'erc20', 'collectable'].includes(item?.tokenClass)
-}
+import { TOKEN_TYPES } from '../../../utils/normalize-balances'
+import { isTokenGroupRecord, isTokenRecord } from '../types'
 
 // Implementation
 export function TokenType({
   item,
   displayMode = 'grid'
 }: {
-  item: CoinGroup | TokenTypeProps | null
+  item: TokenGroupRecord | TokenRecord | null
   displayMode?: 'grid' | 'list'
 }) {
   if (!item) return <TokenTileEmpty />
 
   if (displayMode === 'grid') {
-    if (isCoinGroup(item)) {
+    if (isTokenGroupRecord(item)) {
       return <InventoryCoinGroup {...item} />
     }
 
-    if (isTokenTypeProps(item)) {
-      switch (item.tokenClass) {
-        case 'nativeBalance':
-        case 'erc20':
+    if (isTokenRecord(item)) {
+      switch (item.type) {
+        case TOKEN_TYPES.COIN:
           return <InventoryCoinTile {...item} />
-        case 'collectable':
+        case TOKEN_TYPES.COLLECTIBLE:
           return <InventoryCollectibleTile {...item} />
       }
     }
@@ -43,12 +35,11 @@ export function TokenType({
 
   // You can expand this for list mode if needed
 
-  if (displayMode === 'list') {
-    switch (item?.tokenClass) {
-      case 'nativeBalance':
-      case 'erc20':
+  if (displayMode === 'list' && !isTokenGroupRecord(item)) {
+    switch (item?.type) {
+      case TOKEN_TYPES.COIN:
         return <InventoryCoinList {...item} />
-      case 'collectable':
+      case TOKEN_TYPES.COLLECTIBLE:
         return <InventoryCollectibleList {...item} />
 
       default:

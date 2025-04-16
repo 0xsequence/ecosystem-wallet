@@ -13,6 +13,7 @@ import { TransactionHistory as HistoryPage } from './pages/TransactionHistory/In
 import { THEME } from './utils/theme'
 import { useEffect } from 'react'
 import { useLocalStore } from './utils/local-store'
+import { InventoryCoinGroupRoute } from './pages/InventoryRoutes/CoinGroupPage'
 
 export const App: React.FC = () => {
   const [address, setAddress] = useLocalStore<string>('address')
@@ -69,6 +70,7 @@ export const App: React.FC = () => {
         <Route index element={<WalletHandlerRequestModal variant="popup" />} />
 
         <Route path={ROUTES.INVENTORY} element={<InventoryPage />}>
+          <Route path={`${ROUTES.INVENTORY}/coins/:groupId`} element={<InventoryCoinGroupRoute />} />
           <Route path={`${ROUTES.INVENTORY}/:chainId/:contractAddress`} element={<InventoryContractRoute />}>
             <Route
               path={`${ROUTES.INVENTORY}/:chainId/:contractAddress/:tokenId`}
