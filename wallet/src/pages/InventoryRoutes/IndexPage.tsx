@@ -37,6 +37,12 @@ export const InventoryPage = () => {
         <TokenDetailModal />
       </>
     )
+  } else if (groupId && !location.state) {
+    return (
+      <div className="max-w-screen-lg mx-auto w-full">
+        <Outlet />
+      </div>
+    )
   }
 
   return <InventoryPageView />

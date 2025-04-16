@@ -19,24 +19,26 @@ export function InventoryCoinGroupRoute() {
   const query = useFetchInventory()
 
   const inventory = useInventory(query?.data, {
-    organize: { groupContractsAcrossNetworks: {} },
     filter: { group: groupId }
   })
 
   const coinGroup = inventory.records?.[0]
+
   const location = useLocation()
 
   if (!coinGroup || !isTokenGroupRecord(coinGroup)) return null
 
   return (
-    <>
+    <div className="flex flex-col p-5">
       {location.state && location.state.modal ? (
-        <Link to={location.pathname}>
-          <ExpandIcon />
-        </Link>
+        <div className="h-[2.5rem]">
+          <Link to={location.pathname}>
+            <ExpandIcon />
+          </Link>
+        </div>
       ) : null}
       <div
-        className={`mx-4 mt-16 mb-4 py-8 flex flex-col items-center h-[240px] [background-image:var(--background)] bg-background-secondary bg-center rounded-sm  ${
+        className={`py-8 flex flex-col items-center h-[240px] [background-image:var(--background)] bg-background-secondary bg-center rounded-sm  ${
           THEME.backgroundMode === 'tile' ? 'bg-repeat' : 'bg-cover bg-no-repeat'
         }`}
       >
@@ -49,42 +51,47 @@ export function InventoryCoinGroupRoute() {
           {/* <div className="flex-1 grid place-items-center">
             {price.isPending ? (
               <div className="h-[52px] grid place-items-center gap-2">
-                <div className="h-7 w-24 bg-black/5 rounded animate-pulse" />
-                <div className="h-5 w-16 bg-black/5 rounded animate-pulse" />
+              <div className="h-7 w-24 bg-black/5 rounded animate-pulse" />
+              <div className="h-5 w-16 bg-black/5 rounded animate-pulse" />
               </div>
-            ) : (
-              <>
+              ) : (
+                <>
                 {price.value && <p className="text-style-md font-bold">{price.value}</p>}
                 {price.change && (
                   <p
-                    className={cn('text-style-sm', [
-                      price.change.startsWith('-') ? 'text-red-400' : 'text-green-400'
+                  className={cn('text-style-sm', [
+                    price.change.startsWith('-') ? 'text-red-400' : 'text-green-400'
                     ])}
-                  >
+                    >
                     {price.change}
-                  </p>
-                )}
-              </>
-            )}
-          </div> */}
+                    </p>
+                    )}
+                    </>
+                    )}
+                    </div> */}
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 p-4">
+      <div className="flex flex-col gap-6 mt-6">
         {coinGroup.chains?.map(record => (
           <GroupCoinList {...record} />
         ))}
       </div>
-    </>
+    </div>
   )
 }
 
 export function GroupCoinList(props: TokenRecord) {
   const { chainId, symbol, logoURI, contractAddress, uuid, prettyBalance, testnet, decimals, balance } = props
   const [sendModal, setSendModal] = useState(false)
+
+  function closeModal() {
+    setSendModal(false)
+  }
+
   return (
     <Fragment>
-      <div className="p-4 sm:py-3 px-4 flex items-center gap-3 relative trasition-all">
+      <div className="flex items-center gap-3 relative trasition-all">
         <CoinIcon logoURI={logoURI} chainId={chainId} contractType={'GROUP'} size="md" />
         <div className="flex flex-col gap-1">
           <CoinChains chains={props} size="xs" showIcon={false} />
@@ -116,7 +123,7 @@ export function GroupCoinList(props: TokenRecord) {
       </div>
       {sendModal ? (
         <SendTokens
-          close={setSendModal}
+          close={closeModal}
           chainId={props.chainId}
           contractAddress={props.contractAddress}
           tokenId={'0'}

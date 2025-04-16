@@ -135,8 +135,17 @@ function CoinDetails(props: TokenRecord) {
 
   const price = useCoinFiatPrice(chainId, contractAddress, balance || '', decimals)
 
+  const location = useLocation()
+
   return (
-    <div className="w-full flex flex-col gap-6  ">
+    <div className="flex flex-col p-5">
+      {location.state && location.state.modal ? (
+        <div className="h-[2.5rem]">
+          <Link to={location.pathname}>
+            <ExpandIcon />
+          </Link>
+        </div>
+      ) : null}
       <div
         className={`[background-image:var(--background)] bg-background-secondary bg-center rounded-sm  ${
           THEME.backgroundMode === 'tile' ? 'bg-repeat' : 'bg-cover bg-no-repeat'
@@ -171,7 +180,7 @@ function CoinDetails(props: TokenRecord) {
           </span>
         </div>
       </div>
-      <div className="flex flex-col gap-1 text-center justify-center">
+      <div className="flex flex-col gap-4 text-center justify-center mt-6">
         <div className="flex flex-col gap-3">
           <div className="grid justify-items-start gap-2">
             <span className="text-xs font-bold">Balance</span>
@@ -322,10 +331,14 @@ function CollectibleModal(props: TokenRecord) {
   const { tokenMetadata, chainId, balance, contractType, chainInfo, contractAddress, uuid } = props
   const isERC1155 = contractType === 'ERC1155'
   return (
-    <div className="w-full flex flex-col p-6">
-      <Link to={location.pathname}>
-        <ExpandIcon />
-      </Link>
+    <div className="flex flex-col p-5">
+      {location.state && location.state.modal ? (
+        <div className="h-[2.5rem]">
+          <Link to={location.pathname}>
+            <ExpandIcon />
+          </Link>
+        </div>
+      ) : null}
       <div
         className={`flex items-center justify-center h-[300px] [background-image:var(--background)] bg-background-secondary bg-center rounded-sm ${
           THEME.backgroundMode === 'tile' ? 'bg-repeat' : 'bg-cover bg-no-repeat'

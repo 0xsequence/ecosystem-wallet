@@ -1,4 +1,5 @@
 import { isTokenGroupRecord, TokenRecords } from '../../pages/InventoryRoutes/types'
+import { groupContractsAcrossNetworks } from './organize-group-contracts-across-networks'
 
 /**
  * Filters inventory values by group name(s).
@@ -14,10 +15,14 @@ export function group(values?: TokenRecords, arg?: string | string[]): TokenReco
 
   const args = Array.isArray(arg) ? arg : [arg]
 
-  return values
+  const groups = groupContractsAcrossNetworks(values, { minGroupSize: 2 })
+
+  return groups
     .filter(item => isTokenGroupRecord(item))
     .filter(item => {
+      console.log('item', item)
       const groupName = item?.group
+
       return typeof groupName === 'string' && args.includes(groupName)
     })
 }

@@ -15,7 +15,7 @@ export function SendTokens({
   chainId: number
   contractAddress: string
   tokenId: string
-  close: React.Dispatch<React.SetStateAction<boolean>>
+  close: () => void
 }) {
   const query = useFetchInventory()
 
@@ -48,9 +48,7 @@ export function SendTokens({
   const onSendSuccess = () => {
     // setShowInventoryItem(false)
     // setShowSendModal(false)
-    if (typeof close === 'function') {
-      close(true)
-    }
+    close()
 
     // Store initial balance state
 
@@ -85,11 +83,7 @@ export function SendTokens({
         }
       }}
       scroll={false}
-      onClose={() => {
-        if (typeof close === 'function') {
-          close(true)
-        }
-      }}
+      onClose={close}
     >
       <div className="">
         <div className="border-b border-black/10 w-full z-20 flex flex-row items-center justify-between px-4">
