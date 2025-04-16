@@ -7,8 +7,9 @@ import { TransactionHistorySkeleton } from './TransactionHistorySkeleton'
 import { useAuth } from '../../context/AuthContext'
 import { useTransactionHistorySummary } from '../../hooks/useTransactionHistorySummary'
 import { ChainId } from '@0xsequence/network'
-import { useFetchInventory } from '../InventoryRoutes/helpers/useFetchInventory'
+import { useFetchInventory } from '../InventoryRoutes/helpers/use-fetch-inventory'
 import { useInventory } from '../../hooks/use-inventory'
+import { isTokenGroupRecord } from '../InventoryRoutes/types'
 
 // interface TransactionHistoryListProps {
 //   chainIds: ChainId[]
@@ -58,7 +59,12 @@ export const TransactionHistory = () => {
   // const { inventory } = useFetchInventory()
   const { records } = useInventory(query?.data)
 
-  const inventoryChainIds = [...new Set(records.filter(Boolean).map(item => item!.chainId))]
+  const inventoryChains = records
+    .map(item => (!isTokenGroupRecord(item) ? item.chainId : false))
+    .filter(item => item) as number[]
+
+  const inventoryChainIds = [...new Set(inventoryChains)]
+
   const chainIds: ChainId[] = [
     ...new Set([...inventoryChainIds, ChainId.ARBITRUM, ChainId.ARBITRUM_NOVA, ChainId.ARBITRUM_SEPOLIA])
   ]

@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useLocation } from 'react-router'
-import { ContractVerificationStatus, NetworkType } from '@0xsequence/indexer'
 import { useAddress } from './use-address'
 import { useConfig } from '../../../hooks/useConfig'
 import { getTokenBalancesDetails } from '../../../utils/balance'
@@ -14,18 +13,16 @@ export function useFetchInventory() {
   const location = useLocation()
   const address = useAddress()
 
-  const { hideUnlistedTokens } = useConfig()
+  const { contractStatus, networkType } = useConfig()
 
   // Get inventory details
   const args = {
     omitMetadata: false,
-    networkType: NetworkType.ALL,
+    networkType,
     filter: {
       omitNativeBalances: false,
       accountAddresses: address ? [address] : [],
-      contractStatus: hideUnlistedTokens
-        ? ContractVerificationStatus.VERIFIED
-        : ContractVerificationStatus.ALL,
+      contractStatus,
       contractWhitelist: [],
       contractBlacklist: []
     }

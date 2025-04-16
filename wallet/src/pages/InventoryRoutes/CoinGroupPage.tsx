@@ -1,9 +1,9 @@
 import { Link, useLocation, useParams } from 'react-router'
 import { useInventory } from '../../hooks/use-inventory'
-import { useFetchInventory } from './helpers/useFetchInventory'
+import { useFetchInventory } from './helpers/use-fetch-inventory'
 import { Fragment, useState } from 'react'
 import { SendTokens } from './components/SendTokens'
-import { TokenRecord } from './types'
+import { isTokenGroupRecord, TokenRecord } from './types'
 import { Text, TokenImage, Button, SendIcon } from '@0xsequence/design-system'
 import { THEME } from '../../utils/theme'
 import { TestnetBadge } from './components/partials/testnet-badge'
@@ -26,7 +26,7 @@ export function InventoryCoinGroupRoute() {
   const coinGroup = inventory.records?.[0]
   const location = useLocation()
 
-  if (!coinGroup) return null
+  if (!coinGroup || !isTokenGroupRecord(coinGroup)) return null
 
   return (
     <>
@@ -41,7 +41,7 @@ export function InventoryCoinGroupRoute() {
         }`}
       >
         <div className="flex items-center flex-col gap-3 my-auto">
-          <TokenImage src={coinGroup.logoURI} size="xl" withNetwork={coinGroup.chainId} />
+          <TokenImage src={coinGroup.logoURI} size="xl" />
           <Text variant="large" color="primary">
             {coinGroup.prettyBalance} {coinGroup.symbol}
           </Text>

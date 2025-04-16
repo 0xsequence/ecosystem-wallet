@@ -2,26 +2,22 @@ import { TokenListItem } from './TokenTile'
 import { NetworkImage, Text, TokenImage } from '@0xsequence/design-system'
 import { formatUnits } from 'ethers'
 
-import type { TokenRecord } from '../types'
+import type { TokenGroupRecord } from '../types'
 import { formatDisplay, limitDecimals } from '../../../utils/helpers'
 import { inert } from '../../../utils/inert'
 import { useLocalStore } from '../../../utils/local-store'
 import { useFavoriteTokens } from '../../../hooks/useFavoriteTokens'
 import SvgHeartIcon from '../../../design-system-patch/icons/HeartIcon'
-import { CoinGroup } from '../types'
 import { CoinIcon } from './partials/coin-icon'
 import { CoinBalance } from './partials/coin-balance'
 import { CoinChains } from './partials/coin-chains'
 import { FavoriteBadge } from './partials/favorite-badge'
 import { TestnetBadge } from './partials/testnet-badge'
-import { CoinFiatValue } from './partials/coin-fiat-value'
+// import { CoinFiatValue } from './partials/coin-fiat-value'
 import { Link, useLocation } from 'react-router'
 import { ROUTES } from '../../../routes'
-import { useState } from 'react'
-// import { InventoryCoinTile } from './InventoryCoin'
-// import { Transition } from '@headlessui/react'
 
-export function InventoryCoinGroup(props: CoinGroup) {
+export function InventoryCoinGroup(props: TokenGroupRecord) {
   const { balance, decimals, symbol, imageUrl, chains, path } = props
   const [prefs] = useLocalStore<{ hideBalance: boolean }>('userPrefs')
   const { has } = useFavoriteTokens()
@@ -68,7 +64,7 @@ export function InventoryCoinGroup(props: CoinGroup) {
               className="transition-all inert:translate-y-4 inert:scale-90 inert:opacity-0"
               {...inert(prefs?.hideBalance)}
             >
-              {limitDecimals(formatDisplay(formatUnits(balance, decimals)), 5)}
+              {limitDecimals(formatDisplay(formatUnits(balance || '', decimals)), 5)}
               {' '}
 
               <Text variant="normal" color="primary">
@@ -112,25 +108,25 @@ export function InventoryCoinGroup(props: CoinGroup) {
   )
 }
 
-export function InventoryCoinGroupList(props: TokenRecord) {
+export function InventoryCoinGroupList(props: TokenGroupRecord) {
   const {
-    chainId,
-    symbol,
-    logoURI,
-    contractAddress,
+    // chainId,
+    // contractAddress,
     path,
     contractType,
     uuid,
     prettyBalance,
     testnet,
-    decimals,
-    balance,
-    chains
+    // balance,
+    chains,
+    symbol,
+    logoURI
+    // decimals
   } = props
 
   return (
     <TokenListItem path={path} className="p-4 sm:py-3 px-4 flex items-center gap-3 relative trasition-all">
-      <CoinIcon logoURI={logoURI} chainId={chainId} contractType={contractType} size="md" />
+      <CoinIcon logoURI={logoURI} contractType={contractType} size="md" />
       <div className="flex flex-col gap-1">
         <CoinBalance balance={prettyBalance} symbol={symbol} />
         {chains ? <CoinChains chains={chains} size="xs" /> : null}
@@ -140,14 +136,14 @@ export function InventoryCoinGroupList(props: TokenRecord) {
         <FavoriteBadge id={uuid} />
         {testnet ? (
           <TestnetBadge isTestnet={true} />
-        ) : (
-          <CoinFiatValue
-            chainId={chainId}
-            contractAddress={contractAddress}
-            balance={balance || '0'}
-            decimals={decimals}
-          />
-        )}
+        ) : null
+        // <CoinFiatValue
+        //   chainId={chainId}
+        //   contractAddress={contractAddress}
+        //   balance={balance || '0'}
+        //   decimals={decimals}
+        // />
+        }
       </div>
     </TokenListItem>
   )

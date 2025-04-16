@@ -1,4 +1,4 @@
-import { TokenRecord } from '../../pages/InventoryRoutes/types'
+import { isTokenGroupRecord, TokenRecords } from '../../pages/InventoryRoutes/types'
 
 /**
  * Filters inventory values by group name(s).
@@ -7,15 +7,17 @@ import { TokenRecord } from '../../pages/InventoryRoutes/types'
  * @param arg - A single group name or an array of group names.
  * @returns Filtered list of inventory items matching the group(s). Returns the original list if no arg is provided.
  */
-export function group(values?: TokenRecord[], arg?: string | string[]): TokenRecord[] {
+export function group(values?: TokenRecords, arg?: string | string[]): TokenRecords {
   if (!values || !arg) {
     return []
   }
 
   const args = Array.isArray(arg) ? arg : [arg]
 
-  return values.filter(item => {
-    const groupName = item?.group?.group
-    return typeof groupName === 'string' && args.includes(groupName)
-  })
+  return values
+    .filter(item => isTokenGroupRecord(item))
+    .filter(item => {
+      const groupName = item?.group
+      return typeof groupName === 'string' && args.includes(groupName)
+    })
 }

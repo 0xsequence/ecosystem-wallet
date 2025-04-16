@@ -2,9 +2,10 @@ import { Outlet, useLocation, useParams } from 'react-router'
 import { TokenType } from './components/TokenType'
 import { TokenDetailModal } from './components/TokenDetailModal'
 import { RefinersState, useInventory } from '../../hooks/use-inventory'
-import { useFetchInventory } from './helpers/useFetchInventory'
+import { useFetchInventory } from './helpers/use-fetch-inventory'
 import { CONTRACT_TYPES } from './constants'
 import { ZERO_ADDRESS } from '@0xsequence/design-system'
+import { isTokenGroupRecord } from './types'
 
 export function InventoryContractRoute() {
   const { tokenId, groupId } = useParams()
@@ -33,7 +34,7 @@ function ContractPageView() {
     ? {
         filter: {
           chain: [chainId],
-          type: [CONTRACT_TYPES.NATIVE]
+          type: CONTRACT_TYPES.NATIVE
         }
       }
     : { filter: { chain: [chainId], contract: [contractAddress] } }
@@ -41,7 +42,13 @@ function ContractPageView() {
   const inventory = useInventory(query?.data, filters)
 
   const collectibles = inventory.records
-  const contract = collectibles?.[0]?.contractInfo
+  const record = collectibles?.[0]
+
+  if (isTokenGroupRecord(record)) {
+    return null
+  }
+
+  const contract = record.contractInfo
 
   if (nativeToken) {
     return <>Get token</>

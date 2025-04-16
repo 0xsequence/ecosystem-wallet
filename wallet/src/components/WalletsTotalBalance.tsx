@@ -7,10 +7,10 @@ import { useLocalStore } from '../utils/local-store'
 import { inert } from '../utils/inert'
 import { TokenPrice } from '@0xsequence/api'
 
-import { UserPreferenceLocalStore } from '../pages/InventoryRoutes/types'
+import { isTokenRecord, UserPreferenceLocalStore } from '../pages/InventoryRoutes/types'
 import { useExchangeRate } from '../hooks/useExchangeRate'
 import { Text } from '@0xsequence/design-system'
-import { useFetchInventory } from '../pages/InventoryRoutes/helpers/useFetchInventory'
+import { useFetchInventory } from '../pages/InventoryRoutes/helpers/use-fetch-inventory'
 import { useInventory } from '../hooks/use-inventory'
 import { TOKEN_TYPES } from '../utils/normalize-balances'
 
@@ -18,7 +18,7 @@ function useTotalCoinBalance() {
   const [prefs, setPrefs] = useLocalStore<UserPreferenceLocalStore>('userPrefs')
   const query = useFetchInventory()
 
-  const { records } = useInventory(query?.data, { filter: { type: ['COIN'] } })
+  const { records } = useInventory(query?.data, { filter: { type: 'COIN' } })
 
   const coins = records
     .filter(chain => {
@@ -34,11 +34,11 @@ function useTotalCoinBalance() {
       }
     })
 
-  const forPrices = coins.map(coin => {
-    return { chainId: coin.chainId, contractAddress: coin.contractAddress }
-  })
-
-  console.log(forPrices)
+  const forPrices = coins
+    .filter(coin => isTokenRecord(coin))
+    .map(coin => {
+      return { chainId: coin.chainId, contractAddress: coin.contractAddress }
+    })
 
   const coinPrices = useCoinPrices(forPrices)
 
@@ -46,9 +46,11 @@ function useTotalCoinBalance() {
     coinPrices?.data?.reduce((acc: number, chain: TokenPrice) => {
       if (!chain || !chain.price || !chain.price.value) return acc
 
-      const current = coins?.find(
-        coin => coin.chainId === chain.token.chainId && coin.contractAddress === chain.token.contractAddress
-      )
+      const current = coins
+        ?.filter(coin => isTokenRecord(coin))
+        .find(
+          coin => coin.chainId === chain.token.chainId && coin.contractAddress === chain.token.contractAddress
+        )
 
       if (!current) return acc
 

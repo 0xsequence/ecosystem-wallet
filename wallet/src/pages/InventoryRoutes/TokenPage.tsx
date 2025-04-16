@@ -2,7 +2,7 @@ import { Link, useLocation, useParams } from 'react-router'
 
 import { HeartIcon, SendIcon } from '../../design-system-patch/icons'
 import { useInventory } from '../../hooks/use-inventory'
-import { TokenRecord } from './types'
+import { isTokenGroupRecord, TokenRecord } from './types'
 import { formatDisplay, truncateAtMiddle } from '../../utils/helpers'
 import { useCoinPrices } from '../../hooks/useCoinPrices'
 import { WrappedCollapse } from '../../components/wrapped-collapse'
@@ -26,11 +26,10 @@ import { zeroAddress } from 'viem'
 import { useFavoriteTokens } from '../../hooks/useFavoriteTokens'
 // import { SendTokens } from './components/SendTokens'
 import { TOKEN_TYPES } from '../../utils/normalize-balances'
-import { useFetchInventory } from './helpers/useFetchInventory'
+import { useFetchInventory } from './helpers/use-fetch-inventory'
 import { CONTRACT_TYPES } from './constants'
 import { SendTokens } from './components/SendTokens'
 import { createContext, useContext, useState } from 'react'
-import { ChainId } from '@0xsequence/network'
 
 interface TokenContext {
   sendModal: boolean
@@ -56,7 +55,7 @@ export function InventoryTokenRoute() {
   })
 
   const item = inventory.records?.[0]
-  if (!item) return null
+  if (!item || isTokenGroupRecord(item)) return null
 
   return (
     <TokenContext.Provider value={{ sendModal, setSendModal }}>
@@ -64,7 +63,7 @@ export function InventoryTokenRoute() {
         <TokenDetails item={item} />
         {sendModal && chainId && contractAddress && tokenId ? (
           <SendTokens
-            chainId={chainId as unknown as ChainId}
+            chainId={parseInt(chainId)}
             contractAddress={contractAddress}
             tokenId={tokenId}
             close={() => setSendModal(false)}

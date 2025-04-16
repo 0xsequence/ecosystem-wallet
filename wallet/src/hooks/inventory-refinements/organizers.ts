@@ -1,5 +1,5 @@
 import { groupContractsAcrossNetworks } from './organize-group-contracts-across-networks'
-import { TokenRecord } from '../../pages/InventoryRoutes/types'
+import { TokenRecords } from '../../pages/InventoryRoutes/types'
 
 /**
  * Arguments accepted by each organizer function.
@@ -11,10 +11,10 @@ export type OrganizeArgs = {
 }
 
 /**
- * Organizer function definitions. Each function returns a new organized TokenRecord[] list.
+ * Organizer function definitions. Each function returns a new organized TokenRecords list.
  */
 export type OrganizeFns = {
-  [K in keyof OrganizeArgs]: (values?: TokenRecord[], args?: OrganizeArgs[K]) => TokenRecord[]
+  [K in keyof OrganizeArgs]: (values?: TokenRecords, args?: OrganizeArgs[K]) => TokenRecords
 }
 
 export type OrganizeKeys = keyof OrganizeArgs

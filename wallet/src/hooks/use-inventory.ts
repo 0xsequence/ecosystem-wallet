@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { TokenRecord } from '../pages/InventoryRoutes/types'
+import { TokenRecords } from '../pages/InventoryRoutes/types'
 import Fuse from 'fuse.js'
 import { filter, FilterArgs, FilterKeys } from './inventory-refinements/filters'
 import { sort, SortArgs, SortKeys } from './inventory-refinements/sorters'
@@ -20,7 +20,7 @@ export interface RefinersState {
  * @param initialRefiners - Optional initial state for filters and sorters.
  * @returns An object with refined `records`, active refiners, and manipulation methods.
  */
-export function useInventory(data?: TokenRecord[], initialRefiners?: Partial<RefinersState>) {
+export function useInventory(data?: TokenRecords, initialRefiners?: Partial<RefinersState>) {
   const [activeFilters, setActiveFilters] = useState<RefinersState['filter']>(initialRefiners?.filter || null)
   const [activeSorters, setActiveSorters] = useState<RefinersState['sort']>(initialRefiners?.sort || null)
   const [activeOrganizers, setActiveOrganizers] = useState<RefinersState['organize']>(
@@ -38,7 +38,7 @@ export function useInventory(data?: TokenRecord[], initialRefiners?: Partial<Ref
    * @param term - Search query.
    * @returns Filtered and ranked data.
    */
-  function searchByTerm(values?: TokenRecord[], term?: string): TokenRecord[] | undefined {
+  function searchByTerm(values?: TokenRecords, term?: string): TokenRecords | undefined {
     if (!values || !term) return values
     const fuse = new Fuse(structuredClone(values), FUSE_OPTIONS)
     return fuse.search(term).map(({ item }) => item)

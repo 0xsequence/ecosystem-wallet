@@ -1,7 +1,11 @@
-import { TokenRecord } from '../../pages/InventoryRoutes/types'
+import { ContractType } from '@0xsequence/indexer'
+import { TokenRecords } from '../../pages/InventoryRoutes/types'
 import { TokenType } from './filters'
 
-export function type(values?: TokenRecord[], args?: TokenType | TokenType[]): TokenRecord[] {
+export function type(
+  values?: TokenRecords,
+  args?: ContractType | TokenType | (ContractType | TokenType)[]
+): TokenRecords {
   if (!values || !args) return [] // <- fix here
 
   const types: (typeof args)[] = Array.isArray(args) ? [...args] : [args]

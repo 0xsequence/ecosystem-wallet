@@ -3,12 +3,24 @@ import { NetworkImage, TokenImage, nativeTokenImageUrl } from '@0xsequence/desig
 type CoinIconProps = {
   contractType: string
   logoURI?: string
-  chainId: number
+  chainId?: number
   size: 'sm' | 'md' | 'lg'
 }
 
 export function CoinIcon(props: CoinIconProps) {
   const { contractType, logoURI, chainId, size = 'lg' } = props
+
+  if (!chainId) {
+    return (
+      <div
+        className="data-[size='md']:size-10 data-[size='lg']:w-[50%] data-[size='lg']:max-w-20"
+        data-size={size}
+      >
+        <TokenImage src={logoURI} size="xl" className="size-full bg-button-glass rounded-full" />
+      </div>
+    )
+  }
+
   switch (contractType) {
     case 'NATIVE':
       return (

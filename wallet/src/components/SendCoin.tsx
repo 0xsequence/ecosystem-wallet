@@ -7,11 +7,9 @@ import {
   NumericInput,
   Spinner,
   TextInput,
-  nativeTokenImageUrl,
   useToast
 } from '@0xsequence/design-system'
-import { TokenBalance } from '@0xsequence/indexer'
-import { ChainId, networks } from '@0xsequence/network'
+// import { TokenBalance } from '@0xsequence/indexer'
 import {
   MaySentTransactionResponse,
   SentTransactionResponse,
@@ -21,7 +19,7 @@ import {
 import { ethers } from 'ethers'
 import { ChangeEvent, SyntheticEvent, useRef, useState } from 'react'
 
-import { computeBalanceFiat, createNativeTokenBalance, isNativeCoinBalance } from '../utils/balance'
+import { computeBalanceFiat, isNativeCoinBalance } from '../utils/balance'
 import { isEthAddress, limitDecimals, truncateAtMiddle } from '../utils/helpers'
 import { TransactionFeeOptionsResult } from '../utils/txn'
 
@@ -42,7 +40,7 @@ import { TokenRecord } from '../pages/InventoryRoutes/types'
 import { CONTRACT_TYPES } from '../utils/normalize-balances'
 
 interface SendCoinProps {
-  chainId: string
+  chainId: number
   balance: TokenRecord
   onSuccess: (txnResponse: SentTransactionResponse) => void
 }
@@ -100,10 +98,10 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
   })
 
   const contractAddress = balance.contractAddress
-
+  const accountAddress = balance.accountAddress
   const { data: coinPrices = [], isPending: isPendingCoinPrices } = useCoinPrices([
     {
-      chainId: parseInt(chainId),
+      chainId,
       contractAddress
     }
   ])
@@ -170,7 +168,7 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
         }
       } else {
         transaction = {
-          to: balance?.accountAddress,
+          to: accountAddress,
           data: new ethers.Interface(ERC_20_ABI).encodeFunctionData('transfer', [
             toAddress,
             ethers.toQuantity(sendAmount)
@@ -209,7 +207,7 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
         })
       } else if ('contractAddress' in balance) {
         txResponse = await sequenceWaas.sendERC20({
-          token: balance.contractAddress,
+          token: contractAddress,
           to: toAddress,
           value: ethers.parseUnits(amountToSendFormatted, decimals),
           network: chainId,
@@ -255,21 +253,15 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
               imageUrl={imageUrl}
               decimals={decimals}
               name={name}
-              symbol={symbol}
+              symbol={symbol as string}
               balance={balance?.balance || '0'}
               fiatValue={computeBalanceFiat({
-                balance: isNativeCoin
-                  ? createNativeTokenBalance(
-                      parseInt(chainId),
-                      balance.accountAddress,
-                      balance.balance || '0'
-                    )
-                  : (balance as TokenBalance),
+                balance,
                 prices: coinPrices,
                 conversionRate,
                 decimals
               })}
-              chainId={parseInt(chainId)}
+              chainId={chainId}
             />
             <WrappedInput>
               <NumericInput
@@ -364,15 +356,15 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
       {showConfirmation && (
         <TransactionConfirmation
           name={name}
-          symbol={symbol}
+          symbol={symbol as string}
           imageUrl={imageUrl}
           amount={amountToSendFormatted}
           toAddress={toAddress}
-          chainId={parseInt(chainId)}
+          chainId={chainId}
           balance={balance.balance || '0'}
           decimals={decimals}
           fiatValue={amountToSendFiat}
-          feeOptions={{ options: feeOptions?.feeOptions || [], chainId: parseInt(chainId) }}
+          feeOptions={{ options: feeOptions?.feeOptions || [], chainId }}
           onSelectFeeOption={setSelectedFeeTokenAddress}
           isLoading={isSendTxnPending}
           onConfirm={executeTransaction}

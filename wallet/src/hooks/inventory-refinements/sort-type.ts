@@ -1,4 +1,4 @@
-import { TokenRecord } from '../../pages/InventoryRoutes/types'
+import { TokenGroupRecord, TokenRecord } from '../../pages/InventoryRoutes/types'
 
 /**
  * Creates a comparator that sorts items based on a custom type order.
@@ -6,7 +6,9 @@ import { TokenRecord } from '../../pages/InventoryRoutes/types'
  * @param order - Array of token types in preferred order.
  * @returns A comparator function for array sorting.
  */
-export function type(order: string[]): (a: TokenRecord, b: TokenRecord) => number {
+export function type(
+  order: string[]
+): (a: TokenRecord | TokenGroupRecord, b: TokenRecord | TokenGroupRecord) => number {
   const typeRank = new Map(order.map((type, i) => [type.toUpperCase(), i]))
 
   return (a, b) => {

@@ -1,4 +1,4 @@
-import { TokenRecord } from '../../pages/InventoryRoutes/types'
+import { TokenRecord, TokenGroupRecord } from '../../pages/InventoryRoutes/types'
 
 /**
  * Creates a comparator that prioritizes UUIDs in a "favorites" list.
@@ -6,7 +6,9 @@ import { TokenRecord } from '../../pages/InventoryRoutes/types'
  * @param list - UUIDs to prioritize. Items not in the list come after.
  * @returns A comparator function for array sorting.
  */
-export function favorites(list: string[] | null): (a: TokenRecord, b: TokenRecord) => number {
+export function favorites(
+  list: string[] | null
+): (a: TokenRecord | TokenGroupRecord, b: TokenRecord | TokenGroupRecord) => number {
   const favorites = new Set(list ?? [])
 
   return (a, b) => {

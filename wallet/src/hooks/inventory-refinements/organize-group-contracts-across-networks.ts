@@ -1,4 +1,5 @@
-import { CoinGroup, TokenRecord } from '../../pages/InventoryRoutes/types'
+import { ContractType } from '@0xsequence/indexer'
+import { isTokenGroupRecord, TokenGroupRecord, TokenRecords } from '../../pages/InventoryRoutes/types'
 import { networksMap } from '../../utils/currencyGroups/networks'
 import { formatPrettyBalance } from '../../utils/format-pretty-balance'
 
@@ -14,15 +15,19 @@ export interface GroupContractsOptions {
  * @returns Grouped + ungrouped tokens, preserving display order.
  */
 export function groupContractsAcrossNetworks(
-  values?: TokenRecord[],
+  values?: TokenRecords,
   options: GroupContractsOptions = {}
-): TokenRecord[] {
+): TokenRecords {
   if (!values) return []
 
   const { minGroupSize = 2 } = options
 
   const groups = Object.values(
     values.reduce((acc, coin) => {
+      if (isTokenGroupRecord(coin)) {
+        return acc
+      }
+
       const chainId = coin.chainId
       const contractAddress = coin.contractAddress.toLowerCase()
       const network = chainId ? networksMap[chainId] : null
@@ -38,34 +43,31 @@ export function groupContractsAcrossNetworks(
         }
 
         if (record && record.group) {
-          coin.group = record.group
-
           if (!acc[record.group]) {
             acc[record.group] = {
               ...record,
-              chainId: 0,
+              contractType: ContractType.UNKNOWN,
               balance: '0',
-              chains: [],
+              prettyBalance: '0',
               type: 'GROUP',
               testnet: record.group.includes('testnet'),
               group: record.group,
               uuid: `coins::${record.group}::0`,
               path: `/coins/${record.group}`,
-              logoURI: coin.logoURI
+              logoURI: coin.logoURI,
+              chains: []
             }
           }
 
           acc[record.group].balance = (BigInt(acc[record.group].balance || 0) + BigInt(balance)).toString()
-          acc[record.group].prettyBalance = formatPrettyBalance(
-            acc[record.group].balance || '0',
-            record.decimals
-          )
+          acc[record.group].prettyBalance =
+            formatPrettyBalance(acc[record.group].balance || '0', record.decimals) || ''
           acc[record.group].chains.push(coin)
         }
       }
 
       return acc
-    }, {} as Record<string, CoinGroup>)
+    }, {} as Record<string, TokenGroupRecord>)
   )
 
   const multiChainGroups = groups.filter(group => group.chains.length >= minGroupSize)

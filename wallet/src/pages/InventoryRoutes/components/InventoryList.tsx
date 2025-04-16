@@ -6,7 +6,7 @@ import { TokenType } from './TokenType'
 import { Transition } from '@headlessui/react'
 import { ChevronRightIcon } from '@0xsequence/design-system'
 import { Link } from 'react-router'
-import { TokenRecord } from '../types'
+import { isTokenGroupRecord, TokenRecord } from '../types'
 import { InventoryCoinList } from './InventoryCoin'
 import { ContractInfo } from '@0xsequence/indexer'
 import { TOKEN_TYPES } from '../../../utils/normalize-balances'
@@ -21,13 +21,13 @@ export function InventoryGrid({
   isActive: boolean
   isLoading: boolean
 }) {
-  const hasNoResults = inventory.records.length < 1 && !isLoading && inventory.active.search
+  const hasNoResults = inventory.records.length < 1 && !isLoading && inventory.active.searchTerm
 
   return (
     <Transition show={isActive}>
       {hasNoResults ? (
         <div>
-          <NoResults term={inventory.active.search} clear={() => inventory.refiners.search('')} />
+          <NoResults term={inventory.active.searchTerm} clear={() => inventory.refiners.search('')} />
         </div>
       ) : (
         <div
@@ -62,6 +62,10 @@ export function InventoryList({
   const collectibles = inventory?.records?.filter(item => item.type === TOKEN_TYPES.COLLECTIBLE)
 
   const collectiblesByContract = collectibles?.reduce((acc, item) => {
+    if (isTokenGroupRecord(item)) {
+      return acc
+    }
+
     if (!acc[item.contractAddress]) {
       acc[item.contractAddress] = []
     }
@@ -91,7 +95,7 @@ export function InventoryList({
     <Transition show={isActive}>
       {hasNoResults ? (
         <div>
-          <NoResults term={inventory.active.search} clear={() => inventory.refiners.search('')} />
+          <NoResults term={inventory.active.searchTerm} clear={() => inventory.refiners.search('')} />
         </div>
       ) : (
         <div className="isolate flex flex-col gap-2 data-[closed]:opacity-0 data-[closed]:scale-95 data-[closed]:translate-y-2 transition-all">
@@ -101,7 +105,7 @@ export function InventoryList({
             <>
               <div className="isolate flex flex-col gap-2">
                 {coinsInitial?.map(item =>
-                  !item ? null : item.type === TOKEN_TYPES.COIN ? (
+                  !item ? null : !isTokenGroupRecord(item) ? (
                     <InventoryCoinList {...item} key={item.uuid} />
                   ) : (
                     <InventoryCoinGroupList {...item} key={item.uuid} />
@@ -127,9 +131,9 @@ export function InventoryList({
                       {...inert(!showAllCoins)}
                     >
                       <div className="isolate flex flex-col gap-2 min-h-0">
-                        {coinsMore?.map(item => (
-                          <InventoryCoinList {...item} key={item.uuid} />
-                        ))}
+                        {coinsMore?.map(item =>
+                          isTokenGroupRecord(item) ? null : <InventoryCoinList {...item} key={item.uuid} />
+                        )}
                       </div>
                     </div>
                   </>

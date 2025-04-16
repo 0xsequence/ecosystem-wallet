@@ -1,4 +1,4 @@
-import { TokenRecord } from '../../pages/InventoryRoutes/types'
+import { TokenRecord, TokenGroupRecord } from '../../pages/InventoryRoutes/types'
 
 /**
  * Creates a comparator that sorts items by balance.
@@ -8,7 +8,7 @@ import { TokenRecord } from '../../pages/InventoryRoutes/types'
  */
 export function balance(
   args: 'asc' | 'desc' | 'lowToHigh' | 'highToLow' = 'desc'
-): (a: TokenRecord, b: TokenRecord) => number {
+): (a: TokenRecord | TokenGroupRecord, b: TokenRecord | TokenGroupRecord) => number {
   const normalized = args === 'lowToHigh' ? 'asc' : args === 'highToLow' ? 'desc' : args
 
   return (a, b) => {

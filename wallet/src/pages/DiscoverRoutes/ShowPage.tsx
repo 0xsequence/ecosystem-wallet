@@ -8,6 +8,7 @@ import { TokenDetailModal } from '../InventoryRoutes/components/TokenDetailModal
 import { useFavorites } from '../../hooks/useFavorites'
 import { inert } from '../../utils/inert'
 import { useWatchlist } from '../../hooks/useWatchlist'
+import { useFetchInventory } from '../InventoryRoutes/helpers/use-fetch-inventory'
 
 export function DiscoverShowRoute() {
   const { id } = useParams()
@@ -86,17 +87,19 @@ export function DiscoverShowRoute() {
 }
 
 function Collectables({ contracts }: { contracts: string[] }) {
-  const { inventory } = useInventory()
+  const query = useFetchInventory()
 
-  const items = inventory.filter(item => (item ? contracts.includes(item.contractAddress) : false))
+  const inventory = useInventory(query?.data, {
+    filter: { contract: contracts }
+  })
 
-  if (!items) return null
+  if (!inventory.records) return null
 
   return (
     <div className="flex flex-col gap-4">
       <h2 className="text-xl font-semibold">Your collectables</h2>
       <div className="isolate grid grid-cols-2 sm:grid-cols-4 gap-2 ">
-        {items.map((item, index) => (
+        {inventory.records.map((item, index) => (
           <TokenType key={index} item={item} />
         ))}
       </div>

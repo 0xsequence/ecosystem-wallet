@@ -1,4 +1,4 @@
-import { TokenRecord } from '../../pages/InventoryRoutes/types'
+import { TokenRecords } from '../../pages/InventoryRoutes/types'
 
 /**
  * Filters inventory values by UUID(s).
@@ -7,7 +7,7 @@ import { TokenRecord } from '../../pages/InventoryRoutes/types'
  * @param arg - A single UUID or an array of UUIDs.
  * @returns Filtered list of inventory items matching the UUID(s). Returns the original list if no arg is provided.
  */
-export function uuid(values?: TokenRecord[], arg?: string | string[]): TokenRecord[] {
+export function uuid(values?: TokenRecords, arg?: string | string[]): TokenRecords {
   if (!values || !arg) {
     return values ?? []
   }

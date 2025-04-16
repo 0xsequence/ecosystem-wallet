@@ -1,4 +1,4 @@
-import { TokenRecord } from '../../pages/InventoryRoutes/types'
+import { TokenRecord, TokenGroupRecord } from '../../pages/InventoryRoutes/types'
 
 /**
  * Creates a comparator that sorts by testnet flag.
@@ -6,7 +6,9 @@ import { TokenRecord } from '../../pages/InventoryRoutes/types'
  * @param args - Sorting order: 'asc' puts testnets last, 'desc' puts them first.
  * @returns A comparator function for array sorting.
  */
-export function testnet(args: 'asc' | 'desc' = 'asc'): (a: TokenRecord, b: TokenRecord) => number {
+export function testnet(
+  args: 'asc' | 'desc' = 'asc'
+): (a: TokenRecord | TokenGroupRecord, b: TokenRecord | TokenGroupRecord) => number {
   return (a, b) => {
     const testnetA = a?.testnet ?? false
     const testnetB = b?.testnet ?? false

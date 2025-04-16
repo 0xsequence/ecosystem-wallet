@@ -2,8 +2,9 @@ import { SendCollectible } from '../../../components/SendCollectible'
 import { SendCoin } from '../../../components/SendCoin'
 import { Modal, ModalPrimitive } from '@0xsequence/design-system'
 import { useInventory } from '../../../hooks/use-inventory'
-import { useFetchInventory } from '../helpers/useFetchInventory'
+import { useFetchInventory } from '../helpers/use-fetch-inventory'
 import { TOKEN_TYPES } from '../../../utils/normalize-balances'
+import { isTokenGroupRecord } from '../types'
 
 export function SendTokens({
   chainId,
@@ -11,7 +12,7 @@ export function SendTokens({
   tokenId,
   close
 }: {
-  chainId: string
+  chainId: number
   contractAddress: string
   tokenId: string
   close: React.Dispatch<React.SetStateAction<boolean>>
@@ -26,7 +27,7 @@ export function SendTokens({
   // const { chainId, tokenId, tokenClass, contractAddress } = showInventoryItem || {}
   const token = inventory?.records?.[0]
 
-  if (!token) return null
+  if (!token || isTokenGroupRecord(token)) return null
 
   const balance = structuredClone(token)
 
@@ -98,12 +99,15 @@ export function SendTokens({
             </div>
           </ModalPrimitive.Title>
         </div>
-        {token.type === TOKEN_TYPES.COIN && (
-          <SendCoin chainId={chainId} balance={balance} onSuccess={onSendSuccess} />
-        )}
-        {token.type === TOKEN_TYPES.COLLECTIBLE && (
-          <SendCollectible chainId={chainId} balance={balance} onSuccess={onSendSuccess} />
-        )}
+
+        <>
+          {token.type === TOKEN_TYPES.COIN && (
+            <SendCoin chainId={chainId} balance={balance} onSuccess={onSendSuccess} />
+          )}
+          {token.type === TOKEN_TYPES.COLLECTIBLE && (
+            <SendCollectible chainId={chainId} balance={balance} onSuccess={onSendSuccess} />
+          )}
+        </>
       </div>
     </Modal>
   )

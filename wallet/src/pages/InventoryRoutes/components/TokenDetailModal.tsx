@@ -26,7 +26,7 @@ export function TokenDetailModal() {
         {sendModal && chainId && contractAddress && tokenId ? (
           <SendTokens
             close={setSendModal}
-            chainId={chainId}
+            chainId={parseInt(chainId)}
             contractAddress={contractAddress}
             tokenId={tokenId.toString()}
           />
@@ -41,7 +41,7 @@ export function TokenDetailModal() {
       {sendModal && chainId && contractAddress && tokenId ? (
         <SendTokens
           close={setSendModal}
-          chainId={chainId}
+          chainId={parseInt(chainId)}
           contractAddress={contractAddress}
           tokenId={tokenId}
         />

@@ -2,7 +2,7 @@ import { type } from './sort-type'
 import { balance } from './sort-balance'
 import { testnet } from './sort-testnet'
 import { favorites } from './sort-favorites'
-import { TokenRecord } from '../../pages/InventoryRoutes/types'
+import { TokenRecord, TokenGroupRecord } from '../../pages/InventoryRoutes/types'
 
 export type SortArgs = {
   type: string[] // custom order
@@ -12,7 +12,9 @@ export type SortArgs = {
 }
 
 export type SortFns = {
-  [K in keyof SortArgs]: (args: SortArgs[K]) => (a: TokenRecord, b: TokenRecord) => number
+  [K in keyof SortArgs]: (
+    args: SortArgs[K]
+  ) => (a: TokenRecord | TokenGroupRecord, b: TokenRecord | TokenGroupRecord) => number
 }
 export type SortKeys = keyof SortArgs
 

@@ -54,7 +54,7 @@ export function normalizeTokens(balances: TokenBalance[]) {
     switch (contractType) {
       case CONTRACT_TYPES.NATIVE:
         return {
-          ...(token as unknown as TokenRecord),
+          ...token,
           contractType,
           type: TOKEN_TYPES.COIN,
           uuid: `${token.chainId}::${ZERO_ADDRESS}::0`,
@@ -67,11 +67,11 @@ export function normalizeTokens(balances: TokenBalance[]) {
           logoURI: chainInfo?.logoURI,
           group,
           prettyBalance: formatPrettyBalance(token.balance, chainInfo.nativeToken.decimals)
-        } as TokenRecord
+        } as unknown as TokenRecord
 
       case CONTRACT_TYPES.ERC20:
         return {
-          ...(token as unknown as TokenRecord),
+          ...token,
           contractType,
           type: TOKEN_TYPES.COIN,
           uuid: `${token.chainId}::${token.contractAddress}::0`,
@@ -84,12 +84,12 @@ export function normalizeTokens(balances: TokenBalance[]) {
           testnet,
           group,
           prettyBalance: formatPrettyBalance(token.balance, token.contractInfo?.decimals || undefined)
-        } as TokenRecord
+        } as unknown as TokenRecord
 
       case CONTRACT_TYPES.ERC1155:
       case CONTRACT_TYPES.ERC721:
         return {
-          ...(token as unknown as TokenRecord),
+          ...token,
           contractType,
           type: TOKEN_TYPES.COLLECTIBLE,
           uuid: `${token.chainId}::${token.contractAddress}::${token.tokenID || 0}`,
@@ -101,7 +101,7 @@ export function normalizeTokens(balances: TokenBalance[]) {
           decimals: token.contractInfo?.decimals,
           group,
           prettyBalance: token.balance
-        } as TokenRecord
+        } as unknown as TokenRecord
     }
   })
   return records
