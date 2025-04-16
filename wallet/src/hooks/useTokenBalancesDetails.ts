@@ -1,11 +1,11 @@
-import { GetTokenBalancesDetailsArgs } from '@0xsequence/indexer'
 import { useQuery } from '@tanstack/react-query'
 
 import { getTokenBalancesDetails } from '../utils/balance'
 import { TIME } from '../utils/time.const'
 import { INDEXER_CLIENT_GATEWAY } from '../utils/indexer'
+import { IndexerGateway } from '@0xsequence/indexer'
 
-export const useTokenBalancesDetails = ({ ...args }: GetTokenBalancesDetailsArgs) => {
+export const useTokenBalancesDetails = ({ ...args }: IndexerGateway.GetTokenBalancesDetailsArgs) => {
   return useQuery({
     queryKey: ['tokenBalancesDetails', args],
     queryFn: () => getTokenBalancesDetails(INDEXER_CLIENT_GATEWAY, args),
