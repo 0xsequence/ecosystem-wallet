@@ -11,7 +11,6 @@ import {
   TextInput,
   useToast
 } from '@0xsequence/design-system'
-import { TokenBalance } from '@0xsequence/indexer'
 import {
   MaySentTransactionResponse,
   SentTransactionResponse,
@@ -36,10 +35,11 @@ import { TransactionConfirmation } from './TransactionConfirmation'
 import { SendIcon } from '../design-system-patch/icons'
 import { WrappedInput } from './wrapped-input'
 import { TIME } from '../utils/time.const'
+import { TokenRecord } from '../pages/InventoryRoutes/types'
 
 interface SendCollectibleProps {
-  chainId: number
-  balance: TokenBalance
+  chainId: string
+  balance: TokenRecord
   onSuccess: (txnResponse: SentTransactionResponse) => void
 }
 
@@ -138,22 +138,22 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
     switch (contractType) {
       case 'ERC721':
         transaction = {
-          to: (tokenBalance as TokenBalance).contractAddress as `0x${string}`,
+          to: tokenBalance.contractAddress as `0x${string}`,
           data: new ethers.Interface(ERC_721_ABI).encodeFunctionData('safeTransferFrom', [
             accountAddress,
             toAddress,
-            tokenBalance.tokenID
+            tokenBalance.tokenId
           ]) as `0x${string}`
         }
         break
       case 'ERC1155':
       default:
         transaction = {
-          to: (tokenBalance as TokenBalance).contractAddress as `0x${string}`,
+          to: tokenBalance.contractAddress as `0x${string}`,
           data: new ethers.Interface(ERC_1155_ABI).encodeFunctionData('safeBatchTransferFrom', [
             accountAddress,
             toAddress,
-            [tokenBalance.tokenID],
+            [tokenBalance.tokenId],
             [ethers.toQuantity(sendAmount)],
             new Uint8Array()
           ]) as `0x${string}`
@@ -163,7 +163,7 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
     // Check fee options before showing confirmation
     const feeOptionsResult = await checkTransactionFeeOptions({
       transactions: [transaction],
-      chainId
+      chainId: parseInt(chainId)
     })
 
     setFeeOptions(feeOptionsResult)
@@ -185,10 +185,10 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
           data: new ethers.Interface(ERC_721_ABI).encodeFunctionData('safeTransferFrom', [
             accountAddress,
             toAddress,
-            tokenBalance.tokenID
+            tokenBalance.tokenId
           ]),
           token: tokenBalance.contractAddress,
-          id: tokenBalance.tokenID || '',
+          id: tokenBalance.tokenId || '',
           network: chainId,
           transactionsFeeOption,
           transactionsFeeQuote: feeOptions?.feeQuote
@@ -199,11 +199,11 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
           data: new ethers.Interface(ERC_1155_ABI).encodeFunctionData('safeBatchTransferFrom', [
             accountAddress,
             toAddress,
-            [tokenBalance.tokenID],
+            [tokenBalance.tokenId],
             [ethers.toQuantity(sendAmount)],
             new Uint8Array()
           ]) as `0x${string}`,
-          values: [{ id: tokenBalance.tokenID || '', amount: ethers.toQuantity(sendAmount) }],
+          values: [{ id: tokenBalance.tokenId || '', amount: ethers.toQuantity(sendAmount) }],
           token: tokenBalance.contractAddress,
           network: chainId,
           transactionsFeeOption,
@@ -257,7 +257,7 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
               name={name}
               symbol={''}
               balance={tokenBalance?.balance || '0'}
-              chainId={chainId}
+              chainId={parseInt(chainId)}
             />
             <WrappedInput>
               <NumericInput
@@ -369,10 +369,10 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
           amount={amountToSendFormatted}
           toAddress={toAddress}
           showSquareImage={true}
-          chainId={chainId}
+          chainId={parseInt(chainId)}
           balance={tokenBalance?.balance || '0'}
           decimals={decimals}
-          feeOptions={{ chainId, options: feeOptions?.feeOptions || [] }}
+          feeOptions={{ chainId: parseInt(chainId), options: feeOptions?.feeOptions || [] }}
           onSelectFeeOption={setSelectedFeeTokenAddress}
           isLoading={isSendTxnPending}
           onConfirm={executeTransaction}

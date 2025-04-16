@@ -10,7 +10,7 @@ import {
   nativeTokenImageUrl,
   useToast
 } from '@0xsequence/design-system'
-import { NativeTokenBalance, TokenBalance } from '@0xsequence/indexer'
+import { TokenBalance } from '@0xsequence/indexer'
 import { ChainId, networks } from '@0xsequence/network'
 import {
   MaySentTransactionResponse,
@@ -25,7 +25,8 @@ import { computeBalanceFiat, createNativeTokenBalance, isNativeCoinBalance } fro
 import { isEthAddress, limitDecimals, truncateAtMiddle } from '../utils/helpers'
 import { TransactionFeeOptionsResult } from '../utils/txn'
 
-import { useCoinPrices, useExchangeRate } from '../hooks/useCoinPrices'
+import { useCoinPrices } from '../hooks/useCoinPrices'
+import { useExchangeRate } from '../hooks/useExchangeRate'
 import { useConfig } from '../hooks/useConfig'
 import { checkTransactionFeeOptions } from '../hooks/useTransactionHandler'
 
@@ -37,10 +38,12 @@ import { TransactionConfirmation } from './TransactionConfirmation'
 import { SendIcon } from '../design-system-patch/icons'
 import { WrappedInput } from './wrapped-input'
 import { TIME } from '../utils/time.const'
+import { TokenRecord } from '../pages/InventoryRoutes/types'
+import { CONTRACT_TYPES } from '../utils/normalize-balances'
 
 interface SendCoinProps {
-  chainId: number
-  balance: NativeTokenBalance | TokenBalance
+  chainId: string
+  balance: TokenRecord
   onSuccess: (txnResponse: SentTransactionResponse) => void
 }
 
@@ -96,14 +99,11 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
     return feeOption.token.contractAddress === selectedFeeTokenAddress
   })
 
-  const contractAddress = isNativeCoin
-    ? ethers.ZeroAddress
-    : 'contractAddress' in balance
-    ? balance.contractAddress
-    : ethers.ZeroAddress
+  const contractAddress = balance.contractAddress
+
   const { data: coinPrices = [], isPending: isPendingCoinPrices } = useCoinPrices([
     {
-      chainId,
+      chainId: parseInt(chainId),
       contractAddress
     }
   ])
@@ -118,36 +118,16 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
     return <SendCoinSkeleton />
   }
 
-  const {
-    name: nativeTokenName = 'Native Token',
-    symbol: nativeTokenSymbol = '???',
-    decimals: nativeTokenDecimals = 18
-  } = networks[chainId as ChainId].nativeToken
-
-  const decimals = isNativeCoin
-    ? nativeTokenDecimals
-    : ('contractInfo' in balance ? balance.contractInfo?.decimals : undefined) || 18
-  const name = isNativeCoin
-    ? nativeTokenName
-    : ('contractInfo' in balance ? balance.contractInfo?.name : undefined) || ''
-  const imageUrl = isNativeCoin
-    ? nativeTokenImageUrl(chainId)
-    : 'contractInfo' in balance
-    ? balance.contractInfo?.logoURI
-    : undefined
-  const symbol = isNativeCoin
-    ? nativeTokenSymbol
-    : ('contractInfo' in balance ? balance.contractInfo?.symbol : undefined) || ''
+  const decimals = balance.decimals
+  const name = balance.contractInfo?.name || ''
+  const imageUrl = balance.contractInfo?.logoURI
+  const symbol =
+    balance.contractType === CONTRACT_TYPES.NATIVE ? balance.symbol : balance.contractInfo?.symbol
   const amountToSendFormatted = amount === '' ? '0' : amount
   const amountRaw = ethers.parseUnits(amountToSendFormatted, decimals)
 
   const amountToSendFiat = computeBalanceFiat({
-    balance: isNativeCoin
-      ? createNativeTokenBalance(chainId, balance.accountAddress, amountRaw.toString())
-      : {
-          ...(balance as TokenBalance),
-          balance: amountRaw.toString()
-        },
+    balance,
     prices: coinPrices,
     conversionRate,
     decimals
@@ -279,13 +259,17 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
               balance={balance?.balance || '0'}
               fiatValue={computeBalanceFiat({
                 balance: isNativeCoin
-                  ? createNativeTokenBalance(chainId, balance.accountAddress, balance.balance || '0')
+                  ? createNativeTokenBalance(
+                      parseInt(chainId),
+                      balance.accountAddress,
+                      balance.balance || '0'
+                    )
                   : (balance as TokenBalance),
                 prices: coinPrices,
                 conversionRate,
                 decimals
               })}
-              chainId={chainId}
+              chainId={parseInt(chainId)}
             />
             <WrappedInput>
               <NumericInput
@@ -364,7 +348,7 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
               </div>
             ) : (
               <Button
-                className="flex-shrink-0 rounded-md w-full col-start-1 row-start-1  min-h-[3rem]"
+                className="flex-shrink-0 rounded-md w-full col-start-1 row-start-1 min-h-[3rem]"
                 width="full"
                 variant="primary"
                 type="submit"
@@ -384,11 +368,11 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
           imageUrl={imageUrl}
           amount={amountToSendFormatted}
           toAddress={toAddress}
-          chainId={chainId}
+          chainId={parseInt(chainId)}
           balance={balance.balance || '0'}
           decimals={decimals}
           fiatValue={amountToSendFiat}
-          feeOptions={{ options: feeOptions?.feeOptions || [], chainId }}
+          feeOptions={{ options: feeOptions?.feeOptions || [], chainId: parseInt(chainId) }}
           onSelectFeeOption={setSelectedFeeTokenAddress}
           isLoading={isSendTxnPending}
           onConfirm={executeTransaction}

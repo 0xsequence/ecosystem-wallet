@@ -24,6 +24,7 @@ const AppHeader = () => {
             <Image
               src={THEME.headerLogo}
               className="min-h-[40px] object-contain max-w-[96px] sm:max-w-[128px] max-h-[3rem] transition-all"
+              data-theme="header-logo"
             />
           </Link>
         )}
@@ -144,7 +145,9 @@ export const AppLayout = ({ showHeader = false }: { showHeader?: boolean }) => {
 export const ProtectedLayout = () => {
   return (
     <PrivateRoute>
+      {/* <InventoryProvider> */}
       <AppLayout showHeader />
+      {/* </InventoryProvider> */}
     </PrivateRoute>
   )
 }

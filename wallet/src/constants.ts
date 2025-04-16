@@ -1,3 +1,45 @@
+import { UserPreferenceLocalStore } from './pages/InventoryRoutes/types'
+
+export const SEARCH_KEYS = [
+  'title',
+  'name',
+  'symbol',
+  'nativeToken.symbol',
+  'nativeToken.name',
+  'contractInfo.name',
+  'contractInfo.symbol',
+  'networkInfo.name',
+  'tokenMetadata.name',
+  'tokenMetadata.description',
+  'tokenMetadata.properties',
+  'chainInfo.name',
+  'chainInfo.title'
+]
+export const FUSE_OPTIONS = {
+  keys: SEARCH_KEYS,
+  threshold: 0.3, // Adjust for sensitivity
+  includeScore: false,
+  ignoreLocation: true // Ignores position relevance (useful for flexible matching)
+}
+
+export const localStoreDefaults: {
+  favorites: string[]
+  watchlist: string[]
+  favoriteTokens: string[]
+  userPrefs: UserPreferenceLocalStore
+  address: string
+} = {
+  userPrefs: {
+    hideBalance: false,
+    inventoryDisplayMode: 'grid',
+    currency: 'USD'
+  },
+  watchlist: [],
+  favorites: [],
+  favoriteTokens: [],
+  address: ''
+}
+
 export const ERC_1155_ABI = [
   {
     inputs: [

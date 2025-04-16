@@ -1,16 +1,21 @@
 export type ThemeProps = {
+  css?: string
   name: string
   mode: 'dark' | 'light'
   favicon?: string
   appBackground?: string
   headerLogo?: string
+  header: {
+    size: { w: number; h: number }
+  }
   backgroundMode: string
-  css?: string
   inventory: {
     empty: string
   }
   auth: {
+    welcome: string
     logo: string
+    theme: 'dark' | 'light'
     size: { w: number; h: number }
     cover?: string
     color?: string
@@ -22,7 +27,10 @@ export type ThemeProps = {
 function theme() {
   const css = import.meta.env.VITE_PROJECT_THEME_CSS_VARIABLES
 
+  // const assetPath = import.meta.env.VITE_PROJECT_ASSET_PATH
+
   const name = import.meta.env.VITE_PROJECT_NAME
+  const welcome = import.meta.env.VITE_AUTH_WELCOME_MESSAGE || `Sign in to ${name}`
   const mode = import.meta.env.VITE_PROJECT_BASE_THEME || 'dark'
   const favicon = import.meta.env.VITE_PROJECT_FAVICON || import.meta.env.VITE_PROJECT_SMALL_LOGO
 
@@ -30,6 +38,8 @@ function theme() {
   const appBackground =
     import.meta.env.VITE_PROJECT_BACKGROUND || import.meta.env.VITE_PROJECT_BACKGROUND_DARK
   const backgroundMode = import.meta.env.VITE_PROJECT_BACKGROUND_MODE || 'cover'
+
+  const authTheme = import.meta.env.VITE_PROJECT_AUTH_THEME || 'dark'
 
   const inventory = {
     empty:
@@ -50,11 +60,13 @@ function theme() {
     appBackground,
     backgroundMode,
     auth: {
+      welcome,
       logo: import.meta.env.VITE_PROJECT_AUTH_LOGO || import.meta.env.VITE_PROJECT_LOGO,
       size: {
         w: logoSize[0] ?? undefined,
         h: logoSize[1] ?? undefined
       },
+      theme: authTheme,
       cover: import.meta.env.VITE_PROJECT_AUTH_COVER,
       color: import.meta.env.VITE_PROJECT_AUTH_MESSAGE_COLOR || 'white',
       title: import.meta.env.VITE_PROJECT_AUTH_TITLE,
