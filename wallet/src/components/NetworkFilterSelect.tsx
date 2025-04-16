@@ -1,7 +1,17 @@
 import { Select, Text } from '@0xsequence/design-system'
 import { NetworkImage } from '../components/NetworkImage'
-
+import { THEME } from '../utils/theme'
+import { ChainId, networks } from '@0xsequence/network'
 export function NetworkFilterSelect({ callback }: { callback: (value: string | number) => void }) {
+  if (!THEME.chainSwitcher) {
+    return null
+  }
+
+  const chains = THEME.chainSwitcher
+    .map(chainId => (Array.isArray(chainId) ? chainId : [chainId]))
+    .filter(chainId => chainId[0] in networks)
+    .map(chainId => ({ ...networks[chainId[0] as ChainId], chains: chainId }))
+
   return (
     <Select
       defaultValue="all"
@@ -18,34 +28,16 @@ export function NetworkFilterSelect({ callback }: { callback: (value: string | n
           ),
           value: 'all'
         },
-        {
-          label: (
-            <div className="flex items-center gap-2">
-              <NetworkImage chainId={10} size="sm" />
-              <Text>Optimism</Text>
-            </div>
-          ),
-          value: '10, 11155420'
-        },
 
-        {
+        ...chains.map(network => ({
           label: (
             <div className="flex items-center gap-2">
-              <NetworkImage chainId={8453} size="sm" />
-              <Text>Base</Text>
+              <NetworkImage chainId={network.chainId} size="sm" />
+              <Text>{network.title}</Text>
             </div>
           ),
-          value: '8453,84532'
-        },
-        {
-          label: (
-            <div className="flex items-center gap-2">
-              <NetworkImage chainId={1868} size="sm" />
-              <Text>Soneium</Text>
-            </div>
-          ),
-          value: '1868,1946'
-        }
+          value: network.chains.join(',')
+        }))
       ]}
     />
   )

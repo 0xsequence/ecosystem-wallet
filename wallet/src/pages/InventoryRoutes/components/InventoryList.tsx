@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { inert } from '../../../utils/inert'
 import { useInventory } from '../../../hooks/use-inventory'
-import { InventoryListEmpty, InventoryGridEmpty } from './InventoryListEmpty'
+import { InventoryListEmpty } from './InventoryListEmpty'
 import { TokenType } from './TokenType'
 import { Transition } from '@headlessui/react'
 import { ChevronRightIcon } from '@0xsequence/design-system'
@@ -11,43 +11,7 @@ import { InventoryCoinList } from './InventoryCoin'
 import { ContractInfo } from '@0xsequence/indexer'
 import { TOKEN_TYPES } from '../../../utils/normalize-balances'
 import { InventoryCoinGroupList } from './InventoryCoinGroup'
-
-export function InventoryGrid({
-  inventory,
-  isActive,
-  isLoading
-}: {
-  inventory: ReturnType<typeof useInventory>
-  isActive: boolean
-  isLoading: boolean
-}) {
-  const hasNoResults = inventory.records.length < 1 && !isLoading && inventory.active.searchTerm
-
-  return (
-    <Transition show={isActive}>
-      {hasNoResults ? (
-        <div>
-          <NoResults term={inventory.active.searchTerm} clear={() => inventory.refiners.search('')} />
-        </div>
-      ) : (
-        <div
-          className="isolate grid grid-cols-2 sm:grid-cols-4 gap-2  data-[closed]:opacity-0  data-[closed]:scale-95 data-[closed]:translate-y-2 transition-all"
-          {...inert(!isActive)}
-        >
-          {inventory.records.length < 1 ? (
-            <InventoryGridEmpty isLoading={isLoading} />
-          ) : (
-            <>
-              {inventory.records.map((item, index) => (
-                <TokenType key={index} item={item} />
-              ))}
-            </>
-          )}
-        </div>
-      )}
-    </Transition>
-  )
-}
+import { NoSearchResults } from './partials/no-search-results'
 
 export function InventoryList({
   inventory,
@@ -95,7 +59,7 @@ export function InventoryList({
     <Transition show={isActive}>
       {hasNoResults ? (
         <div>
-          <NoResults term={inventory.active.searchTerm} clear={() => inventory.refiners.search('')} />
+          <NoSearchResults term={inventory.active.searchTerm} clear={() => inventory.refiners.search('')} />
         </div>
       ) : (
         <div className="isolate flex flex-col gap-2 data-[closed]:opacity-0 data-[closed]:scale-95 data-[closed]:translate-y-2 transition-all">
@@ -198,21 +162,6 @@ function ContractCollectibles({ contract, items }: { contract?: ContractInfo; it
           </Link>
         ) : null}
       </div>
-    </div>
-  )
-}
-
-function NoResults({ term, clear }: { term?: string | null; clear: () => void }) {
-  return (
-    <div className="text-center text-primary bg-background-muted w-full px-4 max-sm:py-12 sm:aspect-video rounded-lg flex items-center justify-center flex-col pointer-events-auto gap-4">
-      <span>No results found for "{term}"</span>
-      <button
-        type="button"
-        className="cursor-pointer hover:opacity-80 focus:opacity-80 bg-button-glass px-3 py-1 rounded-sm text-sm font-medium textfit-body"
-        onClick={() => clear()}
-      >
-        Clear
-      </button>
     </div>
   )
 }

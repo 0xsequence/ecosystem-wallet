@@ -1,4 +1,5 @@
-import { InventoryGrid, InventoryList } from './components/InventoryList.tsx'
+import { InventoryList } from './components/InventoryList.tsx'
+import { InventoryGrid } from './components/InventoryGrid'
 
 import { useLocalStore } from '../../utils/local-store.ts'
 
