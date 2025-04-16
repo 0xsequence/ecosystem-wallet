@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router'
 
-import { ContractVerificationStatus } from '@0xsequence/indexer'
+import { ContractVerificationStatus, NetworkType } from '@0xsequence/indexer'
 import { useAuth } from '../../../context/AuthContext'
 import { useConfig } from '../../../hooks/useConfig'
 import { useTokenBalancesDetails } from '../../../hooks/useTokenBalancesDetails'
@@ -15,6 +15,7 @@ export function useFetchInventory() {
   const location = useLocation()
   const { data, dataUpdatedAt, isLoading, refetch } = useTokenBalancesDetails({
     omitMetadata: false,
+    networkType: NetworkType.ALL,
     filter: {
       omitNativeBalances: false,
       accountAddresses: address ? [address] : [],
