@@ -6,6 +6,8 @@ import { sort, SortArgs, SortKeys } from './inventory-refinements/sorters'
 import { organize, OrganizeArgs, OrganizeKeys } from './inventory-refinements/organizers'
 import { FUSE_OPTIONS } from '../constants'
 
+export type InventoryReturnType = ReturnType<typeof useInventory>
+
 export interface RefinersState {
   sort: Partial<SortArgs> | null
   filter: Partial<FilterArgs> | null
