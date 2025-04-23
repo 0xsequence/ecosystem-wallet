@@ -50,6 +50,7 @@ export const InventoryPage = () => {
 }
 
 function InventoryPageView() {
+  const { groupId } = useParams()
   const [prefs] = useLocalStore<UserPreferenceLocalStore>('userPrefs')
   const { favorites } = useFavoriteTokens()
   const [searchTerm, setSearchTerm] = useState('')
@@ -119,7 +120,8 @@ function InventoryPageView() {
           />
         </div>
       </div>
-      <Outlet />
+
+      {!groupId ? <Outlet /> : null}
     </>
   )
 }
