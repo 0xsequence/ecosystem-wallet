@@ -110,7 +110,7 @@ function InventoryPageView() {
         <div className="grid grid-cols-1 grid-rows-1 [&>*]:col-start-1 [&>*]:row-start-1">
           <InventoryGrid
             inventory={inventory}
-            isActive={prefs?.inventoryDisplayMode === 'grid'}
+            isActive={prefs?.inventoryDisplayMode === 'grid' || !prefs?.inventoryDisplayMode}
             isLoading={query.isLoading}
           />
           <InventoryList
