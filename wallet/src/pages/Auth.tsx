@@ -155,50 +155,63 @@ export const Auth: React.FC = () => {
               ) : (
                 <>
                   {THEME.auth.methods.email ? (
-                    <div className="mt-2">
-                      <div className="flex flex-col gap-2">
-                        <div className="relative border border-border rounded-md w-full min-h-[3.25rem] flex items-stretch justify-end focus-within:ring-1 focus-within:border-border-focus ring-border-focus overflow-clip">
-                          <input
-                            name="email"
-                            type="email"
-                            onChange={(ev: { target: { value: SetStateAction<string> } }) => {
-                              setEmail(ev.target.value)
-                            }}
-                            ref={inputRef}
-                            onKeyDown={(ev: { key: string }) => {
-                              if (email && ev.key === 'Enter') {
-                                initiateEmailAuth(email)
-                              }
-                            }}
-                            onBlur={() => setEmailWarning(!!email && !isEmailInputValid)}
-                            value={email}
-                            placeholder="Email address"
-                            required
-                            className="absolute w-full h-full p-4 outline-none placeholder:text-seq-grey-200 sm:text-style-normal font-medium"
-                            data-id="loginEmail"
-                          />
-                          <div className="flex items-center justify-center size-12 z-50  pointer-events-none">
-                            {emailAuthLoading ? (
-                              <Spinner />
-                            ) : (
-                              <button
-                                type="button"
-                                disabled={!isEmailInputValid}
-                                onClick={() => initiateEmailAuth(email)}
-                                className="size-8 pointer-events-auto disabled:opacity-25 rounded-full flex items-center justify-center bg-button-glass"
-                              >
-                                <ArrowRightIcon />
-                              </button>
-                            )}
+                    <>
+                      <>
+                        {!THEME.auth.methods.guest ? (
+                          <div className="flex gap-4 items-center">
+                            <Divider className="flex-1 bg-[var(--color-background-raised)]" />
+                            <Text variant="small" fontWeight="bold" color="primary">
+                              or
+                            </Text>
+                            <Divider className="flex-1 bg-[var(--color-background-raised)]" />
                           </div>
+                        ) : null}
+                      </>
+                      <div className="mt-2">
+                        <div className="flex flex-col gap-2">
+                          <div className="relative border border-border rounded-md w-full min-h-[3.25rem] flex items-stretch justify-end focus-within:ring-1 focus-within:border-border-focus ring-border-focus overflow-clip">
+                            <input
+                              name="email"
+                              type="email"
+                              onChange={(ev: { target: { value: SetStateAction<string> } }) => {
+                                setEmail(ev.target.value)
+                              }}
+                              ref={inputRef}
+                              onKeyDown={(ev: { key: string }) => {
+                                if (email && ev.key === 'Enter') {
+                                  initiateEmailAuth(email)
+                                }
+                              }}
+                              onBlur={() => setEmailWarning(!!email && !isEmailInputValid)}
+                              value={email}
+                              placeholder="Email address"
+                              required
+                              className="absolute w-full h-full p-4 outline-none placeholder:text-seq-grey-200 sm:text-style-normal font-medium"
+                              data-id="loginEmail"
+                            />
+                            <div className="flex items-center justify-center size-12 z-50  pointer-events-none">
+                              {emailAuthLoading ? (
+                                <Spinner />
+                              ) : (
+                                <button
+                                  type="button"
+                                  disabled={!isEmailInputValid}
+                                  onClick={() => initiateEmailAuth(email)}
+                                  className="size-8 pointer-events-auto disabled:opacity-25 rounded-full flex items-center justify-center bg-button-glass"
+                                >
+                                  <ArrowRightIcon />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                          {showEmailWarning && (
+                            <p className="text-negative text-sm font-medium">
+                              Please enter a valid email address
+                            </p>
+                          )}
                         </div>
-                        {showEmailWarning && (
-                          <p className="text-negative text-sm font-medium">
-                            Please enter a valid email address
-                          </p>
-                        )}
                       </div>
-                    </div>
+                    </>
                   ) : null}
                   {THEME.auth.methods.guest ? (
                     <>

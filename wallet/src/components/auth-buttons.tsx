@@ -3,11 +3,11 @@ import { useAuth } from '../context/AuthContext'
 import { AppleAuthButton } from './auth-apple'
 import { GoogleAuthButton } from './auth-google'
 
-const AuthMethods = new Map([
+const Connectors = new Map([
   ['metamask', { title: 'Metamask', name: 'metamask', image: './metamask@2x.png', handler: () => {} }],
   ['rainbow', { title: 'Rainbow', name: 'rainbow', image: './rainbow@2x.png', handler: () => {} }],
   ['rabby', { title: 'Rabby', name: 'rabby', image: './rabby@2x.png', handler: () => {} }],
-  ['google', { title: 'Google', name: 'google', Component: GoogleAuthButton, handler: () => {} }],
+  ['google', { title: 'Google', name: 'google', Component: GoogleAuthButton }],
   [
     'apple',
     {
@@ -28,9 +28,9 @@ export function AuthButton(props: AuthButton) {
   const { name, mode = 'SECONDARY' } = props
 
   const { isSocialLoginInProgress, setIsSocialLoginInProgress } = useAuth()
-  if (!AuthMethods.has(name)) return null
+  if (!Connectors.has(name)) return null
 
-  const { handler, title, image, Icon, Component } = AuthMethods.get(name)!
+  const { handler, title, image, Icon, Component } = Connectors.get(name)!
 
   function clickHandler() {
     if (handler && typeof handler === 'function') {
