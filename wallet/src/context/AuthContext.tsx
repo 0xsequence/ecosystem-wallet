@@ -14,6 +14,8 @@ interface AuthContextType {
   authState: AuthState
   address?: string
   pendingEvent?: PendingEvent
+  isSocialLoginInProgress: false | string
+  setIsSocialLoginInProgress: React.Dispatch<React.SetStateAction<string | false>>
   setWalletAddress: (address: string) => void
   signOut: () => void
 }
@@ -23,6 +25,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const navigate = useNavigate()
   const [authState, setAuthState] = useState<AuthState>({ status: 'loading' })
+  const [isSocialLoginInProgress, setIsSocialLoginInProgress] = useState<false | string>(false)
+
   const walletTransportSnapshot = useSnapshot(walletTransport.state)
 
   useEffect(() => {
@@ -59,6 +63,8 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     <AuthContext.Provider
       value={{
         authState,
+        isSocialLoginInProgress,
+        setIsSocialLoginInProgress,
         address: authState.status === 'signedIn' ? authState.address : undefined,
         pendingEvent: walletTransportSnapshot.pendingEvent as PendingEvent | undefined,
         setWalletAddress,

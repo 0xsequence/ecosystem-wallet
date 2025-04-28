@@ -21,6 +21,12 @@ export type ThemeProps = {
     color?: string
     title?: string
     message?: string
+    methods: {
+      list: string[]
+      grid: string[]
+      email: boolean
+      guest: boolean
+    }
   }
   chainSwitcher?: number[] | number[][]
 }
@@ -58,6 +64,25 @@ function theme() {
   const logoSize = import.meta.env.VITE_PROJECT_AUTH_LOGO_SIZE?.split('x') ||
     import.meta.env.VITE_PROJECT_LOGO_SIZE?.split('x') || [80, 80]
 
+  const methods = {
+    list: import.meta.env.VITE_PROJECT_AUTH_METHODS_LIST
+      ? import.meta.env.VITE_PROJECT_AUTH_METHODS_LIST.split(',')
+      : ['google', 'apple'],
+    grid: import.meta.env.VITE_PROJECT_AUTH_METHODS_GRID
+      ? import.meta.env.VITE_PROJECT_AUTH_METHODS_GRID.split(',')
+      : [],
+    email: import.meta.env.VITE_PROJECT_AUTH_METHODS_EMAIL
+      ? import.meta.env.VITE_PROJECT_AUTH_METHODS_EMAIL === 'true'
+        ? true
+        : false
+      : true,
+    guest: import.meta.env.VITE_PROJECT_AUTH_METHODS_GUEST
+      ? import.meta.env.VITE_PROJECT_AUTH_METHODS_GUEST === 'true'
+        ? true
+        : false
+      : false
+  }
+
   return {
     css,
     name,
@@ -74,6 +99,7 @@ function theme() {
         w: logoSize[0] ?? undefined,
         h: logoSize[1] ?? undefined
       },
+      methods,
       theme: authTheme,
       cover: import.meta.env.VITE_PROJECT_AUTH_COVER,
       color: import.meta.env.VITE_PROJECT_AUTH_MESSAGE_COLOR || 'white',
