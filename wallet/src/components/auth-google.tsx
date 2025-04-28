@@ -7,7 +7,7 @@ import { saveAuthInfo } from '../utils/auth'
 import { GoogleLogo } from './GoogleLogo'
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
 
-export function GoogleAuthButton({ mode }: { mode: 'LIST' | 'GRID' }) {
+export function GoogleAuthButton({ mode }: { mode: 'PRIMARY' | 'SECONDARY' }) {
   const { setWalletAddress, setIsSocialLoginInProgress, isSocialLoginInProgress } = useAuth()
 
   if (!GOOGLE_CLIENT_ID) return null
@@ -44,7 +44,7 @@ export function GoogleAuthButton({ mode }: { mode: 'LIST' | 'GRID' }) {
             <>
               {/* @ts-expect-error logo doesn't want className, but accepts it */}
               <GoogleLogo className="size-6 flex-shrink-0" />
-              <>{mode === 'LIST' ? <Text>Continue with Google</Text> : null}</>
+              <>{mode === 'PRIMARY' ? <Text>Continue with Google</Text> : null}</>
               <div
                 className="opacity-0 absolute w-full h-full pointer-events-auto overflow-clip "
                 data-id="googleAuth"
@@ -67,7 +67,7 @@ export function GoogleAuthButton({ mode }: { mode: 'LIST' | 'GRID' }) {
             </>
           )}
         </div>
-        {mode === 'GRID' ? (
+        {mode === 'SECONDARY' ? (
           <Text variant="small" color="secondary">
             Google
           </Text>

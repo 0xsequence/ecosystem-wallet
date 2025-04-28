@@ -22,8 +22,8 @@ export type ThemeProps = {
     title?: string
     message?: string
     methods: {
-      list: string[]
-      grid: string[]
+      primary: string[]
+      secondary: string[]
       email: boolean
       guest: boolean
     }
@@ -65,11 +65,11 @@ function theme() {
     import.meta.env.VITE_PROJECT_LOGO_SIZE?.split('x') || [80, 80]
 
   const methods = {
-    list: import.meta.env.VITE_PROJECT_AUTH_METHODS_LIST
-      ? import.meta.env.VITE_PROJECT_AUTH_METHODS_LIST.split(',')
+    primary: import.meta.env.VITE_PROJECT_AUTH_METHODS_PRIMARY
+      ? import.meta.env.VITE_PROJECT_AUTH_METHODS_PRIMARY.split(',')
       : ['google', 'apple'],
-    grid: import.meta.env.VITE_PROJECT_AUTH_METHODS_GRID
-      ? import.meta.env.VITE_PROJECT_AUTH_METHODS_GRID.split(',')
+    secondary: import.meta.env.VITE_PROJECT_AUTH_METHODS_SECONDARY
+      ? import.meta.env.VITE_PROJECT_AUTH_METHODS_SECONDARY.split(',')
       : [],
     email: import.meta.env.VITE_PROJECT_AUTH_METHODS_EMAIL
       ? import.meta.env.VITE_PROJECT_AUTH_METHODS_EMAIL === 'true'

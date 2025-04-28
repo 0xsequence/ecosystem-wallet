@@ -21,11 +21,11 @@ const AuthMethods = new Map([
 
 type AuthButton = {
   name: string
-  mode?: 'LIST' | 'GRID'
+  mode?: 'PRIMARY' | 'SECONDARY'
 }
 
 export function AuthButton(props: AuthButton) {
-  const { name, mode = 'GRID' } = props
+  const { name, mode = 'SECONDARY' } = props
 
   const { isSocialLoginInProgress, setIsSocialLoginInProgress } = useAuth()
   if (!AuthMethods.has(name)) return null
@@ -60,11 +60,11 @@ export function AuthButton(props: AuthButton) {
         ) : (
           <span className="flex items-center gap-2">
             <>{Icon ? <Icon /> : <Image src={image} width="48" className="size-7" />}</>
-            {mode === 'LIST' ? <Text>Sign in with {title}</Text> : null}
+            {mode === 'PRIMARY' ? <Text>Sign in with {title}</Text> : null}
           </span>
         )}
       </span>
-      {mode === 'GRID' ? (
+      {mode === 'SECONDARY' ? (
         <Text variant="small" color="secondary">
           {title}
         </Text>

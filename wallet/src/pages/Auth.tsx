@@ -246,7 +246,7 @@ export const Auth: React.FC = () => {
 }
 
 function AuthList() {
-  const entries = THEME.auth.methods.list
+  const entries = THEME.auth.methods.primary
 
   if (!entries || entries.length < 1) {
     return null
@@ -255,7 +255,7 @@ function AuthList() {
   return (
     <div className="flex flex-col gap-2">
       {entries.map(method => (
-        <AuthButton mode="LIST" name={method} key={method} />
+        <AuthButton mode="PRIMARY" name={method} key={method} />
       ))}
     </div>
   )
@@ -263,14 +263,14 @@ function AuthList() {
 
 function AuthGrid() {
   const style = {
-    'grid-template-columns': THEME?.auth?.methods?.grid
-      ? THEME.auth.methods.grid.length > 3
+    'grid-template-columns': THEME?.auth?.methods?.secondary
+      ? THEME.auth.methods.secondary.length > 3
         ? 'repeat(4, 1fr)'
-        : `repeat(${THEME.auth.methods.grid.length}, 1fr)`
+        : `repeat(${THEME.auth.methods.secondary.length}, 1fr)`
       : '1'
   } as React.CSSProperties
 
-  const entries = THEME.auth.methods.grid
+  const entries = THEME.auth.methods.secondary
 
   if (!entries || entries.length < 1) {
     return null
@@ -279,7 +279,7 @@ function AuthGrid() {
   return (
     <div className="grid gap-2" style={style}>
       {entries.map(method => (
-        <AuthButton mode="GRID" name={method} key={method} />
+        <AuthButton mode="SECONDARY" name={method} key={method} />
       ))}
     </div>
   )

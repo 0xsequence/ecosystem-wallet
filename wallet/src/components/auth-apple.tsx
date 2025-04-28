@@ -59,7 +59,7 @@ function useAppleAuthCallback() {
   }
 }
 
-export function AppleAuthButton({ mode = 'LIST' }: { mode: 'LIST' | 'GRID' }) {
+export function AppleAuthButton({ mode = 'PRIMARY' }: { mode: 'PRIMARY' | 'SECONDARY' }) {
   useScript(appleAuthHelpers.APPLE_SCRIPT_SRC)
   const { isSocialLoginInProgress } = useAuth()
   const handleAppleLogin = useAppleAuthCallback()
@@ -78,11 +78,11 @@ export function AppleAuthButton({ mode = 'LIST' }: { mode: 'LIST' | 'GRID' }) {
         ) : (
           <>
             <AppleLogo className="size-8 flex-shrink-0" />
-            <>{mode === 'LIST' ? <Text>Continue with Apple</Text> : null}</>
+            <>{mode === 'PRIMARY' ? <Text>Continue with Apple</Text> : null}</>
           </>
         )}
       </span>
-      {mode === 'GRID' ? (
+      {mode === 'SECONDARY' ? (
         <Text variant="small" color="secondary">
           Apple
         </Text>
