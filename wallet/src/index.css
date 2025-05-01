@@ -22,6 +22,21 @@
   }
 }
 
+/** Cover entire card with a clickable region
+  * https://adrianroselli.com/2020/02/block-links-cards-clickable-regions-etc.html
+  */
+.inherit-hitarea {
+  position: relative;
+}
+.inherit-hitarea a:first-of-type[href]::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
 .mask-horizontal {
   -webkit-mask-image: linear-gradient(
     to right,
