@@ -6,7 +6,8 @@ import { App as Router } from './App.tsx'
 import { AppContextProvider } from './context/AppContext.tsx'
 import './index.css'
 import { THEME } from './utils/theme'
-
+import { SequenceConnect, createConfig } from '@0xsequence/connect'
+import { config } from './waasSetup'
 const favicon = document.getElementById('favicon')
 const appTitle = document.getElementById('app-title')
 
@@ -18,12 +19,14 @@ if (appTitle && THEME.name) {
 }
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter>
-      <div id="app" className="flex flex-col flex-1">
-        <AppContextProvider>
-          <Router />
-        </AppContextProvider>
-      </div>
-    </BrowserRouter>
+    <SequenceConnect config={createConfig('waas', config)}>
+      <BrowserRouter>
+        <div id="app" className="flex flex-col flex-1">
+          <AppContextProvider>
+            <Router />
+          </AppContextProvider>
+        </div>
+      </BrowserRouter>
+    </SequenceConnect>
   </StrictMode>
 )

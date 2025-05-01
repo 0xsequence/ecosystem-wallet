@@ -9,3 +9,15 @@ export const sequenceWaas = new SequenceWaaS({
   projectAccessKey: projectAccessKey,
   waasConfigKey: waasConfigKey
 })
+const walletConnectProjectId = 'c65a6cb1aa83c4e24500130f23a437d8'
+
+export const config = {
+  projectAccessKey,
+  chainIds: [1, 137],
+  defaultChainId: 1,
+  appName: 'Ecosystemwallet',
+  waasConfigKey,
+  walletConnect: {
+    projectId: walletConnectProjectId
+  }
+}

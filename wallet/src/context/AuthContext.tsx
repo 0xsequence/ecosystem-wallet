@@ -5,6 +5,7 @@ import { useSnapshot } from 'valtio'
 import { ROUTES } from '../routes'
 import { sequenceWaas } from '../waasSetup'
 import { PendingEvent, WalletTransport } from '../walletTransport'
+import { useWallets } from '@0xsequence/connect'
 
 export const walletTransport = new WalletTransport()
 
@@ -12,8 +13,11 @@ type AuthState = { status: 'loading' } | { status: 'signedOut' } | { status: 'si
 
 interface AuthContextType {
   authState: AuthState
+  setAuthState: React.Dispatch<React.SetStateAction<AuthState>>
   address?: string
   pendingEvent?: PendingEvent
+  isSocialLoginInProgress: false | string
+  setIsSocialLoginInProgress: React.Dispatch<React.SetStateAction<string | false>>
   setWalletAddress: (address: string) => void
   signOut: () => void
 }
@@ -22,7 +26,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const navigate = useNavigate()
+
+  const { wallets, disconnectWallet } = useWallets()
   const [authState, setAuthState] = useState<AuthState>({ status: 'loading' })
+  const [isSocialLoginInProgress, setIsSocialLoginInProgress] = useState<false | string>(false)
+
   const walletTransportSnapshot = useSnapshot(walletTransport.state)
 
   useEffect(() => {
@@ -45,6 +53,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 
   const signOut = async () => {
     try {
+      await disconnectWallet(wallets?.[0]?.address)
       setAuthState({ status: 'signedOut' })
       await sequenceWaas.dropSession()
       walletTransport.setSignedInState(null)
@@ -59,6 +68,9 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     <AuthContext.Provider
       value={{
         authState,
+        setAuthState,
+        isSocialLoginInProgress,
+        setIsSocialLoginInProgress,
         address: authState.status === 'signedIn' ? authState.address : undefined,
         pendingEvent: walletTransportSnapshot.pendingEvent as PendingEvent | undefined,
         setWalletAddress,
