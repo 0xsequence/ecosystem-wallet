@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext'
 import { AppleAuthButton } from './auth-apple'
 import { GoogleAuthButton } from './auth-google'
 import { useState } from 'react'
+import { THEME } from '../utils/theme'
 
 const Connectors = new Map([
   ['metamask', { title: 'Metamask', name: 'metamask', image: './metamask@2x.png', handler: () => {} }],
@@ -93,8 +94,11 @@ export function AuthButton(props: AuthButton) {
         <Modal scroll={false} autoHeight={true} onClose={() => setShowMessage(false)}>
           <div className="size-full flex items-center justify-center flex-col gap-0.5 aspect-video">
             {Icon ? (
-              <span className="size-16 flex items-center justify-center bg-gradient-primary rounded-full mb-4 shadow-[0_2px_64px_0_theme(colors.indigo-600)] ">
-                <Icon className="size-10" />
+              <span
+                className="size-16 flex items-center justify-center data-[mode='dark']:bg-gradient-primary data-[mode='light']:bg-white rounded-full mb-4 data-[mode='dark']:shadow-[0_2px_64px_0_theme(colors.indigo-300)] data-[mode='light']:shadow-[0_2px_64px_0_theme(colors.indigo-300)]"
+                data-mode={THEME.mode}
+              >
+                <Icon className="size-10 " />
               </span>
             ) : null}
             <h2 className="text-xl font-semibold max-w-[320px] text-center">{connector.soonTitle}</h2>
