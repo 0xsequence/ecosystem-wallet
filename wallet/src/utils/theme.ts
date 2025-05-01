@@ -8,6 +8,7 @@ export type ThemeProps = {
   header: {
     size: { w: number; h: number }
   }
+  chains: number[]
   backgroundMode: string
   inventory: {
     empty: string
@@ -37,6 +38,13 @@ function theme() {
   let chainSwitcher: number[] | number[][] | null = null
   try {
     chainSwitcher = JSON.parse(import.meta.env.VITE_PROJECT_CHAIN_SWITCHER)
+  } catch {
+    //
+  }
+
+  let chains: number[] | null = null
+  try {
+    chains = JSON.parse(import.meta.env.VITE_PROJECT_CHAINS)
   } catch {
     //
   }
@@ -87,6 +95,7 @@ function theme() {
     css,
     name,
     mode,
+    chains,
     favicon,
     inventory,
     headerLogo,
