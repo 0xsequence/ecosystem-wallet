@@ -30,6 +30,11 @@ export type ThemeProps = {
     }
   }
   chainSwitcher?: number[] | number[][]
+  discover_hero: {
+    id: string
+    src: string
+    tagline: string
+  }
 }
 
 function theme() {
@@ -38,6 +43,15 @@ function theme() {
   let chainSwitcher: number[] | number[][] | null = null
   try {
     chainSwitcher = JSON.parse(import.meta.env.VITE_PROJECT_CHAIN_SWITCHER)
+  } catch {
+    //
+  }
+
+  let discover_hero: ThemeProps['discover_hero'] | null = null
+
+  try {
+    console.log(import.meta.env.VITE_DISCOVER_HERO)
+    discover_hero = JSON.parse(import.meta.env.VITE_DISCOVER_HERO)
   } catch {
     //
   }
@@ -115,7 +129,8 @@ function theme() {
       title: import.meta.env.VITE_PROJECT_AUTH_TITLE,
       message: import.meta.env.VITE_PROJECT_AUTH_MESSAGE
     },
-    chainSwitcher
+    chainSwitcher,
+    discover_hero
   }
 }
 
