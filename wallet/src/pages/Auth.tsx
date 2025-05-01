@@ -100,11 +100,9 @@ export const Auth: React.FC = () => {
           console.warn(error)
         },
         onSettled: result => {
-          // console.log(result)
           if (result?.accounts && result?.accounts?.length > 0) {
             setWalletAddress(result?.accounts[0])
           }
-          // setLastConnectedWallet(result?.accounts[0])
         }
       }
     )

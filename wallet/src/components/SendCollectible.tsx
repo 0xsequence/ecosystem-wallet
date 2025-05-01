@@ -36,11 +36,14 @@ import { SendIcon } from '../design-system-patch/icons'
 import { WrappedInput } from './wrapped-input'
 import { TIME } from '../utils/time.const'
 import { TokenRecord } from '../pages/InventoryRoutes/types'
+import { useWallets } from '@0xsequence/connect'
+import { useChainId, useSwitchChain, useConfig as useWagmiConfig, useWalletClient } from 'wagmi'
+import { encodeFunctionData, toHex } from 'viem'
 
 interface SendCollectibleProps {
   chainId: number
   balance: TokenRecord
-  onSuccess: (txnResponse: SentTransactionResponse) => void
+  onSuccess: (txnResponse?: SentTransactionResponse) => void
 }
 
 export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: SendCollectibleProps) => {
@@ -61,6 +64,16 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
   const imageUrl = tokenBalance?.tokenMetadata?.image || tokenBalance?.contractInfo?.logoURI || ''
   const amountToSendFormatted = amount === '' ? '0' : amount
   const amountRaw = ethers.parseUnits(amountToSendFormatted, decimals)
+
+  /* Wagmi Injected Connectors */
+  const { wallets } = useWallets()
+  const { chains } = useWagmiConfig()
+  const { data: walletClient } = useWalletClient({ chainId })
+  const connectedChainId = useChainId()
+  const { switchChainAsync } = useSwitchChain()
+
+  const isCorrectChainId = connectedChainId === chainId
+  const activeWagmiWallet = wallets?.[0]
 
   const [feeOptions, setFeeOptions] = useState<TransactionFeeOptionsResult>()
   const transactionsFeeOption = feeOptions?.feeOptions?.find(feeOption => {
@@ -161,18 +174,26 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
     }
 
     // Check fee options before showing confirmation
-    const feeOptionsResult = await checkTransactionFeeOptions({
-      transactions: [transaction],
-      chainId: chainId
-    })
 
-    setFeeOptions(feeOptionsResult)
+    if (!activeWagmiWallet) {
+      const feeOptionsResult = await checkTransactionFeeOptions({
+        transactions: [transaction],
+        chainId: chainId
+      })
+
+      setFeeOptions(feeOptionsResult)
+    }
 
     setShowConfirmation(true)
     setIsCheckingFeeOptions(false)
   }
 
   const executeTransaction = async () => {
+    // Check if it's a Wagmi injected wallet
+    if (activeWagmiWallet && walletClient) {
+      return await executeWagmiTransaction()
+    }
+
     try {
       setIsSendTxnPending(true)
       const sendAmount = ethers.parseUnits(amountToSendFormatted, decimals)
@@ -227,6 +248,86 @@ export const SendCollectible = ({ chainId, balance: tokenBalance, onSuccess }: S
         })
       }
     } catch {
+      toast({
+        title: 'Transaction failed',
+        variant: 'error',
+        duration: TIME.SECOND * 1.5
+      })
+    } finally {
+      setIsSendTxnPending(false)
+    }
+  }
+
+  const executeWagmiTransaction = async () => {
+    // Check if it's a Wagmi injected wallet
+
+    let txResponse
+    let txData
+    try {
+      setIsSendTxnPending(true)
+      if (!walletClient) throw new Error('no walletClient found')
+
+      if (!isCorrectChainId) {
+        await switchChainAsync({ chainId })
+      }
+
+      const sendAmount = ethers.parseUnits(amountToSendFormatted, decimals)
+
+      switch (contractType) {
+        case 'ERC721':
+          console.log('Sending ERC721 via walletClient')
+          txData = encodeFunctionData({
+            abi: ERC_721_ABI,
+            functionName: 'safeTransferFrom',
+            args: [accountAddress, toAddress, tokenBalance.tokenID]
+          })
+          txResponse = await walletClient.sendTransaction({
+            account: accountAddress as `0x${string}`,
+            to: tokenBalance.contractAddress as `0x${string}`,
+            data: txData,
+            chain: chains.find(c => c.id === chainId)
+          })
+          break
+        case 'ERC1155':
+        default:
+          console.log('Sending ERC1155 via walletClient')
+          txData = encodeFunctionData({
+            abi: ERC_1155_ABI,
+            functionName: 'safeBatchTransferFrom',
+            args: [
+              accountAddress,
+              toAddress,
+              [tokenBalance.tokenID],
+              [toHex(sendAmount)],
+              toHex(new Uint8Array())
+            ]
+          })
+          txResponse = await walletClient.sendTransaction({
+            account: accountAddress as `0x${string}`,
+            to: tokenBalance.contractAddress as `0x${string}`,
+            data: txData,
+            chain: chains.find(c => c.id === chainId)
+          })
+      }
+
+      if (txResponse) {
+        onSuccess()
+
+        toast({
+          title: 'Transaction successful',
+          variant: 'success',
+          duration: TIME.SECOND * 1.5
+        })
+      } else {
+        toast({
+          title: 'Transaction failed',
+          variant: 'error',
+          duration: TIME.SECOND * 1.5
+        })
+      }
+    } catch (e) {
+      console.log(txResponse, e)
+
       toast({
         title: 'Transaction failed',
         variant: 'error',
