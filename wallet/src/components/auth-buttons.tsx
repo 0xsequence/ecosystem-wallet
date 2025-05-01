@@ -16,7 +16,7 @@ const Connectors = new Map([
       Component: AppleAuthButton
     }
   ],
-  ['passkey', { title: 'Passkey', name: 'passkey', Icon: PasskeyIcon, handler: () => {} }]
+  ['passkey', { available: false, title: 'Passkey', name: 'passkey', Icon: PasskeyIcon, handler: () => {} }]
 ])
 
 type AuthButton = {

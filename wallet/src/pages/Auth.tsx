@@ -9,6 +9,8 @@ import {
   Text,
   ThemeProvider
 } from '@0xsequence/design-system'
+import { ExtendedConnector, useWallets } from '@0xsequence/connect'
+
 import { EmailConflictInfo } from '@0xsequence/waas'
 import React, { SetStateAction, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
@@ -21,7 +23,6 @@ import { useEmailAuth } from '../hooks/useEmailAuth'
 
 import { EmailConflictWarning } from '../components/EmailConflictWarning'
 
-import { ROUTES } from '../routes'
 import { sequenceWaas } from '../waasSetup'
 import { ArrowRightIcon } from '../design-system-patch/icons'
 import { THEME } from '../utils/theme'
@@ -29,6 +30,9 @@ import { PendingConnectionEventData } from '../walletTransport'
 import { UserProvider } from '../hooks/user-provider'
 import { LoginGuest } from '../components/auth-guest'
 import { AuthButton } from '../components/auth-buttons'
+import { useConnect } from 'wagmi'
+import { ConnectButton } from '../components/connect-button'
+import { ROUTES } from '../routes'
 
 const getCSSVariable = (variable: string) => {
   return getComputedStyle(document.documentElement).getPropertyValue(variable)
@@ -37,17 +41,88 @@ const getCSSVariable = (variable: string) => {
 export const Auth: React.FC = () => {
   const navigate = useNavigate()
 
+  const { wallets } = useWallets()
   const { setWalletAddress, authState, pendingEvent, setIsSocialLoginInProgress } = useAuth()
+
+  useEffect(() => {
+    if (wallets?.[0]?.address && authState.status !== 'signedIn') {
+      setWalletAddress(wallets?.[0]?.address)
+    }
+  }, [authState, wallets])
+
+  const { connectors, connect } = useConnect()
+  // const connectors = getDefaultConnectors('waas', config)
+
+  const injectedConnectors: ExtendedConnector[] = connectors
+    .filter(c => c.type === 'injected')
+    // Remove the injected connectors when another connector is already in the base connectors
+    .filter(connector => {
+      if (connector.id === 'com.coinbase.wallet') {
+        return !connectors.find(
+          connector => (connector as ExtendedConnector)?._wallet?.id === 'coinbase-wallet'
+        )
+      }
+      if (connector.id === 'io.metamask') {
+        return !connectors.find(
+          connector => (connector as ExtendedConnector)?._wallet?.id === 'metamask-wallet'
+        )
+      }
+
+      return true
+    })
+    .map(connector => {
+      const Logo = () => {
+        return <Image src={connector.icon} alt={connector.name} disableAnimation />
+      }
+
+      return {
+        ...connector,
+        _wallet: {
+          id: connector.id,
+          name: connector.name,
+          logoLight: Logo,
+          logoDark: Logo,
+          type: 'wallet'
+        }
+      }
+    })
+  const baseConnectors = connectors
+    .filter(connector => connector._wallet)
+    .filter(connector => connector.id !== 'sequence-waas')
+
+  const walletConnectors = [...baseConnectors, ...injectedConnectors] as ExtendedConnector[]
+
+  const handleConnect = async (connector: ExtendedConnector) => {
+    connect(
+      { connector },
+      {
+        onError: error => {
+          console.warn(error)
+        },
+        onSettled: result => {
+          // console.log(result)
+          if (result?.accounts && result?.accounts?.length > 0) {
+            setWalletAddress(result?.accounts[0])
+          }
+          // setLastConnectedWallet(result?.accounts[0])
+        }
+      }
+    )
+  }
+
+  const onConnect = (connector: ExtendedConnector) => {
+    handleConnect(connector)
+  }
 
   const pendingEventOrigin = pendingEvent?.origin
   const pendingConnectionEventData: PendingConnectionEventData =
     pendingEvent?.data as PendingConnectionEventData
-
   useEffect(() => {
+    console.log(authState)
     if (authState.status === 'signedIn') {
       navigate(ROUTES.HOME)
     }
-  }, [authState.status, navigate])
+  }, [authState, navigate])
 
   const {
     inProgress: emailAuthInProgress,
@@ -121,7 +196,7 @@ export const Auth: React.FC = () => {
                   </div>
 
                   <AuthList />
-                  <AuthGrid />
+                  <AuthGrid connectors={walletConnectors} onConnect={onConnect} />
                 </>
               )}
               {sendChallengeAnswer ? (
@@ -274,25 +349,31 @@ function AuthList() {
   )
 }
 
-function AuthGrid() {
+function AuthGrid({
+  connectors,
+  onConnect
+}: {
+  connectors: ExtendedConnector[]
+  onConnect: (connector: ExtendedConnector) => void
+}) {
   const style = {
-    'grid-template-columns': THEME?.auth?.methods?.secondary
-      ? THEME.auth.methods.secondary.length > 3
+    gridTemplateColumns: connectors
+      ? connectors.length > 3
         ? 'repeat(4, 1fr)'
-        : `repeat(${THEME.auth.methods.secondary.length}, 1fr)`
+        : `repeat(${connectors.length}, 1fr)`
       : '1'
   } as React.CSSProperties
 
-  const entries = THEME.auth.methods.secondary
+  // const entries = THEME.auth.methods.secondary
 
-  if (!entries || entries.length < 1) {
-    return null
-  }
+  // if (!entries || entries.length < 1) {
+  //   return null
+  // }
 
   return (
     <div className="grid gap-2" style={style}>
-      {entries.map(method => (
-        <AuthButton mode="SECONDARY" name={method} key={method} />
+      {connectors.map(method => (
+        <ConnectButton connector={method} onConnect={onConnect} />
       ))}
     </div>
   )

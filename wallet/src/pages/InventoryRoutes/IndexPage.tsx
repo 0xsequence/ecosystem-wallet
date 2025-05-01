@@ -13,7 +13,6 @@ import { NetworkFilterSelect } from '../../components/NetworkFilterSelect'
 import { RefinersState, useInventory } from '../../hooks/use-inventory'
 import { useState } from 'react'
 import { TokenDetailModal } from './components/TokenDetailModal'
-
 export const InventoryPage = () => {
   const { tokenId, contractAddress, groupId } = useParams()
   const location = useLocation()
