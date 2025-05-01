@@ -1,7 +1,8 @@
-import { Image, PasskeyIcon, Spinner, Text } from '@0xsequence/design-system'
+import { Image, Modal, PasskeyIcon, Spinner, Text } from '@0xsequence/design-system'
 import { useAuth } from '../context/AuthContext'
 import { AppleAuthButton } from './auth-apple'
 import { GoogleAuthButton } from './auth-google'
+import { useState } from 'react'
 
 const Connectors = new Map([
   ['metamask', { title: 'Metamask', name: 'metamask', image: './metamask@2x.png', handler: () => {} }],
@@ -16,7 +17,18 @@ const Connectors = new Map([
       Component: AppleAuthButton
     }
   ],
-  ['passkey', { available: false, title: 'Passkey', name: 'passkey', Icon: PasskeyIcon, handler: () => {} }]
+  [
+    'passkey',
+    {
+      available: false,
+      soonTitle: 'Passkey Authentication',
+      soonTagline: 'Arriving soon in Sequence V3',
+      title: 'Passkey',
+      name: 'passkey',
+      Icon: PasskeyIcon,
+      handler: () => {}
+    }
+  ]
 ])
 
 type AuthButton = {
@@ -28,11 +40,17 @@ export function AuthButton(props: AuthButton) {
   const { name, mode = 'SECONDARY' } = props
 
   const { isSocialLoginInProgress, setIsSocialLoginInProgress } = useAuth()
+  const [showMessage, setShowMessage] = useState(false)
   if (!Connectors.has(name)) return null
 
-  const { available, handler, title, image, Icon, Component } = Connectors.get(name)!
+  const { available, handler, title, image, Icon, Component, ...connector } = Connectors.get(name)!
 
   function clickHandler() {
+    if (!available) {
+      setShowMessage(true)
+      return
+    }
+
     if (handler && typeof handler === 'function') {
       handler()
     }
@@ -45,40 +63,45 @@ export function AuthButton(props: AuthButton) {
   }
 
   return (
-    <button
-      type="button"
-      onClick={clickHandler}
-      disabled={!!isSocialLoginInProgress}
-      className="flex flex-col gap-1 items-center text-center disabled:cursor-default cursor-pointer hover:opacity-80"
-    >
-      <span
-        className="rounded-sm relative w-full bg-[var(--seq-color-button-glass)] gap-2 items-center text-style-normal font-bold inline-flex justify-center min-h-[3rem] py-2 px-3"
-        data-component="auth-button"
+    <>
+      <button
+        type="button"
+        onClick={clickHandler}
+        disabled={!!isSocialLoginInProgress}
+        className="flex flex-col gap-1 items-center text-center disabled:cursor-default cursor-pointer hover:opacity-80"
       >
-        {isSocialLoginInProgress === name ? (
-          <Spinner size="sm" />
-        ) : (
-          <span className="flex items-center gap-2">
-            <>{Icon ? <Icon /> : <Image src={image} width="48" className="size-7" />}</>
-            {mode === 'PRIMARY' ? <Text>Sign in with {title}</Text> : null}
-
-            {!available ? (
-              <Text
-                variant="xsmall"
-                color="primary"
-                className="ml-1 bg-background-secondary px-1 py-0.5 rounded-[5px]"
-              >
-                Coming in V3
-              </Text>
+        <span
+          className="rounded-sm relative w-full bg-[var(--seq-color-button-glass)] gap-2 items-center text-style-normal font-bold inline-flex justify-center min-h-[3rem] py-2 px-3"
+          data-component="auth-button"
+        >
+          {isSocialLoginInProgress === name ? (
+            <Spinner size="sm" />
+          ) : (
+            <span className="flex items-center gap-2">
+              <>{Icon ? <Icon /> : <Image src={image} width="48" className="size-7" />}</>
+              {mode === 'PRIMARY' ? <Text>Sign in with {title}</Text> : null}
+            </span>
+          )}
+        </span>
+        {mode === 'SECONDARY' ? (
+          <Text variant="small" color="secondary">
+            {title}
+          </Text>
+        ) : null}
+      </button>
+      {!available && showMessage ? (
+        <Modal scroll={false} autoHeight={true} onClose={() => setShowMessage(false)}>
+          <div className="size-full flex items-center justify-center flex-col gap-0.5 aspect-video">
+            {Icon ? (
+              <span className="size-16 flex items-center justify-center bg-gradient-primary rounded-full mb-4 shadow-[0_2px_64px_0_theme(colors.indigo-600)] ">
+                <Icon className="size-10" />
+              </span>
             ) : null}
-          </span>
-        )}
-      </span>
-      {mode === 'SECONDARY' ? (
-        <Text variant="small" color="secondary">
-          {title}
-        </Text>
+            <h2 className="text-xl font-semibold max-w-[320px] text-center">{connector.soonTitle}</h2>
+            <p className="text-secondary">{connector.soonTagline}</p>
+          </div>
+        </Modal>
       ) : null}
-    </button>
+    </>
   )
 }

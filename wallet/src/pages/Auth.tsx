@@ -242,7 +242,7 @@ export const Auth: React.FC = () => {
                       </>
                       <div className="mt-2">
                         <div className="flex flex-col gap-2">
-                          <div className="relative border border-border rounded-md w-full min-h-[3.25rem] flex items-stretch justify-end focus-within:ring-1 focus-within:border-border-focus ring-border-focus overflow-clip">
+                          <div className="relative isolate border border-border rounded-md w-full min-h-[3.25rem] flex items-stretch justify-end focus-within:ring-1 focus-within:border-border-focus ring-border-focus overflow-clip">
                             <input
                               name="email"
                               type="email"
@@ -262,7 +262,7 @@ export const Auth: React.FC = () => {
                               className="absolute w-full h-full p-4 outline-none placeholder:text-seq-grey-200 sm:text-style-normal font-medium"
                               data-id="loginEmail"
                             />
-                            <div className="flex items-center justify-center size-12 z-50  pointer-events-none">
+                            <div className="flex items-center justify-center size-12 z-50 pointer-events-none">
                               {emailAuthLoading ? (
                                 <Spinner />
                               ) : (
