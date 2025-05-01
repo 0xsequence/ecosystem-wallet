@@ -295,8 +295,6 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
         })
       }
 
-      console.log(txResponse)
-
       if (txResponse) {
         onSuccess()
 
