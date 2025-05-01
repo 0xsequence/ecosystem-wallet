@@ -38,11 +38,14 @@ import { WrappedInput } from './wrapped-input'
 import { TIME } from '../utils/time.const'
 import { TokenRecord } from '../pages/InventoryRoutes/types'
 import { CONTRACT_TYPES } from '../utils/normalize-balances'
+import { useWallets } from '@0xsequence/connect'
+import { useChainId, useSwitchChain, useWalletClient, useConfig as useWagmiConfig } from 'wagmi'
+import { toHex, encodeFunctionData } from 'viem'
 
 interface SendCoinProps {
   chainId: number
   balance: TokenRecord
-  onSuccess: (txnResponse: SentTransactionResponse) => void
+  onSuccess: (txnResponse?: SentTransactionResponse) => void
 }
 
 const SendCoinSkeleton = () => {
@@ -89,6 +92,15 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
   const [isCheckingFeeOptions, setIsCheckingFeeOptions] = useState(false)
   const isNativeCoin = isNativeCoinBalance(balance)
   const [selectedFeeTokenAddress, setSelectedFeeTokenAddress] = useState<string | null>(null)
+
+  const { wallets } = useWallets()
+  const { chains } = useWagmiConfig()
+  const { data: walletClient } = useWalletClient({ chainId })
+  const connectedChainId = useChainId()
+  const { switchChainAsync } = useSwitchChain()
+
+  const isCorrectChainId = connectedChainId === chainId
+  const activeWagmiWallet = wallets?.[0]
 
   const transactionsFeeOption = feeOptions?.feeOptions?.find(feeOption => {
     if (selectedFeeTokenAddress === ethers.ZeroAddress && feeOption.token.contractAddress === null)
@@ -177,9 +189,12 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
       }
 
       // Check fee options before showing confirmation
-      const feeOptionsResult = await checkTransactionFeeOptions({ transactions: [transaction], chainId })
 
-      setFeeOptions(feeOptionsResult)
+      if (!activeWagmiWallet) {
+        const feeOptionsResult = await checkTransactionFeeOptions({ transactions: [transaction], chainId })
+        setFeeOptions(feeOptionsResult)
+      }
+
       setShowConfirmation(true)
     } catch {
       // TODO error handling
@@ -189,10 +204,15 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
   }
 
   const executeTransaction = async () => {
-    try {
-      setIsSendTxnPending(true)
+    // Check if it's a Wagmi injected wallet
+    if (activeWagmiWallet && walletClient) {
+      return await executeWagmiTransaction()
+    }
 
-      let txResponse: MaySentTransactionResponse | undefined
+    setIsSendTxnPending(true)
+    let txResponse: MaySentTransactionResponse | undefined
+
+    try {
       if (isNativeCoin) {
         txResponse = await sequenceWaas.sendTransaction({
           transactions: [
@@ -215,6 +235,7 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
           transactionsFeeQuote: feeOptions?.feeQuote
         })
       }
+
       if (isSentTransactionResponse(txResponse)) {
         onSuccess(txResponse)
         toast({
@@ -230,6 +251,69 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
         })
       }
     } catch {
+      toast({
+        title: 'Transaction failed',
+        variant: 'error',
+        duration: TIME.SECOND * 1.5
+      })
+    } finally {
+      setIsSendTxnPending(false)
+    }
+  }
+
+  const executeWagmiTransaction = async () => {
+    if (!walletClient) {
+      throw new Error('No walletClient found')
+    }
+
+    let txResponse: `0x${string}`
+    setIsSendTxnPending(true)
+    try {
+      if (!isCorrectChainId) {
+        await switchChainAsync({ chainId })
+      }
+
+      if (isNativeCoin) {
+        console.log('Sending native coin via walletClient')
+        txResponse = await walletClient.sendTransaction({
+          account: activeWagmiWallet.address as `0x${string}`,
+          to: toAddress as `0x${string}`,
+          value: ethers.parseEther(amount),
+          chain: chains.find(c => c.id === chainId)
+        })
+      } else {
+        console.log('Sending ERC20 coin via walletClient')
+        txResponse = await walletClient.sendTransaction({
+          account: activeWagmiWallet.address as `0x${string}`,
+          to: contractAddress as `0x${string}`,
+          data: encodeFunctionData({
+            abi: ERC_20_ABI,
+            functionName: 'transfer',
+            args: [toAddress, toHex(amount)]
+          }),
+          chain: chains.find(c => c.id === chainId)
+        })
+      }
+
+      console.log(txResponse)
+
+      if (txResponse) {
+        onSuccess()
+
+        toast({
+          title: 'Transaction successful',
+          variant: 'success',
+          duration: TIME.SECOND * 1.5
+        })
+      } else {
+        toast({
+          title: 'Transaction failed',
+          variant: 'error',
+          duration: TIME.SECOND * 1.5
+        })
+      }
+    } catch (e) {
+      console.warn(e)
       toast({
         title: 'Transaction failed',
         variant: 'error',

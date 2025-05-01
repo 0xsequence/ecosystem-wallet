@@ -13,7 +13,7 @@ const walletConnectProjectId = 'c65a6cb1aa83c4e24500130f23a437d8'
 
 export const config = {
   projectAccessKey,
-  chainIds: [1, 137],
+  chainIds: [1, 137, 421614, 1946],
   defaultChainId: 1,
   appName: 'Ecosystemwallet',
   waasConfigKey,
