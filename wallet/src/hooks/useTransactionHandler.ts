@@ -140,7 +140,6 @@ export const useTransactionHandler = () => {
       throw new Error('User not signed in')
     }
 
-
     const nativeTokenBalance = await INDEXER_CLIENT_GATEWAY.getNativeTokenBalance({
       accountAddress: authState.address
     })
