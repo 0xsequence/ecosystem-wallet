@@ -30,7 +30,7 @@ export function AuthButton(props: AuthButton) {
   const { isSocialLoginInProgress, setIsSocialLoginInProgress } = useAuth()
   if (!Connectors.has(name)) return null
 
-  const { handler, title, image, Icon, Component } = Connectors.get(name)!
+  const { available, handler, title, image, Icon, Component } = Connectors.get(name)!
 
   function clickHandler() {
     if (handler && typeof handler === 'function') {
@@ -61,6 +61,16 @@ export function AuthButton(props: AuthButton) {
           <span className="flex items-center gap-2">
             <>{Icon ? <Icon /> : <Image src={image} width="48" className="size-7" />}</>
             {mode === 'PRIMARY' ? <Text>Sign in with {title}</Text> : null}
+
+            {!available ? (
+              <Text
+                variant="xsmall"
+                color="primary"
+                className="ml-1 bg-background-secondary px-1 py-0.5 rounded-[5px]"
+              >
+                Coming in V3
+              </Text>
+            ) : null}
           </span>
         )}
       </span>
