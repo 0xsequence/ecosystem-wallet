@@ -12,7 +12,7 @@ import {
 import { ExtendedConnector, useWallets } from '@0xsequence/connect'
 
 import { EmailConflictInfo } from '@0xsequence/waas'
-import React, { Fragment, SetStateAction, useEffect, useRef, useState } from 'react'
+import React, { SetStateAction, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 
 import { randomName } from '../utils/string'
@@ -223,8 +223,10 @@ export const Auth: React.FC = () => {
                 </div>
               ) : (
                 <div className="flex flex-col gap-4 mt-4">
-                  <AuthAppleGoogle />
-
+                  {/* <AuthAppleGoogle /> */}
+                  <AuthList />
+                  {THEME.auth.methods.guest ? <LoginGuest /> : null}
+                  <AuthGrid connectors={walletConnectors} onConnect={onConnect} />
                   {THEME.auth.methods.email ? (
                     <>
                       <div className="flex gap-4 items-center my-4">
@@ -276,16 +278,8 @@ export const Auth: React.FC = () => {
                           </p>
                         )}
                       </div>
-                      <AuthList />
-                      {THEME.auth.methods.guest ? <LoginGuest /> : null}
-                      <AuthGrid connectors={walletConnectors} onConnect={onConnect} />
                     </>
                   ) : null}
-                  {/* {THEME.auth.methods.guest ? (
-
-
-                      <LoginGuest />
-                  ) : null} */}
                 </div>
               )}
             </Card>
@@ -326,9 +320,9 @@ function AuthList() {
   }
 
   return (
-    <div className="flex *:flex-1 gap-2">
+    <div className="flex flex-col *:flex-1 gap-2">
       {entries
-        .filter(item => !['apple', 'google'].includes(item.toLowerCase()))
+        // .filter(item => !['apple', 'google'].includes(item.toLowerCase()))
         .map(method => (
           <AuthButton mode="PRIMARY" name={method} key={method} />
         ))}
@@ -336,23 +330,23 @@ function AuthList() {
   )
 }
 
-function AuthAppleGoogle() {
-  const entries = THEME.auth.methods.primary
+// function AuthAppleGoogle() {
+//   const entries = THEME.auth.methods.primary
 
-  if (!entries || entries.length < 1) {
-    return null
-  }
+//   if (!entries || entries.length < 1) {
+//     return null
+//   }
 
-  return (
-    <div className="flex *:flex-1 gap-2">
-      {entries
-        .filter(item => ['apple', 'google'].includes(item.toLowerCase()))
-        .map(method => (
-          <AuthButton mode="SECONDARY" name={method} key={method} />
-        ))}
-    </div>
-  )
-}
+//   return (
+//     <div className="flex *:flex-1 gap-2">
+//       {entries
+//         .filter(item => ['apple', 'google'].includes(item.toLowerCase()))
+//         .map(method => (
+//           <AuthButton mode="SECONDARY" name={method} key={method} />
+//         ))}
+//     </div>
+//   )
+// }
 
 function AuthGrid({
   connectors,

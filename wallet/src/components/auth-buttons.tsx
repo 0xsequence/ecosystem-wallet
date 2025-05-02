@@ -72,13 +72,13 @@ export function AuthButton(props: AuthButton) {
         className="flex flex-col gap-1 items-center text-center disabled:cursor-default cursor-pointer hover:opacity-80"
       >
         <span
-          className="rounded-md relative w-full bg-[var(--seq-color-button-glass)] gap-3 items-center text-style-normal font-bold inline-flex justify-start min-h-[3rem] py-2 px-3"
+          className="rounded-sm relative w-full bg-[var(--seq-color-button-glass)] gap-2 items-center text-style-normal font-bold inline-flex justify-center min-h-[3rem] py-2 px-3"
           data-component="auth-button"
         >
           {isSocialLoginInProgress === name ? (
-            <Spinner size="sm" className="self-center" />
+            <Spinner size="sm" />
           ) : (
-            <span className="flex items-center gap-3">
+            <span className="flex items-center gap-2">
               <>{Icon ? <Icon /> : <Image src={image} width="48" className="size-7" />}</>
               {mode === 'PRIMARY' ? <Text>Continue with {title}</Text> : null}
             </span>
