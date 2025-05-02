@@ -225,7 +225,7 @@ export const Auth: React.FC = () => {
                 <div className="flex flex-col gap-4 mt-4">
                   {/* <AuthAppleGoogle /> */}
                   <AuthList />
-                  {THEME.auth.methods.guest ? <LoginGuest /> : null}
+
                   <AuthGrid connectors={walletConnectors} onConnect={onConnect} />
                   {THEME.auth.methods.email ? (
                     <>
@@ -326,6 +326,7 @@ function AuthList() {
         .map(method => (
           <AuthButton mode="PRIMARY" name={method} key={method} />
         ))}
+      {THEME.auth.methods.guest ? <LoginGuest /> : null}
     </div>
   )
 }

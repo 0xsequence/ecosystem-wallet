@@ -32,13 +32,13 @@ export function LoginGuest() {
       className="flex flex-col gap-1 items-center text-center disabled:cursor-default cursor-pointer hover:opacity-80"
     >
       <span
-        className="rounded-md relative w-full bg-[var(--seq-color-button-glass)] gap-3 items-center text-style-normal font-bold inline-flex justify-start min-h-[3rem] py-2 px-4"
+        className="rounded-md relative w-full bg-[var(--seq-color-button-glass)] gap-3 items-center text-style-normal font-bold inline-flex justify-center min-h-[3rem] py-2 px-4"
         data-component="auth-button"
       >
         {status === 'pending' ? (
           <Spinner size="sm" className="mx-auto" />
         ) : (
-          <span className="flex items-center gap-3">
+          <span className="flex items-center gap-2">
             <ProfileIcon />
             <Text> Continue as a guest</Text>
           </span>
