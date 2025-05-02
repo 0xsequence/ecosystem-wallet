@@ -12,7 +12,7 @@ import {
 import { ExtendedConnector, useWallets } from '@0xsequence/connect'
 
 import { EmailConflictInfo } from '@0xsequence/waas'
-import React, { SetStateAction, useEffect, useRef, useState } from 'react'
+import React, { Fragment, SetStateAction, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 
 import { randomName } from '../utils/string'
@@ -372,7 +372,7 @@ function AuthGrid({
   return (
     <div className="grid gap-2" style={style}>
       {connectors.map(method => (
-        <ConnectButton connector={method} onConnect={onConnect} />
+        <ConnectButton key={method.id} connector={method} onConnect={onConnect} />
       ))}
     </div>
   )
