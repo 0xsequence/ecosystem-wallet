@@ -1,11 +1,8 @@
 @import 'tailwindcss';
 @import '@0xsequence/design-system/preset';
-@import './design-system-placeholder.css';
-/* @import './colors.css'; */
+@import './styles/design-system-placeholder.css';
 
-*,
-*::before,
-*::after {
+*, *: : before, *: : after {
   box-sizing: border-box;
 }
 
@@ -23,6 +20,55 @@
       transform: translateY(0);
     }
   }
+}
+
+/** Cover entire card with a clickable region
+  * https://adrianroselli.com/2020/02/block-links-cards-clickable-regions-etc.html
+  */
+.inherit-hitarea {
+  position: relative;
+}
+.inherit-hitarea a:first-of-type[href]::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.mask-horizontal {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    theme(colors.black/0%) 0%,
+    theme(colors.black/100%) 10%,
+    theme(colors.black/100%) 90%,
+    theme(colors.black/0%) 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    theme(colors.black/0%) 0%,
+    theme(colors.black/100%) 10%,
+    theme(colors.black/100%) 90%,
+    theme(colors.black/0%) 100%
+  );
+}
+
+.mask-vertical {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    theme(colors.black/0%) 0%,
+    theme(colors.black/100%) 10%,
+    theme(colors.black/100%) 90%,
+    theme(colors.black/0%) 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    theme(colors.black/0%) 0%,
+    theme(colors.black/100%) 10%,
+    theme(colors.black/100%) 90%,
+    theme(colors.black/0%) 100%
+  );
 }
 
 [data-theme='dark'] {
@@ -59,7 +105,7 @@
 [data-theme='light'] {
   --seq-color-background-secondary: theme(colors.black/5%);
   --seq-color-background-navigation: theme(colors.white/70%);
-  --seq-color-gradient-primary: linear-gradient(to bottom, theme(colors.black), theme(colors.black));
+  /* --seq-color-gradient-primary: linear-gradient(to bottom, theme(colors.black), theme(colors.black)); */
 }
 
 :root {
@@ -92,6 +138,39 @@
 button[aria-label='Close'] {
   @apply bg-black text-white;
 } */
+
+@utility scrollbar-none {
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  /* Hide scrollbar for IE, Edge and Firefox */
+
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+@utility scrollbar-progress-overflow-mask {
+  mask-image: linear-gradient(
+    to right,
+    theme(colors.black/0%) 0%,
+    theme(colors.black/100%) 2rem,
+    theme(colors.black/100%) calc(100% - 2rem),
+    theme(colors.black/0%) 100%
+  );
+}
+
+@utility scrollbar-start-overflow-mask {
+  mask-image: linear-gradient(
+    to right,
+    theme(colors.black/100%) calc(100% - 2rem),
+    theme(colors.black/0%) 100%
+  );
+}
+
+@utility scrollbar-end-overflow-mask {
+  mask-image: linear-gradient(to right, theme(colors.black/0%) 0%, theme(colors.black/100%) 2rem);
+}
 
 body {
   margin: 0;

@@ -4,11 +4,12 @@ import { Transaction, TxnTransfer } from '@0xsequence/indexer'
 import dayjs from 'dayjs'
 import { ethers } from 'ethers'
 import { useConfig } from '../../hooks/useConfig'
-import { useCoinPrices, useExchangeRate } from '../../hooks/useCoinPrices'
+import { useCoinPrices } from '../../hooks/useCoinPrices'
 import { CopyButton } from '../../components/CopyButton'
 import { formatDisplay, truncateAtMiddle } from '../../utils/helpers'
 import { useCollectiblePrices } from '../../hooks/useCollectiblePrices'
 import { ArrowRightIcon } from '../../design-system-patch/icons'
+import { useExchangeRate } from '../../hooks/useExchangeRate'
 import { useNativeToken } from '../../utils/nativeToken'
 
 function useCoinsAndCollectables(transaction: Transaction) {

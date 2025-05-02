@@ -7,11 +7,9 @@ import {
   NumericInput,
   Spinner,
   TextInput,
-  nativeTokenImageUrl,
   useToast
 } from '@0xsequence/design-system'
-import { NativeTokenBalance, TokenBalance } from '@0xsequence/indexer'
-import { ChainId, networks } from '@0xsequence/network'
+// import { TokenBalance } from '@0xsequence/indexer'
 import {
   MaySentTransactionResponse,
   SentTransactionResponse,
@@ -21,11 +19,12 @@ import {
 import { ethers } from 'ethers'
 import { ChangeEvent, SyntheticEvent, useRef, useState } from 'react'
 
-import { computeBalanceFiat, createNativeTokenBalance, isNativeCoinBalance } from '../utils/balance'
+import { computeBalanceFiat, isNativeCoinBalance } from '../utils/balance'
 import { isEthAddress, limitDecimals, truncateAtMiddle } from '../utils/helpers'
 import { TransactionFeeOptionsResult } from '../utils/txn'
 
-import { useCoinPrices, useExchangeRate } from '../hooks/useCoinPrices'
+import { useCoinPrices } from '../hooks/useCoinPrices'
+import { useExchangeRate } from '../hooks/useExchangeRate'
 import { useConfig } from '../hooks/useConfig'
 import { checkTransactionFeeOptions } from '../hooks/useTransactionHandler'
 
@@ -37,11 +36,16 @@ import { TransactionConfirmation } from './TransactionConfirmation'
 import { SendIcon } from '../design-system-patch/icons'
 import { WrappedInput } from './wrapped-input'
 import { TIME } from '../utils/time.const'
+import { TokenRecord } from '../pages/InventoryRoutes/types'
+import { CONTRACT_TYPES } from '../utils/normalize-balances'
+import { useWallets } from '@0xsequence/connect'
+import { useChainId, useSwitchChain, useWalletClient, useConfig as useWagmiConfig } from 'wagmi'
+import { toHex, encodeFunctionData } from 'viem'
 
 interface SendCoinProps {
   chainId: number
-  balance: NativeTokenBalance | TokenBalance
-  onSuccess: (txnResponse: SentTransactionResponse) => void
+  balance: TokenRecord
+  onSuccess: (txnResponse?: SentTransactionResponse) => void
 }
 
 const SendCoinSkeleton = () => {
@@ -89,6 +93,15 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
   const isNativeCoin = isNativeCoinBalance(balance)
   const [selectedFeeTokenAddress, setSelectedFeeTokenAddress] = useState<string | null>(null)
 
+  const { wallets } = useWallets()
+  const { chains } = useWagmiConfig()
+  const { data: walletClient } = useWalletClient({ chainId })
+  const connectedChainId = useChainId()
+  const { switchChainAsync } = useSwitchChain()
+
+  const isCorrectChainId = connectedChainId === chainId
+  const activeWagmiWallet = wallets?.[0]
+
   const transactionsFeeOption = feeOptions?.feeOptions?.find(feeOption => {
     if (selectedFeeTokenAddress === ethers.ZeroAddress && feeOption.token.contractAddress === null)
       return true
@@ -96,11 +109,8 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
     return feeOption.token.contractAddress === selectedFeeTokenAddress
   })
 
-  const contractAddress = isNativeCoin
-    ? ethers.ZeroAddress
-    : 'contractAddress' in balance
-    ? balance.contractAddress
-    : ethers.ZeroAddress
+  const contractAddress = balance.contractAddress
+  const accountAddress = balance.accountAddress
   const { data: coinPrices = [], isPending: isPendingCoinPrices } = useCoinPrices([
     {
       chainId,
@@ -118,36 +128,16 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
     return <SendCoinSkeleton />
   }
 
-  const {
-    name: nativeTokenName = 'Native Token',
-    symbol: nativeTokenSymbol = '???',
-    decimals: nativeTokenDecimals = 18
-  } = networks[chainId as ChainId].nativeToken
-
-  const decimals = isNativeCoin
-    ? nativeTokenDecimals
-    : ('contractInfo' in balance ? balance.contractInfo?.decimals : undefined) || 18
-  const name = isNativeCoin
-    ? nativeTokenName
-    : ('contractInfo' in balance ? balance.contractInfo?.name : undefined) || ''
-  const imageUrl = isNativeCoin
-    ? nativeTokenImageUrl(chainId)
-    : 'contractInfo' in balance
-    ? balance.contractInfo?.logoURI
-    : undefined
-  const symbol = isNativeCoin
-    ? nativeTokenSymbol
-    : ('contractInfo' in balance ? balance.contractInfo?.symbol : undefined) || ''
+  const decimals = balance.decimals
+  const name = balance.contractInfo?.name || ''
+  const imageUrl = balance.contractInfo?.logoURI
+  const symbol =
+    balance.contractType === CONTRACT_TYPES.NATIVE ? balance.symbol : balance.contractInfo?.symbol
   const amountToSendFormatted = amount === '' ? '0' : amount
   const amountRaw = ethers.parseUnits(amountToSendFormatted, decimals)
 
   const amountToSendFiat = computeBalanceFiat({
-    balance: isNativeCoin
-      ? createNativeTokenBalance(chainId, balance.accountAddress, amountRaw.toString())
-      : {
-          ...(balance as TokenBalance),
-          balance: amountRaw.toString()
-        },
+    balance,
     prices: coinPrices,
     conversionRate,
     decimals
@@ -190,7 +180,7 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
         }
       } else {
         transaction = {
-          to: balance?.accountAddress,
+          to: accountAddress,
           data: new ethers.Interface(ERC_20_ABI).encodeFunctionData('transfer', [
             toAddress,
             ethers.toQuantity(sendAmount)
@@ -199,9 +189,12 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
       }
 
       // Check fee options before showing confirmation
-      const feeOptionsResult = await checkTransactionFeeOptions({ transactions: [transaction], chainId })
 
-      setFeeOptions(feeOptionsResult)
+      if (!activeWagmiWallet) {
+        const feeOptionsResult = await checkTransactionFeeOptions({ transactions: [transaction], chainId })
+        setFeeOptions(feeOptionsResult)
+      }
+
       setShowConfirmation(true)
     } catch {
       // TODO error handling
@@ -211,10 +204,15 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
   }
 
   const executeTransaction = async () => {
-    try {
-      setIsSendTxnPending(true)
+    // Check if it's a Wagmi injected wallet
+    if (activeWagmiWallet && walletClient) {
+      return await executeWagmiTransaction()
+    }
 
-      let txResponse: MaySentTransactionResponse | undefined
+    setIsSendTxnPending(true)
+    let txResponse: MaySentTransactionResponse | undefined
+
+    try {
       if (isNativeCoin) {
         txResponse = await sequenceWaas.sendTransaction({
           transactions: [
@@ -229,7 +227,7 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
         })
       } else if ('contractAddress' in balance) {
         txResponse = await sequenceWaas.sendERC20({
-          token: balance.contractAddress,
+          token: contractAddress,
           to: toAddress,
           value: ethers.parseUnits(amountToSendFormatted, decimals),
           network: chainId,
@@ -237,6 +235,7 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
           transactionsFeeQuote: feeOptions?.feeQuote
         })
       }
+
       if (isSentTransactionResponse(txResponse)) {
         onSuccess(txResponse)
         toast({
@@ -262,6 +261,67 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
     }
   }
 
+  const executeWagmiTransaction = async () => {
+    if (!walletClient) {
+      throw new Error('No walletClient found')
+    }
+
+    let txResponse: `0x${string}`
+    setIsSendTxnPending(true)
+    try {
+      if (!isCorrectChainId) {
+        await switchChainAsync({ chainId })
+      }
+
+      if (isNativeCoin) {
+        console.log('Sending native coin via walletClient')
+        txResponse = await walletClient.sendTransaction({
+          account: activeWagmiWallet.address as `0x${string}`,
+          to: toAddress as `0x${string}`,
+          value: ethers.parseEther(amount),
+          chain: chains.find(c => c.id === chainId)
+        })
+      } else {
+        console.log('Sending ERC20 coin via walletClient')
+        txResponse = await walletClient.sendTransaction({
+          account: activeWagmiWallet.address as `0x${string}`,
+          to: contractAddress as `0x${string}`,
+          data: encodeFunctionData({
+            abi: ERC_20_ABI,
+            functionName: 'transfer',
+            args: [toAddress, toHex(amount)]
+          }),
+          chain: chains.find(c => c.id === chainId)
+        })
+      }
+
+      if (txResponse) {
+        onSuccess()
+
+        toast({
+          title: 'Transaction successful',
+          variant: 'success',
+          duration: TIME.SECOND * 1.5
+        })
+      } else {
+        toast({
+          title: 'Transaction failed',
+          variant: 'error',
+          duration: TIME.SECOND * 1.5
+        })
+      }
+    } catch (e) {
+      console.warn(e)
+      toast({
+        title: 'Transaction failed',
+        variant: 'error',
+        duration: TIME.SECOND * 1.5
+      })
+    } finally {
+      setIsSendTxnPending(false)
+    }
+  }
+
   return (
     <form
       data-txn-pending={isSendTxnPending ? true : undefined}
@@ -275,12 +335,10 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
               imageUrl={imageUrl}
               decimals={decimals}
               name={name}
-              symbol={symbol}
+              symbol={symbol as string}
               balance={balance?.balance || '0'}
               fiatValue={computeBalanceFiat({
-                balance: isNativeCoin
-                  ? createNativeTokenBalance(chainId, balance.accountAddress, balance.balance || '0')
-                  : (balance as TokenBalance),
+                balance,
                 prices: coinPrices,
                 conversionRate,
                 decimals
@@ -364,7 +422,7 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
               </div>
             ) : (
               <Button
-                className="flex-shrink-0 rounded-md w-full col-start-1 row-start-1  min-h-[3rem]"
+                className="flex-shrink-0 rounded-md w-full col-start-1 row-start-1 min-h-[3rem]"
                 width="full"
                 variant="primary"
                 type="submit"
@@ -380,7 +438,7 @@ export const SendCoin = ({ chainId, balance, onSuccess }: SendCoinProps) => {
       {showConfirmation && (
         <TransactionConfirmation
           name={name}
-          symbol={symbol}
+          symbol={symbol as string}
           imageUrl={imageUrl}
           amount={amountToSendFormatted}
           toAddress={toAddress}

@@ -29,6 +29,7 @@ import { useConfirmDialog } from './ConfirmDialogProvider'
 import { Receive } from './Receive'
 import { Transaction } from '@0xsequence/indexer'
 import { WalletConnect } from './WalletConnect'
+import { WalletsTotalBalance } from './WalletsTotalBalance'
 
 export const AccountMenu = () => {
   const isMobile = useMediaQuery('isMobile')
@@ -112,6 +113,8 @@ export const AccountMenu = () => {
                   <span className="sr-only">Close</span>
                 </button>
               </div>
+              <WalletsTotalBalance />
+
               <MenuButton
                 label="WalletConnect"
                 icon={WalletConnectIcon}
