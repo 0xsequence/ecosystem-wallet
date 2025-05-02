@@ -15,12 +15,14 @@ import {
   type DiscoverItem
 } from '../../data/discover_items'
 import { inert } from '../../utils/inert'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useFavorites } from '../../hooks/useFavorites'
 import { useWatchlist } from '../../hooks/useWatchlist'
 import { walletConnectStore } from '../../store/WalletConnectStore'
 import { useHorizontalScrollStatus } from '../../hooks/useHorizontalScrollStatus'
 import { THEME } from '../../utils/theme'
+import { usePrefersReducedMotion } from '../../hooks/use-prefers-reduced-motion'
+import { usePauseOnScroll } from '../../hooks/use-pause-on-scroll'
 
 const ALL_DISCOVER_CATEGORIES = [
   {
@@ -301,22 +303,36 @@ function WalletConnect({ item }: { item?: SessionViewProps['peerMetadata'] }) {
 function Hero() {
   const feature = THEME.discover_hero
   const watchlist = useWatchlist()
+  const prefersReducedMotion = usePrefersReducedMotion()
 
+  const videoRef = usePauseOnScroll()
   if (!feature) return null
 
   const item = DISCOVER_ITEMS.find(item => item.id === feature.id)
   if (!item) return null
 
-  const { id, title, src, tagline, href } = { ...item, ...feature }
+  const { id, title, video, src, tagline, href } = { ...item, ...feature }
 
   return (
     <div className="aspect-video bg-white/10 items-center justify-center grid grid-cols-1 grid-rows-1 *:col-start-1 *:row-start-1 rounded-xl overflow-hidden inherit-hitarea hover:opacity-80">
-      <img src={src} className="size-full object-cover pointer-events-none" />
+      {video ? (
+        <>
+          <video src={video} muted={true} autoPlay={!prefersReducedMotion} loop={true} ref={videoRef} />
+          <img src={src} className="mx-auto pointer-events-none max-w-[60%]" />
+        </>
+      ) : (
+        <img src={src} className="size-full object-cover pointer-events-none" />
+      )}
       <div className="flex items-end self-stretch text-white">
         <div className="flex bg-gradient-to-b from-black/30 shadow-[0_-1px_0_0_theme(colors.white/10%)] to-black/95 w-full  px-8 py-6  gap-4 justify-between">
           <div className="rounded-xl flex flex-col gap-1">
             <span className="font-bold text-xl">{title}</span>
-            <span className="text-sm text-secondary">{tagline}</span>
+            <span
+              className="text-sm data-[mode='light']:text-inverse data-[mode='dark']:text-secondary"
+              data-mode={THEME.mode}
+            >
+              {tagline}
+            </span>
           </div>
           {href ? (
             <a

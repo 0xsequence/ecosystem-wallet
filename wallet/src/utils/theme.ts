@@ -34,6 +34,7 @@ export type ThemeProps = {
     id: string
     src: string
     tagline: string
+    video?: string
   }
 }
 
@@ -50,7 +51,6 @@ function theme() {
   let discover_hero: ThemeProps['discover_hero'] | null = null
 
   try {
-    console.log(import.meta.env.VITE_DISCOVER_HERO)
     discover_hero = JSON.parse(import.meta.env.VITE_DISCOVER_HERO)
   } catch {
     //

@@ -95,10 +95,14 @@ export function AuthButton(props: AuthButton) {
           <div className="size-full flex items-center justify-center flex-col gap-0.5 aspect-video">
             {Icon ? (
               <span
-                className="size-16 flex items-center justify-center data-[mode='dark']:bg-gradient-primary data-[mode='light']:bg-white rounded-full mb-4 data-[mode='dark']:shadow-[0_2px_64px_0_theme(colors.indigo-300)] data-[mode='light']:shadow-[0_2px_64px_0_theme(colors.indigo-300)]"
-                data-mode={THEME.mode}
+                className="size-16 flex items-center justify-center
+                data-[mode='dark']:bg-gradient-primary
+                data-[mode='light']:bg-gradient-primary rounded-full mb-4
+                data-[mode='dark']:shadow-[0_2px_64px_0_theme(colors.indigo-300)]
+                data-[mode='light']:shadow-[0_2px_64px_0_theme(colors.indigo-300)]"
+                data-mode={THEME.auth.theme}
               >
-                <Icon className="size-10 " />
+                <Icon className="size-10 data-[mode='light']:text-inverse" data-mode={THEME.auth.theme} />
               </span>
             ) : null}
             <h2 className="text-xl font-semibold max-w-[320px] text-center">{connector.soonTitle}</h2>

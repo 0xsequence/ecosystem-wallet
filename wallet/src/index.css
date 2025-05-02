@@ -105,7 +105,7 @@
 [data-theme='light'] {
   --seq-color-background-secondary: theme(colors.black/5%);
   --seq-color-background-navigation: theme(colors.white/70%);
-  --seq-color-gradient-primary: linear-gradient(to bottom, theme(colors.black), theme(colors.black));
+  /* --seq-color-gradient-primary: linear-gradient(to bottom, theme(colors.black), theme(colors.black)); */
 }
 
 :root {
