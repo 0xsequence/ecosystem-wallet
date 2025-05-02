@@ -116,7 +116,6 @@ export const Auth: React.FC = () => {
   const pendingConnectionEventData: PendingConnectionEventData =
     pendingEvent?.data as PendingConnectionEventData
   useEffect(() => {
-    console.log(authState)
     if (authState.status === 'signedIn') {
       navigate(ROUTES.HOME)
     }
@@ -192,9 +191,6 @@ export const Auth: React.FC = () => {
                       )}
                     </span>
                   </div>
-
-                  <AuthList />
-                  <AuthGrid connectors={walletConnectors} onConnect={onConnect} />
                 </>
               )}
               {sendChallengeAnswer ? (
@@ -226,80 +222,71 @@ export const Auth: React.FC = () => {
                   </div>
                 </div>
               ) : (
-                <>
+                <div className="flex flex-col gap-4 mt-4">
+                  <AuthAppleGoogle />
+
                   {THEME.auth.methods.email ? (
                     <>
-                      <>
-                        {!THEME.auth.methods.guest ? (
-                          <div className="flex gap-4 items-center">
-                            <Divider className="flex-1 bg-[var(--color-background-raised)]" />
-                            <Text variant="small" fontWeight="bold" color="primary">
-                              or
-                            </Text>
-                            <Divider className="flex-1 bg-[var(--color-background-raised)]" />
-                          </div>
-                        ) : null}
-                      </>
-                      <div className="mt-2">
-                        <div className="flex flex-col gap-2">
-                          <div className="relative isolate border border-border rounded-md w-full min-h-[3.25rem] flex items-stretch justify-end focus-within:ring-1 focus-within:border-border-focus ring-border-focus overflow-clip">
-                            <input
-                              name="email"
-                              type="email"
-                              onChange={(ev: { target: { value: SetStateAction<string> } }) => {
-                                setEmail(ev.target.value)
-                              }}
-                              ref={inputRef}
-                              onKeyDown={(ev: { key: string }) => {
-                                if (email && ev.key === 'Enter') {
-                                  initiateEmailAuth(email)
-                                }
-                              }}
-                              onBlur={() => setEmailWarning(!!email && !isEmailInputValid)}
-                              value={email}
-                              placeholder="Email address"
-                              required
-                              className="absolute w-full h-full p-4 outline-none placeholder:text-seq-grey-200 sm:text-style-normal font-medium"
-                              data-id="loginEmail"
-                            />
-                            <div className="flex items-center justify-center size-12 z-50 pointer-events-none">
-                              {emailAuthLoading ? (
-                                <Spinner />
-                              ) : (
-                                <button
-                                  type="button"
-                                  disabled={!isEmailInputValid}
-                                  onClick={() => initiateEmailAuth(email)}
-                                  className="size-8 pointer-events-auto disabled:opacity-25 rounded-full flex items-center justify-center bg-button-glass"
-                                >
-                                  <ArrowRightIcon />
-                                </button>
-                              )}
-                            </div>
-                          </div>
-                          {showEmailWarning && (
-                            <p className="text-negative text-sm font-medium">
-                              Please enter a valid email address
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </>
-                  ) : null}
-                  {THEME.auth.methods.guest ? (
-                    <>
-                      <div className="flex gap-4 items-center">
-                        <Divider className="flex-1 bg-[var(--color-background-raised)]" />
+                      <div className="flex gap-4 items-center my-4">
+                        <Divider className="flex-1 bg-[var(--color-background-raised)] my-0" />
                         <Text variant="small" fontWeight="bold" color="primary">
                           or
                         </Text>
-                        <Divider className="flex-1 bg-[var(--color-background-raised)]" />
+                        <Divider className="flex-1 bg-[var(--color-background-raised)] my-0" />
                       </div>
-
-                      <LoginGuest />
+                      <div className="flex flex-col gap-2">
+                        <div className="relative isolate border border-background-raised rounded-md w-full min-h-[3.25rem] flex items-stretch justify-end focus-within:ring-1 focus-within:border-border-focus ring-border-focus overflow-clip">
+                          <input
+                            name="email"
+                            type="email"
+                            onChange={(ev: { target: { value: SetStateAction<string> } }) => {
+                              setEmail(ev.target.value)
+                            }}
+                            ref={inputRef}
+                            onKeyDown={(ev: { key: string }) => {
+                              if (email && ev.key === 'Enter') {
+                                initiateEmailAuth(email)
+                              }
+                            }}
+                            onBlur={() => setEmailWarning(!!email && !isEmailInputValid)}
+                            value={email}
+                            placeholder="Email address"
+                            required
+                            className="absolute w-full h-full p-4 outline-none placeholder:text-seq-grey-200 sm:text-style-normal font-medium"
+                            data-id="loginEmail"
+                          />
+                          <div className="flex items-center justify-center size-12 z-50 pointer-events-none">
+                            {emailAuthLoading ? (
+                              <Spinner />
+                            ) : (
+                              <button
+                                type="button"
+                                disabled={!isEmailInputValid}
+                                onClick={() => initiateEmailAuth(email)}
+                                className="size-8 pointer-events-auto disabled:opacity-25 rounded-full flex items-center justify-center bg-button-glass"
+                              >
+                                <ArrowRightIcon />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                        {showEmailWarning && (
+                          <p className="text-negative text-sm font-medium">
+                            Please enter a valid email address
+                          </p>
+                        )}
+                      </div>
+                      <AuthList />
+                      {THEME.auth.methods.guest ? <LoginGuest /> : null}
+                      <AuthGrid connectors={walletConnectors} onConnect={onConnect} />
                     </>
                   ) : null}
-                </>
+                  {/* {THEME.auth.methods.guest ? (
+
+
+                      <LoginGuest />
+                  ) : null} */}
+                </div>
               )}
             </Card>
           </AuthCoverWrapper>
@@ -339,10 +326,30 @@ function AuthList() {
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      {entries.map(method => (
-        <AuthButton mode="PRIMARY" name={method} key={method} />
-      ))}
+    <div className="flex *:flex-1 gap-2">
+      {entries
+        .filter(item => !['apple', 'google'].includes(item.toLowerCase()))
+        .map(method => (
+          <AuthButton mode="PRIMARY" name={method} key={method} />
+        ))}
+    </div>
+  )
+}
+
+function AuthAppleGoogle() {
+  const entries = THEME.auth.methods.primary
+
+  if (!entries || entries.length < 1) {
+    return null
+  }
+
+  return (
+    <div className="flex *:flex-1 gap-2">
+      {entries
+        .filter(item => ['apple', 'google'].includes(item.toLowerCase()))
+        .map(method => (
+          <AuthButton mode="SECONDARY" name={method} key={method} />
+        ))}
     </div>
   )
 }
@@ -361,12 +368,6 @@ function AuthGrid({
         : `repeat(${connectors.length}, 1fr)`
       : '1'
   } as React.CSSProperties
-
-  // const entries = THEME.auth.methods.secondary
-
-  // if (!entries || entries.length < 1) {
-  //   return null
-  // }
 
   return (
     <div className="grid gap-2" style={style}>

@@ -1,7 +1,6 @@
 import { randomName } from '../utils/string'
-import { Spinner } from '@0xsequence/design-system'
+import { ProfileIcon, Spinner, Text } from '@0xsequence/design-system'
 
-import clsx from 'clsx'
 import { sequenceWaas } from '../waasSetup'
 import { useUser } from '../hooks/user-provider'
 import { useAuth } from '../context/AuthContext'
@@ -26,43 +25,25 @@ export function LoginGuest() {
   }
 
   return (
-    <div className="grid grid-cols-1 grid-rows-1">
+    <button
+      type="button"
+      onClick={handleGuest}
+      data-status={status}
+      className="flex flex-col gap-1 items-center text-center disabled:cursor-default cursor-pointer hover:opacity-80"
+    >
       <span
-        data-status={status}
-        className={clsx([
-          'col-start-1 row-start-1 items-center justify-center text-sm inline-flex gap-2 relative',
-          'translate-y-2 opacity-0 transition-all duration-300',
-          "data-[status='idle']:invisible data-[status='idle']:z-[-1] data-[status='idle']:pointer-events-none",
-          "data-[status='pending']:translate-y-0 data-[status='pending']:opacity-100"
-        ])}
+        className="rounded-md relative w-full bg-[var(--seq-color-button-glass)] gap-3 items-center text-style-normal font-bold inline-flex justify-start min-h-[3rem] py-2 px-4"
+        data-component="auth-button"
       >
-        <Spinner size="sm" />
-        Connecting
+        {status === 'pending' ? (
+          <Spinner size="sm" className="mx-auto" />
+        ) : (
+          <span className="flex items-center gap-3">
+            <ProfileIcon />
+            <Text> Continue as a guest</Text>
+          </span>
+        )}
       </span>
-
-      <span
-        data-status={status}
-        className={clsx([
-          'col-start-1 row-start-1 items-center justify-center text-sm inline-flex gap-2 relative',
-          'translate-y-2 opacity-0 transition-all duration-300',
-          "data-[status='idle']:invisible data-[status='idle']:z-[-1] data-[status='idle']:pointer-events-none",
-          "data-[status='connected']:translate-y-0 data-[status='connected']:opacity-100"
-        ])}
-      >
-        {/* <span className="flex items-center justify-center size-3 bg-green-500 rounded-full">
-            <Svg name="Checkmark" className="size-2.5" />
-          </span>{" "} */}
-        Connected
-      </span>
-
-      <button
-        type="button"
-        onClick={handleGuest}
-        data-status={status}
-        className="text-sm col-start-1 row-start-1 data-[status='pending']:opacity-0 data-[status='pending']:-translate-y-2 data-[status='connected']:opacity-0 data-[status='connected']:-translate-y-2 transition-all duration-300 underline text-style-normal cursor-pointer"
-      >
-        Continue as a guest
-      </button>
-    </div>
+    </button>
   )
 }

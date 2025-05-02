@@ -72,7 +72,7 @@ export function AppleAuthButton({ mode = 'PRIMARY' }: { mode: 'PRIMARY' | 'SECON
       className="flex flex-col gap-1 items-center text-center disabled:cursor-default cursor-pointer hover:opacity-80"
       data-component="auth-button"
     >
-      <span className="rounded-sm w-full relative bg-[var(--seq-color-button-glass)] gap-2 items-center text-style-normal font-bold inline-flex justify-center min-h-[3rem] py-2 px-3">
+      <span className="rounded-md w-full relative bg-[var(--seq-color-button-glass)] gap-2 items-center text-style-normal font-bold inline-flex justify-center min-h-[3rem] py-2 px-3">
         {isSocialLoginInProgress === 'apple' ? (
           <Spinner size="sm" />
         ) : (
@@ -82,11 +82,11 @@ export function AppleAuthButton({ mode = 'PRIMARY' }: { mode: 'PRIMARY' | 'SECON
           </>
         )}
       </span>
-      {mode === 'SECONDARY' ? (
+      {/* {mode === 'SECONDARY' ? (
         <Text variant="small" color="secondary">
           Apple
         </Text>
-      ) : null}
+      ) : null} */}
     </button>
   )
 }
