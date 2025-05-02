@@ -15,7 +15,7 @@ import {
   type DiscoverItem
 } from '../../data/discover_items'
 import { inert } from '../../utils/inert'
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { useFavorites } from '../../hooks/useFavorites'
 import { useWatchlist } from '../../hooks/useWatchlist'
 import { walletConnectStore } from '../../store/WalletConnectStore'
