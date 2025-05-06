@@ -5,7 +5,6 @@ import { Tooltip } from '@0xsequence/design-system'
 
 function Logo({ walletProps }: { walletProps: WalletProperties }) {
   const Logo = THEME.mode === 'light' ? walletProps.logoLight : walletProps.logoDark
-  console.log(walletProps.id)
   switch (walletProps.id) {
     case 'wallet-connect':
       return <img src="/WalletConnectSquareColorIcon.svg" className="size-8" />

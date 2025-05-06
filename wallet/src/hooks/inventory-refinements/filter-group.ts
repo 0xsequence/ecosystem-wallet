@@ -20,7 +20,6 @@ export function group(values?: TokenRecords, arg?: string | string[]): TokenReco
   return groups
     .filter(item => isTokenGroupRecord(item))
     .filter(item => {
-      console.log('item', item)
       const groupName = item?.group
 
       return typeof groupName === 'string' && args.includes(groupName)

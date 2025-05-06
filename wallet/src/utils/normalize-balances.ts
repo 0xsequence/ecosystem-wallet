@@ -23,8 +23,10 @@ export function normalizeBalances(data: Awaited<ReturnType<typeof getTokenBalanc
   const set = new Set()
 
   // Omit null balances
-  const balances = data.balances.filter(chain => chain.results.length > 0)
-  const nativeBalances = data.nativeBalances.filter(chain => chain.results?.[0].balance !== '0')
+  const balances = data.balances.filter(chain => chain.results?.length > 0)
+  const nativeBalances = data.nativeBalances.filter(
+    chain => chain.results.length && chain.results?.[0].balance !== '0'
+  )
 
   // Flatten
   balances
