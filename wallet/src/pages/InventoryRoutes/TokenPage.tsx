@@ -1,4 +1,4 @@
-import { Link, useLocation, useParams } from 'react-router'
+import { Link, useLocation, useNavigate, useParams } from 'react-router'
 
 import { HeartIcon, SendIcon } from '../../design-system-patch/icons'
 import { useInventory } from '../../hooks/use-inventory'
@@ -29,7 +29,7 @@ import { TOKEN_TYPES } from '../../utils/normalize-balances'
 import { useFetchInventory } from './helpers/use-fetch-inventory'
 import { CONTRACT_TYPES } from './constants'
 import { SendTokens } from './components/SendTokens'
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 
 interface TokenContext {
   sendModal: boolean
@@ -54,7 +54,16 @@ export function InventoryTokenRoute() {
     filter: { uuid: `${chainId}::${contractAddress}::${tokenId}` }
   })
 
+  const navigate = useNavigate()
+
   const item = inventory.records?.[0]
+
+  useEffect(() => {
+    if (!item || isTokenGroupRecord(item)) {
+      navigate('/')
+    }
+  }, [item])
+
   if (!item || isTokenGroupRecord(item)) return null
 
   return (

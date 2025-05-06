@@ -29,7 +29,7 @@ function parseChainItems<T>(envVar: string | undefined): T | undefined {
 
     return parsed
   } catch (e) {
-    console.error('Failed to parse VITE_DISCOVER_ITEMS:', e)
+    console.error('Failed to parse VITE_CHAIN_ITEMS:', e)
     return undefined
   }
 }
