@@ -109,12 +109,11 @@ export const DiscoverPage = () => {
     <>
       {' '}
       <div className="flex flex-col gap-4 w-full max-w-screen-lg px-8 mx-auto py-8">
-        <VisitHistory />
-
         <Hero />
 
+        <VisitHistory />
         <div
-          className="flex gap-2 py-6 overflow-scroll scrollbar-none data-[scroll-end]:scrollbar-end-overflow-mask data-[scroll-start]:scrollbar-start-overflow-mask data-[scroll-progress]:scrollbar-progress-overflow-mask"
+          className="flex gap-2 mb-4 overflow-scroll scrollbar-none data-[scroll-end]:scrollbar-end-overflow-mask data-[scroll-start]:scrollbar-start-overflow-mask data-[scroll-progress]:scrollbar-progress-overflow-mask"
           ref={scroll.ref}
           {...scroll.attributes}
         >
@@ -331,7 +330,10 @@ function VisitHistory() {
     .filter(Boolean)
 
   return (
-    <div className="inert:hidden inert:mb-0 mb-4 block" {...{ inert: watchlist.isEmpty() ? '' : undefined }}>
+    <div
+      className="inert:hidden inert:mb-0 mb-4 block border-b border-border-normal/20 pb-8"
+      {...{ inert: watchlist.isEmpty() ? '' : undefined }}
+    >
       <div className="flex flex-col mt-2 sm:py-0 gap-4">
         <div className="flex justify-start items-center gap-4">
           <h2 className="text-sm font-bold">History</h2>
