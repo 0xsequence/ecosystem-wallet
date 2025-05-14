@@ -14,7 +14,6 @@ import {
   type ChainItem,
   type DiscoverItem
 } from '../../data/discover_items'
-import { inert } from '../../utils/inert'
 import { useState } from 'react'
 import { useFavorites } from '../../hooks/useFavorites'
 import { useWatchlist } from '../../hooks/useWatchlist'
@@ -85,12 +84,6 @@ export const DiscoverPage = () => {
     .filter(s => s.expiry * 1000 > Date.now())
     .map(s => mapSessionToView(s as SessionTypes.Struct))
 
-  const watchlist = useWatchlist()
-  const watchlistItems = watchlist
-    .items()
-    ?.map(item => DISCOVER_ITEMS.find(d => (d.id ? d.id === item : false)))
-    .filter(Boolean)
-
   const favorites = useFavorites()
   const favoriteItems =
     favorites
@@ -115,39 +108,12 @@ export const DiscoverPage = () => {
   return (
     <>
       {' '}
-      <div className="flex flex-col gap-4 w-full max-w-screen-lg mx-auto mt-2 sm:mt-18 sm:px-2 p-8 sm:py-0 mb-16">
+      <div className="flex flex-col gap-4 w-full max-w-screen-lg px-8 mx-auto py-8">
         <Hero />
 
+        <VisitHistory />
         <div
-          className="grid grid-rows-[0fr] data-[show='true']:grid-rows-[1fr] transition-all overflow-clip"
-          data-show={!watchlist.isEmpty()}
-        >
-          <div
-            className="flex min-h-0 data-[closed]:opacity-0 data-[closed]:scale-95 data-[closed]:translate-y-2"
-            {...inert(watchlist.isEmpty())}
-          >
-            <div className="flex flex-col w-full max-w-screen-lg mx-auto mt-2 sm:mt-18 sm:px-2 p-8 sm:py-0 mb-16 gap-4">
-              <div className="flex justify-start items-center gap-4">
-                <h2 className="text-xl font-bold">History</h2>
-                <button
-                  type="button"
-                  className="text-sm underline cursor-pointer opacity-60"
-                  onClick={() => watchlist.clear()}
-                >
-                  Clear
-                </button>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-5 gap-4 ">
-                {watchlistItems?.map(item => (
-                  <DiscoverItem item={item} key={item?.title} direct />
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div
-          className="flex gap-2 py-6 overflow-scroll scrollbar-none data-[scroll-end]:scrollbar-end-overflow-mask data-[scroll-start]:scrollbar-start-overflow-mask data-[scroll-progress]:scrollbar-progress-overflow-mask"
+          className="flex gap-2 mb-4 overflow-scroll scrollbar-none data-[scroll-end]:scrollbar-end-overflow-mask data-[scroll-start]:scrollbar-start-overflow-mask data-[scroll-progress]:scrollbar-progress-overflow-mask"
           ref={scroll.ref}
           {...scroll.attributes}
         >
@@ -195,7 +161,7 @@ function ItemChains({ chains }: { chains?: string[] }) {
   const chainItems = chains.map(chain => DISCOVER_CHAINS[chain]).filter(Boolean) as ChainItem[]
 
   return (
-    <div className="flex gap-1 px-4 mt-2">
+    <div className="flex gap-1">
       {chainItems.splice(0, 5).map(chain => (
         <div key={chain.name} className="size-4 flex-shrink-0">
           <Image
@@ -228,7 +194,7 @@ function DiscoverItem({ item, direct = false }: { item?: (typeof DISCOVER_ITEMS)
       data-href="inherit"
       className="bg-background-secondary backdrop-blur-2xl text-primary rounded-lg flex flex-col font-bold text-sm overflow-clip hover:scale-102 focus-within:scale-102 focus-within:ring-2 focus-within:ring-blue-600 transition-transform self-stretch"
     >
-      {item.img ? <Image src={item.img} className="object-cover size-full aspect-square" /> : null}
+      {item.img ? <Image src={item.img} className="object-cover size- aspect-square" /> : null}
       <div className="py-4 flex flex-col">
         {direct && item.href ? (
           <a
@@ -262,7 +228,9 @@ function DiscoverItem({ item, direct = false }: { item?: (typeof DISCOVER_ITEMS)
 
           {favorites.has(item.id) ? <HeartIcon className="size-4" /> : null}
         </span>
-        <ItemChains chains={item.chains} />
+        <div className=" px-4 mt-2">
+          <ItemChains chains={item.chains} />
+        </div>
       </div>
     </div>
   )
@@ -347,6 +315,86 @@ function Hero() {
             </a>
           ) : null}
         </div>
+      </div>
+    </div>
+  )
+}
+
+function VisitHistory() {
+  const scroll = useHorizontalScrollStatus<HTMLDivElement>()
+
+  const watchlist = useWatchlist()
+  const watchlistItems = watchlist
+    .items()
+    ?.map(item => DISCOVER_ITEMS.find(d => (d.id ? d.id === item : false)))
+    .filter(Boolean)
+
+  return (
+    <div
+      className="inert:hidden inert:mb-0 mb-4 block border-b border-border-normal/20 pb-8"
+      {...{ inert: watchlist.isEmpty() ? '' : undefined }}
+    >
+      <div className="flex flex-col mt-2 sm:py-0 gap-4">
+        <div className="flex justify-start items-center gap-4">
+          <h2 className="text-sm font-bold">History</h2>
+          <button
+            type="button"
+            className="text-sm underline cursor-pointer opacity-60"
+            onClick={() => watchlist.clear()}
+          >
+            Clear
+          </button>
+        </div>
+
+        <div
+          className="overflow-scroll scrollbar-none data-[scroll-end]:scrollbar-end-overflow-mask data-[scroll-start]:scrollbar-start-overflow-mask
+          data-[scroll-progress]:scrollbar-progress-overflow-mask w-full flex flex-nowrap *:w-[256px] *:flex-shrink-0 gap-2"
+          ref={scroll.ref}
+          {...scroll.attributes}
+        >
+          {/* <div className="flex flex-nowrap grid-rows-1 gap-2 *:w-[256px] *:flex-shrink-0 w-full"> */}
+          {watchlistItems?.map(item => (
+            <HistoryItem item={item} key={item?.title} direct />
+          ))}
+          {/* </div> */}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function HistoryItem({ item, direct = false }: { item?: (typeof DISCOVER_ITEMS)[0]; direct?: boolean }) {
+  const watchlist = useWatchlist()
+  if (!item) {
+    return null
+  }
+
+  return (
+    <div
+      data-href="inherit"
+      className="bg-background-secondary  text-primary rounded-lg grid grid-cols-4 font-bold text-sm overflow-clip hover:scale-102 focus-within:scale-102 focus-within:ring-2 focus-within:ring-blue-600 transition-transform"
+    >
+      {item.img ? <Image src={item.img} className="object-cover size-full aspect-square" /> : null}
+
+      <div className="py-4 flex flex-col col-span-3 justify-center">
+        {direct && item.href ? (
+          <a
+            href={item.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex gap-1 justify-between items-center px-4"
+            onClick={direct ? () => watchlist.add(item.id as string) : undefined}
+          >
+            {item.title}
+            <ExternalLinkIcon className="size-4" />
+          </a>
+        ) : item.id ? (
+          <Link to={discoverRouteById(item.id)} className="px-4 outline-none">
+            {item.title}
+          </Link>
+        ) : (
+          <span className="px-4">{item.title}</span>
+        )}
       </div>
     </div>
   )

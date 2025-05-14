@@ -33,7 +33,7 @@ export function WalletHandlerRequestModal({ variant = 'default' }: { variant?: '
   }, [transactionRequest, connectionRequest, signRequest, navigate, isPopup, variant])
 
   return (
-    <div className="flex flex-col flex-1 items-center justify-center w-full">
+    <div className="flex flex-col flex-1 items-center justify-center w-full sm:bg-background-secondary mx-auto">
       <AnimatePresence>
         {isPopup && allHandlersRegistered && !connectionRequest && !transactionRequest && !signRequest && (
           <motion.div
@@ -46,10 +46,10 @@ export function WalletHandlerRequestModal({ variant = 'default' }: { variant?: '
           </motion.div>
         )}
       </AnimatePresence>
-      <div className="flex flex-col flex-1 items-center justify-start w-full">
+      <div className="flex flex-col flex-1 items-center justify-start w-full sm:justify-center">
         <AnimatePresence>
           <motion.div
-            className="w-full flex-col flex-1 flex"
+            className="w-full flex-col max-w-[32rem] sm:my-12 mx-auto max-sm:flex-1 flex sm:min-h-[42rem] sm:bg-background-primary sm:shadow-2xl sm:rounded-xl sm:p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
