@@ -280,11 +280,6 @@ packages:
     peerDependencies:
       ethers: '>=6'
 
-  '@0xsequence/utils@2.3.18':
-    resolution: {integrity: sha512-jX7+wowX7OLy8ZhnDofpoApKdJmuTBZZ1TEbbVVJT2wbz9zlyHDKMud9SRhmaWGn1VgPcreEX/vvjlKJ/h5n2A==}
-    peerDependencies:
-      ethers: '>=6'
-
   '@0xsequence/waas@2.3.10':
     resolution: {integrity: sha512-5+ZadB0tgJWlJAYMEG612oBlZpYayflsC0MHeESjcK2HyASwYyL5uGapPcd005exi/8V6Y6CoNgu1y6SbXruXw==}
     peerDependencies:
@@ -4195,7 +4190,7 @@ snapshots:
       '@0xsequence/metadata': 2.3.10
       '@0xsequence/network': 2.3.10(ethers@6.13.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       '@0xsequence/provider': 2.3.10(ethers@6.13.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))
-      '@0xsequence/utils': 2.3.18(ethers@6.13.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+      '@0xsequence/utils': 2.3.10(ethers@6.13.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       '@0xsequence/waas': 2.3.10(ethers@6.13.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       '@databeat/tracker': 0.9.3
       '@react-oauth/google': 0.12.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4338,11 +4333,6 @@ snapshots:
       ethers: 6.13.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
 
   '@0xsequence/utils@2.3.10(ethers@6.13.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))':
-    dependencies:
-      ethers: 6.13.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      js-base64: 3.7.7
-
-  '@0xsequence/utils@2.3.18(ethers@6.13.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))':
     dependencies:
       ethers: 6.13.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       js-base64: 3.7.7
