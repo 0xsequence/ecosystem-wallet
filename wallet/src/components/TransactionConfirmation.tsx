@@ -62,8 +62,10 @@ const useFeeOptionBalances = (feeOptions: TransactionConfirmationProps['feeOptio
             balance:
               tokenBalances.balances
                 .find(b => b.chainId === chainId)
-                ?.results.find(result => result.contractAddress === option.token.contractAddress)?.balance ||
-              '0'
+                ?.results.find(
+                  result =>
+                    result.contractAddress.toLowerCase() === option.token.contractAddress?.toLowerCase()
+                )?.balance || '0'
           }
         }
       })
