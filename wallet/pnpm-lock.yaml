@@ -113,9 +113,6 @@ importers:
       wagmi:
         specifier: ^2.15.1
         version: 2.15.1(@tanstack/query-core@5.74.9)(@tanstack/react-query@5.74.11(react@18.3.1))(@types/react@18.3.20)(bufferutil@4.0.9)(react@18.3.1)(typescript@5.8.3)(utf-8-validate@5.0.10)(viem@2.28.1(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.22.4))(zod@3.22.4)
-      web-sdk:
-        specifier: github:0xsequence/web-sdk
-        version: https://codeload.github.com/0xsequence/web-sdk/tar.gz/d6b2d26fbe569df4bee46a36951e4a54427bcd57
     devDependencies:
       '@eslint/js':
         specifier: ^9.25.1
@@ -3990,10 +3987,6 @@ packages:
     peerDependenciesMeta:
       typescript:
         optional: true
-
-  web-sdk@https://codeload.github.com/0xsequence/web-sdk/tar.gz/d6b2d26fbe569df4bee46a36951e4a54427bcd57:
-    resolution: {tarball: https://codeload.github.com/0xsequence/web-sdk/tar.gz/d6b2d26fbe569df4bee46a36951e4a54427bcd57}
-    version: 0.0.0
 
   webextension-polyfill@0.10.0:
     resolution: {integrity: sha512-c5s35LgVa5tFaHhrZDnr3FpQpjj1BB+RXhLTYUxGqBVN460HkbM8TBtEqdXWbpTKfzwCcjAZVF7zXCYSKtcp9g==}
@@ -9063,8 +9056,6 @@ snapshots:
       - uploadthing
       - utf-8-validate
       - zod
-
-  web-sdk@https://codeload.github.com/0xsequence/web-sdk/tar.gz/d6b2d26fbe569df4bee46a36951e4a54427bcd57: {}
 
   webextension-polyfill@0.10.0: {}
 
